@@ -3,6 +3,7 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -10,6 +11,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
+import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Vector;
@@ -140,7 +142,12 @@ class MapPanel extends JPanel {
 
 	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
+		
 		private static final Color COLOR_AXIS = new Color(0x70000000,true);
+		private static final Color COLOR_TOOLTIP_BORDER     = COLOR_AXIS;
+		private static final Color COLOR_TOOLTIP_BACKGORUND = new Color(0xFFFFE9);
+		private static final Color COLOR_TOOLTIP_TEXT       = Color.BLACK;
+		
 		private static final int NEAREST_OBJECT_MAX_DIST = 15;
 		
 		private final Vector<WorldObject> displayableObjects;
@@ -153,6 +160,7 @@ class MapPanel extends JPanel {
 		private final JTextArea textOut;
 		private String highlightedObjType;
 		private WorldObject highlightedObject;
+		private ToolTipBox toolTipBox;
 
 		MapView(Vector<WorldObject> worldObjects, OverView overView, JTextArea textOut) {
 			this.overView = overView;
@@ -160,6 +168,7 @@ class MapPanel extends JPanel {
 			displayableObjects = new Vector<>();
 			highlightedObjType = null;
 			highlightedObject = null;
+			toolTipBox = null;
 			
 			double minX = Double.NaN;
 			double minY = Double.NaN;
@@ -225,6 +234,64 @@ class MapPanel extends JPanel {
 			super.sizeChanged(width, height);
 			updateOverviewImage();
 		}
+		
+		private static class ToolTipBox {
+
+			final Point pos;
+			final Object source;
+			final String text;
+
+			public ToolTipBox(Point pos, Object source, String text) {
+				this.pos = new Point(pos);
+				this.source = source;
+				this.text = text;
+			}
+
+			void draw(Graphics2D g2, int x, int y, int width, int height) {
+				
+				Font font = g2.getFont();
+				FontRenderContext frc = g2.getFontRenderContext();
+				Rectangle2D textBounds = font.getStringBounds(text, frc);
+				
+				int textOffsetX =  1;
+				int textOffsetY = -1;
+				int paddingH = 3;
+				int paddingV = 1;
+				textBounds.setRect(
+					textBounds.getX()-paddingH-textOffsetX,
+					textBounds.getY()-paddingV-textOffsetY,
+					textBounds.getWidth ()+2*paddingH,
+					textBounds.getHeight()+2*paddingV
+				);
+				
+				int spacing = 15;
+				boolean rightOfPos = (pos.x+spacing+textBounds.getWidth () < x+width ) || (pos.x-spacing-textBounds.getWidth () <= x);
+				boolean belowPos   = (pos.y+spacing+textBounds.getHeight() < y+height) || (pos.y-spacing-textBounds.getHeight() <= y);
+				
+				int strX = (int)Math.round(pos.x - textBounds.getX() + spacing - (rightOfPos ? 0 : 2*spacing + textBounds.getWidth ()));
+				int strY = (int)Math.round(pos.y - textBounds.getY() + spacing - (belowPos   ? 0 : 2*spacing + textBounds.getHeight()));
+				
+				int boxX = (int)Math.round(strX + textBounds.getX());
+				int boxY = (int)Math.round(strY + textBounds.getY());
+				int boxW = (int)Math.round(textBounds.getWidth ());
+				int boxH = (int)Math.round(textBounds.getHeight());
+				
+				g2.setColor(COLOR_TOOLTIP_BACKGORUND);
+				g2.fillRect(boxX, boxY, boxW, boxH);
+				g2.setColor(COLOR_TOOLTIP_BORDER);
+				g2.drawRect(boxX-1, boxY-1, boxW+1, boxH+1);
+				g2.setColor(COLOR_TOOLTIP_TEXT);
+				g2.drawString(text, strX, strY);
+			}
+
+			void setPos(Point pos) {
+				this.pos.setLocation(pos);
+			}
+			
+			boolean isPos(Point pos) {
+				return this.pos.equals(pos);
+			}
+		}
 
 		@Override public void mouseEntered(MouseEvent e) { updateHighlightedObject(e.getPoint()); }
 		@Override public void mouseMoved  (MouseEvent e) { updateHighlightedObject(e.getPoint()); }
@@ -235,8 +302,17 @@ class MapPanel extends JPanel {
 			if (highlightedObject != nearestObject) {
 				highlightedObject = nearestObject;
 				textOut.setText(highlightedObject==null ? "" : highlightedObject.generateOutput());
-				repaint();
 			}
+			if (highlightedObject!=null && mouse!=null) {
+				if (toolTipBox==null || toolTipBox.source!=highlightedObject)
+					toolTipBox = new ToolTipBox(mouse, highlightedObject, highlightedObject.objType + (highlightedObject.text.isEmpty() ? "" : String.format(" (\"%s\")", highlightedObject.text)));
+				else if (!toolTipBox.isPos(mouse))
+					toolTipBox.setPos(mouse);
+				
+			} else if (toolTipBox!=null) {
+				toolTipBox = null;
+			}
+			repaint();
 		}
 
 		private WorldObject getNearestObject(Point mouse) {
@@ -299,6 +375,7 @@ class MapPanel extends JPanel {
 			if (g instanceof Graphics2D && viewState.isOk()) {
 				Graphics2D g2 = (Graphics2D) g;
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 				
 				Shape prevClip = g2.getClip();
 				Rectangle clip = new Rectangle(x, y, width, height);
@@ -327,6 +404,9 @@ class MapPanel extends JPanel {
 				
 				if (highlightedObject!=null)
 					drawWorldObject(g2, clip, highlightedObject, COLOR_AXIS, Color.YELLOW);
+				
+				if (toolTipBox!=null)
+					toolTipBox.draw(g2, x, y, width, height);
 				
 				drawMapDecoration(g2, x, y, width, height);
 				
