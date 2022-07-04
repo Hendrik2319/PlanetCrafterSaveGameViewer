@@ -3,7 +3,6 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.function.Function;
@@ -11,7 +10,6 @@ import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -76,7 +74,7 @@ class GeneralDataPanel extends JScrollPane {
 		c.gridx++;
 		lowerPanel.add(
 				new SimpleTablePanel<Data.StoryEvent>("StoryEvents", data.storyEvents,
-					new SimpleTablePanel.Column("ID"      , String .class, 170, row->((Data.StoryEvent)row).stringId)
+					new SimpleTablePanel.Column("ID"      , String .class, 230, row->((Data.StoryEvent)row).stringId)
 				), c);
 		
 		c.gridx++;
@@ -226,14 +224,15 @@ class GeneralDataPanel extends JScrollPane {
 			c.gridx = 0; 
 			c.gridwidth = 2;
 			c.weightx = 1;
+			c.weighty = 1;
 			add(textAreaScrollPane, c);
 			
-			c.gridy = 6;
-			c.weighty = 1;
-			c.weightx = 1;
-			c.gridwidth = 2;
-			c.gridx = 0;
-			add(new JLabel(), c);
+//			c.gridy = 6;
+//			c.weighty = 1;
+//			c.weightx = 1;
+//			c.gridwidth = 2;
+//			c.gridx = 0;
+//			add(new JLabel(), c);
 		}
 	}
 
@@ -332,18 +331,12 @@ class GeneralDataPanel extends JScrollPane {
 			private static final long serialVersionUID = 1755523803906870773L;
 
 			TableContextMenu(JTable table, SimpleTableModel<ValueType> tableModel) {
-				add(createMenuItem("Show Column Widths", e->{
+				add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
 					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 				}));
 				
 				addTo(table);
 			}
-		}
-
-		protected static JMenuItem createMenuItem(String title, ActionListener al) {
-			JMenuItem comp = new JMenuItem(title);
-			if (al!=null) comp.addActionListener(al);
-			return comp;
 		}
 		
 		private static class SimpleTableModel<ValueType> extends Tables.SimplifiedTableModel<Column> {

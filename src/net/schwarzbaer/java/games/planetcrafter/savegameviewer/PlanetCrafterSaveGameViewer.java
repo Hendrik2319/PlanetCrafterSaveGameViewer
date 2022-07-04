@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +9,9 @@ import java.util.Vector;
 import java.util.function.BiConsumer;
 
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -81,9 +85,34 @@ public class PlanetCrafterSaveGameViewer {
 		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
-		mainWindow.startGUI(dataTabPane);
+		mainWindow.startGUI(dataTabPane, createMenuBar());
+		
 		settings.registerAppWindow(mainWindow);
 		updateWindowTitle();
+	}
+
+	private JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+		
+		JMenu filesMenu = menuBar.add(new JMenu("Files"));
+		
+		filesMenu.add(createMenuItem("Open SaveGame", e->{
+			if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
+				readFile(jsonFileChooser.getSelectedFile());
+		}));
+		
+		filesMenu.addSeparator();
+		filesMenu.add(createMenuItem("Quit", e->{
+			System.exit(0);
+		}));
+		
+		return menuBar;
+	}
+
+	static JMenuItem createMenuItem(String title, ActionListener al) {
+		JMenuItem comp = new JMenuItem(title);
+		if (al!=null) comp.addActionListener(al);
+		return comp;
 	}
 
 	private void updateWindowTitle() {
@@ -105,15 +134,23 @@ public class PlanetCrafterSaveGameViewer {
 				file = jsonFileChooser.getSelectedFile();
 		}
 		
-		Vector<Vector<JSON_Data.Value<NV,V>>> data = file==null || !file.isFile() ? null : readContent(file);
-		Data parsedData = data==null ? null : Data.parse(data);
+		readFile(file);
+	}
+
+	private void readFile(File file) {
+		if (file==null) return;
+		if (!file.isFile()) return;
 		
-		if (parsedData!=null) {
-			settings.putFile(AppSettings.ValueKey.OpenFile, file);
-			this.openFile = file;
-			setGUI(parsedData);
-			updateWindowTitle();
-		}
+		Vector<Vector<JSON_Data.Value<NV,V>>> jsonStructure = readContent(file);
+		if (jsonStructure==null) return;
+		
+		Data data = Data.parse(jsonStructure);
+		if (data == null) return;
+		
+		settings.putFile(AppSettings.ValueKey.OpenFile, file);
+		this.openFile = file;
+		setGUI(data);
+		updateWindowTitle();
 	}
 
 	private File guessDirectory() {

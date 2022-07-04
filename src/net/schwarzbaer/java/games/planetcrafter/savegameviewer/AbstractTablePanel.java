@@ -2,10 +2,8 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.util.Vector;
 
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -73,18 +71,12 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		private static final long serialVersionUID = 1755523803906870773L;
 
 		TableContextMenu(JTable table, AbstractTablePanel.AbstractTableModel<ValueType,ColumnID> tableModel) {
-			add(createMenuItem("Show Column Widths", e->{
+			add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
 				System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 			}));
 			
 			addTo(table);
 		}
-	}
-
-	protected static JMenuItem createMenuItem(String title, ActionListener al) {
-		JMenuItem comp = new JMenuItem(title);
-		if (al!=null) comp.addActionListener(al);
-		return comp;
 	}
 	
 	protected static abstract class AbstractTableModel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends Tables.SimplifiedTableModel<ColumnID> {
