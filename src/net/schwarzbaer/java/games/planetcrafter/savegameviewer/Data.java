@@ -1,10 +1,12 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
@@ -180,6 +182,11 @@ class Data {
 		public boolean isZero() {
 			return x==0 && y==0 && z==0;
 		}
+		public void addTo(ValueListOutput out, int indentLevel) {
+			out.add(indentLevel, "X", x);
+			out.add(indentLevel, "Y", y);
+			out.add(indentLevel, "Z", z);
+		}
 	}
 	
 	static class Rotation {
@@ -199,6 +206,12 @@ class Data {
 		}
 		public boolean isZero() {
 			return x==0 && y==0 && z==0 && w==0;
+		}
+		public void addTo(ValueListOutput out, int indentLevel) {
+			out.add(indentLevel, "X", x);
+			out.add(indentLevel, "Y", y);
+			out.add(indentLevel, "Z", z);
+			out.add(indentLevel, "W", w);
 		}
 	}
 	static class TerraformingStates {
@@ -321,6 +334,43 @@ class Data {
 			list      = null;
 			container = null;
 			containerList = null;
+		}
+		
+		String generateOutput() {
+			ValueListOutput out = new ValueListOutput();
+			out.add(0, "ID", id);
+			out.add(0, "Name", objType);
+			if (!text.isEmpty()   )   out.add(0, "Text", text);
+			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
+			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
+			if (containerList!=null) {
+				out.add(0, "Is IN a Container");
+				if (container==null)
+					out.add(1, null, "<UnknownContainer> [List:%d]", containerList.id);
+				else
+					out.add(1, null, "%s (\"%s\", Pos:%s)", container.objType, container.text, container.position);
+			}
+			if (listId>0) {
+				out.add(0, "Is a Container");
+				out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");
+				if (list!=null) {
+					out.add(1, "Size", "%d", list.size);
+					out.add(1, "Content", "%d items", list.worldObjs.length);
+					HashMap<String,Integer> content = new HashMap<>();
+					for (WorldObject wo : list.worldObjs) {
+						String woType = wo==null ? "<Unknown Item>" : wo.objType;
+						Integer n = content.get(woType);
+						if (n==null) n = 0;
+						content.put(woType,n+1);
+					}
+					Vector<String> objTypes = new Vector<>(content.keySet());
+					objTypes.sort(null);
+					for (String woType : objTypes)
+						out.add(2, null, "%dx %s", content.get(woType), woType);
+				}
+			}
+			
+			return out.generateOutput();
 		}
 	}
 
