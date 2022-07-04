@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
 
@@ -151,29 +152,84 @@ class GeneralDataPanel extends JScrollPane {
 			c.weighty = 0;
 			c.gridwidth = 1;
 			c.gridheight = 1;
+			c.gridy = -1;
 			
-			c.gridy = 0;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Biomass: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.biomassLevel)), c);
-			
-			c.gridy = 1;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Heat: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.heatLevel)), c);
-			
-			c.gridy = 2;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.oxygenLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatOxygenLevel(data.oxygenLevel)), c);
 			
-			c.gridy = 3;
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; add(new JLabel("Heat: "), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatHeatLevel(data.heatLevel)), c);
+			
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Pressure: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.pressureLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatPressureLevel(data.pressureLevel)), c);
 			
-			c.gridy = 4;
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; add(new JLabel("Biomass: "), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatBiomassLevel(data.biomassLevel)), c);
+			
+			c.gridy++;
 			c.weighty = 1;
 			c.weightx = 1;
 			c.gridwidth = 2;
 			c.gridx = 0;
 			add(new JLabel(), c);
+		}
+
+		private String formatValue(String format, double value) {
+			return String.format(Locale.ENGLISH, format, value);
+		}
+
+		private String formatOxygenLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f ppq", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppt", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppb", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppm", value);
+			value/=1000;
+			if (value < 20  ) return formatValue("%1.2f ‰", value);
+			value/=10;
+			return formatValue("%1.2f %%", value);
+		}
+
+		private String formatHeatLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f pk", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f nK", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f µK", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f mK", value);
+			value/=1000;
+			return formatValue("%1.2f K", value);
+		}
+
+		private String formatPressureLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f nPa", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f µPa", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f mPa", value);
+			value/=1000;
+			if (value < 200 ) return formatValue("%1.2f Pa", value);
+			value/=100;
+			return formatValue("%1.2f hPa", value);
+		}
+
+		private String formatBiomassLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f g", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kg", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f t", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kt", value);
+			value/=1000;
+			return formatValue("%1.2f Mt", value);
 		}
 	}
 
@@ -189,24 +245,25 @@ class GeneralDataPanel extends JScrollPane {
 			c.weighty = 0;
 			c.gridwidth = 1;
 			c.gridheight = 1;
+			c.gridy = -1;
 			
-			c.gridy = 0;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Health: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.health)), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
 			
-			c.gridy = 1;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Thirst: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.thirst)), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
 			
-			c.gridy = 2;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.oxygen)), c);
 			
-			c.gridy = 3;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Position: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.position)), c);
 			
-			c.gridy = 4;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Rotation: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.rotation)), c);
 			
@@ -221,7 +278,7 @@ class GeneralDataPanel extends JScrollPane {
 			//textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));
 			textAreaScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Unlocked Groups"), textAreaScrollPane.getBorder()));
 			
-			c.gridy = 5;
+			c.gridy++;
 			c.gridx = 0; 
 			c.gridwidth = 2;
 			c.weightx = 1;
@@ -249,20 +306,21 @@ class GeneralDataPanel extends JScrollPane {
 			c.weighty = 0;
 			c.gridwidth = 1;
 			c.gridheight = 1;
+			c.gridy = -1;
 			
-			c.gridy = 0;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Crafted Objects: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.craftedObjects)), c);
 			
-			c.gridy = 1;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Load: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
 			
-			c.gridy = 2;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Time: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
 			
-			c.gridy = 3;
+			c.gridy++;
 			c.weighty = 1;
 			c.weightx = 1;
 			c.gridwidth = 2;
@@ -283,16 +341,17 @@ class GeneralDataPanel extends JScrollPane {
 			c.weighty = 0;
 			c.gridwidth = 1;
 			c.gridheight = 1;
+			c.gridy = -1;
 			
-			c.gridy = 0;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Has Played Intro: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
 			
-			c.gridy = 1;
+			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Mode: "), c);
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.mode)), c);
 			
-			c.gridy = 2;
+			c.gridy++;
 			c.weighty = 1;
 			c.weightx = 1;
 			c.gridwidth = 2;
