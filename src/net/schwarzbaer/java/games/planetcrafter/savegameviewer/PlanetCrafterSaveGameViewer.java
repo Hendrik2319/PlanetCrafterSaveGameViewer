@@ -45,8 +45,9 @@ public class PlanetCrafterSaveGameViewer {
 	
 	private final StandardMainWindow mainWindow;
 	private final FileChooser jsonFileChooser;
-	private File openFile;
 	private final JTabbedPane dataTabPane;
+	private final MyMenuBar menuBar;
+	private File openFile;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
@@ -54,31 +55,43 @@ public class PlanetCrafterSaveGameViewer {
 		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
-		mainWindow.startGUI(dataTabPane, createMenuBar());
+		mainWindow.startGUI(dataTabPane, menuBar = new MyMenuBar());
 		
 		settings.registerAppWindow(mainWindow);
 		updateWindowTitle();
 	}
+	
+	private class MyMenuBar extends JMenuBar {
+		private static final long serialVersionUID = 940262053656728621L;
+		
+		private final JMenuItem miReloadSaveGame;
 
-	private JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		
-		JMenu filesMenu = menuBar.add(new JMenu("Files"));
-		
-		filesMenu.add(createMenuItem("Open SaveGame", e->{
-			if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
-				readFile(jsonFileChooser.getSelectedFile());
-		}));
-		
-		filesMenu.addSeparator();
-		filesMenu.add(createMenuItem("Quit", e->{
-			System.exit(0);
-		}));
-		
-		return menuBar;
+		MyMenuBar() {
+			JMenuBar menuBar = new JMenuBar();
+			
+			JMenu filesMenu = menuBar.add(new JMenu("Files"));
+			
+			miReloadSaveGame = filesMenu.add(createMenuItem("Reload SaveGame", openFile!=null, e->{
+				readFile(openFile);
+			}));
+			
+			filesMenu.add(createMenuItem("Open SaveGame", e->{
+				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
+					readFile(jsonFileChooser.getSelectedFile());
+			}));
+			
+			filesMenu.addSeparator();
+			filesMenu.add(createMenuItem("Quit", e->{
+				System.exit(0);
+			}));
+		}
 	}
 
 	static JMenuItem createMenuItem(String title, ActionListener al) {
+		return createMenuItem(title, true, al);
+	}
+
+	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
 		JMenuItem comp = new JMenuItem(title);
 		if (al!=null) comp.addActionListener(al);
 		return comp;
@@ -118,6 +131,7 @@ public class PlanetCrafterSaveGameViewer {
 		
 		settings.putFile(AppSettings.ValueKey.OpenFile, file);
 		this.openFile = file;
+		menuBar.miReloadSaveGame.setEnabled(true);
 		setGUI(data);
 		updateWindowTitle();
 	}
@@ -178,7 +192,6 @@ public class PlanetCrafterSaveGameViewer {
 		MapPanel mapPanel = new MapPanel(data.worldObjects);
 		dataTabPane.addTab("Map", mapPanel);
 		SwingUtilities.invokeLater(mapPanel::initialize);
-		// TODO: more tabs in GUI
 	}
 	
 	@SuppressWarnings("unused")

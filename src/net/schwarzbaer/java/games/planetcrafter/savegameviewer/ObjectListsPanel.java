@@ -38,7 +38,6 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 		}
 
 		@Override protected String getRowText(ObjectList row, int rowIndex) {
-			//return "Dummy"; // TODO: ObjectListsTableModel.getRowText
 			return row==null ? "No Data" : row.generateOutput();
 		}
 
