@@ -41,37 +41,6 @@ public class PlanetCrafterSaveGameViewer {
 		new PlanetCrafterSaveGameViewer().initialize();
 	}
 	
-	@SuppressWarnings("unused")
-	private static void scanFileContent(String pathname) {
-		File file = new File(pathname);
-		if (!file.isFile()) return;
-		
-		byte[] bytes;
-		try { bytes = Files.readAllBytes(file.toPath()); }
-		catch (IOException ex) {
-			System.err.printf("IOException while reading file \"%s\".", ex.getMessage());
-			//ex.printStackTrace();
-			return;
-		}
-		
-		String content = new String(bytes);
-		OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<NV,V>();
-		ValueContainer<Integer> blockIndex = new ValueContainer<>(0);
-		ValueContainer<Integer> entriesCount = new ValueContainer<>(0);
-		
-		new IterativeJsonParser().parse(content, (val,ch) -> {
-			entriesCount.value++;
-			optionalValues.scan(val,"ParseResult");
-			if (ch==null || ch.equals('@')) {
-				System.out.printf("Block[%d]: %d entries%n", blockIndex.value, entriesCount.value);
-				optionalValues.show("-> Format", System.out);
-				optionalValues.clear();
-				blockIndex.value++;
-				entriesCount.value = 0;
-			}
-		}, '@','|');
-	}
-
 	private static final AppSettings settings = new AppSettings();
 	
 	private final StandardMainWindow mainWindow;
@@ -212,6 +181,37 @@ public class PlanetCrafterSaveGameViewer {
 		// TODO: more tabs in GUI
 	}
 	
+	@SuppressWarnings("unused")
+	private static void scanFileContent(String pathname) {
+		File file = new File(pathname);
+		if (!file.isFile()) return;
+		
+		byte[] bytes;
+		try { bytes = Files.readAllBytes(file.toPath()); }
+		catch (IOException ex) {
+			System.err.printf("IOException while reading file \"%s\".", ex.getMessage());
+			//ex.printStackTrace();
+			return;
+		}
+		
+		String content = new String(bytes);
+		OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<NV,V>();
+		ValueContainer<Integer> blockIndex = new ValueContainer<>(0);
+		ValueContainer<Integer> entriesCount = new ValueContainer<>(0);
+		
+		new IterativeJsonParser().parse(content, (val,ch) -> {
+			entriesCount.value++;
+			optionalValues.scan(val,"ParseResult");
+			if (ch==null || ch.equals('@')) {
+				System.out.printf("Block[%d]: %d entries%n", blockIndex.value, entriesCount.value);
+				optionalValues.show("-> Format", System.out);
+				optionalValues.clear();
+				blockIndex.value++;
+				entriesCount.value = 0;
+			}
+		}, '@','|');
+	}
+
 	private static class ValueContainer<Val> {
 		Val value;
 		ValueContainer(Val value) { this.value = value; }

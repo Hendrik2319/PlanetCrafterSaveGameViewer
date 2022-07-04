@@ -218,7 +218,8 @@ class GeneralDataPanel extends JScrollPane {
 			textArea.setWrapStyleWord(true);
 			JScrollPane textAreaScrollPane = new JScrollPane(textArea);
 			textAreaScrollPane.setPreferredSize(new Dimension(100,100));
-			textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));
+			//textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));
+			textAreaScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Unlocked Groups"), textAreaScrollPane.getBorder()));
 			
 			c.gridy = 5;
 			c.gridx = 0; 
@@ -315,7 +316,9 @@ class GeneralDataPanel extends JScrollPane {
 			new TableContextMenu(table,tableModel);
 			
 			setViewportView(table);
-			setBorder(BorderFactory.createTitledBorder(title));
+			//setBorder(BorderFactory.createTitledBorder(title));
+			setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), getBorder()));
+
 			
 			//Dimension size = table.getPreferredScrollableViewportSize();
 			Dimension size = table.getPreferredSize();

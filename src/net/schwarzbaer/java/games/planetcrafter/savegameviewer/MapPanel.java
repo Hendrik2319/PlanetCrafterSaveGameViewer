@@ -63,8 +63,10 @@ class MapPanel extends JPanel {
 		add(leftPanel, BorderLayout.WEST);
 		add(mapView, BorderLayout.CENTER);
 		
-		mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
-		textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
+		//mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
+		//textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
+		mapView       .setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Map"), BorderFactory.createLineBorder(Color.GRAY)));
+		textScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"), textScrollPane.getBorder()));
 		selectPanel   .setBorder(BorderFactory.createTitledBorder("Highlight (Green)"));
 		overView      .setBorder(BorderFactory.createTitledBorder("OverView"));
 	}
