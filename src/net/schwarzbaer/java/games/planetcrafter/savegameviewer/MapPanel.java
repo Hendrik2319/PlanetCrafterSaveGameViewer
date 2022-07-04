@@ -5,9 +5,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Vector;
@@ -33,7 +35,9 @@ class MapPanel extends JPanel {
 		OverView overView = new OverView();
 		overView.setPreferredSize(200,150);
 		
-		mapView = new MapView(worldObjects,overView);
+		JTextArea textOut = new JTextArea();
+		
+		mapView = new MapView(worldObjects,overView, textOut);
 		
 		JComboBox<String> cmbbxObjType = new JComboBox<String>(mapView.getObjTypes());
 		cmbbxObjType.setSelectedItem(null);
@@ -45,9 +49,8 @@ class MapPanel extends JPanel {
 		JPanel selectPanel = new JPanel(new BorderLayout());
 		selectPanel.add(cmbbxObjType, BorderLayout.CENTER);
 		
-		JTextArea textOut = new JTextArea();
 		JScrollPane textScrollPane = new JScrollPane(textOut);
-		textScrollPane.setPreferredSize(new Dimension(200,400));
+		textScrollPane.setPreferredSize(new Dimension(300,400));
 		
 		JPanel lowerLeftPanel = new JPanel(new BorderLayout());
 		lowerLeftPanel.add(selectPanel, BorderLayout.NORTH);
@@ -61,8 +64,8 @@ class MapPanel extends JPanel {
 		add(mapView, BorderLayout.CENTER);
 		
 		mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
-		textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object"));
-		selectPanel   .setBorder(BorderFactory.createTitledBorder("Highlight"));
+		textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
+		selectPanel   .setBorder(BorderFactory.createTitledBorder("Highlight (Green)"));
 		overView      .setBorder(BorderFactory.createTitledBorder("OverView"));
 	}
 	
@@ -136,6 +139,7 @@ class MapPanel extends JPanel {
 	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
 		private static final Color COLOR_AXIS = new Color(0x70000000,true);
+		private static final int NEAREST_OBJECT_MAX_DIST = 15;
 		
 		private final Vector<WorldObject> displayableObjects;
 		private final double minX;
@@ -144,12 +148,16 @@ class MapPanel extends JPanel {
 		private final double maxY;
 		private final Rectangle2D.Double range;
 		private final OverView overView;
+		private final JTextArea textOut;
 		private String highlightedObjType;
+		private WorldObject highlightedObject;
 
-		MapView(Vector<WorldObject> worldObjects, OverView overView) {
+		MapView(Vector<WorldObject> worldObjects, OverView overView, JTextArea textOut) {
 			this.overView = overView;
+			this.textOut = textOut;
 			displayableObjects = new Vector<>();
 			highlightedObjType = null;
+			highlightedObject = null;
 			
 			double minX = Double.NaN;
 			double minY = Double.NaN;
@@ -216,6 +224,49 @@ class MapPanel extends JPanel {
 			updateOverviewImage();
 		}
 
+		@Override public void mouseEntered(MouseEvent e) { updateHighlightedObject(e.getPoint()); }
+		@Override public void mouseMoved  (MouseEvent e) { updateHighlightedObject(e.getPoint()); }
+		@Override public void mouseExited (MouseEvent e) { updateHighlightedObject(null); }
+
+		private void updateHighlightedObject(Point mouse) {
+			WorldObject nearestObject = getNearestObject(mouse);
+			if (highlightedObject != nearestObject) {
+				highlightedObject = nearestObject;
+				textOut.setText(highlightedObject==null ? "" : highlightedObject.generateOutput());
+				repaint();
+			}
+		}
+
+		private WorldObject getNearestObject(Point mouse) {
+			if (!viewState.isOk()) return null;
+			if (mouse==null) return null;
+			
+			double x = viewState.convertPos_ScreenToAngle_LongX(mouse.x);
+			double y = viewState.convertPos_ScreenToAngle_LatY (mouse.y);
+			
+			double minSquaredDist = Double.NaN;
+			WorldObject nearestObj = null;
+			for (WorldObject wo : displayableObjects) {
+				double squaredDist = (wo.position.z-x)*(wo.position.z-x) + (wo.position.x-y)*(wo.position.x-y);
+				if (nearestObj==null || minSquaredDist > squaredDist) {
+					minSquaredDist = squaredDist;
+					nearestObj = wo;
+				}
+			}
+			if (nearestObj==null)
+				return null;
+			
+			double dist = Math.sqrt(minSquaredDist);
+			Integer dist_screen = viewState.convertLength_LengthToScreen(dist);
+			if (dist_screen==null)
+				return null;
+			
+			if (dist_screen>NEAREST_OBJECT_MAX_DIST)
+				return null;
+			
+			return nearestObj;
+		}
+
 		Vector<String> getObjTypes() {
 			HashSet<String> objTypes = new HashSet<>();
 			for (WorldObject wo : displayableObjects) {
@@ -265,12 +316,15 @@ class MapPanel extends JPanel {
 				}
 				
 				for (WorldObject wo : displayableObjects)
-					if (!wo.objType.equals(highlightedObjType))
-						drawWorldObject(g2, clip, wo, false);
+					if (!wo.objType.equals(highlightedObjType) && wo!=highlightedObject)
+						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.LIGHT_GRAY);
 				
 				for (WorldObject wo : displayableObjects)
-					if (wo.objType.equals(highlightedObjType))
-						drawWorldObject(g2, clip, wo, true);
+					if (wo.objType.equals(highlightedObjType) && wo!=highlightedObject)
+						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.GREEN);
+				
+				if (highlightedObject!=null)
+					drawWorldObject(g2, clip, highlightedObject, COLOR_AXIS, Color.YELLOW);
 				
 				drawMapDecoration(g2, x, y, width, height);
 				
@@ -278,15 +332,14 @@ class MapPanel extends JPanel {
 			}
 		}
 
-		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, boolean isHighlighted) {
+		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
 			int r = 3;
 			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(wo.position.z);
 			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (wo.position.x);
 			if (clip.contains(screenX, screenY)) {
-				//g2.setColor(Color.GREEN);
-				g2.setColor(isHighlighted ? Color.GREEN : Color.LIGHT_GRAY);
+				g2.setColor(fillColor);
 				g2.fillOval(screenX-r, screenY-r, 2*r+1, 2*r+1);
-				g2.setColor(COLOR_AXIS);
+				g2.setColor(contourColor);
 				g2.drawOval(screenX-r, screenY-r, 2*r, 2*r);
 			}
 		}
