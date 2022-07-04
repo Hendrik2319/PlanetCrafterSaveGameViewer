@@ -67,9 +67,7 @@ public class PlanetCrafterSaveGameViewer {
 		private final JMenuItem miReloadSaveGame;
 
 		MyMenuBar() {
-			JMenuBar menuBar = new JMenuBar();
-			
-			JMenu filesMenu = menuBar.add(new JMenu("Files"));
+			JMenu filesMenu = add(new JMenu("Files"));
 			
 			miReloadSaveGame = filesMenu.add(createMenuItem("Reload SaveGame", openFile!=null, e->{
 				readFile(openFile);
