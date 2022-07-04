@@ -8,7 +8,6 @@ import java.util.Vector;
 import java.util.function.BiConsumer;
 
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -166,7 +165,7 @@ public class PlanetCrafterSaveGameViewer {
 
 	private void setGUI(Data data) {
 		dataTabPane.removeAll();
-		dataTabPane.addTab("General", new GeneralTabPanel(data));
+		dataTabPane.addTab("General", new GeneralDataPanel(data));
 		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
 		
@@ -176,14 +175,6 @@ public class PlanetCrafterSaveGameViewer {
 		// TODO: more tabs in GUI
 	}
 	
-	private static class GeneralTabPanel extends JPanel {
-		private static final long serialVersionUID = -9191759791973305801L;
-
-		GeneralTabPanel(Data data) {
-			// TODO: GeneralTabPanel
-		}
-	}
-
 	private static class ValueContainer<Val> {
 		Val value;
 		ValueContainer(Val value) { this.value = value; }

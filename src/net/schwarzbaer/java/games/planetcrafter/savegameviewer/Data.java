@@ -48,7 +48,7 @@ class Data {
 	private Data(Vector<Vector<Value<NV, V>>> dataVec) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
 		
-		System.out.printf("Parse JSON Structure ...%n");
+		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
 		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"); blockIndex++;
 		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates      ::new, "PlayerStates"      ); blockIndex++;
@@ -60,7 +60,7 @@ class Data {
 		/* 7 */ generalData2       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2      ::new, "GeneralData2"      ); blockIndex++;
 		/* 8 */ layers             = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer             ::new, "Layers"            ); blockIndex++;
 		
-		System.out.printf("Process Data ...%n");
+		System.out.printf("Processing Data ...%n");
 		for (WorldObject wo : worldObjects) {
 			if (wo.listId <= 0) continue;
 			for (ObjectList ol : objectLists)
@@ -322,8 +322,7 @@ class Data {
 		 */
 		WorldObject(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			@SuppressWarnings("unused")
-			String positionStr, rotationStr, colorStr;
+			String positionStr, rotationStr/* , colorStr */;
 			id          = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objType     = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId      = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
@@ -333,7 +332,7 @@ class Data {
 			_wear       = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
 			_pnls       = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
 			_color      = JSON_Data.getStringValue (object, "color" , debugLabel);
-			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel); // TODO: wait for color value
+			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel);
 			text        = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth     = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
 			
@@ -452,37 +451,51 @@ class Data {
 	}
 
 	static class GeneralData1 {
+		final long craftedObjects;
+		final long totalSaveFileLoad;
+		final long totalSaveFileTime;
+
 		/*
 			Block[4]: 1 entries
 			-> Format: [2 blocks]
 			    Block "ParseResult" [0]
 			        <Base>:Object
 			    Block "ParseResult.<Base>" [3]
-			        craftedObjects:Integer
+			        craftedObjects   :Integer
 			        totalSaveFileLoad:Integer
 			        totalSaveFileTime:Integer
 		 */
-		GeneralData1(Value<NV, V> value, String debugLabel) {
-			// TODO
+		GeneralData1(Value<NV, V> value, String debugLabel) throws TraverseException {
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			craftedObjects    = JSON_Data.getIntegerValue(object, "craftedObjects"   , debugLabel);
+			totalSaveFileLoad = JSON_Data.getIntegerValue(object, "totalSaveFileLoad", debugLabel);
+			totalSaveFileTime = JSON_Data.getIntegerValue(object, "totalSaveFileTime", debugLabel);
 		}
 	}
 
 	static class Message {
+		final boolean isRead;
+		final String stringId;
+
 		/*
 			Block[5]: 6 entries
 			-> Format: [2 blocks]
 			    Block "ParseResult" [0]
 			        <Base>:Object
 			    Block "ParseResult.<Base>" [2]
-			        isRead:Bool
+			        isRead  :Bool
 			        stringId:String
 		 */
-		Message(Value<NV, V> value, String debugLabel) {
-			// TODO
+		Message(Value<NV, V> value, String debugLabel) throws TraverseException {
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			isRead   = JSON_Data.getBoolValue  (object, "isRead"  , debugLabel);
+			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
 		}
 	}
 
 	static class StoryEvent {
+		final String stringId;
+
 		/*
 			Block[6]: 6 entries
 			-> Format: [2 blocks]
@@ -491,12 +504,16 @@ class Data {
 			    Block "ParseResult.<Base>" [1]
 			        stringId:String
 		 */
-		StoryEvent(Value<NV, V> value, String debugLabel) {
-			// TODO
+		StoryEvent(Value<NV, V> value, String debugLabel) throws TraverseException {
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
 		}
 	}
 
 	static class GeneralData2 {
+		final boolean hasPlayedIntro;
+		final String mode;
+
 		/*
 			Block[7]: 1 entries
 			-> Format: [2 blocks]
@@ -506,26 +523,39 @@ class Data {
 			        hasPlayedIntro:Bool
 			        mode:String
 		 */
-		GeneralData2(Value<NV, V> value, String debugLabel) {
-			// TODO
+		GeneralData2(Value<NV, V> value, String debugLabel) throws TraverseException {
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			hasPlayedIntro = JSON_Data.getBoolValue  (object, "hasPlayedIntro", debugLabel);
+			mode           = JSON_Data.getStringValue(object, "mode"          , debugLabel);
 		}
 	}
 
 	static class Layer {
+		final String layerId;
+		final String colorBase;
+		final String colorCustom;
+		final long colorBaseLerp;
+		final long colorCustomLerp;
+
 		/*
 			Block[8]: 10 entries
 			-> Format: [2 blocks]
 			    Block "ParseResult" [0]
 			        <Base>:Object
 			    Block "ParseResult.<Base>" [5]
-			        colorBase:String
-			        colorBaseLerp:Integer
-			        colorCustom:String
+			        colorBase      :String
+			        colorBaseLerp  :Integer
+			        colorCustom    :String
 			        colorCustomLerp:Integer
-			        layerId:String
+			        layerId        :String
 		 */
-		Layer(Value<NV, V> value, String debugLabel) {
-			// TODO
+		Layer(Value<NV, V> value, String debugLabel) throws TraverseException {
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			layerId         = JSON_Data.getStringValue (object, "layerId"        , debugLabel);
+			colorBase       = JSON_Data.getStringValue (object, "colorBase"      , debugLabel);
+			colorCustom     = JSON_Data.getStringValue (object, "colorCustom"    , debugLabel);
+			colorBaseLerp   = JSON_Data.getIntegerValue(object, "colorBaseLerp"  , debugLabel);
+			colorCustomLerp = JSON_Data.getIntegerValue(object, "colorCustomLerp", debugLabel);
 		}
 	}
 
