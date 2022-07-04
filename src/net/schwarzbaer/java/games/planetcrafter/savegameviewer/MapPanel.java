@@ -273,7 +273,7 @@ class MapPanel extends JPanel {
 				objTypes.add(wo.objType);
 			}
 			Vector<String> vector = new Vector<>(objTypes);
-			vector.sort(null);
+			vector.sort(Data.caseIgnoringComparator);
 			return vector;
 		}
 

@@ -1,7 +1,9 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -15,6 +17,7 @@ import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 class Data {
 	static class NV extends JSON_Data.NamedValueExtra.Dummy {}
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
+	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
 	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure) {
 		try {
@@ -167,6 +170,7 @@ class Data {
 
 	static class Coord3 {
 		final double x,y,z;
+		
 		Coord3(String str, String debugLabel) throws ParseException {
 			double[] arr =  parseDoubleArray(str, debugLabel);
 			if (arr.length!=3) throw new ParseException("%s: Unexpected length of array: %d (!=3)", debugLabel, arr.length);
@@ -174,14 +178,17 @@ class Data {
 			y = arr[1];
 			z = arr[2];
 		}
-		@Override
-		public String toString() {
+		
+		@Override public String toString() {
 			if (isZero()) return "- 0 -";
-			return String.format(Locale.ENGLISH, "%1.5f, %1.5f, %1.5f", x, y, z);
+			//return String.format(Locale.ENGLISH, "%1.5f, %1.5f, %1.5f", x, y, z);
+			return String.format(Locale.ENGLISH, "%s, %s, %s", x, y, z);
 		}
+		
 		public boolean isZero() {
 			return x==0 && y==0 && z==0;
 		}
+		
 		public void addTo(ValueListOutput out, int indentLevel) {
 			out.add(indentLevel, "X", x);
 			out.add(indentLevel, "Y", y);
@@ -199,14 +206,17 @@ class Data {
 			z = arr[2];
 			w = arr[3];
 		}
-		@Override
-		public String toString() {
+		
+		@Override public String toString() {
 			if (isZero()) return "- 0 -";
-			return String.format(Locale.ENGLISH, "%1.5f, %1.5f, %1.5f, %1.5f", x, y, z, w);
+			//return String.format(Locale.ENGLISH, "%1.5f, %1.5f, %1.5f, %1.5f", x, y, z, w);
+			return String.format(Locale.ENGLISH, "%s, %s, %s, %s", x, y, z, w);
 		}
+		
 		public boolean isZero() {
 			return x==0 && y==0 && z==0 && w==0;
 		}
+		
 		public void addTo(ValueListOutput out, int indentLevel) {
 			out.add(indentLevel, "X", x);
 			out.add(indentLevel, "Y", y);
@@ -287,7 +297,7 @@ class Data {
 		final String   _color;
 		//final Coord3   color;
 		final String   text;
-		final long     _growth;
+		final long     growth;
 		
 		ObjectList     list;
 		WorldObject    container;
@@ -325,7 +335,7 @@ class Data {
 			_color      = JSON_Data.getStringValue (object, "color" , debugLabel);
 			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel); // TODO: wait for color value
 			text        = JSON_Data.getStringValue (object, "text"  , debugLabel);
-			_growth     = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			growth     = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
 			
 			position    = new Coord3  (positionStr, debugLabel+".pos");
 			rotation    = new Rotation(rotationStr, debugLabel+".rot");
@@ -348,7 +358,7 @@ class Data {
 				if (container==null)
 					out.add(1, null, "<UnknownContainer> [List:%d]", containerList.id);
 				else
-					out.add(1, null, "%s (\"%s\", Pos:%s)", container.objType, container.text, container.position);
+					container.addShortDescTo(out, 1);
 			}
 			if (listId>0) {
 				out.add(0, "Is a Container");
@@ -356,21 +366,24 @@ class Data {
 				if (list!=null) {
 					out.add(1, "Size", "%d", list.size);
 					out.add(1, "Content", "%d items", list.worldObjs.length);
-					HashMap<String,Integer> content = new HashMap<>();
-					for (WorldObject wo : list.worldObjs) {
-						String woType = wo==null ? "<Unknown Item>" : wo.objType;
-						Integer n = content.get(woType);
-						if (n==null) n = 0;
-						content.put(woType,n+1);
-					}
-					Vector<String> objTypes = new Vector<>(content.keySet());
-					objTypes.sort(null);
-					for (String woType : objTypes)
-						out.add(2, null, "%dx %s", content.get(woType), woType);
+					Vector<Map.Entry<String, Integer>> content = list.getContentResume();
+					for (Map.Entry<String, Integer> entry : content)
+						out.add(2, null, "%dx %s", entry.getValue(), entry.getKey());
 				}
 			}
 			
 			return out.generateOutput();
+		}
+		
+		String getShortDesc() {
+			return String.format("%s (\"%s\", Pos:%s)", objType, text, position);
+		}
+
+		public void addShortDescTo(ValueListOutput out, int indentLevel) {
+			out.add(indentLevel, "Name", objType);
+			out.add(indentLevel, "Text", text);
+			out.add(indentLevel, "Position");
+			position.addTo(out,indentLevel+1);
 		}
 	}
 
@@ -401,6 +414,40 @@ class Data {
 			worldObjIds = parseIntegerArray(woIdsStr, debugLabel+".woIds");
 			worldObjs = null;
 			container = null;
+		}
+
+		Vector<Map.Entry<String,Integer>> getContentResume() {
+			HashMap<String,Integer> content = new HashMap<>();
+			for (WorldObject wo : worldObjs) {
+				String woType = wo==null ? "<Unknown Item>" : wo.objType;
+				Integer n = content.get(woType);
+				if (n==null) n = 0;
+				content.put(woType,n+1);
+			}
+			Vector<Map.Entry<String, Integer>> resume = new Vector<>(content.entrySet());
+			resume.sort(Comparator.<Map.Entry<String, Integer>,String>comparing(Map.Entry<String,Integer>::getKey, caseIgnoringComparator));
+			return resume;
+		}
+
+		public String generateOutput() {
+			ValueListOutput out = new ValueListOutput();
+			
+			out.add(0, "ID", id);
+			out.add(0, "Size", "%d", size);
+			if (container!=null) {
+				out.add(0, "Container using this list");
+				container.addShortDescTo(out,1);
+			}
+			out.add(0, "Content", "%d items", worldObjs.length);
+			Vector<Map.Entry<String, Integer>> content = getContentResume();
+			for (Map.Entry<String, Integer> entry : content)
+				out.add(1, null, "%dx %s", entry.getValue(), entry.getKey());
+			
+			out.add(0, "Content IDs", "%d items", worldObjIds.length);
+			for (int woID : worldObjIds)
+				out.add(1, null, woID);
+			
+			return out.generateOutput();
 		}
 	}
 

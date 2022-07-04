@@ -13,7 +13,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 	private static final long serialVersionUID = 8733627835226098636L;
 
 	WorldObjectsPanel(Vector<WorldObject> worldObjects) {
-		super(new WorldObjectsTableModel(worldObjects), LayoutPos.Right, new Dimension(400, 200));
+		super(new WorldObjectsTableModel(worldObjects), LayoutPos.Right, new Dimension(300, 200));
 	}
 	
 	static class WorldObjectsTableModel extends AbstractTablePanel.AbstractTableModel<WorldObject, WorldObjectsTableModel.ColumnID> {
@@ -23,15 +23,15 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			objType  ("Name"     , String  .class, 130),
 			container("Container", String  .class, 350),
 			listId   ("List-ID"  , Long    .class,  70),
-			_liGrps  ("[liGrps]" , String  .class,  50),
+			text     ("Text"     , String  .class, 120),
+			growth   ("Growth"   , Long    .class,  60),
 			position ("Position" , Coord3  .class, 200),
 			rotation ("Rotation" , Rotation.class, 205),
-			_wear    ("[wear]"   , Long    .class,  50),
-			_pnls    ("[pnls]"   , String  .class,  90),
 			_color   ("[color]"  , String  .class,  50),
 			//color    (""       , Coord3  .class,  50),
-			text     ("Text"     , String  .class, 120),
-			_growth  ("[growth]" , Long    .class,  60),
+			_wear    ("[wear]"   , Long    .class,  50),
+			_liGrps  ("[liGrps]" , String  .class,  50),
+			_pnls    ("[pnls]"   , String  .class,  90),
 			;
 			private final SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
@@ -54,10 +54,10 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
 			switch (columnID) {
 			case _color  : return row._color;
-			case _growth : return row._growth;
 			case _liGrps : return row._liGrps;
 			case _pnls   : return row._pnls;
 			case _wear   : return row._wear;
+			case growth  : return row.growth;
 			case id      : return row.id;
 			case listId  : return row.listId;
 			case objType : return row.objType;
@@ -69,7 +69,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 					return null;
 				if (row.container==null)
 					return String.format("<UnknownContainer> [List:%d]", row.containerList.id);
-				return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position); 
+				//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
+				return row.container.getShortDesc();
 			}
 			return null;
 		}
