@@ -1,14 +1,20 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Point;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Vector;
+import java.util.function.Supplier;
 
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
@@ -86,11 +92,73 @@ class ObjectTypesPanel extends JScrollPane {
 		Label, Heat, Pressure, Oxygene, Biomass, Energy, OxygeneBooster, BoosterRocket
 	}
 	
+	private static class ObjectTypesTableCellRenderer implements TableCellRenderer {
+		
+		private Tables.LabelRendererComponent rendererComponent;
+		private ObjectTypesTableModel tableModel;
+
+		ObjectTypesTableCellRenderer(ObjectTypesTableModel tableModel) {
+			this.tableModel = tableModel;
+			rendererComponent = new Tables.LabelRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+			
+			int rowM    = table.convertRowIndexToModel   (rowV   );
+			int columnM = table.convertColumnIndexToModel(columnV);
+			ObjectTypesTableModel.ColumnID columnID = tableModel.getColumnID(columnM);
+			ObjectType row = tableModel.getRow(rowM);
+			
+			String valueStr = getValueStr(value, columnID);
+			Supplier<Color> getCustomBG = ()->{
+				if (row==null) return null;
+				if (row.finished && columnID!=ObjectTypesTableModel.ColumnID.finished) return Color.LIGHT_GRAY;
+				return null;
+			};
+			rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBG, null);
+			
+			int hAlign = getHorizontalAlignment(columnID);
+			rendererComponent.setHorizontalAlignment(hAlign);
+			
+			return rendererComponent;
+		}
+
+		private int getHorizontalAlignment(ObjectTypesTableModel.ColumnID columnID) {
+			if (columnID==null)
+				return SwingConstants.LEFT;
+			
+			if (columnID.cfg.columnClass == Double.class)
+				return SwingConstants.RIGHT;
+			
+			return SwingConstants.LEFT;
+		}
+
+		private String getValueStr(Object value, ObjectTypesTableModel.ColumnID columnID) {
+			if (value==null) return null;
+			if (columnID==null) return value.toString();
+			
+			switch (columnID) {
+			case finished: return null;
+			case id: case label: case isBoosterRocketFor:
+				 return value.toString();
+			case heat    : return String.format(Locale.ENGLISH, "%1.2f pK/s" , value);
+			case pressure: return String.format(Locale.ENGLISH, "%1.2f nPa/s", value);
+			case oxygene : return String.format(Locale.ENGLISH, "%1.2f ppq/s", value);
+			case biomass : return String.format(Locale.ENGLISH, "%1.2f g/s"  , value);
+			case energy  : return String.format(Locale.ENGLISH, "%1.2f kW"   , value);
+			case oxygeneBooster: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			}
+			return null;
+		}
+	}
+	
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
+			finished          ("finished"      , Boolean      .class,  50, null),
 			id                ("ID"            , String       .class, 130, null),
-			label             ("Label"         , String       .class, 130, ObjectTypeValue.Label   ),
+			label             ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
 			heat              ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
 			pressure          ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
 			oxygene           ("Oxygene"       , Double       .class,  80, ObjectTypeValue.Oxygene ),
@@ -133,7 +201,11 @@ class ObjectTypesPanel extends JScrollPane {
 		}
 
 		void setDefaultCellEditorsAndRenderers() {
-			//table.setDefaultRenderer(getClass(), null);
+			
+			ObjectTypesTableCellRenderer tcr = new ObjectTypesTableCellRenderer(this);
+			table.setDefaultRenderer(String.class, tcr);
+			table.setDefaultRenderer(Double.class, tcr);
+			table.setDefaultRenderer(PhysicalValue.class, tcr);
 			
 			Vector<PhysicalValue> values = new Vector<>(Arrays.asList(PhysicalValue.values()));
 			values.insertElementAt(null, 0);
@@ -152,6 +224,7 @@ class ObjectTypesPanel extends JScrollPane {
 		public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
+			case finished: return row.finished;
 			case id      : return row.id;
 			case label   : return row.label;
 			case heat    : return row.heat;
@@ -166,6 +239,9 @@ class ObjectTypesPanel extends JScrollPane {
 		}
 
 		@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
+			ObjectType row = getRow(rowIndex);
+			if (row==null) return false;
+			if (row.finished) return columnID==ColumnID.finished;
 			return columnID!=ColumnID.id;
 		}
 
@@ -174,6 +250,7 @@ class ObjectTypesPanel extends JScrollPane {
 			System.out.printf("setValueAt( %s%s )%n", aValue, aValue==null ? "" : String.format(" [%s]", aValue.getClass()));
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
+			case finished: row.finished = (Boolean)aValue;
 			case id      : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
 			case heat    : row.heat     = (Double)aValue; break;
@@ -184,7 +261,8 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygeneBooster    : row.oxygeneBooster = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
 			}
-			notifyDataChangeListeners(row.id, columnID.objectTypeValue);
+			if (columnID.objectTypeValue!=null)
+				notifyDataChangeListeners(row.id, columnID.objectTypeValue);
 		}
 		
 		

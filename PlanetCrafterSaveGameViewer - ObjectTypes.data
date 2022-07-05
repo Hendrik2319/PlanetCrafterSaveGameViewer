@@ -1,32 +1,53 @@
 ObjectType: Algae1Seed
 label = Algae
+<finished>
 
 ObjectType: AlgaeGenerator1
 label = AlgaeGenerator T1
+oxygene = 127.0
+biomass = 0.6
+energy = -13.0
+<finished>
 
 ObjectType: AlgaeGenerator2
 label = AlgaeGenerator T2
+oxygene = 350.0
+biomass = 17.0
+energy = -27.0
+<finished>
 
 ObjectType: Alloy
 label = Super Alloy
+<finished>
 
 ObjectType: Aluminium
 label = Aluminium
+<finished>
 
 ObjectType: astrofood
 label = Space Food
+<finished>
 
 ObjectType: Backpack5
 label = Backpack T5
+<finished>
 
 ObjectType: Bacteria1
 label = Bacteria Sample
+<finished>
 
 ObjectType: biodome
 label = Biodome T1
+oxygene = 135.0
+energy = -37.0
+<finished>
 
 ObjectType: Biodome2
 label = Biodome T2
+oxygene = 1450.0
+biomass = 11.0
+energy = -75.0
+<finished>
 
 ObjectType: Biolab
 label = Biolab
@@ -35,15 +56,19 @@ ObjectType: Bioplastic1
 
 ObjectType: BlueprintT1
 label = Blueprint Chip
+<finished>
 
 ObjectType: canister
 label = Canister
+<finished>
 
 ObjectType: Cobalt
 label = Cobalt
+<finished>
 
 ObjectType: ComAntenna
 label = Communication Antenna
+energy = 0.0
 
 ObjectType: Container1
 
@@ -59,18 +84,37 @@ ObjectType: DisplayCase
 label = DisplayCase
 
 ObjectType: Drill2
-label = Drill T2
+label = Drill T3
+heat = 0.25
+pressure = 17.0
+energy = -8.5
 
 ObjectType: Drill3
-label = Drill T3
+label = Drill T4
+heat = 25.0
+pressure = 459.0
+energy = -45.5
+<finished>
 
 ObjectType: EnergyGenerator1
+label = Wind Turbine
+energy = 1.2
+<finished>
 
 ObjectType: EnergyGenerator2
+label = Solar Panel T1
+energy = 6.5
+<finished>
 
 ObjectType: EnergyGenerator3
+label = Solar Panel T2
+energy = 19.5
+<finished>
 
 ObjectType: EnergyGenerator5
+label = Nuclear Reactor  T2
+energy = 331.5
+<finished>
 
 ObjectType: EquipmentIncrease2
 
@@ -78,18 +122,25 @@ ObjectType: EscapePod
 
 ObjectType: FabricBlue
 label = Fabric
+<finished>
 
 ObjectType: Fertilizer1
 label = Fertilizer T1
+<finished>
 
 ObjectType: Fertilizer2
 label = Fertilizer T2
+<finished>
 
 ObjectType: Foundation
 label = Foundation
+<finished>
 
 ObjectType: GasExtractor1
 label = GasExtractor T1
+heat = 13.0
+energy = -58.0
+<finished>
 
 ObjectType: GeneticManipulator1
 
@@ -101,36 +152,64 @@ ObjectType: GoldenEffigie2
 
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
+oxygene = 108.0
+biomass = 0.15
+energy = -13.8
+<finished>
 
 ObjectType: Heater1
 label = Heater T1
+heat = 0.3
+energy = -1.0
+<finished>
 
 ObjectType: Heater2
 label = Heater T2
+heat = 4.5
+energy = -3.5
+<finished>
 
 ObjectType: Heater3
 label = Heater T3
+heat = 28.5
+pressure = 0.6
+energy = -17.5
+<finished>
 
 ObjectType: Heater4
 label = Heater T4
+heat = 538.0
+pressure = 35.5
+energy = -51.5
+<finished>
 
 ObjectType: HudCompass
 label = MicroChip Compass
+<finished>
 
 ObjectType: ice
 label = Ice
+<finished>
 
 ObjectType: Iridium
+label = Iridium
+<finished>
 
 ObjectType: Iron
+label = Iron
+<finished>
 
 ObjectType: Jetpack2
 
 ObjectType: LaunchPlatform
 
 ObjectType: Magnesium
+label = Magnesium
+<finished>
 
 ObjectType: MethanCapsule1
+label = Methane
+<finished>
 
 ObjectType: MultiBuild
 
@@ -139,16 +218,30 @@ ObjectType: MultiDeconstruct
 ObjectType: MultiToolLight2
 
 ObjectType: OreExtractor1
+label = Ore Extractor T1
+heat = 17.5
+pressure = 15.0
+energy = -34.0
+<finished>
 
 ObjectType: OreExtractor2
+label = Ore Extractor T2
+heat = 79.5
+pressure = 85.0
+energy = -164.0
+<finished>
 
 ObjectType: Osmium
+label = Osmium
+<finished>
 
 ObjectType: OutsideLamp1
 
 ObjectType: OxygenCapsule1
 
 ObjectType: OxygenTank4
+label = Oxygen Tank T4
+<finished>
 
 ObjectType: pod
 
@@ -156,49 +249,63 @@ ObjectType: Pod4x
 
 ObjectType: PulsarQuartz
 label = Pulsar Quartz
+<finished>
 
 ObjectType: RedPowder1
 label = Explosive Powder
+<finished>
 
 ObjectType: RocketBiomass1
 label = Biomass Rocket
 isBoosterRocketFor = Biomass
+<finished>
 
 ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
 isBoosterRocketFor = Heat
+<finished>
 
 ObjectType: RocketInformations1
 label = Map Information Rocket
+<finished>
 
 ObjectType: RocketMap1
 label = GPS Satellite T1
+<finished>
 
 ObjectType: RocketMap2
 label = GPS Satellite T2
+<finished>
 
 ObjectType: RocketMap3
 label = GPS Satellite T3
+<finished>
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
 isBoosterRocketFor = Oxygene
+<finished>
 
 ObjectType: RocketPressure1
 label = Magnetic Field Protection Rocket (Pressure, Iridium)
 isBoosterRocketFor = Pressure
+<finished>
 
 ObjectType: RocketReactor
 label = Rocket Engine
+<finished>
 
 ObjectType: Rod-alloy
 label = Super Alloy Rod
+<finished>
 
 ObjectType: Rod-iridium
 label = Iridium Rod
+<finished>
 
 ObjectType: Rod-uranium
 label = Uranium Rod
+<finished>
 
 ObjectType: ScreenEnergy
 
@@ -231,13 +338,22 @@ ObjectType: Seed6
 ObjectType: SeedGold
 
 ObjectType: SeedSpreader1
-label = Seed Spreader T1
+label = Flower Spreader T1
+oxygene = 161.0
+biomass = 7.2
+energy = -28.8
+<finished>
 
 ObjectType: SeedSpreader2
-label = Seed Spreader T2
+label = Flower Spreader T2
+oxygene = 325.0
+biomass = 33.5
+energy = -38.8
+<finished>
 
 ObjectType: Silicon
 label = Silicon
+<finished>
 
 ObjectType: SpaceMultiplierBiomass
 
@@ -249,22 +365,32 @@ ObjectType: SpaceMultiplierPressure
 
 ObjectType: Stairs
 label = Stairs
+<finished>
 
 ObjectType: Sulfur
 label = Sulfur
+<finished>
 
 ObjectType: Titanium
 label = Titanium
+<finished>
 
 ObjectType: Tree3Seed
 
 ObjectType: TreeRoot
 label = Tree Bark
+<finished>
 
 ObjectType: TreeSpreader0
+label = Tree Spreader T1
+oxygene = 920.0
+biomass = 85.0
+energy = -31.0
+<finished>
 
 ObjectType: Uranim
 label = Uranium
+<finished>
 
 ObjectType: Vegetable0Growable
 
@@ -283,6 +409,7 @@ ObjectType: Vegetable3Growable
 ObjectType: Vegetable3Seed
 
 ObjectType: VegetableGrower1
+label = Grower T1
 
 ObjectType: WaterBottle1
 
@@ -292,4 +419,5 @@ ObjectType: wreckpilar
 
 ObjectType: Zeolite
 label = Zeolite
+<finished>
 

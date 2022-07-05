@@ -1,9 +1,14 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
@@ -18,15 +23,22 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
 
-class GeneralDataPanel extends JScrollPane {
+class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChangeListener {
 	private static final long serialVersionUID = -9191759791973305801L;
-	//private Data data;
+	
+	//private final Data data;
+	private final EnergyPanel energyPanel;
 
 	GeneralDataPanel(Data data) {
 		//this.data = data;
@@ -41,16 +53,20 @@ class GeneralDataPanel extends JScrollPane {
 		c.weightx = 1;
 		c.weighty = 1;
 		c.gridwidth = 1;
-		c.gridheight = 2;
-		
-		c.gridy = 0;
-		c.gridx = 0; upperPanel.add(createPanel("Terraforming"    , data.terraformingStates, TerraformingStatesPanel::new), c);
-		c.gridx = 1; upperPanel.add(createPanel("Player"          , data.playerStates      , PlayerStatesPanel      ::new), c);
 		
 		c.gridheight = 1;
-		c.gridx = 2; 
-		c.gridy = 0; upperPanel.add(createPanel("General Data (1)", data.generalData1      , GeneralData1Panel      ::new), c);
-		c.gridy = 1; upperPanel.add(createPanel("General Data (2)", data.generalData2      , GeneralData2Panel      ::new), c);
+		c.gridx = 0;
+		c.gridy = 0; upperPanel.add(createPanel("Terraforming"    , data.terraformingStates, TerraformingStatesPanel::new), c);
+		c.gridy = 1; upperPanel.add(createPanel("General Data (1)", data.generalData1      , GeneralData1Panel      ::new), c);
+		c.gridy = 2; upperPanel.add(createPanel("General Data (2)", data.generalData2      , GeneralData2Panel      ::new), c);
+		
+		c.gridheight = 3;
+		c.gridx = 1;
+		c.gridy = 0; upperPanel.add(createPanel("Player"          , data.playerStates      , PlayerStatesPanel      ::new), c);
+		
+		c.gridheight = 3;
+		c.gridx = 2;
+		c.gridy = 0; upperPanel.add(energyPanel = new EnergyPanel(data), c);
 		
 		
 		
@@ -111,6 +127,13 @@ class GeneralDataPanel extends JScrollPane {
 		//System.out.printf("%d, %d%n", horizontalScrollBar.getUnitIncrement(), verticalScrollBar.getUnitIncrement());
 	}
 	
+	@Override
+	public void valueChanged(String objectTypeID, ObjectTypeValue changedValue) {
+		energyPanel.objectTypeValueChanged(objectTypeID, changedValue);
+		if (changedValue==ObjectTypeValue.Energy) {
+		}
+	}
+
 	private <ValueType> JComponent createPanel(String title, Vector<ValueType> values, Function<ValueType,JPanel> panelConstructor) {
 		if (values==null) throw new IllegalArgumentException();
 		
@@ -138,6 +161,233 @@ class GeneralDataPanel extends JScrollPane {
 		JTextField comp = new JTextField(text);
 		comp.setEditable(false);
 		return comp;
+	}
+
+	private static class EnergyPanel extends JPanel {
+		private static final long serialVersionUID = 6260130212445154141L;
+		
+		private final ObjectsPanel sourcesPanel;
+		private final ObjectsPanel consumersPanel;
+		private final BudgetPanel  budgetPanel;
+
+		EnergyPanel(Data data) {
+			super(new BorderLayout());
+			//setBorder(BorderFactory.createTitledBorder("Energy"));
+			//setPreferredSize(new Dimension(250,200));
+			
+			sourcesPanel = new ObjectsPanel(data.worldObjects, "Energy Sources", true);
+			consumersPanel = new ObjectsPanel(data.worldObjects, "Energy Consumers", false);
+			budgetPanel = new BudgetPanel("Energy Budget", sourcesPanel, consumersPanel);
+			
+			JPanel centerPanel = new JPanel(new GridLayout(1,0));
+			centerPanel.add(sourcesPanel);
+			centerPanel.add(consumersPanel);
+			
+			add(budgetPanel, BorderLayout.NORTH);
+			add(centerPanel, BorderLayout.CENTER);
+			
+			SwingUtilities.invokeLater(this::updateValues);
+		}
+
+		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
+			if (changedValue==ObjectTypeValue.Energy || changedValue==ObjectTypeValue.Label) {
+				updateValues();
+			}
+		}
+
+		void updateValues() {
+			sourcesPanel.updateValues();
+			consumersPanel.updateValues();
+			budgetPanel.updateValues();
+		}
+		
+		private static class ObjectsPanel extends JScrollPane {
+			private static final long serialVersionUID = -7778016200735929929L;
+			
+			private final Vector<WorldObject> worldObjects;
+			private final boolean computeSources;
+			private final ObjectsTableModel tableModel;
+			private double totalSum;
+
+			ObjectsPanel(Vector<Data.WorldObject> worldObjects, String title, boolean computeSources) {
+				this.worldObjects = worldObjects;
+				this.computeSources = computeSources;
+				totalSum = 0;
+				
+				tableModel = new ObjectsTableModel();
+				JTable table = new JTable(tableModel);
+				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
+				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+				
+				tableModel.setTable(table);
+				tableModel.setColumnWidths(table);
+				tableModel.setDefaultCellEditorsAndRenderers();
+				
+				setViewportView(table);
+				Dimension size = table.getPreferredSize();
+				size.width  += 30;
+				size.height = 150;
+				setPreferredSize(size);
+				
+				setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), getBorder()));
+			}
+
+			void updateValues() {
+				HashMap<String,ObjectsTableRow> tableContent = new HashMap<>();
+				totalSum = 0.0;
+				for (WorldObject wo : worldObjects) {
+					if (wo == null) continue;
+					if (wo.objectType == null) continue;
+					if (wo.objectType.energy == null) continue;
+					
+					double energy = wo.objectType.energy.doubleValue();
+					if (( computeSources && energy>0) ||
+						(!computeSources && energy<0) ) {
+						ObjectsTableRow row = tableContent.get(wo.objectTypeID);
+						if (row==null) tableContent.put(wo.objectTypeID, row = new ObjectsTableRow(wo.getName()));
+						row.count++;
+						row.sum += energy;
+						totalSum += energy;
+					}
+				}
+				tableModel.setData(tableContent);
+			}
+
+			double getSum() { return totalSum; }
+			
+			private static class ObjectsTableRow {
+				final String name;
+				int count;
+				double sum;
+				ObjectsTableRow(String name) {
+					this.name = name;
+					count = 0;
+					sum = 0;
+				}
+			}
+			
+			private static class ObjectsTableCellRenderer implements TableCellRenderer {
+				
+				private final Tables.LabelRendererComponent rendererComponent;
+
+				ObjectsTableCellRenderer() {
+					rendererComponent = new Tables.LabelRendererComponent();
+				}
+
+				@Override
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+					
+					String valueStr = value==null ? null : value.toString();
+					if (value instanceof Double ) valueStr = String.format(Locale.ENGLISH, "%1.2f kW", value);
+					if (value instanceof Integer) valueStr = String.format(Locale.ENGLISH, "%d x ", value);
+					
+					rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus);
+					rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
+					return rendererComponent;
+				}
+				
+			}
+			
+			private static class ObjectsTableModel extends Tables.SimplifiedTableModel<ObjectsTableModel.ColumnID>{
+				
+				enum ColumnID implements Tables.SimplifiedColumnIDInterface {
+					Count ("Count" , Integer.class,  50),
+					Name  ("Name"  , String .class, 130),
+					Energy("Energy", Double .class,  80),
+					;
+					private final SimplifiedColumnConfig cfg;
+					ColumnID(String name, Class<?> colClass, int width) {
+						cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+					}
+					@Override public SimplifiedColumnConfig getColumnConfig() {
+						return cfg;
+					}
+				}
+
+				private Vector<ObjectsTableRow> rows;
+
+				ObjectsTableModel() {
+					super(ColumnID.values());
+					rows = null;
+				}
+				
+				public void setDefaultCellEditorsAndRenderers() {
+					ObjectsTableCellRenderer tcr = new ObjectsTableCellRenderer();
+					table.setDefaultRenderer(Integer.class, tcr);
+					table.setDefaultRenderer(Double.class, tcr);
+				}
+
+				void setData(HashMap<String,ObjectsTableRow> data) {
+					rows = new Vector<>(data.values());
+					rows.sort(Comparator.<ObjectsTableRow,Double>comparing(row->Math.abs(row.sum),Comparator.reverseOrder()).thenComparing(row->row.name));
+					fireTableUpdate();
+				}
+
+				@Override public int getRowCount() {
+					return rows==null ? 0 : rows.size();
+				}
+
+				@Override
+				public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
+					if (rows==null) return null;
+					if (rowIndex<0) return null;
+					if (rowIndex>=rows.size()) return null;
+					ObjectsTableRow row = rows.get(rowIndex);
+					
+					switch (columnID) {
+					case Count : return row.count;
+					case Name  : return row.name;
+					case Energy: return row.sum;
+					}
+					return null;
+				}
+				
+			}
+		}
+		
+		private static class BudgetPanel extends JPanel {
+			private static final long serialVersionUID = 8583714497440761807L;
+			
+			private final JTextField fieldConsumption;
+			private final JTextField fieldProduction;
+			private final JTextField fieldBudget;
+			private final ObjectsPanel sourcesPanel;
+			private final ObjectsPanel consumersPanel;
+
+			BudgetPanel(String title, ObjectsPanel sourcesPanel, ObjectsPanel consumersPanel) {
+				super(new GridBagLayout());
+				this.sourcesPanel = sourcesPanel;
+				this.consumersPanel = consumersPanel;
+				setBorder(BorderFactory.createTitledBorder(title));
+				
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				
+				c.weighty = 0;
+				c.gridwidth  = 1;
+				c.gridheight = 1;
+				c.gridy = 0;
+				c.gridx = -1;
+				
+				c.weightx = 0; c.gridx++; add(new JLabel("Production: "),c);
+				c.weightx = 1; c.gridx++; add(fieldProduction = createOutputTextField("---"),c);
+				
+				c.weightx = 0; c.gridx++; add(new JLabel("  Consumption: "),c);
+				c.weightx = 1; c.gridx++; add(fieldConsumption = createOutputTextField("---"),c);
+				
+				c.weightx = 0; c.gridx++; add(new JLabel("  Budget: "),c);
+				c.weightx = 1; c.gridx++; add(fieldBudget = createOutputTextField("---"),c);
+			}
+
+			void updateValues() {
+				double sumSources   = sourcesPanel  .getSum();
+				double sumConsumers = consumersPanel.getSum();
+				fieldProduction .setText(String.format(Locale.ENGLISH, "%1.2f kW",  sumSources  ));
+				fieldConsumption.setText(String.format(Locale.ENGLISH, "%1.2f kW", -sumConsumers));
+				fieldBudget     .setText(String.format(Locale.ENGLISH, "%1.2f kW", sumSources+sumConsumers));
+			}
+		}
 	}
 
 	private static class TerraformingStatesPanel extends JPanel {

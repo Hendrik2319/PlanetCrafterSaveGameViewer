@@ -25,6 +25,7 @@ class ObjectType {
 	}
 	
 	final String id;
+	boolean finished;
 	String label;
 	Double heat;
 	Double pressure;
@@ -37,6 +38,7 @@ class ObjectType {
 	ObjectType(String id) {
 		if (id==null) throw new IllegalArgumentException();
 		this.id = id;
+		finished = false;
 		label    = null;
 		heat     = null;
 		pressure = null;
@@ -59,15 +61,16 @@ class ObjectType {
 			
 			for (Entry<String, ObjectType> entry : vector) {
 				ObjectType ot = entry.getValue();
-				                                 out.printf("ObjectType: "         +"%s"   +"%n", ot.id       );
-				if (ot.label             !=null) out.printf("label = "             +"%s"   +"%n", ot.label    );
-				if (ot.heat              !=null) out.printf("heat = "              +"%1.3f"+"%n", ot.heat     );
-				if (ot.pressure          !=null) out.printf("pressure = "          +"%1.3f"+"%n", ot.pressure );
-				if (ot.oxygene           !=null) out.printf("oxygene = "           +"%1.3f"+"%n", ot.oxygene  );
-				if (ot.biomass           !=null) out.printf("biomass = "           +"%1.3f"+"%n", ot.biomass  );
-				if (ot.energy            !=null) out.printf("energy = "            +"%1.3f"+"%n", ot.energy   );
-				if (ot.oxygeneBooster    !=null) out.printf("oxygeneBooster = "    +"%1.3f"+"%n", ot.oxygeneBooster);
-				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s"   +"%n", ot.isBoosterRocketFor.name());
+				                                 out.printf("ObjectType: "         +"%s%n", ot.id       );
+				if (ot.label             !=null) out.printf("label = "             +"%s%n", ot.label    );
+				if (ot.heat              !=null) out.printf("heat = "              +"%s%n", ot.heat     );
+				if (ot.pressure          !=null) out.printf("pressure = "          +"%s%n", ot.pressure );
+				if (ot.oxygene           !=null) out.printf("oxygene = "           +"%s%n", ot.oxygene  );
+				if (ot.biomass           !=null) out.printf("biomass = "           +"%s%n", ot.biomass  );
+				if (ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
+				if (ot.oxygeneBooster    !=null) out.printf("oxygeneBooster = "    +"%s%n", ot.oxygeneBooster);
+				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
+				if (ot.finished                ) out.printf("<finished>"           +  "%n");
 				
 				out.println();
 			}
@@ -101,6 +104,8 @@ class ObjectType {
 				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygeneBooster = "    ))!=null ) currentOT.oxygeneBooster     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true");
+				if (        line.equals(     "<finished>"           )        ) currentOT.finished = true;
 				
 			}
 			

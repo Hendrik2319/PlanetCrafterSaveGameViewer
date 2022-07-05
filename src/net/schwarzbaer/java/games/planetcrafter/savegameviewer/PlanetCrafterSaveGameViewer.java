@@ -187,7 +187,8 @@ public class PlanetCrafterSaveGameViewer {
 
 	private void setGUI(Data data) {
 		dataTabPane.removeAll();
-		dataTabPane.addTab("General", new GeneralDataPanel(data));
+		GeneralDataPanel generalDataPanel = new GeneralDataPanel(data);
+		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
 		
@@ -198,6 +199,7 @@ public class PlanetCrafterSaveGameViewer {
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
 		objectTypesPanel.addDataChangeListener((objectTypeID, changedValue) -> writeObjectTypesToFile());
 		objectTypesPanel.addDataChangeListener(mapPanel);
+		objectTypesPanel.addDataChangeListener(generalDataPanel);
 		
 		dataTabPane.addTab("Object Types", objectTypesPanel);
 }
