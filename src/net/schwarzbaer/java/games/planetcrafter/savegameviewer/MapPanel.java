@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,10 +27,12 @@ import net.schwarzbaer.gui.Canvas;
 import net.schwarzbaer.gui.ZoomableCanvas;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 
-class MapPanel extends JPanel {
+class MapPanel extends JPanel implements ObjectTypesPanel.DataChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
 	private final MapView mapView;
+
+	private JComboBox<String> cmbbxObjLabels;
 
 	MapPanel(Vector<WorldObject> worldObjects) {
 		super(new BorderLayout());
@@ -41,15 +44,15 @@ class MapPanel extends JPanel {
 		
 		mapView = new MapView(worldObjects,overView, textOut);
 		
-		JComboBox<String> cmbbxObjType = new JComboBox<String>(mapView.getObjTypes());
-		cmbbxObjType.setSelectedItem(null);
-		cmbbxObjType.addActionListener(e->{
-			int index = cmbbxObjType.getSelectedIndex();
-			mapView.setHighlightedObjType(index<0 ? null : cmbbxObjType.getItemAt(index));
+		cmbbxObjLabels = new JComboBox<String>(mapView.getObjLabels());
+		cmbbxObjLabels.setSelectedItem(null);
+		cmbbxObjLabels.addActionListener(e->{
+			int index = cmbbxObjLabels.getSelectedIndex();
+			mapView.setHighlightedObjLabel(index<0 ? null : cmbbxObjLabels.getItemAt(index));
 		});
 		
 		JPanel selectPanel = new JPanel(new BorderLayout());
-		selectPanel.add(cmbbxObjType, BorderLayout.CENTER);
+		selectPanel.add(cmbbxObjLabels, BorderLayout.CENTER);
 		
 		JScrollPane textScrollPane = new JScrollPane(textOut);
 		textScrollPane.setPreferredSize(new Dimension(300,400));
@@ -76,6 +79,14 @@ class MapPanel extends JPanel {
 	void initialize() {
 		mapView.reset();
 		//System.out.printf("MapPanel.initialize() -> MapView.reset() -> ViewStateOk? %s%n", mapView.isViewStateOk());
+	}
+
+	@Override
+	public void valueChanged(String objectTypeID, ObjectTypesPanel.ObjectTypeValue changedValue) {
+		if (changedValue==ObjectTypesPanel.ObjectTypeValue.Label) {
+			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapView.getObjLabels()));
+			cmbbxObjLabels.setSelectedItem(null);
+		}
 	}
 
 	private static class OverView extends Canvas {
@@ -158,16 +169,16 @@ class MapPanel extends JPanel {
 		private final Rectangle2D.Double range;
 		private final OverView overView;
 		private final JTextArea textOut;
-		private String highlightedObjType;
-		private WorldObject highlightedObject;
+		private String highlightedObjLabel;
+		private WorldObject hoveredObject;
 		private ToolTipBox toolTipBox;
 
 		MapView(Vector<WorldObject> worldObjects, OverView overView, JTextArea textOut) {
 			this.overView = overView;
 			this.textOut = textOut;
 			displayableObjects = new Vector<>();
-			highlightedObjType = null;
-			highlightedObject = null;
+			highlightedObjLabel = null;
+			hoveredObject = null;
 			toolTipBox = null;
 			
 			double minX = Double.NaN;
@@ -178,17 +189,19 @@ class MapPanel extends JPanel {
 			for (WorldObject wo : worldObjects) {
 				if (wo.position.isZero() && wo.rotation.isZero()) continue;
 				displayableObjects.add(wo);
+				double woX = wo.position.getMapX();
+				double woY = wo.position.getMapY();
 				if (isFirst) {
-					minX = wo.position.z;
-					minY = wo.position.x;
-					maxX = wo.position.z;
-					maxY = wo.position.x;
+					minX = woX;
+					minY = woY;
+					maxX = woX;
+					maxY = woY;
 					isFirst = false;
 				} else {
-					if (minX > wo.position.z) minX = wo.position.z;
-					if (minY > wo.position.x) minY = wo.position.x;
-					if (maxX < wo.position.z) maxX = wo.position.z;
-					if (maxY < wo.position.x) maxY = wo.position.x;
+					if (minX > woX) minX = woX;
+					if (minY > woY) minY = woY;
+					if (maxX < woX) maxX = woX;
+					if (maxY < woY) maxY = woY;
 				}
 			}
 			this.minX = minX;
@@ -224,8 +237,8 @@ class MapPanel extends JPanel {
 			});
 		}
 
-		public void setHighlightedObjType(String highlightedObjType) {
-			this.highlightedObjType = highlightedObjType;
+		public void setHighlightedObjLabel(String highlightedObjLabel) {
+			this.highlightedObjLabel = highlightedObjLabel;
 			repaint();
 		}
 
@@ -293,19 +306,19 @@ class MapPanel extends JPanel {
 			}
 		}
 
-		@Override public void mouseEntered(MouseEvent e) { updateHighlightedObject(e.getPoint()); }
-		@Override public void mouseMoved  (MouseEvent e) { updateHighlightedObject(e.getPoint()); }
-		@Override public void mouseExited (MouseEvent e) { updateHighlightedObject(null); }
+		@Override public void mouseEntered(MouseEvent e) { updateHoveredObject(e.getPoint()); }
+		@Override public void mouseMoved  (MouseEvent e) { updateHoveredObject(e.getPoint()); }
+		@Override public void mouseExited (MouseEvent e) { updateHoveredObject(null); }
 
-		private void updateHighlightedObject(Point mouse) {
+		private void updateHoveredObject(Point mouse) {
 			WorldObject nearestObject = getNearestObject(mouse);
-			if (highlightedObject != nearestObject) {
-				highlightedObject = nearestObject;
-				textOut.setText(highlightedObject==null ? "" : highlightedObject.generateOutput());
+			if (hoveredObject != nearestObject) {
+				hoveredObject = nearestObject;
+				textOut.setText(hoveredObject==null ? "" : hoveredObject.generateOutput());
 			}
-			if (highlightedObject!=null && mouse!=null) {
-				if (toolTipBox==null || toolTipBox.source!=highlightedObject)
-					toolTipBox = new ToolTipBox(mouse, highlightedObject, highlightedObject.objType + (highlightedObject.text.isEmpty() ? "" : String.format(" (\"%s\")", highlightedObject.text)));
+			if (hoveredObject!=null && mouse!=null) {
+				if (toolTipBox==null || toolTipBox.source!=hoveredObject)
+					toolTipBox = new ToolTipBox(mouse, hoveredObject, hoveredObject.getName() + (hoveredObject.text.isEmpty() ? "" : String.format(" (\"%s\")", hoveredObject.text)));
 				else if (!toolTipBox.isPos(mouse))
 					toolTipBox.setPos(mouse);
 				
@@ -325,7 +338,9 @@ class MapPanel extends JPanel {
 			double minSquaredDist = Double.NaN;
 			WorldObject nearestObj = null;
 			for (WorldObject wo : displayableObjects) {
-				double squaredDist = (wo.position.z-x)*(wo.position.z-x) + (wo.position.x-y)*(wo.position.x-y);
+				double woX = wo.position.getMapX();
+				double woY = wo.position.getMapY();
+				double squaredDist = (woX-x)*(woX-x) + (woY-y)*(woY-y);
 				if (nearestObj==null || minSquaredDist > squaredDist) {
 					minSquaredDist = squaredDist;
 					nearestObj = wo;
@@ -345,14 +360,14 @@ class MapPanel extends JPanel {
 			return nearestObj;
 		}
 
-		Vector<String> getObjTypes() {
-			HashSet<String> objTypes = new HashSet<>();
+		Vector<String> getObjLabels() {
+			HashSet<String> labels = new HashSet<>();
 			for (WorldObject wo : displayableObjects) {
-				objTypes.add(wo.objType);
+				labels.add(wo.getName());
 			}
-			Vector<String> vector = new Vector<>(objTypes);
-			vector.sort(Data.caseIgnoringComparator);
-			return vector;
+			Vector<String> sorted = new Vector<>(labels);
+			sorted.sort(Data.caseIgnoringComparator);
+			return sorted;
 		}
 
 		protected void updateOverviewImage() {
@@ -395,15 +410,15 @@ class MapPanel extends JPanel {
 				}
 				
 				for (WorldObject wo : displayableObjects)
-					if (!wo.objType.equals(highlightedObjType) && wo!=highlightedObject)
+					if (!wo.getName().equals(highlightedObjLabel) && wo!=hoveredObject)
 						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.LIGHT_GRAY);
 				
 				for (WorldObject wo : displayableObjects)
-					if (wo.objType.equals(highlightedObjType) && wo!=highlightedObject)
+					if (wo.getName().equals(highlightedObjLabel) && wo!=hoveredObject)
 						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.GREEN);
 				
-				if (highlightedObject!=null)
-					drawWorldObject(g2, clip, highlightedObject, COLOR_AXIS, Color.YELLOW);
+				if (hoveredObject!=null)
+					drawWorldObject(g2, clip, hoveredObject, COLOR_AXIS, Color.YELLOW);
 				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
@@ -416,8 +431,8 @@ class MapPanel extends JPanel {
 
 		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
 			int r = 3;
-			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(wo.position.z);
-			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (wo.position.x);
+			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(wo.position.getMapX());
+			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (wo.position.getMapY());
 			if (clip.contains(screenX, screenY)) {
 				g2.setColor(fillColor);
 				g2.fillOval(screenX-r, screenY-r, 2*r+1, 2*r+1);

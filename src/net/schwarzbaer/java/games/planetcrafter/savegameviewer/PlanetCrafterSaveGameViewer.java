@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
@@ -18,6 +19,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.schwarzbaer.gui.FileChooser;
+import net.schwarzbaer.gui.ProgressDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
@@ -30,6 +32,8 @@ import net.schwarzbaer.java.lib.jsonparser.JSON_Parser.ParseException;
 import net.schwarzbaer.system.Settings;
 
 public class PlanetCrafterSaveGameViewer {
+
+	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 
 	public static void main(String[] args) {
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -48,9 +52,11 @@ public class PlanetCrafterSaveGameViewer {
 	private final JTabbedPane dataTabPane;
 	private final MyMenuBar menuBar;
 	private File openFile;
+	private HashMap<String,ObjectType> objectTypes;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
+		objectTypes = null;
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
@@ -106,6 +112,8 @@ public class PlanetCrafterSaveGameViewer {
 	private void initialize() {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
+		objectTypes = ObjectType.readFromFile(new File(FILE_OBJECT_TYPES));
+		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
 		if (file==null || !file.isFile()) {
@@ -115,23 +123,6 @@ public class PlanetCrafterSaveGameViewer {
 		}
 		
 		readFile(file);
-	}
-
-	private void readFile(File file) {
-		if (file==null) return;
-		if (!file.isFile()) return;
-		
-		Vector<Vector<JSON_Data.Value<NV,V>>> jsonStructure = readContent(file);
-		if (jsonStructure==null) return;
-		
-		Data data = Data.parse(jsonStructure);
-		if (data == null) return;
-		
-		settings.putFile(AppSettings.ValueKey.OpenFile, file);
-		this.openFile = file;
-		menuBar.miReloadSaveGame.setEnabled(true);
-		setGUI(data);
-		updateWindowTitle();
 	}
 
 	private File guessDirectory() {
@@ -150,7 +141,69 @@ public class PlanetCrafterSaveGameViewer {
 		return currentDir;
 	}
 
-	private Vector<Vector<Value<NV, V>>> readContent(File file) {
+	private void readFile(File file) {
+		if (file==null) return;
+		if (!file.isFile()) return;
+		
+		String title = String.format("Read File \"%s\" [%s]", file.getName(), file.getParent());
+		ProgressDialog.runWithProgressDialog(mainWindow, title, 400, pd->{
+			
+			Vector<Vector<JSON_Data.Value<NV,V>>> jsonStructure = readContent(pd, file);
+			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
+			if (jsonStructure==null) return;
+			
+			showIndeterminateTask(pd, "Parse JSON Structure");
+			Data data = Data.parse(jsonStructure, objectTypes);
+			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
+			if (data == null) return;
+			
+			showIndeterminateTask(pd, "Write new ObjectTypes to File");
+			writeObjectTypesToFile();
+			
+			SwingUtilities.invokeLater(()->{
+				pd.setTaskTitle("Update GUI");
+				pd.setIndeterminate(true);
+				
+				settings.putFile(AppSettings.ValueKey.OpenFile, file);
+				this.openFile = file;
+				menuBar.miReloadSaveGame.setEnabled(true);
+				setGUI(data);
+				updateWindowTitle();
+			});
+		});
+		
+	}
+
+	private void writeObjectTypesToFile() {
+		ObjectType.writeToFile(new File(FILE_OBJECT_TYPES), objectTypes);
+	}
+
+	private void showIndeterminateTask(ProgressDialog pd, String taskTitle) {
+		SwingUtilities.invokeLater(()->{
+			pd.setTaskTitle(taskTitle);
+			pd.setIndeterminate(true);
+		});
+	}
+
+	private void setGUI(Data data) {
+		dataTabPane.removeAll();
+		dataTabPane.addTab("General", new GeneralDataPanel(data));
+		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
+		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
+		
+		MapPanel mapPanel = new MapPanel(data.worldObjects);
+		dataTabPane.addTab("Map", mapPanel);
+		SwingUtilities.invokeLater(mapPanel::initialize);
+
+		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
+		objectTypesPanel.addDataChangeListener((objectTypeID, changedValue) -> writeObjectTypesToFile());
+		objectTypesPanel.addDataChangeListener(mapPanel);
+		
+		dataTabPane.addTab("Object Types", objectTypesPanel);
+}
+
+	private Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
+		showIndeterminateTask(pd, "Read Content");
 		byte[] bytes;
 		try { bytes = Files.readAllBytes(file.toPath()); }
 		catch (IOException ex) {
@@ -158,7 +211,9 @@ public class PlanetCrafterSaveGameViewer {
 			//ex.printStackTrace();
 			return null;
 		}
+		if (Thread.currentThread().isInterrupted()) return null;
 		
+		showIndeterminateTask(pd, "Create JSON Structure");
 		String content = new String(bytes);
 		Vector<Vector<Value<NV, V>>> fileData = new Vector<>();
 		Vector<Value<NV, V>> blockData = new Vector<>();
@@ -177,21 +232,11 @@ public class PlanetCrafterSaveGameViewer {
 			fileData.add(new Vector<>(blockData));
 			blockData.clear();
 		}
+		if (Thread.currentThread().isInterrupted()) return null;
 		
 		return fileData;
 	}
 
-	private void setGUI(Data data) {
-		dataTabPane.removeAll();
-		dataTabPane.addTab("General", new GeneralDataPanel(data));
-		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
-		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
-		
-		MapPanel mapPanel = new MapPanel(data.worldObjects);
-		dataTabPane.addTab("Map", mapPanel);
-		SwingUtilities.invokeLater(mapPanel::initialize);
-	}
-	
 	@SuppressWarnings("unused")
 	private static void scanFileContent(String pathname) {
 		File file = new File(pathname);
@@ -239,6 +284,8 @@ public class PlanetCrafterSaveGameViewer {
 			try {
 				
 				while( !content.isEmpty() ) {
+					if (Thread.currentThread().isInterrupted()) break;
+					
 					JSON_Parser<NV, V> parser = new JSON_Parser<NV,V>(content, null);
 					glueChar = null;
 					JSON_Data.Value<NV,V> result = parser.parse_withParseException(str -> {

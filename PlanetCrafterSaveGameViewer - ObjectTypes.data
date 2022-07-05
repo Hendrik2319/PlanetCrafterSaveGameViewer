@@ -1,0 +1,295 @@
+ObjectType: Algae1Seed
+label = Algae
+
+ObjectType: AlgaeGenerator1
+label = AlgaeGenerator T1
+
+ObjectType: AlgaeGenerator2
+label = AlgaeGenerator T2
+
+ObjectType: Alloy
+label = Super Alloy
+
+ObjectType: Aluminium
+label = Aluminium
+
+ObjectType: astrofood
+label = Space Food
+
+ObjectType: Backpack5
+label = Backpack T5
+
+ObjectType: Bacteria1
+label = Bacteria Sample
+
+ObjectType: biodome
+label = Biodome T1
+
+ObjectType: Biodome2
+label = Biodome T2
+
+ObjectType: Biolab
+label = Biolab
+
+ObjectType: Bioplastic1
+
+ObjectType: BlueprintT1
+label = Blueprint Chip
+
+ObjectType: canister
+label = Canister
+
+ObjectType: Cobalt
+label = Cobalt
+
+ObjectType: ComAntenna
+label = Communication Antenna
+
+ObjectType: Container1
+
+ObjectType: Container2
+
+ObjectType: CraftStation1
+label = Craft Station T1
+
+ObjectType: CraftStation2
+label = Craft Station T2
+
+ObjectType: DisplayCase
+label = DisplayCase
+
+ObjectType: Drill2
+label = Drill T2
+
+ObjectType: Drill3
+label = Drill T3
+
+ObjectType: EnergyGenerator1
+
+ObjectType: EnergyGenerator2
+
+ObjectType: EnergyGenerator3
+
+ObjectType: EnergyGenerator5
+
+ObjectType: EquipmentIncrease2
+
+ObjectType: EscapePod
+
+ObjectType: FabricBlue
+label = Fabric
+
+ObjectType: Fertilizer1
+label = Fertilizer T1
+
+ObjectType: Fertilizer2
+label = Fertilizer T2
+
+ObjectType: Foundation
+label = Foundation
+
+ObjectType: GasExtractor1
+label = GasExtractor T1
+
+ObjectType: GeneticManipulator1
+
+ObjectType: GoldenContainer
+
+ObjectType: GoldenEffigie1
+
+ObjectType: GoldenEffigie2
+
+ObjectType: GrassSpreader1
+label = Grass Spreader T1
+
+ObjectType: Heater1
+label = Heater T1
+
+ObjectType: Heater2
+label = Heater T2
+
+ObjectType: Heater3
+label = Heater T3
+
+ObjectType: Heater4
+label = Heater T4
+
+ObjectType: HudCompass
+label = MicroChip Compass
+
+ObjectType: ice
+label = Ice
+
+ObjectType: Iridium
+
+ObjectType: Iron
+
+ObjectType: Jetpack2
+
+ObjectType: LaunchPlatform
+
+ObjectType: Magnesium
+
+ObjectType: MethanCapsule1
+
+ObjectType: MultiBuild
+
+ObjectType: MultiDeconstruct
+
+ObjectType: MultiToolLight2
+
+ObjectType: OreExtractor1
+
+ObjectType: OreExtractor2
+
+ObjectType: Osmium
+
+ObjectType: OutsideLamp1
+
+ObjectType: OxygenCapsule1
+
+ObjectType: OxygenTank4
+
+ObjectType: pod
+
+ObjectType: Pod4x
+
+ObjectType: PulsarQuartz
+label = Pulsar Quartz
+
+ObjectType: RedPowder1
+label = Explosive Powder
+
+ObjectType: RocketBiomass1
+label = Biomass Rocket
+isBoosterRocketFor = Biomass
+
+ObjectType: RocketHeat1
+label = Asteroids Attraction Rocket (Heat, Uranium)
+isBoosterRocketFor = Heat
+
+ObjectType: RocketInformations1
+label = Map Information Rocket
+
+ObjectType: RocketMap1
+label = GPS Satellite T1
+
+ObjectType: RocketMap2
+label = GPS Satellite T2
+
+ObjectType: RocketMap3
+label = GPS Satellite T3
+
+ObjectType: RocketOxygen1
+label = Seeds Spreader Rocket
+isBoosterRocketFor = Oxygene
+
+ObjectType: RocketPressure1
+label = Magnetic Field Protection Rocket (Pressure, Iridium)
+isBoosterRocketFor = Pressure
+
+ObjectType: RocketReactor
+label = Rocket Engine
+
+ObjectType: Rod-alloy
+label = Super Alloy Rod
+
+ObjectType: Rod-iridium
+label = Iridium Rod
+
+ObjectType: Rod-uranium
+label = Uranium Rod
+
+ObjectType: ScreenEnergy
+
+ObjectType: ScreenMap1
+
+ObjectType: ScreenMessage
+
+ObjectType: ScreenRockets
+
+ObjectType: ScreenTerraformation
+
+ObjectType: ScreenTerraStage
+
+ObjectType: ScreenUnlockables
+
+ObjectType: Seed0
+
+ObjectType: Seed1
+
+ObjectType: Seed2
+
+ObjectType: Seed3
+
+ObjectType: Seed4
+
+ObjectType: Seed5
+
+ObjectType: Seed6
+
+ObjectType: SeedGold
+
+ObjectType: SeedSpreader1
+label = Seed Spreader T1
+
+ObjectType: SeedSpreader2
+label = Seed Spreader T2
+
+ObjectType: Silicon
+label = Silicon
+
+ObjectType: SpaceMultiplierBiomass
+
+ObjectType: SpaceMultiplierHeat
+
+ObjectType: SpaceMultiplierOxygen
+
+ObjectType: SpaceMultiplierPressure
+
+ObjectType: Stairs
+label = Stairs
+
+ObjectType: Sulfur
+label = Sulfur
+
+ObjectType: Titanium
+label = Titanium
+
+ObjectType: Tree3Seed
+
+ObjectType: TreeRoot
+label = Tree Bark
+
+ObjectType: TreeSpreader0
+
+ObjectType: Uranim
+label = Uranium
+
+ObjectType: Vegetable0Growable
+
+ObjectType: Vegetable0Seed
+
+ObjectType: Vegetable1Growable
+
+ObjectType: Vegetable1Seed
+
+ObjectType: Vegetable2Growable
+
+ObjectType: Vegetable2Seed
+
+ObjectType: Vegetable3Growable
+
+ObjectType: Vegetable3Seed
+
+ObjectType: VegetableGrower1
+
+ObjectType: WaterBottle1
+
+ObjectType: WaterCollector1
+
+ObjectType: wreckpilar
+
+ObjectType: Zeolite
+label = Zeolite
+

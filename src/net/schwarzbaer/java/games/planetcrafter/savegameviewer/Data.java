@@ -19,9 +19,9 @@ class Data {
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
-	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure) {
+	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, HashMap<String,ObjectType> objectTypes) {
 		try {
-			return new Data(jsonStructure);
+			return new Data(jsonStructure, objectTypes);
 			
 		} catch (ParseException ex) {
 			System.err.printf("ParseException while parsing JSON structure: %s%n", ex.getMessage());
@@ -45,7 +45,7 @@ class Data {
 	final Vector<GeneralData2> generalData2;
 	final Vector<Layer> layers;
 	
-	private Data(Vector<Vector<Value<NV, V>>> dataVec) throws ParseException, TraverseException {
+	private Data(Vector<Vector<Value<NV, V>>> dataVec, HashMap<String, ObjectType> objectTypes) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
 		
 		System.out.printf("Parsing JSON Structure ...%n");
@@ -62,13 +62,14 @@ class Data {
 		
 		System.out.printf("Processing Data ...%n");
 		for (WorldObject wo : worldObjects) {
-			if (wo.listId <= 0) continue;
-			for (ObjectList ol : objectLists)
-				if (ol.id==wo.listId) {
-					ol.container = wo;
-					wo.list = ol;
-					break;
-				}
+			wo.objectType = ObjectType.getOrCreate(objectTypes, wo.objectTypeID);
+			if (0 < wo.listId)
+				for (ObjectList ol : objectLists)
+					if (ol.id==wo.listId) {
+						ol.container = wo;
+						wo.list = ol;
+						break;
+					}
 		}
 		
 		for (ObjectList ol : objectLists) {
@@ -169,7 +170,7 @@ class Data {
 	}
 
 	static class Coord3 {
-		final double x,y,z;
+		private final double x,y,z;
 		
 		Coord3(String str, String debugLabel) throws ParseException {
 			double[] arr =  parseDoubleArray(str, debugLabel);
@@ -185,19 +186,22 @@ class Data {
 			return String.format(Locale.ENGLISH, "%s, %s, %s", x, y, z);
 		}
 		
-		public boolean isZero() {
+		boolean isZero() {
 			return x==0 && y==0 && z==0;
 		}
 		
-		public void addTo(ValueListOutput out, int indentLevel) {
-			out.add(indentLevel, "X", x);
-			out.add(indentLevel, "Y", y);
-			out.add(indentLevel, "Z", z);
+		void addTo(ValueListOutput out, int indentLevel) {
+			out.add(indentLevel, "X", "%s (Map Y)" , x);
+			out.add(indentLevel, "Y", "%s (Height)", y);
+			out.add(indentLevel, "Z", "%s (Map X)" , z);
 		}
+		
+		double getMapX() { return z; };
+		double getMapY() { return x; };
 	}
 	
 	static class Rotation {
-		final double x,y,z,w;
+		private final double x,y,z,w;
 		Rotation(String str, String debugLabel) throws ParseException {
 			double[] arr =  parseDoubleArray(str, debugLabel);
 			if (arr.length!=4) throw new ParseException("%s: Unexpected length of array: %d (!=4)", debugLabel, arr.length);
@@ -213,11 +217,11 @@ class Data {
 			return String.format(Locale.ENGLISH, "%s, %s, %s, %s", x, y, z, w);
 		}
 		
-		public boolean isZero() {
+		boolean isZero() {
 			return x==0 && y==0 && z==0 && w==0;
 		}
 		
-		public void addTo(ValueListOutput out, int indentLevel) {
+		void addTo(ValueListOutput out, int indentLevel) {
 			out.add(indentLevel, "X", x);
 			out.add(indentLevel, "Y", y);
 			out.add(indentLevel, "Z", z);
@@ -287,7 +291,7 @@ class Data {
 	
 	static class WorldObject {
 		final long     id;
-		final String   objType;
+		final String   objectTypeID;
 		final long     listId;
 		final String   _liGrps;
 		final Coord3   position;
@@ -302,6 +306,7 @@ class Data {
 		ObjectList     list;
 		WorldObject    container;
 		ObjectList     containerList;
+		ObjectType     objectType;
 		/*
 			Block[2]: 3033 entries
 			-> Format: [2 blocks]
@@ -323,32 +328,42 @@ class Data {
 		WorldObject(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			String positionStr, rotationStr/* , colorStr */;
-			id          = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
-			objType     = JSON_Data.getStringValue (object, "gId"   , debugLabel);
-			listId      = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
-			_liGrps     = JSON_Data.getStringValue (object, "liGrps", debugLabel);
-			positionStr = JSON_Data.getStringValue (object, "pos"   , debugLabel);
-			rotationStr = JSON_Data.getStringValue (object, "rot"   , debugLabel);
-			_wear       = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
-			_pnls       = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
-			_color      = JSON_Data.getStringValue (object, "color" , debugLabel);
+			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
+			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
+			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
+			_liGrps      = JSON_Data.getStringValue (object, "liGrps", debugLabel);
+			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
+			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
+			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
+			_pnls        = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
+			_color       = JSON_Data.getStringValue (object, "color" , debugLabel);
 			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel);
-			text        = JSON_Data.getStringValue (object, "text"  , debugLabel);
-			growth     = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
+			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
 			
-			position    = new Coord3  (positionStr, debugLabel+".pos");
-			rotation    = new Rotation(rotationStr, debugLabel+".rot");
+			position     = new Coord3  (positionStr, debugLabel+".pos");
+			rotation     = new Rotation(rotationStr, debugLabel+".rot");
 			//color       = new Coord3  (colorStr   , debugLabel+".color");
 			
 			list      = null;
 			container = null;
 			containerList = null;
+			objectType = null;
+		}
+		
+		String getName() {
+			if (objectType!=null && objectType.label!=null)
+				return objectType.label;
+			if (objectTypeID!=null)
+				return String.format("{%s}", objectTypeID);
+			return String.format("[%d]", id);
 		}
 		
 		String generateOutput() {
 			ValueListOutput out = new ValueListOutput();
+			out.add(0, "Name", getName());
 			out.add(0, "ID", id);
-			out.add(0, "Name", objType);
+			out.add(0, "ObjectTypeID", objectTypeID);
 			if (!text.isEmpty()   )   out.add(0, "Text", text);
 			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
 			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
@@ -375,11 +390,11 @@ class Data {
 		}
 		
 		String getShortDesc() {
-			return String.format("%s (\"%s\", Pos:%s)", objType, text, position);
+			return String.format("%s (\"%s\", Pos:%s)", getName(), text, position);
 		}
 
 		public void addShortDescTo(ValueListOutput out, int indentLevel) {
-			out.add(indentLevel, "Name", objType);
+			out.add(indentLevel, "Name", getName());
 			out.add(indentLevel, "Text", text);
 			out.add(indentLevel, "Position");
 			position.addTo(out,indentLevel+1);
@@ -418,7 +433,7 @@ class Data {
 		Vector<Map.Entry<String,Integer>> getContentResume() {
 			HashMap<String,Integer> content = new HashMap<>();
 			for (WorldObject wo : worldObjs) {
-				String woType = wo==null ? "<Unknown Item>" : wo.objType;
+				String woType = wo==null ? "<Unknown Item>" : wo.getName();
 				Integer n = content.get(woType);
 				if (n==null) n = 0;
 				content.put(woType,n+1);
