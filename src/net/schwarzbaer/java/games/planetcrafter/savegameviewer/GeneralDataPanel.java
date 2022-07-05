@@ -128,10 +128,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 	}
 	
 	@Override
-	public void valueChanged(String objectTypeID, ObjectTypeValue changedValue) {
+	public void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
 		energyPanel.objectTypeValueChanged(objectTypeID, changedValue);
-		if (changedValue==ObjectTypeValue.Energy) {
-		}
 	}
 
 	private <ValueType> JComponent createPanel(String title, Vector<ValueType> values, Function<ValueType,JPanel> panelConstructor) {
@@ -421,11 +419,27 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatBiomassLevel(data.biomassLevel)), c);
 			
 			c.gridy++;
+			c.weightx = 0; c.gridx = 0; add(new JLabel("Terraformation: "), c);
+			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatTerraformation(data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel)), c);
+			
+			c.gridy++;
 			c.weighty = 1;
 			c.weightx = 1;
 			c.gridwidth = 2;
 			c.gridx = 0;
 			add(new JLabel(), c);
+		}
+
+		private String formatTerraformation(double value) {
+			if (value < 2000) return formatValue("%1.2f Ti", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kTi", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f MTi", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f GTi", value);
+			value/=1000;
+			return formatValue("%1.2f TTi", value);
 		}
 
 		private String formatValue(String format, double value) {

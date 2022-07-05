@@ -45,7 +45,7 @@ class ObjectTypesPanel extends JScrollPane {
 	}
 	
 	interface DataChangeListener {
-		void valueChanged(String objectTypeID, ObjectTypeValue changedValue);
+		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue);
 	}
 	
 	void    addDataChangeListener(DataChangeListener dcl) { tableModel.dataChangeListeners.   add(dcl); }
@@ -192,7 +192,7 @@ class ObjectTypesPanel extends JScrollPane {
 		
 		void notifyDataChangeListeners(String objectTypeID, ObjectTypeValue value) {
 			for (DataChangeListener dcl : dataChangeListeners)
-				dcl.valueChanged(objectTypeID, value);
+				dcl.objectTypeValueChanged(objectTypeID, value);
 		}
 		
 		void fireTableCellUpdate(int rowIndex, ColumnID columnID) {

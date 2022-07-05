@@ -82,7 +82,7 @@ class MapPanel extends JPanel implements ObjectTypesPanel.DataChangeListener {
 	}
 
 	@Override
-	public void valueChanged(String objectTypeID, ObjectTypesPanel.ObjectTypeValue changedValue) {
+	public void objectTypeValueChanged(String objectTypeID, ObjectTypesPanel.ObjectTypeValue changedValue) {
 		if (changedValue==ObjectTypesPanel.ObjectTypeValue.Label) {
 			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapView.getObjLabels()));
 			cmbbxObjLabels.setSelectedItem(null);
