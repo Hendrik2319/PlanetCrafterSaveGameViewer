@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
@@ -97,7 +98,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 		private double totalSumFinal;
 
 		SubPanel(Data data, PhysicalValue physicalValue) {
-			super(new BorderLayout());
+			super(new BorderLayout(3,3));
 			this.data = data;
 			this.physicalValue = physicalValue;
 			totalSumFinal = 0;
@@ -168,7 +169,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 
 		void updateContent() {
 			
-			HashMap<String,ObjectsTableRow> tableContent = new HashMap<>();
+			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
 			double totalSum = 0.0;
 			int amountOfBoosterRockets = 0;
 			
@@ -178,13 +179,15 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 				
 				Double value = getValue(wo);
 				if (value != null) {
-					ObjectsTableRow row = tableContent.get(wo.objectTypeID);
-					if (row==null) tableContent.put(wo.objectTypeID, row = new ObjectsTableRow(wo.getName()));
+					Double multiplier = getMultiplier(wo);
+					RowIndex rowIndex = new RowIndex(wo.objectTypeID, multiplier==null ? 0 : multiplier.doubleValue());
+					ObjectsTableRow row = tableContent.get(rowIndex);
+					if (row==null) tableContent.put(rowIndex, row = new ObjectsTableRow(wo.getName(), multiplier));
 					row.count++;
 					row.baseSum += value;
 					if (wo.objectType.energy!=null)
 						row.energySum += wo.objectType.energy;
-					totalSum += value;
+					totalSum += value * (multiplier==null ? 1 : multiplier.doubleValue());
 				}
 				
 				if (wo.objectType.isBoosterRocketFor==physicalValue) {
@@ -198,7 +201,44 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 			fieldProductionRate     .setText(physicalValue.formatRate(totalSum));
 			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumFinal));
 			fieldCurrentLevel.setText(getCurrentLevelAsString(data.terraformingStates));
-			tableModel.setData(tableContent);
+			tableModel.setData(tableContent.values());
+		}
+		
+		private Double getMultiplier(WorldObject wo) {
+			if (physicalValue!=PhysicalValue.Oxygen) return null;
+			
+			if (wo.list==null) return null;
+			if (wo.list.worldObjs.length==0) return null;
+			
+			WorldObject multiplierItem = wo.list.worldObjs[0];
+			if (multiplierItem==null) return null;
+			if (multiplierItem.objectType==null) return null;
+			
+			return multiplierItem.objectType.oxygenBooster;
+		}
+
+		private static class RowIndex {
+			
+			final String objectTypeID;
+			final double multiplier;
+			
+			RowIndex(String objectTypeID, double multiplier) {
+				if (objectTypeID==null) throw new IllegalArgumentException();
+				this.objectTypeID = objectTypeID;
+				this.multiplier = multiplier;
+			}
+			
+			@Override public int hashCode() {
+				return Double.hashCode(multiplier) ^ objectTypeID.hashCode();
+			}
+			
+			@Override public boolean equals(Object obj) {
+				if (obj instanceof RowIndex) {
+					RowIndex other = (RowIndex) obj;
+					return (other.multiplier==this.multiplier) && other.objectTypeID.equals(this.objectTypeID);
+				}
+				return false;
+			}
 		}
 		
 		private static class ObjectsTableRow {
@@ -209,9 +249,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 			double baseSum;
 			double energySum;
 			
-			ObjectsTableRow(String name) {
-				this(name, null);
-			}
 			ObjectsTableRow(String name, Double multiplier) {
 				this.name = name;
 				this.multiplier = multiplier;
@@ -302,8 +339,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 				table.setDefaultRenderer(Double.class, tcr);
 			}
 
-			void setData(HashMap<String,ObjectsTableRow> data) {
-				rows = new Vector<>(data.values());
+			void setData(Collection<ObjectsTableRow> data) {
+				rows = new Vector<>(data);
 				rows.sort(Comparator.<ObjectsTableRow,String>comparing(row->row.name));
 				fireTableUpdate();
 			}

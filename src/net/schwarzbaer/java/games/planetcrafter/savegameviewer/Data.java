@@ -369,9 +369,9 @@ class Data {
 		final String   text;
 		final long     growth;
 		
-		ObjectList     list;
-		WorldObject    container;
-		ObjectList     containerList;
+		ObjectList     list; // list associated with listId
+		WorldObject    container; // container, it is containing this object
+		ObjectList     containerList; // list, it is containing this object
 		ObjectType     objectType;
 		/*
 			Block[2]: 3033 entries
@@ -472,7 +472,7 @@ class Data {
 		final long size;
 		final int[] worldObjIds;
 		WorldObject[] worldObjs;
-		WorldObject container;
+		WorldObject container; // container using this list
 
 		/*
 			Block[3]: 221 entries
@@ -492,7 +492,7 @@ class Data {
 			woIdsStr    = JSON_Data.getStringValue (object, "woIds" , debugLabel);
 			
 			worldObjIds = parseIntegerArray(woIdsStr, debugLabel+".woIds");
-			worldObjs = null;
+			worldObjs = null; // will be set in post processing at end of Data constructor
 			container = null;
 		}
 
