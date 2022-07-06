@@ -28,8 +28,10 @@ import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
-class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeListener {
+class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 5787736919473135578L;
 	private SubPanel heatPanel;
 	private SubPanel pressurePanel;
@@ -51,11 +53,14 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 	}
 
 	@Override
-	public void objectTypeValueChanged(String objectTypeID, ObjectTypesPanel.ObjectTypeValue changedValue) {
-		if (changedValue==null)
+	public void objectTypesChanged(ObjectTypesChangeEvent event) {
+		if (event.eventType!=ObjectTypesChangeEvent.EventType.ValueChanged)
 			return;
 		
-		switch (changedValue) {
+		if (event.changedValue==null)
+			return;
+		
+		switch (event.changedValue) {
 		case BoosterRocket: case Finished: case Energy:
 			break;
 			
@@ -156,7 +161,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 			if (terraformingStates==null) return null;
 			if (terraformingStates.isEmpty()) return null;
 			
-			// TODO Auto-generated method stub
 			TerraformingStates states = terraformingStates.firstElement();
 			switch (physicalValue) {
 			case Heat    : return Data.TerraformingStates.formatHeatLevel    (states.heatLevel    );
@@ -178,7 +182,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesPanel.DataChangeLis
 				if (wo.objectType == null) continue;
 				
 				Double value = getValue(wo);
-				if (value != null) {
+				if (value!=null && wo.isInstalled()) {
 					Double multiplier = getMultiplier(wo);
 					RowIndex rowIndex = new RowIndex(wo.objectTypeID, multiplier==null ? 0 : multiplier.doubleValue());
 					ObjectsTableRow row = tableContent.get(rowIndex);

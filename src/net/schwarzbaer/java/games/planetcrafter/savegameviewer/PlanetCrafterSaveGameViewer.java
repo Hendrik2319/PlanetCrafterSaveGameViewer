@@ -199,10 +199,10 @@ public class PlanetCrafterSaveGameViewer {
 		MapPanel mapPanel = new MapPanel(data.worldObjects);
 
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
-		objectTypesPanel.addDataChangeListener((objectTypeID, changedValue) -> writeObjectTypesToFile());
-		objectTypesPanel.addDataChangeListener(mapPanel);
-		objectTypesPanel.addDataChangeListener(generalDataPanel);
-		objectTypesPanel.addDataChangeListener(terraformingPanel);
+		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
+		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
+		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
+		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Terraforming", terraformingPanel);

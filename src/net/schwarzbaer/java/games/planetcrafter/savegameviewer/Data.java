@@ -455,6 +455,10 @@ class Data {
 			return out.generateOutput();
 		}
 		
+		boolean isInstalled() {
+			return !rotation.isZero() || !position.isZero();
+		}
+		
 		String getShortDesc() {
 			return String.format("%s (\"%s\", Pos:%s)", getName(), text, position);
 		}

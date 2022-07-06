@@ -33,8 +33,10 @@ import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
-class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChangeListener {
+class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = -9191759791973305801L;
 	
 	//private final Data data;
@@ -128,8 +130,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 	}
 	
 	@Override
-	public void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
-		energyPanel.objectTypeValueChanged(objectTypeID, changedValue);
+	public void objectTypesChanged(ObjectTypesChangeEvent event) {
+		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged)
+			energyPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
 	}
 
 	private <ValueType> JComponent createPanel(String title, Vector<ValueType> values, Function<ValueType,JPanel> panelConstructor) {
@@ -230,6 +233,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 				totalSum = 0.0;
 				for (WorldObject wo : worldObjects) {
 					if (wo == null) continue;
+					if (!wo.isInstalled()) continue;
 					if (wo.objectType == null) continue;
 					if (wo.objectType.energy == null) continue;
 					

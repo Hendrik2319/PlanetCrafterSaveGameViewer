@@ -114,8 +114,13 @@ label = Solar Panel T2
 energy = 19.5
 <finished>
 
+ObjectType: EnergyGenerator4
+label = Nuclear Reactor T1
+energy = 86.5
+<finished>
+
 ObjectType: EnergyGenerator5
-label = Nuclear Reactor  T2
+label = Nuclear Reactor T2
 energy = 331.5
 <finished>
 
@@ -243,6 +248,18 @@ label = Osmium
 ObjectType: OutsideLamp1
 
 ObjectType: OxygenCapsule1
+
+ObjectType: OxygenTank1
+label = Oxygen Tank T1
+<finished>
+
+ObjectType: OxygenTank2
+label = Oxygen Tank T2
+<finished>
+
+ObjectType: OxygenTank3
+label = Oxygen Tank T3
+<finished>
 
 ObjectType: OxygenTank4
 label = Oxygen Tank T4

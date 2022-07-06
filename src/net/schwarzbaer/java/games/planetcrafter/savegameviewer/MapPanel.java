@@ -26,8 +26,11 @@ import javax.swing.JTextArea;
 import net.schwarzbaer.gui.Canvas;
 import net.schwarzbaer.gui.ZoomableCanvas;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
-class MapPanel extends JPanel implements ObjectTypesPanel.DataChangeListener {
+class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
 	private final MapView mapView;
@@ -82,11 +85,14 @@ class MapPanel extends JPanel implements ObjectTypesPanel.DataChangeListener {
 	}
 
 	@Override
-	public void objectTypeValueChanged(String objectTypeID, ObjectTypesPanel.ObjectTypeValue changedValue) {
-		if (changedValue==ObjectTypesPanel.ObjectTypeValue.Label) {
-			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapView.getObjLabels()));
-			cmbbxObjLabels.setSelectedItem(null);
-		}
+	public void objectTypesChanged(ObjectTypesChangeEvent event) {
+		if (event.eventType != ObjectTypesChangeEvent.EventType.ValueChanged)
+			return;
+		if (event.changedValue != ObjectTypeValue.Label)
+			return;
+		
+		cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapView.getObjLabels()));
+		cmbbxObjLabels.setSelectedItem(null);
 	}
 
 	private static class OverView extends Canvas {

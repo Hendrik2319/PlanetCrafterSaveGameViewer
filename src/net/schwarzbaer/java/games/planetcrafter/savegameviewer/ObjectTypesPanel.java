@@ -10,6 +10,7 @@ import java.util.Vector;
 import java.util.function.Supplier;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -21,6 +22,7 @@ import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
+import net.schwarzbaer.system.ClipboardTools;
 
 class ObjectTypesPanel extends JScrollPane {
 	private static final long serialVersionUID = 7789343749897706554L;
@@ -44,27 +46,62 @@ class ObjectTypesPanel extends JScrollPane {
 		setViewportView(table);
 	}
 	
-	interface DataChangeListener {
-		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue);
+	static class ObjectTypesChangeEvent {
+		
+		enum EventType { ValueChanged, NewTypeAdded }
+		
+		final EventType eventType;
+		final String objectTypeID;
+		final ObjectTypeValue changedValue; // is null, if eventType == NewTypeAdded
+		
+		private ObjectTypesChangeEvent(EventType eventType, String objectTypeID, ObjectTypeValue changedValue) {
+			this.eventType = eventType;
+			this.objectTypeID = objectTypeID;
+			this.changedValue = changedValue;
+		}
+		
+		static ObjectTypesChangeEvent createValueChangedEvent(String objectTypeID, ObjectTypeValue changedValue) {
+			return new ObjectTypesChangeEvent(EventType.ValueChanged, objectTypeID, changedValue);
+		}
+		
+		static ObjectTypesChangeEvent createNewTypeAddedEvent(String objectTypeID) {
+			return new ObjectTypesChangeEvent(EventType.NewTypeAdded, objectTypeID, null);
+		}
 	}
 	
-	void    addDataChangeListener(DataChangeListener dcl) { tableModel.dataChangeListeners.   add(dcl); }
-	void removeDataChangeListener(DataChangeListener dcl) { tableModel.dataChangeListeners.remove(dcl); }
+	interface ObjectTypesChangeListener {
+		void objectTypesChanged(ObjectTypesChangeEvent event);
+	}
+	
+	void    addObjectTypesChangeListener(ObjectTypesChangeListener dcl) { tableModel.objectTypesChangeListeners.   add(dcl); }
+	void removeObjectTypesChangeListener(ObjectTypesChangeListener dcl) { tableModel.objectTypesChangeListeners.remove(dcl); }
 	
 	private class TableContextMenu extends ContextMenu {
 		private static final long serialVersionUID = -2507135643891209882L;
 		private ObjectType clickedRow;
+		@SuppressWarnings("unused")
 		private int clickedRowIndex;
 
 		TableContextMenu() {
 			clickedRow = null;
 			clickedRowIndex = -1;
 			
-			JMenuItem miCopyID2Label = add(PlanetCrafterSaveGameViewer.createMenuItem("Copy ID value to Label", e->{
+			JMenuItem miCopyID2Label = add(PlanetCrafterSaveGameViewer.createMenuItem("Copy ID to Clipboard", e->{
 				if (clickedRow==null) return;
-				clickedRow.label = clickedRow.id;
-				tableModel.fireTableCellUpdate(clickedRowIndex, ObjectTypesTableModel.ColumnID.label);
-				tableModel.notifyDataChangeListeners(clickedRow.id, ObjectTypeValue.Label);
+				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.id);
+			}));
+			
+			add(PlanetCrafterSaveGameViewer.createMenuItem("Create New Object Type", e->{
+				boolean alreadyExists = true;
+				String objectTypeID = null;;
+				while (alreadyExists) {
+					objectTypeID = JOptionPane.showInputDialog(ObjectTypesPanel.this, "Enter new Object Type ID", "Create New Object Type", JOptionPane.PLAIN_MESSAGE);
+					if (objectTypeID==null) break;
+					alreadyExists = tableModel.existsObjectTypeID(objectTypeID);
+				}
+				if (objectTypeID!=null) {
+					tableModel.addNewObjectType(objectTypeID);
+				}
 			}));
 			
 			addSeparator();
@@ -82,8 +119,8 @@ class ObjectTypesPanel extends JScrollPane {
 				
 				miCopyID2Label.setEnabled(clickedRow!=null);
 				miCopyID2Label.setText(clickedRow == null
-						? "Copy ID value to Label"
-						: String.format("Copy ID value \"%s\" to Label", clickedRow.id));
+						? "Copy ID to Clipboard"
+						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
 			});
 		}
 	}
@@ -178,7 +215,7 @@ class ObjectTypesPanel extends JScrollPane {
 			}
 		}
 		
-		private final Vector<DataChangeListener> dataChangeListeners;
+		private final Vector<ObjectTypesChangeListener> objectTypesChangeListeners;
 		private final Vector<String> objTypeIDs;
 		private final HashMap<String, ObjectType> objectTypes;
 
@@ -187,14 +224,41 @@ class ObjectTypesPanel extends JScrollPane {
 			this.objectTypes = objectTypes;
 			objTypeIDs = new Vector<>(objectTypes.keySet());
 			objTypeIDs.sort(Data.caseIgnoringComparator);
-			dataChangeListeners = new Vector<>();
+			objectTypesChangeListeners = new Vector<>();
 		}
 		
-		void notifyDataChangeListeners(String objectTypeID, ObjectTypeValue value) {
-			for (DataChangeListener dcl : dataChangeListeners)
-				dcl.objectTypeValueChanged(objectTypeID, value);
+		public void addNewObjectType(String objectTypeID) {
+			for (int i=0; i<objTypeIDs.size(); i++) {
+				String otID = objTypeIDs.get(i);
+				int cmpVal = otID.compareToIgnoreCase(objectTypeID);
+				if (cmpVal==0)
+					System.err.printf("Can't create a new Object Type with ID \"%s\". This ID is already used.", objectTypeID);
+				if (cmpVal>0) {
+					objTypeIDs.insertElementAt(objectTypeID, i);
+					objectTypes.put(objectTypeID, new ObjectType(objectTypeID));
+					fireTableRowAdded(i);
+					fireObjectTypeAddedEvent(objectTypeID);
+					break;
+				}
+			}
+		}
+
+		public boolean existsObjectTypeID(String objectTypeID) {
+			return objectTypes.containsKey(objectTypeID);
+		}
+
+		void fireObjectTypeAddedEvent(String objectTypeID) {
+			ObjectTypesChangeEvent event = ObjectTypesChangeEvent.createNewTypeAddedEvent(objectTypeID);
+			for (ObjectTypesChangeListener dcl : objectTypesChangeListeners)
+				dcl.objectTypesChanged(event);
+		}
+		void fireValueChangedEvent(String objectTypeID, ObjectTypeValue value) {
+			ObjectTypesChangeEvent event = ObjectTypesChangeEvent.createValueChangedEvent(objectTypeID, value);
+			for (ObjectTypesChangeListener dcl : objectTypesChangeListeners)
+				dcl.objectTypesChanged(event);
 		}
 		
+		@SuppressWarnings("unused")
 		void fireTableCellUpdate(int rowIndex, ColumnID columnID) {
 			int columnIndex = getColumn(columnID);
 			super.fireTableCellUpdate(rowIndex, columnIndex);
@@ -261,7 +325,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygenBooster     : row.oxygenBooster = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
 			}
-			notifyDataChangeListeners(row.id, columnID.objectTypeValue);
+			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}
 		
 		
