@@ -51,6 +51,8 @@ energy = -75.0
 
 ObjectType: Biolab
 label = Biolab
+energy = -40.0
+<finished>
 
 ObjectType: Bioplastic1
 label = Bioplastic Nugget
@@ -70,20 +72,30 @@ label = Cobalt
 
 ObjectType: ComAntenna
 label = Communication Antenna
-energy = 0.0
+energy = -15.0
+<finished>
 
 ObjectType: Container1
+label = Storage Crate
+<finished>
 
 ObjectType: Container2
+label = Locker Storage
+<finished>
 
 ObjectType: CraftStation1
-label = Craft Station T1
+label = Craft Station T2
+energy = -0.5
+<finished>
 
 ObjectType: CraftStation2
-label = Craft Station T2
+label = Advanced Craft Station
+energy = -12.5
+<finished>
 
 ObjectType: DisplayCase
-label = DisplayCase
+label = Display Case
+<finished>
 
 ObjectType: Drill2
 label = Drill T3
@@ -124,9 +136,17 @@ label = Nuclear Reactor T2
 energy = 331.5
 <finished>
 
+ObjectType: EquipmentIncrease1
+label = Exoskeleton T1
+<finished>
+
 ObjectType: EquipmentIncrease2
+label = Exoskeleton T2
+<finished>
 
 ObjectType: EscapePod
+label = Landing Pod
+<finished>
 
 ObjectType: FabricBlue
 label = Fabric
@@ -151,8 +171,12 @@ energy = -58.0
 <finished>
 
 ObjectType: GeneticManipulator1
+label = DNA Manipulator
+energy = -117.5
+<finished>
 
 ObjectType: GoldenContainer
+label = Golden Container
 
 ObjectType: GoldenEffigie1
 
@@ -192,7 +216,7 @@ energy = -51.5
 <finished>
 
 ObjectType: HudCompass
-label = MicroChip Compass
+label = Microchip - Compass
 <finished>
 
 ObjectType: ice
@@ -212,6 +236,9 @@ label = Jetpack T2
 <finished>
 
 ObjectType: LaunchPlatform
+label = Launch Platform
+energy = -55.0
+<finished>
 
 ObjectType: Magnesium
 label = Magnesium
@@ -222,10 +249,24 @@ label = Methane Cartridge
 <finished>
 
 ObjectType: MultiBuild
+label = Microchip - Construction
+<finished>
 
 ObjectType: MultiDeconstruct
+label = Microchip - Deconstruction
+<finished>
+
+ObjectType: MultiToolLight1
+label = Microchip - Torch T1
+<finished>
 
 ObjectType: MultiToolLight2
+label = Microchip - Torch T2
+<finished>
+
+ObjectType: Mutagen1
+label = Mutagen
+<finished>
 
 ObjectType: OreExtractor1
 label = Ore Extractor T1
@@ -246,8 +287,13 @@ label = Osmium
 <finished>
 
 ObjectType: OutsideLamp1
+label = Outside Lamp
+energy = -0.3
+<finished>
 
 ObjectType: OxygenCapsule1
+label = Oxygen Capsule
+<finished>
 
 ObjectType: OxygenTank1
 label = Oxygen Tank T1
@@ -266,8 +312,12 @@ label = Oxygen Tank T4
 <finished>
 
 ObjectType: pod
+label = Living Compartment
+<finished>
 
 ObjectType: Pod4x
+label = Big Living Compartment (2x2)
+<finished>
 
 ObjectType: PulsarQuartz
 label = Pulsar Quartz
@@ -330,50 +380,75 @@ label = Uranium Rod
 <finished>
 
 ObjectType: ScreenEnergy
+label = Screen - Energy Levels
+energy = -0.4
+<finished>
 
 ObjectType: ScreenMap1
+label = Screen - Mapping
+energy = -14.7
+<finished>
 
 ObjectType: ScreenMessage
+label = Screen - Transmissions
+energy = -0.4
+<finished>
 
 ObjectType: ScreenRockets
+label = Screen - Orbital Informations
+energy = -35.2
+<finished>
 
 ObjectType: ScreenTerraformation
+label = Screen - Terraformation
+energy = -0.4
+<finished>
 
 ObjectType: ScreenTerraStage
+label = Screen - Progress
+energy = -1.3
+<finished>
 
 ObjectType: ScreenUnlockables
+label = Screen - Blueprints
+energy = -0.2
+<finished>
 
 ObjectType: Seed0
-label = 100% Seed
+label = Seed Lirma (100%)
 oxygenBooster = 1.0
 <finished>
 
 ObjectType: Seed1
 label = 150% Seed
 oxygenBooster = 1.5
-<finished>
 
 ObjectType: Seed2
 label = 200% Seed
 oxygenBooster = 2.0
-<finished>
 
 ObjectType: Seed3
+label = Seed Nulna (300%)
+oxygenBooster = 3.0
+<finished>
 
 ObjectType: Seed4
-label = 400% Seed
+label = Seed Tuska (400%)
 oxygenBooster = 4.0
 <finished>
 
 ObjectType: Seed5
-label = 450% Seed
+label = Seed Orema (450%)
 oxygenBooster = 4.5
 <finished>
 
 ObjectType: Seed6
+label = Seed Volnus (500%)
+oxygenBooster = 5.0
+<finished>
 
 ObjectType: SeedGold
-label = 600% Seed
+label = Golden Seeds (600%)
 oxygenBooster = 6.0
 <finished>
 
@@ -416,7 +491,12 @@ label = Titanium
 <finished>
 
 ObjectType: Tree3Seed
-label = Tree Seed "Cernea"
+label = Tree Seed "Cernea" (125%)
+oxygenBooster = 1.25
+<finished>
+
+ObjectType: Tree8Seed
+label = Tree Seed "Soleus" (125%)
 oxygenBooster = 1.25
 <finished>
 
@@ -440,7 +520,7 @@ label = Eggplant
 <finished>
 
 ObjectType: Vegetable0Seed
-label = Eggplant Seed
+label = Eggplant Seeds
 <finished>
 
 ObjectType: Vegetable1Growable
@@ -448,12 +528,16 @@ label = Squash
 <finished>
 
 ObjectType: Vegetable1Seed
-label = Squash Seed
+label = Squash Seeds
 <finished>
 
 ObjectType: Vegetable2Growable
+label = Beans
+<finished>
 
 ObjectType: Vegetable2Seed
+label = Beans Seeds
+<finished>
 
 ObjectType: Vegetable3Growable
 label = Mushroom
@@ -464,12 +548,23 @@ label = Mushroom Seed
 <finished>
 
 ObjectType: VegetableGrower1
-label = Grower T1
+label = Food Grower T1
+energy = -15.0
+<finished>
+
+ObjectType: VegetableGrower2
+label = Food Grower T2
+energy = -29.5
+<finished>
 
 ObjectType: WaterBottle1
 label = Water Bottle
+<finished>
 
 ObjectType: WaterCollector1
+label = Atmospheric Water Collector
+energy = -11.0
+<finished>
 
 ObjectType: wreckpilar
 
