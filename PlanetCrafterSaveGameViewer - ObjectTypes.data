@@ -4,14 +4,14 @@ label = Algae
 
 ObjectType: AlgaeGenerator1
 label = AlgaeGenerator T1
-oxygene = 127.0
+oxygen = 127.0
 biomass = 0.6
 energy = -13.0
 <finished>
 
 ObjectType: AlgaeGenerator2
 label = AlgaeGenerator T2
-oxygene = 350.0
+oxygen = 350.0
 biomass = 17.0
 energy = -27.0
 <finished>
@@ -38,13 +38,13 @@ label = Bacteria Sample
 
 ObjectType: biodome
 label = Biodome T1
-oxygene = 135.0
+oxygen = 135.0
 energy = -37.0
 <finished>
 
 ObjectType: Biodome2
 label = Biodome T2
-oxygene = 1450.0
+oxygen = 1450.0
 biomass = 11.0
 energy = -75.0
 <finished>
@@ -152,7 +152,7 @@ ObjectType: GoldenEffigie2
 
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
-oxygene = 108.0
+oxygen = 108.0
 biomass = 0.15
 energy = -13.8
 <finished>
@@ -283,7 +283,7 @@ label = GPS Satellite T3
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
-isBoosterRocketFor = Oxygene
+isBoosterRocketFor = Oxygen
 <finished>
 
 ObjectType: RocketPressure1
@@ -339,14 +339,14 @@ ObjectType: SeedGold
 
 ObjectType: SeedSpreader1
 label = Flower Spreader T1
-oxygene = 161.0
+oxygen = 161.0
 biomass = 7.2
 energy = -28.8
 <finished>
 
 ObjectType: SeedSpreader2
 label = Flower Spreader T2
-oxygene = 325.0
+oxygen = 325.0
 biomass = 33.5
 energy = -38.8
 <finished>
@@ -383,7 +383,7 @@ label = Tree Bark
 
 ObjectType: TreeSpreader0
 label = Tree Spreader T1
-oxygene = 920.0
+oxygen = 920.0
 biomass = 85.0
 energy = -31.0
 <finished>

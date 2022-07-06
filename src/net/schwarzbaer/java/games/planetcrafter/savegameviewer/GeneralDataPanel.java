@@ -155,12 +155,6 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 		return panel;
 	}
 
-	private static JTextField createOutputTextField(String text) {
-		JTextField comp = new JTextField(text);
-		comp.setEditable(false);
-		return comp;
-	}
-
 	private static class EnergyPanel extends JPanel {
 		private static final long serialVersionUID = 6260130212445154141L;
 		
@@ -369,13 +363,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 				c.gridx = -1;
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("Production: "),c);
-				c.weightx = 1; c.gridx++; add(fieldProduction = createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldProduction = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("  Consumption: "),c);
-				c.weightx = 1; c.gridx++; add(fieldConsumption = createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldConsumption = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("  Budget: "),c);
-				c.weightx = 1; c.gridx++; add(fieldBudget = createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldBudget = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 			}
 
 			void updateValues() {
@@ -394,6 +388,12 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 		TerraformingStatesPanel(Data.TerraformingStates data) {
 			super(new GridBagLayout());
 			
+			JTextField fieldOxygenLevel    = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatOxygenLevel   (data.oxygenLevel  ));
+			JTextField fieldHeatLevel      = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatHeatLevel     (data.heatLevel    ));
+			JTextField fieldPressureLevel  = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatPressureLevel (data.pressureLevel));
+			JTextField fieldBiomassLevel   = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatBiomassLevel  (data.biomassLevel ));
+			JTextField fieldTerraformation = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatTerraformation(data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel));
+			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
 			
@@ -404,23 +404,23 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatOxygenLevel(data.oxygenLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(fieldOxygenLevel, c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Heat: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatHeatLevel(data.heatLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(fieldHeatLevel, c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Pressure: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatPressureLevel(data.pressureLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(fieldPressureLevel, c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Biomass: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatBiomassLevel(data.biomassLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(fieldBiomassLevel, c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Terraformation: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(formatTerraformation(data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel)), c);
+			c.weightx = 1; c.gridx = 1; add(fieldTerraformation, c);
 			
 			c.gridy++;
 			c.weighty = 1;
@@ -428,72 +428,6 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			c.gridwidth = 2;
 			c.gridx = 0;
 			add(new JLabel(), c);
-		}
-
-		private String formatTerraformation(double value) {
-			if (value < 2000) return formatValue("%1.2f Ti", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f kTi", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f MTi", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f GTi", value);
-			value/=1000;
-			return formatValue("%1.2f TTi", value);
-		}
-
-		private String formatValue(String format, double value) {
-			return String.format(Locale.ENGLISH, format, value);
-		}
-
-		private String formatOxygenLevel(double value) {
-			if (value < 2000) return formatValue("%1.2f ppq", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f ppt", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f ppb", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f ppm", value);
-			value/=1000;
-			if (value < 20  ) return formatValue("%1.2f ‰", value);
-			value/=10;
-			return formatValue("%1.2f %%", value);
-		}
-
-		private String formatHeatLevel(double value) {
-			if (value < 2000) return formatValue("%1.2f pk", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f nK", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f µK", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f mK", value);
-			value/=1000;
-			return formatValue("%1.2f K", value);
-		}
-
-		private String formatPressureLevel(double value) {
-			if (value < 2000) return formatValue("%1.2f nPa", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f µPa", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f mPa", value);
-			value/=1000;
-			if (value < 200 ) return formatValue("%1.2f Pa", value);
-			value/=100;
-			return formatValue("%1.2f hPa", value);
-		}
-
-		private String formatBiomassLevel(double value) {
-			if (value < 2000) return formatValue("%1.2f g", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f kg", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f t", value);
-			value/=1000;
-			if (value < 2000) return formatValue("%1.2f kt", value);
-			value/=1000;
-			return formatValue("%1.2f Mt", value);
 		}
 	}
 
@@ -513,23 +447,23 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Health: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Thirst: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.oxygen)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.oxygen)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Position: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.position)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.position)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Rotation: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.rotation)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.rotation)), c);
 			
 			Vector<String> unlockedGroups = new Vector<>(Arrays.asList(data.unlockedGroups));
 			unlockedGroups.sort(Data.caseIgnoringComparator);
@@ -574,15 +508,15 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Crafted Objects: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.craftedObjects)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.craftedObjects)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Load: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Time: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
 			
 			c.gridy++;
 			c.weighty = 1;
@@ -609,11 +543,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesPanel.DataChang
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Has Played Intro: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Mode: "), c);
-			c.weightx = 1; c.gridx = 1; add(createOutputTextField(String.format("%s", data.mode)), c);
+			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.mode)), c);
 			
 			c.gridy++;
 			c.weighty = 1;

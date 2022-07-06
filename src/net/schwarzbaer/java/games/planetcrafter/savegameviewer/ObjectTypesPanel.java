@@ -89,7 +89,7 @@ class ObjectTypesPanel extends JScrollPane {
 	}
 	
 	enum ObjectTypeValue {
-		Label, Heat, Pressure, Oxygene, Biomass, Energy, OxygeneBooster, BoosterRocket
+		Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, Finished
 	}
 	
 	private static class ObjectTypesTableCellRenderer implements TableCellRenderer {
@@ -142,12 +142,12 @@ class ObjectTypesPanel extends JScrollPane {
 			case finished: return null;
 			case id: case label: case isBoosterRocketFor:
 				 return value.toString();
-			case heat    : return String.format(Locale.ENGLISH, "%1.2f pK/s" , value);
-			case pressure: return String.format(Locale.ENGLISH, "%1.2f nPa/s", value);
-			case oxygene : return String.format(Locale.ENGLISH, "%1.2f ppq/s", value);
-			case biomass : return String.format(Locale.ENGLISH, "%1.2f g/s"  , value);
+			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
+			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
+			case oxygen  : return PhysicalValue.Oxygen  .formatRate((Double) value);
+			case biomass : return PhysicalValue.Biomass .formatRate((Double) value);
 			case energy  : return String.format(Locale.ENGLISH, "%1.2f kW"   , value);
-			case oxygeneBooster: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case oxygenBooster: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
 			return null;
 		}
@@ -156,16 +156,16 @@ class ObjectTypesPanel extends JScrollPane {
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			finished          ("finished"      , Boolean      .class,  50, null),
+			finished          ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
 			id                ("ID"            , String       .class, 130, null),
 			label             ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
 			heat              ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
 			pressure          ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
-			oxygene           ("Oxygene"       , Double       .class,  80, ObjectTypeValue.Oxygene ),
+			oxygen            ("Oxygen"        , Double       .class,  80, ObjectTypeValue.Oxygen  ),
 			biomass           ("Biomass"       , Double       .class,  80, ObjectTypeValue.Biomass ),
 			energy            ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
-			oxygeneBooster    ("Oxy. Boost"    , Double       .class,  90, ObjectTypeValue.OxygeneBooster),
-			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket ),
+			oxygenBooster     ("Oxy. Boost"    , Double       .class,  90, ObjectTypeValue.OxygenBooster),
+			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -229,10 +229,10 @@ class ObjectTypesPanel extends JScrollPane {
 			case label   : return row.label;
 			case heat    : return row.heat;
 			case pressure: return row.pressure;
-			case oxygene : return row.oxygene;
+			case oxygen  : return row.oxygen;
 			case biomass : return row.biomass;
 			case energy  : return row.energy;
-			case oxygeneBooster    : return row.oxygeneBooster;
+			case oxygenBooster     : return row.oxygenBooster;
 			case isBoosterRocketFor: return row.isBoosterRocketFor;
 			}
 			return null;
@@ -255,14 +255,13 @@ class ObjectTypesPanel extends JScrollPane {
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
 			case heat    : row.heat     = (Double)aValue; break;
 			case pressure: row.pressure = (Double)aValue; break;
-			case oxygene : row.oxygene  = (Double)aValue; break;
+			case oxygen  : row.oxygen   = (Double)aValue; break;
 			case biomass : row.biomass  = (Double)aValue; break;
 			case energy  : row.energy   = (Double)aValue; break;
-			case oxygeneBooster    : row.oxygeneBooster = (Double)aValue; break;
+			case oxygenBooster     : row.oxygenBooster = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
 			}
-			if (columnID.objectTypeValue!=null)
-				notifyDataChangeListeners(row.id, columnID.objectTypeValue);
+			notifyDataChangeListeners(row.id, columnID.objectTypeValue);
 		}
 		
 		

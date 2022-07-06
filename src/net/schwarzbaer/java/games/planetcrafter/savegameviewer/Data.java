@@ -251,6 +251,72 @@ class Data {
 			oxygenLevel   = JSON_Data.getFloatValue(object, "unitOxygenLevel"  , debugLabel);
 			pressureLevel = JSON_Data.getFloatValue(object, "unitPressureLevel", debugLabel);
 		}
+
+		private static String formatValue(String format, double value) {
+			return String.format(Locale.ENGLISH, format, value);
+		}
+
+		static String formatTerraformation(double value) {
+			if (value < 2000) return formatValue("%1.2f Ti", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kTi", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f MTi", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f GTi", value);
+			value/=1000;
+			return formatValue("%1.2f TTi", value);
+		}
+
+		static String formatOxygenLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f ppq", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppt", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppb", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f ppm", value);
+			value/=1000;
+			if (value < 20  ) return formatValue("%1.2f ‰", value);
+			value/=10;
+			return formatValue("%1.2f %%", value);
+		}
+
+		static String formatHeatLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f pk", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f nK", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f µK", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f mK", value);
+			value/=1000;
+			return formatValue("%1.2f K", value);
+		}
+
+		static String formatPressureLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f nPa", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f µPa", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f mPa", value);
+			value/=1000;
+			if (value < 200 ) return formatValue("%1.2f Pa", value);
+			value/=100;
+			return formatValue("%1.2f hPa", value);
+		}
+
+		static String formatBiomassLevel(double value) {
+			if (value < 2000) return formatValue("%1.2f g", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kg", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f t", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f kt", value);
+			value/=1000;
+			return formatValue("%1.2f Mt", value);
+		}
 	}
 
 	static class PlayerStates {

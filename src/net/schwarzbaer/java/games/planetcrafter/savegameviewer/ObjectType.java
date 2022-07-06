@@ -10,29 +10,21 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Vector;
 
 class ObjectType {
-	
-	enum PhysicalValue {
-		Heat, Pressure, Oxygene, Biomass;
-		
-		static PhysicalValue valueOf_checked(String str) {
-			try { return valueOf(str); }
-			catch (Exception e) { return null; }
-		}
-	}
 	
 	final String id;
 	boolean finished;
 	String label;
 	Double heat;
 	Double pressure;
-	Double oxygene;
+	Double oxygen;
 	Double biomass;
 	Double energy;
-	Double oxygeneBooster;
+	Double oxygenBooster;
 	PhysicalValue isBoosterRocketFor;
 	
 	ObjectType(String id) {
@@ -42,13 +34,33 @@ class ObjectType {
 		label    = null;
 		heat     = null;
 		pressure = null;
-		oxygene  = null;
+		oxygen   = null;
 		biomass  = null;
 		energy   = null;
-		oxygeneBooster = null;
+		oxygenBooster = null;
 		isBoosterRocketFor = null;
 	}
 	
+	enum PhysicalValue {
+		Heat    ("pK/s" ),
+		Pressure("nPa/s"),
+		Oxygen  ("ppq/s"),
+		Biomass ("g/s"  ),
+		;
+		final String rateUnit;
+		PhysicalValue(String rateUnit) {
+			this.rateUnit = rateUnit;
+		}
+		String formatRate(double value) {
+			return String.format(Locale.ENGLISH, "%1.2f %s" , value, rateUnit);
+		}
+		
+		static PhysicalValue valueOf_checked(String str) {
+			try { return valueOf(str); }
+			catch (Exception e) { return null; }
+		}
+	}
+
 	static void writeToFile(File file, HashMap<String,ObjectType> objectTypes) {
 		if (objectTypes==null) throw new IllegalArgumentException();
 		
@@ -65,10 +77,10 @@ class ObjectType {
 				if (ot.label             !=null) out.printf("label = "             +"%s%n", ot.label    );
 				if (ot.heat              !=null) out.printf("heat = "              +"%s%n", ot.heat     );
 				if (ot.pressure          !=null) out.printf("pressure = "          +"%s%n", ot.pressure );
-				if (ot.oxygene           !=null) out.printf("oxygene = "           +"%s%n", ot.oxygene  );
+				if (ot.oxygen            !=null) out.printf("oxygen = "            +"%s%n", ot.oxygen   );
 				if (ot.biomass           !=null) out.printf("biomass = "           +"%s%n", ot.biomass  );
 				if (ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
-				if (ot.oxygeneBooster    !=null) out.printf("oxygeneBooster = "    +"%s%n", ot.oxygeneBooster);
+				if (ot.oxygenBooster     !=null) out.printf("oxygenBooster = "     +"%s%n", ot.oxygenBooster);
 				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
 				if (ot.finished                ) out.printf("<finished>"           +  "%n");
 				
@@ -99,10 +111,10 @@ class ObjectType {
 				if ( (valueStr=getValue(line,"label = "             ))!=null ) currentOT.label    = valueStr;
 				if ( (valueStr=getValue(line,"heat = "              ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "          ))!=null ) currentOT.pressure = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"oxygene = "           ))!=null ) currentOT.oxygene  = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"oxygen = "            ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"biomass = "           ))!=null ) currentOT.biomass  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"oxygeneBooster = "    ))!=null ) currentOT.oxygeneBooster     = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenBooster = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true");
 				if (        line.equals(     "<finished>"           )        ) currentOT.finished = true;

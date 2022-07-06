@@ -14,6 +14,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -98,6 +99,12 @@ public class PlanetCrafterSaveGameViewer {
 	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
 		JMenuItem comp = new JMenuItem(title);
 		if (al!=null) comp.addActionListener(al);
+		return comp;
+	}
+
+	static JTextField createOutputTextField(String text) {
+		JTextField comp = new JTextField(text);
+		comp.setEditable(false);
 		return comp;
 	}
 
@@ -188,20 +195,23 @@ public class PlanetCrafterSaveGameViewer {
 	private void setGUI(Data data) {
 		dataTabPane.removeAll();
 		GeneralDataPanel generalDataPanel = new GeneralDataPanel(data);
-		dataTabPane.addTab("General", generalDataPanel);
-		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
-		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
-		
+		TerraformingPanel terraformingPanel = new TerraformingPanel(data);
 		MapPanel mapPanel = new MapPanel(data.worldObjects);
-		dataTabPane.addTab("Map", mapPanel);
-		SwingUtilities.invokeLater(mapPanel::initialize);
 
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
 		objectTypesPanel.addDataChangeListener((objectTypeID, changedValue) -> writeObjectTypesToFile());
 		objectTypesPanel.addDataChangeListener(mapPanel);
 		objectTypesPanel.addDataChangeListener(generalDataPanel);
+		objectTypesPanel.addDataChangeListener(terraformingPanel);
 		
+		dataTabPane.addTab("General", generalDataPanel);
+		dataTabPane.addTab("Terraforming", terraformingPanel);
+		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
+		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
+		dataTabPane.addTab("Map", mapPanel);
 		dataTabPane.addTab("Object Types", objectTypesPanel);
+		
+		SwingUtilities.invokeLater(mapPanel::initialize);
 }
 
 	private Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
