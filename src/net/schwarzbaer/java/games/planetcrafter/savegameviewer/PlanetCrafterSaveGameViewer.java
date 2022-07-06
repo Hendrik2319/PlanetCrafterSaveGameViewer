@@ -63,9 +63,11 @@ public class PlanetCrafterSaveGameViewer {
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
 		mainWindow.startGUI(dataTabPane, menuBar = new MyMenuBar());
+		mainWindow.setIconImagesFromResource("/icons/icon_", "24.png", "32.png", "48.png", "64.png", "96.png");
 		
 		settings.registerAppWindow(mainWindow);
 		updateWindowTitle();
+		
 	}
 	
 	private class MyMenuBar extends JMenuBar {
