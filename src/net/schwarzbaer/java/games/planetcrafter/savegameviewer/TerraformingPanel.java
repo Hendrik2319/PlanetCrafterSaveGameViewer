@@ -64,9 +64,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			return;
 		
 		switch (event.changedValue) {
-		case BoosterRocket: case Finished: case Energy:
-			break;
-			
 		case Label:
 			heatPanel    .updateContent();
 			pressurePanel.updateContent();
@@ -89,6 +86,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			
 		case Biomass:
 			biomassPanel.updateContent();
+			break;
+			
+		default:
 			break;
 		}
 	}

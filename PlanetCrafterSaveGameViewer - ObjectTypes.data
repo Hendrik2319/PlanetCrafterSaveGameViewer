@@ -86,12 +86,12 @@ label = Locker Storage
 ObjectType: CraftStation1
 label = Craft Station T2
 energy = -0.5
-<finished>
+isProducer
 
 ObjectType: CraftStation2
 label = Advanced Craft Station
 energy = -12.5
-<finished>
+isProducer
 
 ObjectType: DisplayCase
 label = Display Case
@@ -168,6 +168,7 @@ ObjectType: GasExtractor1
 label = GasExtractor T1
 heat = 13.0
 energy = -58.0
+isProducer
 <finished>
 
 ObjectType: GeneticManipulator1
@@ -278,6 +279,7 @@ label = Ore Extractor T1
 heat = 17.5
 pressure = 15.0
 energy = -34.0
+isProducer
 <finished>
 
 ObjectType: OreExtractor2
@@ -285,6 +287,7 @@ label = Ore Extractor T2
 heat = 79.5
 pressure = 85.0
 energy = -164.0
+isProducer
 <finished>
 
 ObjectType: Osmium
@@ -580,6 +583,7 @@ label = Water Bottle
 ObjectType: WaterCollector1
 label = Atmospheric Water Collector
 energy = -11.0
+isProducer
 <finished>
 
 ObjectType: wreckpilar

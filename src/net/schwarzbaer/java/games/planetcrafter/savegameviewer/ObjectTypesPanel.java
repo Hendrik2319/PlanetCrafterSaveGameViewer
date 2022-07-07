@@ -126,7 +126,7 @@ class ObjectTypesPanel extends JScrollPane {
 	}
 	
 	enum ObjectTypeValue {
-		Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, Finished
+		Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, Finished, IsProducer
 	}
 	
 	private static class ObjectTypesTableCellRenderer implements TableCellRenderer {
@@ -176,8 +176,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: return null;
-			case id: case label: case isBoosterRocketFor:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -203,6 +202,7 @@ class ObjectTypesPanel extends JScrollPane {
 			energy            ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
 			oxygenBooster     ("Oxy. Boost"    , Double       .class,  90, ObjectTypeValue.OxygenBooster),
 			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
+			isProducer        ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -298,6 +298,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case energy  : return row.energy;
 			case oxygenBooster     : return row.oxygenBooster;
 			case isBoosterRocketFor: return row.isBoosterRocketFor;
+			case isProducer: return row.isProducer;
 			}
 			return null;
 		}
@@ -322,8 +323,9 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygen  : row.oxygen   = (Double)aValue; break;
 			case biomass : row.biomass  = (Double)aValue; break;
 			case energy  : row.energy   = (Double)aValue; break;
-			case oxygenBooster     : row.oxygenBooster = (Double)aValue; break;
+			case oxygenBooster     : row.oxygenBooster      = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
+			case isProducer        : row.isProducer         = (Boolean)aValue;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}

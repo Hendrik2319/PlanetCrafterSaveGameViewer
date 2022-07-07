@@ -26,6 +26,7 @@ class ObjectType {
 	Double energy;
 	Double oxygenBooster;
 	PhysicalValue isBoosterRocketFor;
+	boolean isProducer;
 	
 	ObjectType(String id) {
 		if (id==null) throw new IllegalArgumentException();
@@ -39,6 +40,7 @@ class ObjectType {
 		energy   = null;
 		oxygenBooster = null;
 		isBoosterRocketFor = null;
+		isProducer = false;
 	}
 	
 	enum PhysicalValue {
@@ -82,6 +84,7 @@ class ObjectType {
 				if (ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
 				if (ot.oxygenBooster     !=null) out.printf("oxygenBooster = "     +"%s%n", ot.oxygenBooster);
 				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
+				if (ot.isProducer              ) out.printf("isProducer"           +  "%n");
 				if (ot.finished                ) out.printf("<finished>"           +  "%n");
 				
 				out.println();
@@ -116,6 +119,7 @@ class ObjectType {
 				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenBooster = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
+				if (        line.equals(     "isProducer"           )        ) currentOT.isProducer = true;
 				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true");
 				if (        line.equals(     "<finished>"           )        ) currentOT.finished = true;
 				

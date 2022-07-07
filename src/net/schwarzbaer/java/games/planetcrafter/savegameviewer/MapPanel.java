@@ -36,10 +36,10 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
 	private enum ColoringType {
-		StorageFillingLevel("Filling Level of Storages"),
-		OreExtractorFillingLevel("Filling Level of Ore Extractors"),
-		FindInstalledObject("Find installed Object"),
-		FindStoredObject("Find stored Object"),
+		StoragesFillingLevel ("Filling Level of Storages"),
+		ProducersFillingLevel("Filling Level of Producers"),
+		FindInstalledObject  ("Find installed Object"),
+		FindStoredObject     ("Find stored Object"),
 		;
 		private final String text;
 		ColoringType(String text) {
@@ -87,11 +87,11 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
 				break;
 				
-			case OreExtractorFillingLevel:
+			case ProducersFillingLevel:
 				cmbbxObjLabels.setEnabled(false);
 				break;
 				
-			case StorageFillingLevel:
+			case StoragesFillingLevel:
 				cmbbxObjLabels.setEnabled(false);
 				break;
 			}
@@ -143,19 +143,21 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		if (event.eventType != ObjectTypesChangeEvent.EventType.ValueChanged)
 			return;
-		if (event.changedValue != ObjectTypeValue.Label)
-			return;
 		
-		mapModel.updateInstalledObjectLabels();
-		mapModel.updateStoredObjectLabels();
+		if (event.changedValue == ObjectTypeValue.Label) {
+			mapModel.updateInstalledObjectLabels();
+			mapModel.updateStoredObjectLabels();
+			
+			if (selectedColoringType==ColoringType.FindInstalledObject)
+				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
+			
+			else if (selectedColoringType==ColoringType.FindStoredObject)
+				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
+			
+			cmbbxObjLabels.setSelectedItem(null);
+		}
 		
-		if (selectedColoringType==ColoringType.FindInstalledObject)
-			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
-		
-		else if (selectedColoringType==ColoringType.FindStoredObject)
-			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
-		
-		cmbbxObjLabels.setSelectedItem(null);
+		mapView.repaint();
 	}
 
 	private static class OverView extends Canvas {
@@ -313,10 +315,10 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		boolean isHighlighted(WorldObject wo) {
 			if (coloringType!=null)
 				switch (coloringType) {
-				case FindInstalledObject     : return wo.getName().equals(objLabel);
-				case FindStoredObject        : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
-				case OreExtractorFillingLevel: return wo.objectTypeID.startsWith("OreExtractor"); // TODO: replace with flag in ObjectType
-				case StorageFillingLevel     : return wo.list!=null;
+				case FindInstalledObject  : return wo.getName().equals(objLabel);
+				case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
+				case ProducersFillingLevel: return wo.objectType!=null && wo.objectType.isProducer && wo.list!=null;
+				case StoragesFillingLevel : return wo.list!=null;
 				}
 			return false;
 		}
@@ -328,7 +330,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				case FindInstalledObject: case FindStoredObject:
 					return Color.GREEN;
 					
-				case OreExtractorFillingLevel: case StorageFillingLevel:
+				case ProducersFillingLevel: case StoragesFillingLevel:
 					if (wo.list==null)
 						return Color.GREEN;
 					double value = wo.list.worldObjIds.length / (double)wo.list.size;
