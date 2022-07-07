@@ -45,6 +45,8 @@ class Data {
 	final Vector<StoryEvent> storyEvents;
 	final Vector<GeneralData2> generalData2;
 	final Vector<Layer> layers;
+	final HashMap<Long,WorldObject> mapWorldObjects;
+	final HashMap<Long,ObjectList> mapObjectLists;
 	
 	private Data(Vector<Vector<Value<NV, V>>> dataVec, HashMap<String, ObjectType> objectTypes) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
@@ -61,8 +63,16 @@ class Data {
 		/* 7 */ generalData2       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2      ::new, "GeneralData2"      ); blockIndex++;
 		/* 8 */ layers             = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer             ::new, "Layers"            ); blockIndex++;
 		
+		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
 		for (WorldObject wo : worldObjects) {
+			
+			if (!mapWorldObjects.containsKey(wo.id)) mapWorldObjects.put(wo.id, wo);
+			else {
+				WorldObject other = mapWorldObjects.get(wo.id);
+				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
+			}
+			
 			wo.objectType = ObjectType.getOrCreate(objectTypes, wo.objectTypeID);
 			if (0 < wo.listId)
 				for (ObjectList ol : objectLists)
@@ -73,7 +83,12 @@ class Data {
 					}
 		}
 		
+		mapObjectLists = new HashMap<>();
 		for (ObjectList ol : objectLists) {
+			
+			if (!mapObjectLists.containsKey(ol.id)) mapObjectLists.put(ol.id, ol);
+			else System.err.printf("Non unique ID in ObjectList: %d%n", ol.id);
+			
 			int[] worldObjIds = ol.worldObjIds;
 			ol.worldObjs = new WorldObject[worldObjIds.length];
 			for (int i=0; i<worldObjIds.length; i++) {
@@ -399,12 +414,12 @@ class Data {
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
-			_liGrps      = JSON_Data.getStringValue (object, "liGrps", debugLabel);
+			_liGrps      = JSON_Data.getStringValue (object, "liGrps", debugLabel); // result ID in GeneticManipulator1
 			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
 			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
 			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
 			_pnls        = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
-			_color       = JSON_Data.getStringValue (object, "color" , debugLabel);
+			_color       = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel);
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
@@ -418,6 +433,51 @@ class Data {
 			containerList = null;
 			objectType = null;
 			mapWorldObjectData = new MapWorldObjectData();
+			
+			// -------------------------------------------------------------------
+			//      show special values in fields
+			// -------------------------------------------------------------------
+			boolean _liGrpsIsNotEmpty = !_liGrps.isEmpty();
+			boolean _wearIsNotZero    =  _wear  !=0;
+			//boolean _pnlsIsNotEmpty   = !_pnls  .isEmpty();
+			boolean _colorIsNotEmpty  = !_color .isEmpty();
+			if (_liGrpsIsNotEmpty ||
+				_wearIsNotZero    ||
+				//_pnlsIsNotEmpty   ||
+				_colorIsNotEmpty  ) {
+				Vector<String> vars = new Vector<>();
+				if (_liGrpsIsNotEmpty) vars.add("_liGrps");
+				if (_wearIsNotZero   ) vars.add("_wear");
+				//if (_pnlsIsNotEmpty  ) vars.add("_pnls");
+				if (_colorIsNotEmpty ) vars.add("_color");
+				vars.sort(null);
+				System.err.printf("Special WorldObject: { "+
+						"id"    +":"+  "%d"  +", "+  // Int  
+						"gId"   +":"+"\"%s\""+", "+  // Str
+						"liId"  +":"+  "%d"  +", "+  // Int
+						"liGrps"+":"+"\"%s\""+", "+  // Str
+						"pos"   +":"+"\"%s\""+", "+  // Str
+						"rot"   +":"+"\"%s\""+", "+  // Str
+						"wear"  +":"+  "%d"  +", "+  // Int
+						"pnls"  +":"+"\"%s\""+", "+  // Str
+						"color" +":"+"\"%s\""+", "+  // Str
+						"text"  +":"+"\"%s\""+", "+  // Str
+						"grwth" +":"+  "%d"  +       // Int
+						" }, special vars: %s%n", 
+						id          ,
+						objectTypeID,
+						listId      ,
+						_liGrps     ,
+						positionStr ,
+						rotationStr ,
+						_wear       ,
+						_pnls       ,
+						_color      ,
+						text        ,
+						growth      ,
+						String.join(", ", vars)
+						);
+			}
 		}
 		
 		String getName() {
@@ -433,7 +493,8 @@ class Data {
 			out.add(0, "Name", getName());
 			out.add(0, "ID", id);
 			out.add(0, "ObjectTypeID", objectTypeID);
-			if (!text.isEmpty()   )   out.add(0, "Text", text);
+			if (!text   .isEmpty())   out.add(0, "Text", text);
+			if (!_color .isEmpty())   out.add(0, "Color", _color);
 			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
 			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
 			if (containerList!=null) {

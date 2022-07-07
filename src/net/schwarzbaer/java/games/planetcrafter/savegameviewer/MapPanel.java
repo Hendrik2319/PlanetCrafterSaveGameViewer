@@ -334,18 +334,20 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 					if (wo.list==null)
 						return Color.GREEN;
 					double value = wo.list.worldObjIds.length / (double)wo.list.size;
-					return getMixedColor(value, Color.GREEN, Color.YELLOW, Color.RED);
+					return getMixedColor(value, Color.GREEN, Color.YELLOW, Color.RED, Color.MAGENTA);
 				}
 			return null;
 		}
 
-		private Color getMixedColor(double value, Color color0, Color colorHalf, Color color1) {
+		private Color getMixedColor(double value, Color color0, Color colorHalf, Color color1, Color colorMax) {
 			value = Math.min(Math.max(0, value), 1);
 			
 			if (value<0.5)
 				return computeColor(color0, colorHalf, 2*value);
-			else
+			else if (value<1)
 				return computeColor(colorHalf, color1, 2*(value-0.5));
+			else
+				return colorMax;
 		}
 
 		private Color computeColor(Color color0, Color color1, double f) {

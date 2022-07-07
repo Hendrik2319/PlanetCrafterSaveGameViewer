@@ -1,25 +1,26 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Dimension;
-import java.util.Vector;
 
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 
 class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID> {
 	private static final long serialVersionUID = 8733627835226098636L;
 
-	WorldObjectsPanel(Vector<WorldObject> worldObjects) {
-		super(new WorldObjectsTableModel(worldObjects), LayoutPos.Right, new Dimension(300, 200));
+	WorldObjectsPanel(Data data) {
+		super(new WorldObjectsTableModel(data), LayoutPos.Right, new Dimension(300, 200));
 	}
 	
 	static class WorldObjectsTableModel extends AbstractTablePanel.AbstractTableModel<WorldObject, WorldObjectsTableModel.ColumnID> {
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id          ("ID"          , Long    .class,  75),
+			twinID      ("#"           , Boolean .class,  30),
 			objectTypeID("ObjectTypeID", String  .class, 130),
 			Name        ("Name"        , String  .class, 130),
 			container   ("Container"   , String  .class, 350),
@@ -44,12 +45,22 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		
 		}
 
-		WorldObjectsTableModel(Vector<WorldObject> data) {
-			super(ColumnID.values(), data);
+		private final Data data;
+
+		WorldObjectsTableModel(Data data) {
+			super(ColumnID.values(), data.worldObjects);
+			this.data = data;
 		}
 
 		@Override protected String getRowText(WorldObject row, int rowIndex) {
-			return row==null ? "No Data" : row.generateOutput();
+			String str = row==null ? "No Data" : row.generateOutput();
+			if (data.mapObjectLists.containsKey(row.id)) {
+				ObjectList twin = data.mapObjectLists.get(row.id);
+				str += String.format("%n#################################%n");
+				str += String.format(  "  Twin ObjectList with same ID%n%n");
+				str += twin.generateOutput();
+			}
+			return str;
 		}
 
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
@@ -66,6 +77,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			case rotation     : return row.rotation;
 			case text         : return row.text;
 			case Name         : return row.getName();
+			case twinID       : return data.mapObjectLists.containsKey(row.id);
 			case container:
 				if (row.containerList==null)
 					return null;

@@ -86,12 +86,12 @@ label = Locker Storage
 ObjectType: CraftStation1
 label = Craft Station T2
 energy = -0.5
-isProducer
+<finished>
 
 ObjectType: CraftStation2
 label = Advanced Craft Station
 energy = -12.5
-isProducer
+<finished>
 
 ObjectType: DisplayCase
 label = Display Case

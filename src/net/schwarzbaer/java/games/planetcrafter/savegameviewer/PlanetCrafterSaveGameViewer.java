@@ -214,8 +214,8 @@ public class PlanetCrafterSaveGameViewer {
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Terraforming", terraformingPanel);
-		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data.worldObjects));
-		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data.objectLists));
+		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data));
+		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data));
 		dataTabPane.addTab("Map", mapPanel);
 		dataTabPane.addTab("Object Types", objectTypesPanel);
 		
