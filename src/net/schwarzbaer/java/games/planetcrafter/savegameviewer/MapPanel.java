@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -15,6 +16,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -33,9 +35,27 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.
 class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
+	private enum ColoringType {
+		StorageFillingLevel("Filling Level of Storages"),
+		OreExtractorFillingLevel("Filling Level of Ore Extractors"),
+		FindInstalledObject("Find installed Object"),
+		FindStoredObject("Find stored Object"),
+		;
+		private final String text;
+		ColoringType(String text) {
+			this.text = text;
+		}
+		@Override public String toString() {
+			return text;
+		}
+		
+	}
+	
+	private final MapModel mapModel;
 	private final MapView mapView;
-
-	private JComboBox<String> cmbbxObjLabels;
+	private final JComboBox<String> cmbbxObjLabels;
+	private final JComboBox<ColoringType> cmbbxColoring;
+	private ColoringType selectedColoringType;
 
 	MapPanel(Vector<WorldObject> worldObjects) {
 		super(new BorderLayout());
@@ -45,17 +65,52 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		JTextArea textOut = new JTextArea();
 		
-		mapView = new MapView(worldObjects,overView, textOut);
+		mapModel = new MapModel(worldObjects);
+		mapView = new MapView(mapModel, overView, textOut);
 		
-		cmbbxObjLabels = new JComboBox<String>(mapView.getObjLabels());
+		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
+		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
+		
+		cmbbxObjLabels = new JComboBox<String>(mapModel.installedObjectLabels);
 		cmbbxObjLabels.setSelectedItem(null);
-		cmbbxObjLabels.addActionListener(e->{
-			int index = cmbbxObjLabels.getSelectedIndex();
-			mapView.setHighlightedObjLabel(index<0 ? null : cmbbxObjLabels.getItemAt(index));
+		
+		cmbbxColoring.addActionListener(e->{
+			selectedColoringType = cmbbxColoring.getItemAt(cmbbxColoring.getSelectedIndex());
+			switch (selectedColoringType) {
+			case FindInstalledObject:
+				cmbbxObjLabels.setEnabled(true);
+				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
+				break;
+				
+			case FindStoredObject:
+				cmbbxObjLabels.setEnabled(true);
+				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
+				break;
+				
+			case OreExtractorFillingLevel:
+				cmbbxObjLabels.setEnabled(false);
+				break;
+				
+			case StorageFillingLevel:
+				cmbbxObjLabels.setEnabled(false);
+				break;
+			}
+			cmbbxObjLabels.setSelectedItem(null);
+			mapModel.setColoring(selectedColoringType, null);
+			mapView.repaint();
 		});
 		
-		JPanel selectPanel = new JPanel(new BorderLayout());
-		selectPanel.add(cmbbxObjLabels, BorderLayout.CENTER);
+		cmbbxObjLabels.addActionListener(e->{
+			String selectedObjLabel = cmbbxObjLabels.getItemAt(cmbbxObjLabels.getSelectedIndex());
+			if (selectedColoringType==ColoringType.FindInstalledObject || selectedColoringType==ColoringType.FindStoredObject) {
+				mapModel.setColoring(selectedColoringType, selectedObjLabel);
+				mapView.repaint();
+			}
+		});
+		
+		JPanel selectPanel = new JPanel(new GridLayout(0,1));
+		selectPanel.add(cmbbxColoring);
+		selectPanel.add(cmbbxObjLabels);
 		
 		JScrollPane textScrollPane = new JScrollPane(textOut);
 		textScrollPane.setPreferredSize(new Dimension(300,400));
@@ -74,8 +129,8 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		//mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
 		//textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
 		mapView       .setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Map"), BorderFactory.createLineBorder(Color.GRAY)));
-		textScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"), textScrollPane.getBorder()));
-		selectPanel   .setBorder(BorderFactory.createTitledBorder("Highlight (Green)"));
+		textScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Object under Mouse"), textScrollPane.getBorder()));
+		selectPanel   .setBorder(BorderFactory.createTitledBorder("Coloring / Highlighting"));
 		overView      .setBorder(BorderFactory.createTitledBorder("OverView"));
 	}
 	
@@ -91,7 +146,15 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		if (event.changedValue != ObjectTypeValue.Label)
 			return;
 		
-		cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapView.getObjLabels()));
+		mapModel.updateInstalledObjectLabels();
+		mapModel.updateStoredObjectLabels();
+		
+		if (selectedColoringType==ColoringType.FindInstalledObject)
+			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
+		
+		else if (selectedColoringType==ColoringType.FindStoredObject)
+			cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
+		
 		cmbbxObjLabels.setSelectedItem(null);
 	}
 
@@ -156,37 +219,32 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			repaint();
 		}
 	}
-
-	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
-		private static final long serialVersionUID = -5838969838377820166L;
+	
+	static class MapWorldObjectData {
+		private final HashSet<String> storedObjectLabels = new HashSet<>();
+	}
+	
+	private static class MapModel {
 		
-		private static final Color COLOR_AXIS = new Color(0x70000000,true);
-		private static final Color COLOR_TOOLTIP_BORDER     = COLOR_AXIS;
-		private static final Color COLOR_TOOLTIP_BACKGORUND = new Color(0xFFFFE9);
-		private static final Color COLOR_TOOLTIP_TEXT       = Color.BLACK;
+		final Vector<WorldObject> displayableObjects;
+		final double minX;
+		final double minY;
+		final double maxX;
+		final double maxY;
+		final Rectangle2D.Double range;
+		final Vector<String> installedObjectLabels;
+		final Vector<String> storedObjectLabels;
+		private ColoringType coloringType;
+		private String objLabel;
 		
-		private static final int NEAREST_OBJECT_MAX_DIST = 15;
-		
-		private final Vector<WorldObject> displayableObjects;
-		private final double minX;
-		private final double minY;
-		private final double maxX;
-		private final double maxY;
-		private final Rectangle2D.Double range;
-		private final OverView overView;
-		private final JTextArea textOut;
-		private String highlightedObjLabel;
-		private WorldObject hoveredObject;
-		private ToolTipBox toolTipBox;
-
-		MapView(Vector<WorldObject> worldObjects, OverView overView, JTextArea textOut) {
-			this.overView = overView;
-			this.textOut = textOut;
+		MapModel(Vector<WorldObject> worldObjects) {
 			displayableObjects = new Vector<>();
-			highlightedObjLabel = null;
-			hoveredObject = null;
-			toolTipBox = null;
+			installedObjectLabels = new Vector<>();
+			storedObjectLabels = new Vector<>();
 			
+			// ----------------------------------------------------------------
+			// displayableObjects & min,max
+			// ----------------------------------------------------------------
 			double minX = Double.NaN;
 			double minY = Double.NaN;
 			double maxX = Double.NaN;
@@ -215,6 +273,9 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			this.maxX = maxX;
 			this.maxY = maxY;
 			
+			// ----------------------------------------------------------------
+			// range
+			// ----------------------------------------------------------------
 			if (!Double.isNaN(minX) &&
 				!Double.isNaN(minY) &&
 				!Double.isNaN(maxX) &&
@@ -229,7 +290,143 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 					range = null;
 			} else
 				range = null;
-			overView.setRange(range);
+			
+			// ----------------------------------------------------------------
+			// WorldObject.mapWorldObjectData
+			// ----------------------------------------------------------------
+			//for (WorldObject wo : displayableObjects) {
+			//	
+			//}
+			
+			// ----------------------------------------------------------------
+			// Label Lists
+			// ----------------------------------------------------------------
+			updateInstalledObjectLabels();
+			updateStoredObjectLabels();
+		}
+		
+		void setColoring(ColoringType coloringType, String objLabel) {
+			this.coloringType = coloringType;
+			this.objLabel = objLabel;
+		}
+
+		boolean isHighlighted(WorldObject wo) {
+			if (coloringType!=null)
+				switch (coloringType) {
+				case FindInstalledObject     : return wo.getName().equals(objLabel);
+				case FindStoredObject        : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
+				case OreExtractorFillingLevel: return wo.objectTypeID.startsWith("OreExtractor"); // TODO: replace with flag in ObjectType
+				case StorageFillingLevel     : return wo.list!=null;
+				}
+			return false;
+		}
+
+		Color getHighlightColor(WorldObject wo) {
+			if (coloringType!=null)
+				switch (coloringType) {
+				
+				case FindInstalledObject: case FindStoredObject:
+					return Color.GREEN;
+					
+				case OreExtractorFillingLevel: case StorageFillingLevel:
+					if (wo.list==null)
+						return Color.GREEN;
+					double value = wo.list.worldObjIds.length / (double)wo.list.size;
+					return getMixedColor(value, Color.GREEN, Color.YELLOW, Color.RED);
+				}
+			return null;
+		}
+
+		private Color getMixedColor(double value, Color color0, Color colorHalf, Color color1) {
+			value = Math.min(Math.max(0, value), 1);
+			
+			if (value<0.5)
+				return computeColor(color0, colorHalf, 2*value);
+			else
+				return computeColor(colorHalf, color1, 2*(value-0.5));
+		}
+
+		private Color computeColor(Color color0, Color color1, double f) {
+			int r = (int)Math.round( color0.getRed  ()*(1-f) + color1.getRed  ()*f );
+			int g = (int)Math.round( color0.getGreen()*(1-f) + color1.getGreen()*f );
+			int b = (int)Math.round( color0.getBlue ()*(1-f) + color1.getBlue ()*f );
+			return new Color(r,g,b);
+		}
+
+		void updateInstalledObjectLabels() {
+			HashSet<String> labels = new HashSet<>();
+			for (WorldObject wo : displayableObjects) {
+				labels.add(wo.getName());
+			}
+			installedObjectLabels.clear();
+			installedObjectLabels.addAll(labels);
+			installedObjectLabels.sort(Data.caseIgnoringComparator);
+		}
+		
+		void updateStoredObjectLabels() {
+			HashSet<String> labels = new HashSet<>();
+			for (WorldObject wo : displayableObjects) {
+				wo.mapWorldObjectData.storedObjectLabels.clear();
+				if (wo.list!=null) {
+					for (WorldObject storedObj : wo.list.worldObjs) {
+						String soName = storedObj.getName();
+						wo.mapWorldObjectData.storedObjectLabels.add(soName);
+						labels.add(soName);
+					}
+				}
+			}
+			storedObjectLabels.clear();
+			storedObjectLabels.addAll(labels);
+			storedObjectLabels.sort(Data.caseIgnoringComparator);
+		}
+
+		WorldObject getNearestObject(double x, double y, Predicate<Double> checkMaxDist) {
+			double minSquaredDist = Double.NaN;
+			WorldObject nearestObj = null;
+			for (WorldObject wo : displayableObjects) {
+				double woX = wo.position.getMapX();
+				double woY = wo.position.getMapY();
+				double squaredDist = (woX-x)*(woX-x) + (woY-y)*(woY-y);
+				if (nearestObj==null || minSquaredDist > squaredDist) {
+					minSquaredDist = squaredDist;
+					nearestObj = wo;
+				}
+			}
+			if (nearestObj==null)
+				return null;
+			
+			double dist = Math.sqrt(minSquaredDist);
+			if (!checkMaxDist.test(dist))
+				return null;
+			
+			return nearestObj;
+		}
+	}
+
+	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
+		private static final long serialVersionUID = -5838969838377820166L;
+		
+		private static final Color COLOR_AXIS = new Color(0x70000000,true);
+		private static final Color COLOR_TOOLTIP_BORDER     = COLOR_AXIS;
+		private static final Color COLOR_TOOLTIP_BACKGORUND = new Color(0xFFFFE9);
+		private static final Color COLOR_TOOLTIP_TEXT       = Color.BLACK;
+		
+		private static final int NEAREST_OBJECT_MAX_DIST = 15;
+		
+		private final OverView overView;
+		private final JTextArea textOut;
+		private WorldObject hoveredObject;
+		private ToolTipBox toolTipBox;
+
+		private final MapModel mapModel;
+
+		MapView(MapModel mapModel, OverView overView, JTextArea textOut) {
+			this.mapModel = mapModel;
+			this.overView = overView;
+			this.textOut = textOut;
+			hoveredObject = null;
+			toolTipBox = null;
+			overView.setRange(this.mapModel.range);
 			
 			activateMapScale(COLOR_AXIS, "px", true);
 			activateAxes(COLOR_AXIS, true,true,true,true);
@@ -241,11 +438,6 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			addZoomListener(new ZoomListener() {
 				@Override public void zoomChanged() { updateOverviewImage(); }
 			});
-		}
-
-		public void setHighlightedObjLabel(String highlightedObjLabel) {
-			this.highlightedObjLabel = highlightedObjLabel;
-			repaint();
 		}
 
 		@Override
@@ -341,43 +533,15 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			double x = viewState.convertPos_ScreenToAngle_LongX(mouse.x);
 			double y = viewState.convertPos_ScreenToAngle_LatY (mouse.y);
 			
-			double minSquaredDist = Double.NaN;
-			WorldObject nearestObj = null;
-			for (WorldObject wo : displayableObjects) {
-				double woX = wo.position.getMapX();
-				double woY = wo.position.getMapY();
-				double squaredDist = (woX-x)*(woX-x) + (woY-y)*(woY-y);
-				if (nearestObj==null || minSquaredDist > squaredDist) {
-					minSquaredDist = squaredDist;
-					nearestObj = wo;
-				}
-			}
-			if (nearestObj==null)
-				return null;
-			
-			double dist = Math.sqrt(minSquaredDist);
-			Integer dist_screen = viewState.convertLength_LengthToScreen(dist);
-			if (dist_screen==null)
-				return null;
-			
-			if (dist_screen>NEAREST_OBJECT_MAX_DIST)
-				return null;
-			
-			return nearestObj;
-		}
-
-		Vector<String> getObjLabels() {
-			HashSet<String> labels = new HashSet<>();
-			for (WorldObject wo : displayableObjects) {
-				labels.add(wo.getName());
-			}
-			Vector<String> sorted = new Vector<>(labels);
-			sorted.sort(Data.caseIgnoringComparator);
-			return sorted;
+			return mapModel.getNearestObject(x, y, dist->{
+				Double dist_screen = viewState.convertLength_LengthToScreenF(dist);
+				if (dist_screen==null) return false;
+				return dist_screen <= NEAREST_OBJECT_MAX_DIST;
+			});
 		}
 
 		protected void updateOverviewImage() {
-			if (viewState.isOk() && range!=null) {
+			if (viewState.isOk() && mapModel.range!=null) {
 				double x0 = viewState.convertPos_ScreenToAngle_LongX(0);
 				double x1 = viewState.convertPos_ScreenToAngle_LongX(width);
 				double y0 = viewState.convertPos_ScreenToAngle_LatY(0);
@@ -402,11 +566,11 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				Rectangle clip = new Rectangle(x, y, width, height);
 				g2.setClip(clip);
 				
-				if (range!=null) {
-					int screenX0 = /*x+*/viewState.convertPos_AngleToScreen_LongX(range.x);
-					int screenY0 = /*y+*/viewState.convertPos_AngleToScreen_LatY (range.y);
-					int screenX1 = /*x+*/viewState.convertPos_AngleToScreen_LongX(range.x+range.width);
-					int screenY1 = /*y+*/viewState.convertPos_AngleToScreen_LatY (range.y+range.height);
+				if (mapModel.range!=null) {
+					int screenX0 = /*x+*/viewState.convertPos_AngleToScreen_LongX(mapModel.range.x);
+					int screenY0 = /*y+*/viewState.convertPos_AngleToScreen_LatY (mapModel.range.y);
+					int screenX1 = /*x+*/viewState.convertPos_AngleToScreen_LongX(mapModel.range.x+mapModel.range.width);
+					int screenY1 = /*y+*/viewState.convertPos_AngleToScreen_LatY (mapModel.range.y+mapModel.range.height);
 					if (screenX0>screenX1) { int temp=screenX0; screenX0=screenX1; screenX1=temp; }
 					if (screenY0>screenY1) { int temp=screenY0; screenY0=screenY1; screenY1=temp; }
 					g2.setColor(Color.WHITE);
@@ -415,13 +579,13 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 					g2.drawRect(screenX0-1, screenY0-1, screenX1-screenX0+1, screenY1-screenY0+1);
 				}
 				
-				for (WorldObject wo : displayableObjects)
-					if (!wo.getName().equals(highlightedObjLabel) && wo!=hoveredObject)
+				for (WorldObject wo : mapModel.displayableObjects)
+					if (wo!=hoveredObject && !mapModel.isHighlighted(wo))
 						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.LIGHT_GRAY);
 				
-				for (WorldObject wo : displayableObjects)
-					if (wo.getName().equals(highlightedObjLabel) && wo!=hoveredObject)
-						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.GREEN);
+				for (WorldObject wo : mapModel.displayableObjects)
+					if (wo!=hoveredObject && mapModel.isHighlighted(wo))
+						drawWorldObject(g2, clip, wo, COLOR_AXIS, mapModel.getHighlightColor(wo));
 				
 				if (hoveredObject!=null)
 					drawWorldObject(g2, clip, hoveredObject, COLOR_AXIS, Color.YELLOW);
@@ -463,14 +627,14 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 			@Override
 			protected void determineMinMax(MapLatLong min, MapLatLong max) {
-				if (!Double.isNaN(minX) &&
-					!Double.isNaN(minY) &&
-					!Double.isNaN(maxX) &&
-					!Double.isNaN(maxY)) {
-					min.longitude_x = minX;
-					min.latitude_y  = minY;
-					max.longitude_x = maxX;
-					max.latitude_y  = maxY;
+				if (!Double.isNaN(mapModel.minX) &&
+					!Double.isNaN(mapModel.minY) &&
+					!Double.isNaN(mapModel.maxX) &&
+					!Double.isNaN(mapModel.maxY)) {
+					min.longitude_x = mapModel.minX;
+					min.latitude_y  = mapModel.minY;
+					max.longitude_x = mapModel.maxX;
+					max.latitude_y  = mapModel.maxY;
 				} else {
 					min.longitude_x = 0.0;
 					min.latitude_y  = 0.0;

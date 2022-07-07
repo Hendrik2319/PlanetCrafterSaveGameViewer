@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import net.schwarzbaer.gui.ValueListOutput;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
@@ -373,6 +374,7 @@ class Data {
 		WorldObject    container; // container, it is containing this object
 		ObjectList     containerList; // list, it is containing this object
 		ObjectType     objectType;
+		MapWorldObjectData mapWorldObjectData;
 		/*
 			Block[2]: 3033 entries
 			-> Format: [2 blocks]
@@ -415,6 +417,7 @@ class Data {
 			container = null;
 			containerList = null;
 			objectType = null;
+			mapWorldObjectData = new MapWorldObjectData();
 		}
 		
 		String getName() {
