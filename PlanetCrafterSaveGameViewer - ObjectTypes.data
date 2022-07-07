@@ -177,10 +177,15 @@ energy = -117.5
 
 ObjectType: GoldenContainer
 label = Golden Container
+<finished>
 
 ObjectType: GoldenEffigie1
+label = Golden Effigie "Rocket"
+<finished>
 
 ObjectType: GoldenEffigie2
+label = Golden Effigie "Landing Pod"
+<finished>
 
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
@@ -420,12 +425,14 @@ oxygenBooster = 1.0
 <finished>
 
 ObjectType: Seed1
-label = 150% Seed
+label = Seed Shanga (150%)
 oxygenBooster = 1.5
+<finished>
 
 ObjectType: Seed2
-label = 200% Seed
+label = Seed Pestera (200%)
 oxygenBooster = 2.0
+<finished>
 
 ObjectType: Seed3
 label = Seed Nulna (300%)
@@ -471,12 +478,16 @@ label = Silicon
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
+<finished>
 
 ObjectType: SpaceMultiplierHeat
+<finished>
 
 ObjectType: SpaceMultiplierOxygen
+<finished>
 
 ObjectType: SpaceMultiplierPressure
+<finished>
 
 ObjectType: Stairs
 label = Stairs
@@ -493,6 +504,11 @@ label = Titanium
 ObjectType: Tree3Seed
 label = Tree Seed "Cernea" (125%)
 oxygenBooster = 1.25
+<finished>
+
+ObjectType: Tree7Seed
+label = Tree Seed "Pleom" (200%, Fl.6)
+oxygenBooster = 2.0
 <finished>
 
 ObjectType: Tree8Seed

@@ -32,6 +32,7 @@ import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
@@ -41,6 +42,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	
 	//private final Data data;
 	private final EnergyPanel energyPanel;
+	private final Vector<TerraformingStatesPanel> terraformingStatesPanels;
+	@SuppressWarnings("unused")
+	private final Vector<GeneralData1Panel> generalData1Panels;
+	@SuppressWarnings("unused")
+	private final Vector<GeneralData2Panel> generalData2Panels;
+	@SuppressWarnings("unused")
+	private final Vector<PlayerStatesPanel> playerStatesPanels;
 
 	GeneralDataPanel(Data data) {
 		//this.data = data;
@@ -58,13 +66,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		c.gridheight = 1;
 		c.gridx = 0;
-		c.gridy = 0; upperPanel.add(createPanel("Terraforming"    , data.terraformingStates, TerraformingStatesPanel::new), c);
-		c.gridy = 1; upperPanel.add(createPanel("General Data (1)", data.generalData1      , GeneralData1Panel      ::new), c);
-		c.gridy = 2; upperPanel.add(createPanel("General Data (2)", data.generalData2      , GeneralData2Panel      ::new), c);
+		c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels = createPanels(data.terraformingStates, TerraformingStatesPanel::new)), c);
+		c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels       = createPanels(data.generalData1      , GeneralData1Panel      ::new)), c);
+		c.gridy = 2; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels       = createPanels(data.generalData2      , GeneralData2Panel      ::new)), c);
 		
 		c.gridheight = 3;
 		c.gridx = 1;
-		c.gridy = 0; upperPanel.add(createPanel("Player"          , data.playerStates      , PlayerStatesPanel      ::new), c);
+		c.gridy = 0; upperPanel.add(createCompoundPanel("Player", playerStatesPanels = createPanels(data.playerStates, PlayerStatesPanel::new)), c);
 		
 		c.gridheight = 3;
 		c.gridx = 2;
@@ -129,31 +137,45 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		//System.out.printf("%d, %d%n", horizontalScrollBar.getUnitIncrement(), verticalScrollBar.getUnitIncrement());
 	}
 	
+	Vector<TerraformingStatesPanel> getTerraformingStatesPanels() {
+		return terraformingStatesPanels;
+	}
+
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged)
 			energyPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
 	}
 
-	private <ValueType> JComponent createPanel(String title, Vector<ValueType> values, Function<ValueType,JPanel> panelConstructor) {
+	private <PanelType extends JPanel, ValueType> Vector<PanelType> createPanels(Vector<ValueType> values,
+			Function<ValueType, PanelType> panelConstructor) {
 		if (values==null) throw new IllegalArgumentException();
 		
-		if (values.isEmpty()) {
+		Vector<PanelType> panels = new Vector<>();
+		for (ValueType value : values)
+			panels.add(panelConstructor.apply(value));
+		return panels;
+	}
+
+	private <PanelType extends JPanel> JComponent createCompoundPanel(String title, Vector<PanelType> panels) {
+		if (panels==null) throw new IllegalArgumentException();
+		
+		if (panels.isEmpty()) {
 			JPanel panel = new JPanel();
 			panel.setBorder(BorderFactory.createTitledBorder(title));
 			return panel;
 		}
 		
-		if (values.size()==1) {
-			JPanel panel = panelConstructor.apply(values.get(0));
+		if (panels.size()==1) {
+			JPanel panel = panels.firstElement();
 			panel.setBorder(BorderFactory.createTitledBorder(title));
 			return panel;
 		}
 		
 		JTabbedPane panel = new JTabbedPane();
 		panel.setBorder(BorderFactory.createTitledBorder(title));
-		for (int i=0; i<values.size(); i++)
-			panel.addTab(Integer.toString(i), panelConstructor.apply(values.get(i)));
+		for (int i=0; i<panels.size(); i++)
+			panel.addTab(Integer.toString(i), panels.get(i));
 		
 		return panel;
 	}
@@ -386,17 +408,24 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 	}
 
-	private static class TerraformingStatesPanel extends JPanel {
+	static class TerraformingStatesPanel extends JPanel {
 		private static final long serialVersionUID = 6272012218012618784L;
 
+		private final Row oxygenRow;
+		private final Row heatRow;
+		private final Row pressureRow;
+		private final Row biomassRow;
+		private final Row terraformRow;
+		
 		TerraformingStatesPanel(Data.TerraformingStates data) {
 			super(new GridBagLayout());
 			
-			JTextField fieldOxygenLevel    = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatOxygenLevel   (data.oxygenLevel  ));
-			JTextField fieldHeatLevel      = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatHeatLevel     (data.heatLevel    ));
-			JTextField fieldPressureLevel  = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatPressureLevel (data.pressureLevel));
-			JTextField fieldBiomassLevel   = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatBiomassLevel  (data.biomassLevel ));
-			JTextField fieldTerraformation = PlanetCrafterSaveGameViewer.createOutputTextField(Data.TerraformingStates.formatTerraformation(data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel));
+			double terraformLevel = data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel;
+			oxygenRow    = new Row(data.oxygenLevel  , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
+			heatRow      = new Row(data.heatLevel    , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
+			pressureRow  = new Row(data.pressureLevel, Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure::formatRate);
+			biomassRow   = new Row(data.biomassLevel , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Biomass ::formatRate);
+			terraformRow = new Row(terraformLevel    , Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -406,32 +435,93 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridheight = 1;
 			c.gridy = -1;
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(fieldOxygenLevel, c);
+			c.gridy++; c.gridx = 0; c.weightx = 1;
+			c.gridx++; add(new JLabel("Level"), c);
+			c.gridx++; add(new JLabel("Rate"), c);
+			c.gridx++; add(new JLabel("Rate : Level"), c);
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Heat: "), c);
-			c.weightx = 1; c.gridx = 1; add(fieldHeatLevel, c);
+			c.gridy++; c.gridx = -1;
+			c.weightx = 0; c.gridx++; add(new JLabel("Oxygen: "), c);
+			c.weightx = 1; c.gridx++; add(oxygenRow.fieldLevel, c);
+			c.weightx = 1; c.gridx++; add(oxygenRow.fieldRate , c);
+			c.weightx = 1; c.gridx++; add(oxygenRow.fieldRate2Level, c);
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Pressure: "), c);
-			c.weightx = 1; c.gridx = 1; add(fieldPressureLevel, c);
+			c.gridy++; c.gridx = -1;
+			c.weightx = 0; c.gridx++; add(new JLabel("Heat: "), c);
+			c.weightx = 1; c.gridx++; add(heatRow.fieldLevel, c);
+			c.weightx = 1; c.gridx++; add(heatRow.fieldRate , c);
+			c.weightx = 1; c.gridx++; add(heatRow.fieldRate2Level, c);
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Biomass: "), c);
-			c.weightx = 1; c.gridx = 1; add(fieldBiomassLevel, c);
+			c.gridy++; c.gridx = -1;
+			c.weightx = 0; c.gridx++; add(new JLabel("Pressure: "), c);
+			c.weightx = 1; c.gridx++; add(pressureRow.fieldLevel, c);
+			c.weightx = 1; c.gridx++; add(pressureRow.fieldRate , c);
+			c.weightx = 1; c.gridx++; add(pressureRow.fieldRate2Level, c);
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Terraformation: "), c);
-			c.weightx = 1; c.gridx = 1; add(fieldTerraformation, c);
+			c.gridy++; c.gridx = -1;
+			c.weightx = 0; c.gridx++; add(new JLabel("Biomass: "), c);
+			c.weightx = 1; c.gridx++; add(biomassRow.fieldLevel, c);
+			c.weightx = 1; c.gridx++; add(biomassRow.fieldRate , c);
+			c.weightx = 1; c.gridx++; add(biomassRow.fieldRate2Level, c);
+			
+			c.gridy++; c.gridx = -1;
+			c.weightx = 0; c.gridx++; add(new JLabel("Terraformation: "), c);
+			c.weightx = 1; c.gridx++; add(terraformRow.fieldLevel, c);
+			c.weightx = 1; c.gridx++; add(terraformRow.fieldRate , c);
+			c.weightx = 1; c.gridx++; add(terraformRow.fieldRate2Level, c);
 			
 			c.gridy++;
 			c.weighty = 1;
 			c.weightx = 1;
-			c.gridwidth = 2;
+			c.gridwidth = 4;
 			c.gridx = 0;
 			add(new JLabel(), c);
+		}
+
+		public void setRateOfPhysicalValue(PhysicalValue physicalValue, double rate) {
+			switch (physicalValue) {
+			case Oxygen  : oxygenRow  .setRate(rate); break;
+			case Heat    : heatRow    .setRate(rate); break;
+			case Pressure: pressureRow.setRate(rate); break;
+			case Biomass : biomassRow .setRate(rate); break;
+			}
+			terraformRow.setRate(
+					oxygenRow  .getRate()+
+					heatRow    .getRate()+
+					pressureRow.getRate()+
+					biomassRow .getRate()
+			);
+		}
+		
+		private static class Row {
+			
+			private final Function<Double, String> formatRate;
+			private final JTextField fieldLevel;
+			private final JTextField fieldRate;
+			private final JTextField fieldRate2Level;
+			
+			private final double level;
+			private double rate;
+
+			Row(double level, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+				this.level = level;
+				this.rate = 0;
+				this.formatRate = formatRate;
+				fieldLevel      = PlanetCrafterSaveGameViewer.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
+				fieldRate       = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				fieldRate2Level = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+			}
+
+			void setRate(double rate) {
+				this.rate = rate;
+				double rate2Level = Math.log10(rate/level);
+				fieldRate      .setText(formatRate.apply(rate));
+				fieldRate2Level.setText(String.format(Locale.ENGLISH, "%1.2f", rate2Level));
+			}
+
+			double getRate() {
+				return rate;
+			}
 		}
 	}
 

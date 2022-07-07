@@ -25,26 +25,29 @@ import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GeneralDataPanel.TerraformingStatesPanel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
 class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 5787736919473135578L;
-	private SubPanel heatPanel;
-	private SubPanel pressurePanel;
-	private SubPanel oxygenePanel;
-	private SubPanel biomassPanel;
+	
+	private final SubPanel heatPanel;
+	private final SubPanel pressurePanel;
+	private final SubPanel oxygenePanel;
+	private final SubPanel biomassPanel;
 
-	TerraformingPanel(Data data) {
+	TerraformingPanel(Data data, GeneralDataPanel generalDataPanel) {
 		super(new GridLayout(0,2));
 		
-		heatPanel     = new SubPanel(data, PhysicalValue.Heat    );
-		pressurePanel = new SubPanel(data, PhysicalValue.Pressure);
-		oxygenePanel  = new SubPanel(data, PhysicalValue.Oxygen );
-		biomassPanel  = new SubPanel(data, PhysicalValue.Biomass );
+		Vector<TerraformingStatesPanel> terraformingStatesPanels = generalDataPanel.getTerraformingStatesPanels();
+		
+		heatPanel     = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Heat    );
+		pressurePanel = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Pressure);
+		oxygenePanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Oxygen );
+		biomassPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Biomass );
 		
 		add(heatPanel);
 		add(pressurePanel);
@@ -95,18 +98,19 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		private final ObjectsTableModel tableModel;
 		private final JTextField fieldProductionRate;
+		private final JTextField fieldBoosterRockets;
 		private final JTextField fieldProductionRateFinal;
-		private final JTextField fieldCurrentLevel;
-		
+
 		private final Data data;
 		private final PhysicalValue physicalValue;
-		private double totalSumFinal;
+		
+		private final Vector<TerraformingStatesPanel> terraformingStatesPanels;
 
-		SubPanel(Data data, PhysicalValue physicalValue) {
+		SubPanel(Data data, Vector<TerraformingStatesPanel> terraformingStatesPanels, PhysicalValue physicalValue) {
 			super(new BorderLayout(3,3));
 			this.data = data;
+			this.terraformingStatesPanels = terraformingStatesPanels;
 			this.physicalValue = physicalValue;
-			totalSumFinal = 0;
 			
 			JPanel resumePanel = new JPanel(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -115,11 +119,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			c.weightx = 0; resumePanel.add(new JLabel("Production Rate: "),c);
 			c.weightx = 1; resumePanel.add(fieldProductionRate = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 			
-			c.weightx = 0; resumePanel.add(new JLabel("  Boostered by Rockets: "),c);
-			c.weightx = 1; resumePanel.add(fieldProductionRateFinal = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+			c.weightx = 0; resumePanel.add(new JLabel("  Booster Rockets: "),c);
+			c.weightx = 1; resumePanel.add(fieldBoosterRockets = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 			
-			c.weightx = 0; resumePanel.add(new JLabel("  Current Level: "),c);
-			c.weightx = 1; resumePanel.add(fieldCurrentLevel = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+			c.weightx = 0; resumePanel.add(new JLabel("  Final Production Rate: "),c);
+			c.weightx = 1; resumePanel.add(fieldProductionRateFinal = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
 			
 			tableModel = new ObjectsTableModel(this.physicalValue);
 			JTable table = new JTable(tableModel);
@@ -157,25 +161,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			return null;
 		}
 
-		private String getCurrentLevelAsString(Vector<TerraformingStates> terraformingStates) {
-			if (terraformingStates==null) return null;
-			if (terraformingStates.isEmpty()) return null;
-			
-			TerraformingStates states = terraformingStates.firstElement();
-			switch (physicalValue) {
-			case Heat    : return Data.TerraformingStates.formatHeatLevel    (states.heatLevel    );
-			case Pressure: return Data.TerraformingStates.formatPressureLevel(states.pressureLevel);
-			case Oxygen  : return Data.TerraformingStates.formatOxygenLevel  (states.oxygenLevel  );
-			case Biomass : return Data.TerraformingStates.formatBiomassLevel (states.biomassLevel );
-			}
-			return null;
-		}
-
 		void updateContent() {
 			
 			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
 			double totalSum = 0.0;
-			int amountOfBoosterRockets = 0;
+			int numberOfBoosterRockets = 0;
 			
 			for (WorldObject wo : data.worldObjects) {
 				if (wo == null) continue;
@@ -195,17 +185,22 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 				
 				if (wo.objectType.isBoosterRocketFor==physicalValue) {
-					amountOfBoosterRockets++;
+					numberOfBoosterRockets++;
 				}
 			}
-			totalSumFinal = totalSum;
-			if (0 < amountOfBoosterRockets)
-				totalSumFinal = totalSum*10*amountOfBoosterRockets;
+			double boosterMultiplier = 1;
+			if (0 < numberOfBoosterRockets)
+				boosterMultiplier = 10*numberOfBoosterRockets;
+			
+			double totalSumFinal = totalSum*boosterMultiplier;
 			
 			fieldProductionRate     .setText(physicalValue.formatRate(totalSum));
+			fieldBoosterRockets     .setText(Integer.toString(numberOfBoosterRockets));
 			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumFinal));
-			fieldCurrentLevel.setText(getCurrentLevelAsString(data.terraformingStates));
 			tableModel.setData(tableContent.values());
+			
+			for (TerraformingStatesPanel panel : terraformingStatesPanels)
+				panel.setRateOfPhysicalValue(physicalValue, totalSumFinal);
 		}
 		
 		private Double getMultiplier(WorldObject wo) {

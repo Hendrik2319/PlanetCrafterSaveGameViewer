@@ -110,6 +110,12 @@ public class PlanetCrafterSaveGameViewer {
 		return comp;
 	}
 
+	static JTextField createOutputTextField(String text, int horizontalAlignment) {
+		JTextField comp = createOutputTextField(text);
+		comp.setHorizontalAlignment(horizontalAlignment);
+		return comp;
+	}
+
 	private void updateWindowTitle() {
 		mainWindow.setTitle(
 			openFile == null
@@ -197,14 +203,14 @@ public class PlanetCrafterSaveGameViewer {
 	private void setGUI(Data data) {
 		dataTabPane.removeAll();
 		GeneralDataPanel generalDataPanel = new GeneralDataPanel(data);
-		TerraformingPanel terraformingPanel = new TerraformingPanel(data);
+		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(data.worldObjects);
 
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
 		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
-		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
+		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Terraforming", terraformingPanel);
@@ -213,8 +219,10 @@ public class PlanetCrafterSaveGameViewer {
 		dataTabPane.addTab("Map", mapPanel);
 		dataTabPane.addTab("Object Types", objectTypesPanel);
 		
-		SwingUtilities.invokeLater(mapPanel::initialize);
-}
+		SwingUtilities.invokeLater(() -> {
+			mapPanel.initialize();
+		});
+	}
 
 	private Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
 		showIndeterminateTask(pd, "Read Content");
