@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
@@ -13,6 +14,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -168,12 +170,21 @@ public class PlanetCrafterSaveGameViewer {
 			if (jsonStructure==null) return;
 			
 			showIndeterminateTask(pd, "Parse JSON Structure");
-			Data data = Data.parse(jsonStructure, objectTypes);
+			HashSet<String> newObjectTypes = new HashSet<>();
+			Data data = Data.parse(jsonStructure, objectTypes, newObjectTypes);
 			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
 			if (data == null) return;
 			
 			showIndeterminateTask(pd, "Write new ObjectTypes to File");
 			writeObjectTypesToFile();
+			
+			if (!newObjectTypes.isEmpty()) {
+				Vector<String> vec = new Vector<>(newObjectTypes);
+				vec.sort(Data.caseIgnoringComparator);
+				vec.insertElementAt("Some new Object Types found:", 0);
+				String[] message = vec.toArray(String[]::new);
+				JOptionPane.showMessageDialog(mainWindow, message, "New ObjectTypes", JOptionPane.INFORMATION_MESSAGE);
+			}
 			
 			SwingUtilities.invokeLater(()->{
 				pd.setTaskTitle("Update GUI");

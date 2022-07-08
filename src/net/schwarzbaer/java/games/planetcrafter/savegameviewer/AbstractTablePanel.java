@@ -9,6 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
@@ -16,6 +17,8 @@ import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 
 class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends JPanel {
 	private static final long serialVersionUID = 5518131959056782917L;
+	private final JTable table;
+	private final AbstractTableModel<ValueType, ColumnID> tableModel;
 	
 	enum LayoutPos {
 		Top, Right, Bottom, Left;
@@ -36,12 +39,13 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 	}
 	AbstractTablePanel(AbstractTablePanel.AbstractTableModel<ValueType, ColumnID> tableModel, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
+		this.tableModel = tableModel;
 		
 		JTextArea textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setLineWrap(false);
 		
-		JTable table = new JTable(tableModel);
+		table = new JTable(tableModel);
 		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -67,6 +71,14 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		add(textareaScrollPane,LayoutPos.getBorderLayoutValue(textAreaPos));
 	}
 	
+	AbstractTableModel<ValueType, ColumnID> getTableModel() {
+		return tableModel;
+	}
+	
+	void setDefaultRenderer(Class<?> columnClass, TableCellRenderer renderer) {
+		table.setDefaultRenderer(columnClass, renderer);
+	}
+
 	protected class TableContextMenu extends ContextMenu {
 		private static final long serialVersionUID = 1755523803906870773L;
 

@@ -31,9 +31,10 @@ import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
@@ -107,12 +108,21 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		c.gridx++;
 		lowerPanel.add(
 			new SimpleTablePanel<Data.Layer>("Layers", data.layers,
-				new SimpleTablePanel.Column("ID"              , String.class,  75, row->((Data.Layer)row).layerId        ),
-				new SimpleTablePanel.Column("Color Base      ", String.class, 180, row->((Data.Layer)row).colorBase      ),
-				new SimpleTablePanel.Column("Color Custom    ", String.class,  90, row->((Data.Layer)row).colorCustom    ),
-				new SimpleTablePanel.Column("Color BaseLerp  ", Long  .class,  90, row->((Data.Layer)row).colorBaseLerp  ),
-				new SimpleTablePanel.Column("Color CustomLerp", Long  .class, 100, row->((Data.Layer)row).colorCustomLerp)
-			), c);
+				new SimpleTablePanel.Column("ID"              , String    .class,  75, row->((Data.Layer)row).layerId        ),
+				new SimpleTablePanel.Column("Color Base      ", Data.Color.class,  90, row->((Data.Layer)row).colorBase      ),
+				new SimpleTablePanel.Column("Color Custom    ", Data.Color.class,  90, row->((Data.Layer)row).colorCustom    ),
+				new SimpleTablePanel.Column("Color BaseLerp  ", Long      .class,  90, row->((Data.Layer)row).colorBaseLerp  ),
+				new SimpleTablePanel.Column("Color CustomLerp", Long      .class, 100, row->((Data.Layer)row).colorCustomLerp)
+			).setDefaultRenderer(Data.Color.class, new ColorTCR((rowM, columnM) -> {
+				if (rowM<0 || rowM>=data.layers.size()) return null;
+				Layer layer = data.layers.get(rowM);
+				if (layer!=null)
+					switch (columnM) {
+					case 1: return layer.colorBaseStr;
+					case 2: return layer.colorCustomStr;
+					}
+				return null;
+			})), c);
 		
 		
 		
@@ -178,6 +188,36 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			panel.addTab(Integer.toString(i), panels.get(i));
 		
 		return panel;
+	}
+	
+	static class ColorTCR implements TableCellRenderer {
+		
+		interface SurrogateTextSource {
+			String getSurrogateText(int rowM, int columnM);
+		}
+		
+		private final Tables.ColorRendererComponent rendererComponent;
+		private final SurrogateTextSource getSurrogateText;
+
+		ColorTCR(SurrogateTextSource getSurrogateText) {
+			this.getSurrogateText = getSurrogateText;
+			rendererComponent = new Tables.ColorRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+			if (value instanceof Data.Color) {
+				Data.Color color = (Data.Color) value;
+				value = color.getColor();
+			}
+			rendererComponent.configureAsTableCellRendererComponent(table, value, isSelected, hasFocus, ()->{
+				if (getSurrogateText==null) return null;
+				int rowM = table.convertRowIndexToModel(rowV);
+				int columnM = table.convertColumnIndexToModel(columnV);
+				return getSurrogateText.getSurrogateText(rowM, columnM);
+			});
+			return rendererComponent;
+		}
 	}
 
 	private static class EnergyPanel extends JPanel {
@@ -654,10 +694,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	
 	private static class SimpleTablePanel<ValueType> extends JScrollPane {
 		private static final long serialVersionUID = -8500969138264337829L;
+		private final JTable table;
 
 		SimpleTablePanel(String title, Vector<ValueType> data, Column... columns) {
 			SimpleTableModel<ValueType> tableModel = new SimpleTableModel<ValueType>(data,columns);
-			JTable table = new JTable(tableModel);
+			table = new JTable(tableModel);
 			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -679,6 +720,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			//setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			//setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		}
+		
+		SimpleTablePanel<ValueType> setDefaultRenderer(Class<?> columnClass, TableCellRenderer renderer) {
+			table.setDefaultRenderer(columnClass, renderer);
+			return this;
 		}
 		
 		private class TableContextMenu extends ContextMenu {

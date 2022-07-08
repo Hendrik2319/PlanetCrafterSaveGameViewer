@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -41,6 +42,10 @@ class ObjectType {
 		oxygenBooster = null;
 		isBoosterRocketFor = null;
 		isProducer = false;
+	}
+	
+	enum ObjectTypeValue {
+		Finished, Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, IsProducer
 	}
 	
 	enum PhysicalValue {
@@ -148,13 +153,16 @@ class ObjectType {
 		return null;
 	}
 
-	public static ObjectType getOrCreate(HashMap<String, ObjectType> objectTypes, String objectTypeID) {
+	public static ObjectType getOrCreate(HashMap<String, ObjectType> objectTypes, String objectTypeID, HashSet<String> newObjectTypes) {
 		if (objectTypes==null) throw new IllegalArgumentException();
 		if (objectTypeID==null) throw new IllegalArgumentException();
 		
 		ObjectType objectType = objectTypes.get(objectTypeID);
-		if (objectType==null)
+		if (objectType==null) {
 			objectTypes.put(objectTypeID, objectType = new ObjectType(objectTypeID));
+			if (newObjectTypes!=null)
+				newObjectTypes.add(objectTypeID);
+		}
 		
 		return objectType;
 	}

@@ -2,6 +2,7 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -20,9 +21,9 @@ class Data {
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
-	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, HashMap<String,ObjectType> objectTypes) {
+	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, HashMap<String,ObjectType> objectTypes, HashSet<String> newObjectTypes) {
 		try {
-			return new Data(jsonStructure, objectTypes);
+			return new Data(jsonStructure, objectTypes, newObjectTypes);
 			
 		} catch (ParseException ex) {
 			System.err.printf("ParseException while parsing JSON structure: %s%n", ex.getMessage());
@@ -48,7 +49,7 @@ class Data {
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
 	
-	private Data(Vector<Vector<Value<NV, V>>> dataVec, HashMap<String, ObjectType> objectTypes) throws ParseException, TraverseException {
+	private Data(Vector<Vector<Value<NV, V>>> dataVec, HashMap<String, ObjectType> objectTypes, HashSet<String> newObjectTypes) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
 		
 		System.out.printf("Parsing JSON Structure ...%n");
@@ -73,7 +74,7 @@ class Data {
 				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
 			}
 			
-			wo.objectType = ObjectType.getOrCreate(objectTypes, wo.objectTypeID);
+			wo.objectType = ObjectType.getOrCreate(objectTypes, wo.objectTypeID, newObjectTypes);
 			if (0 < wo.listId)
 				for (ObjectList ol : objectLists)
 					if (ol.id==wo.listId) {
@@ -124,6 +125,14 @@ class Data {
 			IntFunction<ValueType[]> createArray,
 			Function<String,ValueType> parseValue)
 					throws ParseException {
+		return parseSeparatedArray(str, ",", debugLabel, typeLabel, createArray, parseValue);
+	}
+	
+	private static <ValueType> ValueType[] parseSeparatedArray(
+			String str, String delimiter, String debugLabel, String typeLabel,
+			IntFunction<ValueType[]> createArray,
+			Function<String,ValueType> parseValue)
+					throws ParseException {
 		
 		if (str==null) throw new IllegalArgumentException();
 		if (debugLabel==null) throw new IllegalArgumentException();
@@ -131,7 +140,7 @@ class Data {
 		if (str.isEmpty())
 			return createArray.apply(0);
 		
-		String[] parts = str.split(",",-1);
+		String[] parts = str.split(delimiter,-1);
 		ValueType[] results = createArray.apply(parts.length);
 		for (int i=0; i<parts.length; i++) {
 			String part = parts[i];
@@ -185,6 +194,46 @@ class Data {
 		}
 	}
 
+	static class Color {
+	
+		final double r;
+		final double g;
+		final double b;
+		final double a;
+
+		Color(String str, String debugLabel) throws ParseException {
+			Double[] arr = parseSeparatedArray(str, "-", debugLabel, "Double", Double[]::new, valStr->{
+				valStr = valStr.replace(',', '.');
+				try { return Double.parseDouble(valStr); }
+				catch (NumberFormatException e) { return null; }
+			});
+			
+			if (arr.length!=4)
+				throw new ParseException("%s: Parsed value array has wrong length: %d (!=4)", debugLabel, arr.length);
+			
+			for (int i=0; i<arr.length; i++) {
+				double val = arr[i];
+				if (val<0 || val>1)
+					throw new ParseException("%s: Value %d is not in expected range (0..1): %s", debugLabel, i, val);
+			}
+			
+			r = arr[0];
+			g = arr[1];
+			b = arr[2];
+			a = arr[3];
+		}
+		
+		java.awt.Color getColor() {
+			return new java.awt.Color((float)r, (float)g, (float)b, (float)a);
+		}
+
+		@Override
+		public String toString() {
+			return String.format("(r=%s, g=%s, b=%s, a=%s)", r, g, b, a);
+		}
+		
+		
+	}
 	static class Coord3 {
 		private final double x,y,z;
 		
@@ -377,11 +426,13 @@ class Data {
 		final long     listId;
 		final String   _liGrps;
 		final Coord3   position;
+		final String   positionStr;
 		final Rotation rotation;
+		final String   rotationStr;
 		final long     _wear;
 		final String   _pnls;
-		final String   _color;
-		//final Coord3   color;
+		final String   colorStr;
+		final Color    color;
 		final String   text;
 		final long     growth;
 		
@@ -410,7 +461,6 @@ class Data {
 		 */
 		WorldObject(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			String positionStr, rotationStr/* , colorStr */;
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
@@ -419,14 +469,13 @@ class Data {
 			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
 			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
 			_pnls        = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
-			_color       = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
-			//colorStr    = JSON_Data.getStringValue (object, "color" , debugLabel);
+			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
 			
 			position     = new Coord3  (positionStr, debugLabel+".pos");
 			rotation     = new Rotation(rotationStr, debugLabel+".rot");
-			//color       = new Coord3  (colorStr   , debugLabel+".color");
+			color        = colorStr.isEmpty() ? null : new Color(colorStr, debugLabel+".color");
 			
 			list      = null;
 			container = null;
@@ -440,16 +489,16 @@ class Data {
 			boolean _liGrpsIsNotEmpty = !_liGrps.isEmpty();
 			boolean _wearIsNotZero    =  _wear  !=0;
 			//boolean _pnlsIsNotEmpty   = !_pnls  .isEmpty();
-			boolean _colorIsNotEmpty  = !_color .isEmpty();
-			if (_liGrpsIsNotEmpty ||
+			//boolean _colorIsNotEmpty  = !colorStr .isEmpty();
+			if (//_pnlsIsNotEmpty   ||
+				//_colorIsNotEmpty  ||
 				_wearIsNotZero    ||
-				//_pnlsIsNotEmpty   ||
-				_colorIsNotEmpty  ) {
+				_liGrpsIsNotEmpty ) {
 				Vector<String> vars = new Vector<>();
 				if (_liGrpsIsNotEmpty) vars.add("_liGrps");
 				if (_wearIsNotZero   ) vars.add("_wear");
 				//if (_pnlsIsNotEmpty  ) vars.add("_pnls");
-				if (_colorIsNotEmpty ) vars.add("_color");
+				//if (_colorIsNotEmpty ) vars.add("_color");
 				vars.sort(null);
 				System.err.printf("Special WorldObject: { "+
 						"id"    +":"+  "%d"  +", "+  // Int  
@@ -472,7 +521,7 @@ class Data {
 						rotationStr ,
 						_wear       ,
 						_pnls       ,
-						_color      ,
+						colorStr      ,
 						text        ,
 						growth      ,
 						String.join(", ", vars)
@@ -494,7 +543,12 @@ class Data {
 			out.add(0, "ID", id);
 			out.add(0, "ObjectTypeID", objectTypeID);
 			if (!text   .isEmpty())   out.add(0, "Text", text);
-			if (!_color .isEmpty())   out.add(0, "Color", _color);
+			if ( color!=null       ) {
+				out.add(0, "Color");
+				out.add(1, null, "%s", color);
+				out.add(1, null, "\"%s\"", colorStr);
+			} else if (!colorStr.isEmpty())
+				out.add(0, "Color", colorStr);
 			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
 			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
 			if (containerList!=null) {
@@ -681,11 +735,12 @@ class Data {
 
 	static class Layer {
 		final String layerId;
-		final String colorBase;
-		final String colorCustom;
-		final long colorBaseLerp;
-		final long colorCustomLerp;
-
+		final String colorBaseStr;
+		final Color  colorBase;
+		final String colorCustomStr;
+		final Color  colorCustom;
+		final long   colorBaseLerp;
+		final long   colorCustomLerp;
 		/*
 			Block[8]: 10 entries
 			-> Format: [2 blocks]
@@ -698,13 +753,15 @@ class Data {
 			        colorCustomLerp:Integer
 			        layerId        :String
 		 */
-		Layer(Value<NV, V> value, String debugLabel) throws TraverseException {
+		Layer(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			layerId         = JSON_Data.getStringValue (object, "layerId"        , debugLabel);
-			colorBase       = JSON_Data.getStringValue (object, "colorBase"      , debugLabel);
-			colorCustom     = JSON_Data.getStringValue (object, "colorCustom"    , debugLabel);
+			colorBaseStr    = JSON_Data.getStringValue (object, "colorBase"      , debugLabel);
+			colorCustomStr  = JSON_Data.getStringValue (object, "colorCustom"    , debugLabel);
 			colorBaseLerp   = JSON_Data.getIntegerValue(object, "colorBaseLerp"  , debugLabel);
 			colorCustomLerp = JSON_Data.getIntegerValue(object, "colorCustomLerp", debugLabel);
+			colorBase       = new Color(colorBaseStr  , debugLabel+".colorBase"  );
+			colorCustom     = new Color(colorCustomStr, debugLabel+".colorCustom");
 		}
 	}
 

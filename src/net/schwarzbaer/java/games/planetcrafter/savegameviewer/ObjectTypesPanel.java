@@ -21,6 +21,7 @@ import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
 import net.schwarzbaer.system.ClipboardTools;
 
@@ -123,10 +124,6 @@ class ObjectTypesPanel extends JScrollPane {
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
 			});
 		}
-	}
-	
-	enum ObjectTypeValue {
-		Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, Finished, IsProducer
 	}
 	
 	private static class ObjectTypesTableCellRenderer implements TableCellRenderer {

@@ -1,6 +1,10 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Component;
 import java.awt.Dimension;
+
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
@@ -14,26 +18,51 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 	WorldObjectsPanel(Data data) {
 		super(new WorldObjectsTableModel(data), LayoutPos.Right, new Dimension(300, 200));
+		setDefaultRenderer(Data.Color.class, new ColorTCR(getTableModel()));
+	}
+	
+	static class ColorTCR implements TableCellRenderer {
+		
+		private final Tables.ColorRendererComponent rendererComponent;
+		private final AbstractTableModel<WorldObject, ?> tableModel;
+
+		ColorTCR(AbstractTableModel<WorldObject,?> tableModel) {
+			this.tableModel = tableModel;
+			rendererComponent = new Tables.ColorRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+			if (value instanceof Data.Color) {
+				Data.Color color = (Data.Color) value;
+				value = color.getColor();
+			}
+			rendererComponent.configureAsTableCellRendererComponent(table, value, isSelected, hasFocus, ()->{
+				int rowM = table.convertRowIndexToModel(rowV);
+				WorldObject row = tableModel.getRow(rowM);
+				return row==null ? null : row.colorStr;
+			});
+			return rendererComponent;
+		}
 	}
 	
 	static class WorldObjectsTableModel extends AbstractTablePanel.AbstractTableModel<WorldObject, WorldObjectsTableModel.ColumnID> {
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			id          ("ID"          , Long    .class,  75),
-			twinID      ("#"           , Boolean .class,  30),
-			objectTypeID("ObjectTypeID", String  .class, 130),
-			Name        ("Name"        , String  .class, 130),
-			container   ("Container"   , String  .class, 350),
-			listId      ("List-ID"     , Long    .class,  70),
-			text        ("Text"        , String  .class, 120),
-			growth      ("Growth"      , Long    .class,  60),
-			position    ("Position"    , Coord3  .class, 200),
-			rotation    ("Rotation"    , Rotation.class, 205),
-			_color      ("[color]"     , String  .class,  50),
-			//color     (""            , Coord3  .class,  50),
-			_wear       ("[wear]"      , Long    .class,  50),
-			_liGrps     ("[liGrps]"    , String  .class,  50),
-			_pnls       ("[pnls]"      , String  .class,  90),
+			id          ("ID"          , Long      .class,  75),
+			twinID      ("#"           , Boolean   .class,  30),
+			objectTypeID("ObjectTypeID", String    .class, 130),
+			Name        ("Name"        , String    .class, 130),
+			container   ("Container"   , String    .class, 350),
+			listId      ("List-ID"     , Long      .class,  70),
+			text        ("Text"        , String    .class, 120),
+			growth      ("Growth"      , Long      .class,  60),
+			position    ("Position"    , Coord3    .class, 200),
+			rotation    ("Rotation"    , Rotation  .class, 205),
+			color       ("color"       , Data.Color.class,  50),
+			_liGrps     ("[liGrps]"    , String    .class,  50),
+			_wear       ("[wear]"      , Long      .class,  50),
+			_pnls       ("[pnls]"      , String    .class,  90),
 			;
 			private final SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
@@ -65,10 +94,10 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
 			switch (columnID) {
-			case _color       : return row._color;
 			case _liGrps      : return row._liGrps;
 			case _pnls        : return row._pnls;
 			case _wear        : return row._wear;
+			case color        : return row.color;
 			case growth       : return row.growth;
 			case id           : return row.id;
 			case listId       : return row.listId;

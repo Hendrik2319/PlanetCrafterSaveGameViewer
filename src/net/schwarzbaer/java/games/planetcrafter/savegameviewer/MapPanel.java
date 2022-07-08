@@ -28,12 +28,25 @@ import javax.swing.JTextArea;
 import net.schwarzbaer.gui.Canvas;
 import net.schwarzbaer.gui.ZoomableCanvas;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
 class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
+	
+	private static final Color COLOR_OVERVIEW_SCREEN     = Color.RED;
+	private static final Color COLOR_MAP_AXIS            = new Color(0x70000000,true);
+	private static final Color COLOR_MAP_BORDER          = COLOR_MAP_AXIS;
+	private static final Color COLOR_MAP_BACKGROUND      = Color.WHITE;
+	private static final Color COLOR_TOOLTIP_BORDER      = new Color(0x70000000,true);
+	private static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
+	private static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
+	private static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
+	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED = new Color(0xFFDD00);
+	private static final Color COLOR_WORLDOBJECT_FILL         = Color.LIGHT_GRAY;
+
+	
 	
 	private enum ColoringType {
 		StoragesFillingLevel ("Filling Level of Storages"),
@@ -193,14 +206,14 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				int rh = (int)Math.round(range.height*scale);
 				rx = x+width  - rx-rw;
 				ry = y+height - ry-rh;
-				g.setColor(Color.WHITE);
+				g.setColor(COLOR_MAP_BACKGROUND);
 				g.fillRect(rx, ry, rw, rh);
-				g.setColor(MapView.COLOR_AXIS);
+				g.setColor(COLOR_MAP_BORDER);
 				g.drawRect(rx-1, ry-1, rw+1, rh+1);
 			}
 			
 			if (screen!=null) {
-				g.setColor(Color.RED);
+				g.setColor(COLOR_OVERVIEW_SCREEN);
 				int rx = (int)Math.round(screen.x*scale + offsetX);
 				int ry = (int)Math.round(screen.y*scale + offsetY);
 				int rw = (int)Math.round(screen.width *scale);
@@ -409,12 +422,6 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 
 	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
-		
-		private static final Color COLOR_AXIS = new Color(0x70000000,true);
-		private static final Color COLOR_TOOLTIP_BORDER     = COLOR_AXIS;
-		private static final Color COLOR_TOOLTIP_BACKGORUND = new Color(0xFFFFE9);
-		private static final Color COLOR_TOOLTIP_TEXT       = Color.BLACK;
-		
 		private static final int NEAREST_OBJECT_MAX_DIST = 15;
 		
 		private final OverView overView;
@@ -432,8 +439,8 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			toolTipBox = null;
 			overView.setRange(this.mapModel.range);
 			
-			activateMapScale(COLOR_AXIS, "px", true);
-			activateAxes(COLOR_AXIS, true,true,true,true);
+			activateMapScale(COLOR_MAP_AXIS, "px", true);
+			activateAxes(COLOR_MAP_AXIS, true,true,true,true);
 			
 			addPanListener(new PanListener() {
 				@Override public void panStarted() {}
@@ -577,22 +584,22 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 					int screenY1 = /*y+*/viewState.convertPos_AngleToScreen_LatY (mapModel.range.y+mapModel.range.height);
 					if (screenX0>screenX1) { int temp=screenX0; screenX0=screenX1; screenX1=temp; }
 					if (screenY0>screenY1) { int temp=screenY0; screenY0=screenY1; screenY1=temp; }
-					g2.setColor(Color.WHITE);
+					g2.setColor(COLOR_MAP_BACKGROUND);
 					g2.fillRect(screenX0, screenY0, screenX1-screenX0, screenY1-screenY0);
-					g2.setColor(COLOR_AXIS);
+					g2.setColor(COLOR_MAP_BORDER);
 					g2.drawRect(screenX0-1, screenY0-1, screenX1-screenX0+1, screenY1-screenY0+1);
 				}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
 					if (wo!=hoveredObject && !mapModel.isHighlighted(wo))
-						drawWorldObject(g2, clip, wo, COLOR_AXIS, Color.LIGHT_GRAY);
+						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL);
 				
 				for (WorldObject wo : mapModel.displayableObjects)
 					if (wo!=hoveredObject && mapModel.isHighlighted(wo))
-						drawWorldObject(g2, clip, wo, COLOR_AXIS, mapModel.getHighlightColor(wo));
+						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, mapModel.getHighlightColor(wo));
 				
 				if (hoveredObject!=null)
-					drawWorldObject(g2, clip, hoveredObject, COLOR_AXIS, Color.YELLOW);
+					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
 				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
