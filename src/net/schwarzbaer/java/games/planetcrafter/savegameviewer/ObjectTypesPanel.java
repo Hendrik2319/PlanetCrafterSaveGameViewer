@@ -128,12 +128,15 @@ class ObjectTypesPanel extends JScrollPane {
 	
 	private static class ObjectTypesTableCellRenderer implements TableCellRenderer {
 		
-		private Tables.LabelRendererComponent rendererComponent;
-		private ObjectTypesTableModel tableModel;
+		private final ObjectTypesTableModel tableModel;
+		private final Tables.LabelRendererComponent rcLabel;
+		private final Tables.CheckBoxRendererComponent rcCheckBox;
 
 		ObjectTypesTableCellRenderer(ObjectTypesTableModel tableModel) {
 			this.tableModel = tableModel;
-			rendererComponent = new Tables.LabelRendererComponent();
+			rcLabel = new Tables.LabelRendererComponent();
+			rcCheckBox = new Tables.CheckBoxRendererComponent();
+			rcCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
 		}
 
 		@Override
@@ -144,18 +147,24 @@ class ObjectTypesPanel extends JScrollPane {
 			ObjectTypesTableModel.ColumnID columnID = tableModel.getColumnID(columnM);
 			ObjectType row = tableModel.getRow(rowM);
 			
-			String valueStr = getValueStr(value, columnID);
 			Supplier<Color> getCustomBG = ()->{
 				if (row==null) return null;
 				if (row.finished && columnID!=ObjectTypesTableModel.ColumnID.finished) return Color.LIGHT_GRAY;
 				return null;
 			};
-			rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBG, null);
 			
-			int hAlign = getHorizontalAlignment(columnID);
-			rendererComponent.setHorizontalAlignment(hAlign);
+			if (value instanceof Boolean) {
+				boolean isChecked = (Boolean) value;
+				rcCheckBox.configureAsTableCellRendererComponent(table, isChecked, null, isSelected, hasFocus, null, getCustomBG);
+				rcCheckBox.setEnabled(columnID==ObjectTypesTableModel.ColumnID.finished || (row!=null && !row.finished));
+				return rcCheckBox;
+				
+			} else {
+				rcLabel.configureAsTableCellRendererComponent(table, null, getValueStr(value, columnID), isSelected, hasFocus, getCustomBG, null);
+				rcLabel.setHorizontalAlignment(getHorizontalAlignment(columnID));
+				return rcLabel;
+			}
 			
-			return rendererComponent;
 		}
 
 		private int getHorizontalAlignment(ObjectTypesTableModel.ColumnID columnID) {
@@ -266,6 +275,7 @@ class ObjectTypesPanel extends JScrollPane {
 			ObjectTypesTableCellRenderer tcr = new ObjectTypesTableCellRenderer(this);
 			table.setDefaultRenderer(String.class, tcr);
 			table.setDefaultRenderer(Double.class, tcr);
+			table.setDefaultRenderer(Boolean.class, tcr);
 			table.setDefaultRenderer(PhysicalValue.class, tcr);
 			
 			Vector<PhysicalValue> values = new Vector<>(Arrays.asList(PhysicalValue.values()));
@@ -312,7 +322,7 @@ class ObjectTypesPanel extends JScrollPane {
 			System.out.printf("setValueAt( %s%s )%n", aValue, aValue==null ? "" : String.format(" [%s]", aValue.getClass()));
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
-			case finished: row.finished = (Boolean)aValue;
+			case finished: row.finished = (Boolean)aValue; fireTableRowUpdate(rowIndex); break;
 			case id      : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
 			case heat    : row.heat     = (Double)aValue; break;

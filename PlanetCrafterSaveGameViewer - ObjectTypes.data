@@ -550,6 +550,11 @@ ObjectType: Sulfur
 label = Sulfur
 <finished>
 
+ObjectType: Teleporter1
+label = Teleporter
+energy = -276.0
+<finished>
+
 ObjectType: Titanium
 label = Titanium
 <finished>
