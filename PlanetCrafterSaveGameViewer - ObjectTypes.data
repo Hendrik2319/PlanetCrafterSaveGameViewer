@@ -62,6 +62,18 @@ ObjectType: BlueprintT1
 label = Blueprint Chip
 <finished>
 
+ObjectType: BootsSpeed1
+label = Agility Boots T1
+<finished>
+
+ObjectType: BootsSpeed2
+label = Agility Boots T2
+<finished>
+
+ObjectType: BootsSpeed3
+label = Agility Boots T3
+<finished>
+
 ObjectType: canister
 label = Canister
 <finished>
@@ -95,6 +107,19 @@ energy = -12.5
 
 ObjectType: DisplayCase
 label = Display Case
+<finished>
+
+ObjectType: Drill0
+label = Drill T1
+pressure = 0.2
+energy = -0.5
+<finished>
+
+ObjectType: Drill1
+label = Drill T2
+heat = 0.1
+pressure = 1.5
+energy = -5.0
 <finished>
 
 ObjectType: Drill2
@@ -134,6 +159,11 @@ energy = 86.5
 ObjectType: EnergyGenerator5
 label = Nuclear Reactor T2
 energy = 331.5
+<finished>
+
+ObjectType: EnergyGenerator6
+label = Nuclear Fusion Generator
+energy = 1625.0
 <finished>
 
 ObjectType: EquipmentIncrease1
@@ -241,6 +271,10 @@ ObjectType: Jetpack2
 label = Jetpack T2
 <finished>
 
+ObjectType: Jetpack3
+label = Jetpack T3
+<finished>
+
 ObjectType: LaunchPlatform
 label = Launch Platform
 energy = -55.0
@@ -268,6 +302,22 @@ label = Microchip - Torch T1
 
 ObjectType: MultiToolLight2
 label = Microchip - Torch T2
+<finished>
+
+ObjectType: MultiToolMineSpeed1
+label = Microchip - Mining Speed  T1
+<finished>
+
+ObjectType: MultiToolMineSpeed2
+label = Microchip - Mining Speed  T2
+<finished>
+
+ObjectType: MultiToolMineSpeed3
+label = Microchip - Mining Speed  T3
+<finished>
+
+ObjectType: MultiToolMineSpeed4
+label = Microchip - Mining Speed  T4
 <finished>
 
 ObjectType: Mutagen1
@@ -504,18 +554,43 @@ ObjectType: Titanium
 label = Titanium
 <finished>
 
-ObjectType: Tree3Seed
-label = Tree Seed "Cernea" (125%)
+ObjectType: Tree1Seed
+label = Tree Seed "Linifolia" (125%, Shanga150)
 oxygenBooster = 1.25
 <finished>
 
+ObjectType: Tree2Seed
+label = Tree Seed "Aleatus" (125%, Pestera200)
+oxygenBooster = 1.25
+<finished>
+
+ObjectType: Tree3Seed
+label = Tree Seed "Cernea" (125%, Nulna300)
+oxygenBooster = 1.25
+<finished>
+
+ObjectType: Tree4Seed
+label = Tree Seed "Elegea" (125%, Tuska400)
+oxygenBooster = 1.25
+<finished>
+
+ObjectType: Tree5Seed
+label = Tree Seed "Humelora" (150%, Orema450)
+oxygenBooster = 1.5
+<finished>
+
+ObjectType: Tree6Seed
+label = Tree Seed "Aemora" (150%, Volnus500)
+oxygenBooster = 1.5
+<finished>
+
 ObjectType: Tree7Seed
-label = Tree Seed "Pleom" (200%, Fl.6)
+label = Tree Seed "Pleom" (200%, Gold600)
 oxygenBooster = 2.0
 <finished>
 
 ObjectType: Tree8Seed
-label = Tree Seed "Soleus" (125%)
+label = Tree Seed "Soleus" (125%, Lirma100)
 oxygenBooster = 1.25
 <finished>
 
@@ -528,6 +603,13 @@ label = Tree Spreader T1
 oxygen = 920.0
 biomass = 85.0
 energy = -31.0
+<finished>
+
+ObjectType: TreeSpreader1
+label = Tree Spreader T2
+oxygen = 1950.0
+biomass = 149.0
+energy = -71.0
 <finished>
 
 ObjectType: Uranim
@@ -576,6 +658,24 @@ label = Food Grower T2
 energy = -29.5
 <finished>
 
+ObjectType: Vegetube1
+label = Vegetube T1
+oxygen = 0.15
+energy = -0.35
+<finished>
+
+ObjectType: Vegetube2
+label = Vegetube T2
+oxygen = 1.2
+energy = -1.25
+<finished>
+
+ObjectType: VegetubeOutside1
+label = Vegetube T3
+oxygen = 13.0
+energy = -7.25
+<finished>
+
 ObjectType: WaterBottle1
 label = Water Bottle
 <finished>
@@ -584,6 +684,16 @@ ObjectType: WaterCollector1
 label = Atmospheric Water Collector
 energy = -11.0
 isProducer
+<finished>
+
+ObjectType: WaterCollector2
+label = Lake Water Collector
+energy = -19.0
+isProducer
+<finished>
+
+ObjectType: WaterFilter
+label = Water Filter
 <finished>
 
 ObjectType: wreckpilar
