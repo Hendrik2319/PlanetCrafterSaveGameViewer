@@ -105,6 +105,7 @@ public class PlanetCrafterSaveGameViewer {
 			
 			achievementsMenu.add(createMenuItem("Configure Achievements", e->{
 				new Achievements.ConfigDialog(mainWindow,achievements).showDialog();
+				achievements.writeToFile(new File(FILE_ACHIEVEMENTS));
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
 			}));

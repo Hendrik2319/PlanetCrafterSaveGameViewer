@@ -20,6 +20,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
@@ -129,7 +130,7 @@ class Achievements {
 		private static class AchievementsTableModel extends Tables.SimplifiedTableModel<AchievementsTableModel.ColumnID> {
 
 			enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-				Level("Level"      , Double.class,  75),
+				Level("Level"      , Double.class,  90),
 				Label("Achievement", String.class, 200),
 				;
 				private final SimplifiedColumnConfig cfg;
@@ -174,6 +175,36 @@ class Achievements {
 				}
 				return null;
 			}
+
+			@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
+				return true;
+			}
+
+			@Override protected void setValueAt(Object aValue, int rowIndex, int columnIndex, ColumnID columnID) {
+				Achievement a;
+				if (rowIndex==data.size()) {
+					// create a new achievement
+					data.add(a = new Achievement());
+					
+				} else {
+					a = getRow(rowIndex);
+					if (a==null) return;
+				}
+				setValue(a, aValue, columnID);
+				
+				SwingUtilities.invokeLater(()->{
+					data.sort(ACHIEVEMENT_COMPARATOR);
+					fireTableUpdate();
+				});
+			}
+
+			private void setValue(Achievement a, Object aValue, ColumnID columnID) {
+				switch (columnID) {
+				case Label: a.label = (String) aValue; break;
+				case Level: a.level = (Double) aValue; break;
+				}
+			}
+			
 		}
 
 	}
@@ -219,7 +250,7 @@ class Achievements {
 
 	void writeToFile(File file) {
 		
-		System.out.printf("Write ObjectTypes to file \"%s\" ...%n", file.getAbsolutePath());
+		System.out.printf("Write Achievements to file \"%s\" ...%n", file.getAbsolutePath());
 		
 		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
 			
@@ -230,7 +261,7 @@ class Achievements {
 			writeToFile(out,"Terraformation"             ,terraformAchievements);
 			
 		} catch (IOException ex) {
-			System.err.printf("IOException while writing ObjectTypes: %s%n", ex.getMessage());
+			System.err.printf("IOException while writing Achievements: %s%n", ex.getMessage());
 			//ex.printStackTrace();
 		}
 		

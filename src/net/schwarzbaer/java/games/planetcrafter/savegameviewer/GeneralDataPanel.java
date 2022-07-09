@@ -487,8 +487,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridy = -1;
 			
 			c.gridy = 0; c.gridx = 0; c.weightx = 1;
-			c.gridx++; add(new JLabel("Level, Rate"), c);
-			c.gridx++; add(new JLabel("Rate : Level"), c);
+			c.gridx++; add(new JLabel("Level"), c);
+			c.gridx++; add(new JLabel("Next Achievement"), c);
 			
 			oxygenRow   .addToPanel(this, 1, "Oxygen");
 			heatRow     .addToPanel(this, 3, "Heat");
@@ -537,7 +537,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private final Function<Double, String> formatRate;
 			private final JTextField fieldLevel;
 			private final JTextField fieldRate;
-			private final JTextField fieldRate2Level;
+			//private final JTextField fieldRate2Level;
 			private final JTextField fieldAchievement;
 			
 			private final PhysicalValue physicalValue;
@@ -561,7 +561,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				this.formatRate = formatRate;
 				fieldLevel       = PlanetCrafterSaveGameViewer.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
 				fieldRate        = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
-				fieldRate2Level  = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				//fieldRate2Level  = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
 				fieldAchievement = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
 				updateAfterAchievementsChange();
 			}
@@ -676,8 +676,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			void setRate(double rate) {
 				this.rate = rate;
 				double rate2Level = Math.log10(rate/level);
-				fieldRate      .setText(formatRate.apply(rate));
-				fieldRate2Level.setText(String.format(Locale.ENGLISH, "%1.2f", rate2Level));
+				fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
+				//fieldRate      .setText(formatRate.apply(rate));
+				//fieldRate2Level.setText(String.format(Locale.ENGLISH, "%1.2f", rate2Level));
 			}
 
 			double getRate() {
@@ -695,12 +696,12 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				c.weightx = 0; c.gridy = gridy  ; c.gridx = 0; panel.add(new JLabel(label+": "), c);
 				c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
 				c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
-				c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; panel.add(fieldRate , c);
-				c.weightx = 1; c.gridy = gridy+1; c.gridx = 2; panel.add(fieldRate2Level, c);
+				c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldRate , c);
+				//c.weightx = 1; c.gridy = gridy+1; c.gridx = 2; panel.add(fieldRate2Level, c);
 				
-				fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
+				//fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
 				fieldRate.setForeground(Color.GRAY);
-				fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
+				//fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
 			}
 		}
 	}
