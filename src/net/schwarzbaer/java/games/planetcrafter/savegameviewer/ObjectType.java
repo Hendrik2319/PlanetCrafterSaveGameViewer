@@ -96,7 +96,7 @@ class ObjectType {
 			}
 			
 		} catch (IOException ex) {
-			System.err.printf("IOException while writing ObjectTypes to file \"%s\": %s%n", file.getAbsolutePath(), ex.getMessage());
+			System.err.printf("IOException while writing ObjectTypes: %s%n", ex.getMessage());
 			//ex.printStackTrace();
 		}
 		
@@ -133,7 +133,7 @@ class ObjectType {
 		} catch (FileNotFoundException ex) {
 			//ex.printStackTrace();
 		} catch (IOException ex) {
-			System.err.printf("IOException while reading ObjectTypes from file \"%s\": %s%n", file.getAbsolutePath(), ex.getMessage());
+			System.err.printf("IOException while reading ObjectTypes: %s%n", ex.getMessage());
 			//ex.printStackTrace();
 		}
 		

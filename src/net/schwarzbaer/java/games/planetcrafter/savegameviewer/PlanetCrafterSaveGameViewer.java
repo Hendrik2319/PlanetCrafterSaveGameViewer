@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -37,10 +38,12 @@ import net.schwarzbaer.system.Settings;
 public class PlanetCrafterSaveGameViewer {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
+	private static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
 
 	public static void main(String[] args) {
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		// scanFileContent(pathname);
+		//GeneralDataPanel.TerraformingStatesPanel.testDurationFormater();
 		
 		try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
 		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
@@ -48,18 +51,22 @@ public class PlanetCrafterSaveGameViewer {
 		new PlanetCrafterSaveGameViewer().initialize();
 	}
 	
-	private static final AppSettings settings = new AppSettings();
-	
+	static final AppSettings settings = new AppSettings();
+
 	private final StandardMainWindow mainWindow;
 	private final FileChooser jsonFileChooser;
 	private final JTabbedPane dataTabPane;
 	private final MyMenuBar menuBar;
 	private File openFile;
 	private HashMap<String,ObjectType> objectTypes;
+	private Achievements achievements;
+	private GeneralDataPanel generalDataPanel;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
 		objectTypes = null;
+		achievements = null;
+		generalDataPanel = null;
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
@@ -93,7 +100,22 @@ public class PlanetCrafterSaveGameViewer {
 			filesMenu.add(createMenuItem("Quit", e->{
 				System.exit(0);
 			}));
+			
+			JMenu achievementsMenu = add(new JMenu("Achievements"));
+			
+			achievementsMenu.add(createMenuItem("Configure Achievements", e->{
+				new Achievements.ConfigDialog(mainWindow,achievements).showDialog();
+				if (generalDataPanel!=null)
+					generalDataPanel.updateAfterAchievementsChange();
+			}));
 		}
+	}
+
+	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
+		JButton comp = new JButton(title);
+		if (al!=null) comp.addActionListener(al);
+		comp.setEnabled(isEnabled);
+		return comp;
 	}
 
 	static JMenuItem createMenuItem(String title, ActionListener al) {
@@ -103,6 +125,7 @@ public class PlanetCrafterSaveGameViewer {
 	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
 		JMenuItem comp = new JMenuItem(title);
 		if (al!=null) comp.addActionListener(al);
+		comp.setEnabled(isEnabled);
 		return comp;
 	}
 
@@ -130,6 +153,7 @@ public class PlanetCrafterSaveGameViewer {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
 		objectTypes = ObjectType.readFromFile(new File(FILE_OBJECT_TYPES));
+		achievements = Achievements.readFromFile(new File(FILE_ACHIEVEMENTS));
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
@@ -213,7 +237,7 @@ public class PlanetCrafterSaveGameViewer {
 
 	private void setGUI(Data data) {
 		dataTabPane.removeAll();
-		GeneralDataPanel generalDataPanel = new GeneralDataPanel(data);
+		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(data.worldObjects);
 
@@ -346,7 +370,7 @@ public class PlanetCrafterSaveGameViewer {
 	}
 
 
-	private static class AppSettings extends Settings.DefaultAppSettings<AppSettings.ValueGroup, AppSettings.ValueKey> {
+	static class AppSettings extends Settings.DefaultAppSettings<AppSettings.ValueGroup, AppSettings.ValueKey> {
 		public enum ValueKey {
 			OpenFile
 		}

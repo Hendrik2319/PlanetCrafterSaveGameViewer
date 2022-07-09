@@ -1,8 +1,10 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -44,16 +46,20 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	//private final Data data;
 	private final EnergyPanel energyPanel;
 	private final Vector<TerraformingStatesPanel> terraformingStatesPanels;
-	@SuppressWarnings("unused")
 	private final Vector<GeneralData1Panel> generalData1Panels;
-	@SuppressWarnings("unused")
 	private final Vector<GeneralData2Panel> generalData2Panels;
-	@SuppressWarnings("unused")
 	private final Vector<PlayerStatesPanel> playerStatesPanels;
 
-	GeneralDataPanel(Data data) {
+	GeneralDataPanel(Data data, Achievements achievements) {
 		//this.data = data;
 		GridBagConstraints c;
+		
+		
+		
+		terraformingStatesPanels = createPanels(data.terraformingStates, value -> new TerraformingStatesPanel(value, achievements));
+		generalData1Panels = createPanels(data.generalData1, GeneralData1Panel::new);
+		generalData2Panels = createPanels(data.generalData2, GeneralData2Panel::new);
+		playerStatesPanels = createPanels(data.playerStates, PlayerStatesPanel::new);
 		
 		
 		
@@ -67,13 +73,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		c.gridheight = 1;
 		c.gridx = 0;
-		c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels = createPanels(data.terraformingStates, TerraformingStatesPanel::new)), c);
-		c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels       = createPanels(data.generalData1      , GeneralData1Panel      ::new)), c);
-		c.gridy = 2; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels       = createPanels(data.generalData2      , GeneralData2Panel      ::new)), c);
+		c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels), c);
+		c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels      ), c);
+		c.gridy = 2; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels      ), c);
 		
 		c.gridheight = 3;
 		c.gridx = 1;
-		c.gridy = 0; upperPanel.add(createCompoundPanel("Player", playerStatesPanels = createPanels(data.playerStates, PlayerStatesPanel::new)), c);
+		c.gridy = 0; upperPanel.add(createCompoundPanel("Player", playerStatesPanels), c);
 		
 		c.gridheight = 3;
 		c.gridx = 2;
@@ -149,6 +155,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	
 	Vector<TerraformingStatesPanel> getTerraformingStatesPanels() {
 		return terraformingStatesPanels;
+	}
+
+	public void updateAfterAchievementsChange() {
+		for (TerraformingStatesPanel panel : terraformingStatesPanels)
+			panel.updateAfterAchievementsChange();
 	}
 
 	@Override
@@ -457,15 +468,15 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final Row biomassRow;
 		private final Row terraformRow;
 		
-		TerraformingStatesPanel(Data.TerraformingStates data) {
+		TerraformingStatesPanel(Data.TerraformingStates data, Achievements achievements) {
 			super(new GridBagLayout());
 			
 			double terraformLevel = data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel;
-			oxygenRow    = new Row(data.oxygenLevel  , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
-			heatRow      = new Row(data.heatLevel    , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
-			pressureRow  = new Row(data.pressureLevel, Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure::formatRate);
-			biomassRow   = new Row(data.biomassLevel , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Biomass ::formatRate);
-			terraformRow = new Row(terraformLevel    , Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
+			oxygenRow    = new Row(data.oxygenLevel  , achievements, Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  );
+			heatRow      = new Row(data.heatLevel    , achievements, Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    );
+			pressureRow  = new Row(data.pressureLevel, achievements, Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure);
+			biomassRow   = new Row(data.biomassLevel , achievements, Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Biomass );
+			terraformRow = new Row(terraformLevel    , achievements, Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -475,50 +486,33 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridheight = 1;
 			c.gridy = -1;
 			
-			c.gridy++; c.gridx = 0; c.weightx = 1;
-			c.gridx++; add(new JLabel("Level"), c);
-			c.gridx++; add(new JLabel("Rate"), c);
+			c.gridy = 0; c.gridx = 0; c.weightx = 1;
+			c.gridx++; add(new JLabel("Level, Rate"), c);
 			c.gridx++; add(new JLabel("Rate : Level"), c);
 			
-			c.gridy++; c.gridx = -1;
-			c.weightx = 0; c.gridx++; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx++; add(oxygenRow.fieldLevel, c);
-			c.weightx = 1; c.gridx++; add(oxygenRow.fieldRate , c);
-			c.weightx = 1; c.gridx++; add(oxygenRow.fieldRate2Level, c);
+			oxygenRow   .addToPanel(this, 1, "Oxygen");
+			heatRow     .addToPanel(this, 3, "Heat");
+			pressureRow .addToPanel(this, 5, "Pressure");
+			biomassRow  .addToPanel(this, 7, "Biomass");
+			terraformRow.addToPanel(this, 9, "Terraformation");
 			
-			c.gridy++; c.gridx = -1;
-			c.weightx = 0; c.gridx++; add(new JLabel("Heat: "), c);
-			c.weightx = 1; c.gridx++; add(heatRow.fieldLevel, c);
-			c.weightx = 1; c.gridx++; add(heatRow.fieldRate , c);
-			c.weightx = 1; c.gridx++; add(heatRow.fieldRate2Level, c);
-			
-			c.gridy++; c.gridx = -1;
-			c.weightx = 0; c.gridx++; add(new JLabel("Pressure: "), c);
-			c.weightx = 1; c.gridx++; add(pressureRow.fieldLevel, c);
-			c.weightx = 1; c.gridx++; add(pressureRow.fieldRate , c);
-			c.weightx = 1; c.gridx++; add(pressureRow.fieldRate2Level, c);
-			
-			c.gridy++; c.gridx = -1;
-			c.weightx = 0; c.gridx++; add(new JLabel("Biomass: "), c);
-			c.weightx = 1; c.gridx++; add(biomassRow.fieldLevel, c);
-			c.weightx = 1; c.gridx++; add(biomassRow.fieldRate , c);
-			c.weightx = 1; c.gridx++; add(biomassRow.fieldRate2Level, c);
-			
-			c.gridy++; c.gridx = -1;
-			c.weightx = 0; c.gridx++; add(new JLabel("Terraformation: "), c);
-			c.weightx = 1; c.gridx++; add(terraformRow.fieldLevel, c);
-			c.weightx = 1; c.gridx++; add(terraformRow.fieldRate , c);
-			c.weightx = 1; c.gridx++; add(terraformRow.fieldRate2Level, c);
-			
-			c.gridy++;
+			c.gridy = 11;
+			c.gridx = 0;
 			c.weighty = 1;
 			c.weightx = 1;
-			c.gridwidth = 4;
-			c.gridx = 0;
+			c.gridwidth = 3;
 			add(new JLabel(), c);
 		}
 
-		public void setRateOfPhysicalValue(PhysicalValue physicalValue, double rate) {
+		void updateAfterAchievementsChange() {
+			oxygenRow   .updateAfterAchievementsChange();
+			heatRow     .updateAfterAchievementsChange();
+			pressureRow .updateAfterAchievementsChange();
+			biomassRow  .updateAfterAchievementsChange();
+			terraformRow.updateAfterAchievementsChange();
+		}
+
+		void setRateOfPhysicalValue(PhysicalValue physicalValue, double rate) {
 			switch (physicalValue) {
 			case Oxygen  : oxygenRow  .setRate(rate); break;
 			case Heat    : heatRow    .setRate(rate); break;
@@ -533,23 +527,150 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			);
 		}
 		
+		static void testDurationFormater() {
+			Row.testDurationFormater();
+		}
+		
 		private static class Row {
 			
+			private final Function<Double, String> formatLevel;
 			private final Function<Double, String> formatRate;
 			private final JTextField fieldLevel;
 			private final JTextField fieldRate;
 			private final JTextField fieldRate2Level;
+			private final JTextField fieldAchievement;
 			
+			private final PhysicalValue physicalValue;
+			private final Achievements achievements;
 			private final double level;
+			
 			private double rate;
 
-			Row(double level, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+			Row(double level, Achievements achievements, Function<Double,String> formatLevel, PhysicalValue physicalValue) {
+				this(level, achievements, formatLevel, physicalValue, physicalValue::formatRate);
+			}
+			Row(double level, Achievements achievements, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+				this(level, achievements, formatLevel, null, formatRate);
+			}
+			private Row(double level, Achievements achievements, Function<Double,String> formatLevel, PhysicalValue physicalValue, Function<Double,String> formatRate) {
+				this.achievements = achievements;
+				this.physicalValue = physicalValue;
 				this.level = level;
 				this.rate = 0;
+				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				fieldLevel      = PlanetCrafterSaveGameViewer.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
-				fieldRate       = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
-				fieldRate2Level = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				fieldLevel       = PlanetCrafterSaveGameViewer.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
+				fieldRate        = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				fieldRate2Level  = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				fieldAchievement = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				updateAfterAchievementsChange();
+			}
+
+			void updateAfterAchievementsChange() {
+				Achievements.Achievement achievement = achievements.getNextAchievement(level,physicalValue);
+				String achievementText = getAchievementText(achievement);
+				fieldAchievement.setText(achievementText);
+			}
+
+			private String getAchievementText(Achievements.Achievement achievement) {
+				if (achievement==null)
+					return "No Achievements left";
+				
+				String label = achievement.getLabel();
+				if (label==null || label.isBlank())
+					label = "<Nameless>";
+					
+				Double nextLevel = achievement.getLevel();
+				if (nextLevel==null)
+					return label;
+				
+				String nextLevelStr = formatLevel.apply(nextLevel);
+				if (rate==0)
+					return String.format("%s at %s", achievement.getLabel(), nextLevelStr);
+				
+				double duration_s = (nextLevel.doubleValue()-level) / rate;
+				String durationsStr = getDurationsString(duration_s);
+				
+				return String.format("%s at %s %s", achievement.getLabel(), nextLevelStr, durationsStr);
+			}
+			
+			private static String formatValue(String format, Object... values) {
+				return String.format(Locale.ENGLISH, format, values);
+			}
+			
+			static void testDurationFormater() {
+				testDurationFormater(" 5.2 s", 5.2);
+				testDurationFormater("  61 s", 61);
+				testDurationFormater(" 100 s", 100);
+				testDurationFormater("3599 s", 3599);
+				testDurationFormater("3600 s", 3600);
+				testDurationFormater("3601 s", 3601);
+				testDurationFormater("3661 s", 3661);
+				testDurationFormater("nearly  1 day ", 24*3600*0.99);
+				testDurationFormater("        1 day ", 24*3600);
+				testDurationFormater("above   1 day ", 24*3600*1.01);
+				testDurationFormater("nearly 10 days", 10*24*3600*0.99);
+				testDurationFormater("       10 days", 10*24*3600);
+				testDurationFormater("      350 days", 350*24*3600);
+				testDurationFormater("      365 days", 365*24*3600);
+				testDurationFormater("            10 Y", 365.0*24*3600*10.0);
+				testDurationFormater("           100 Y", 365.0*24*3600*100.0);
+				testDurationFormater("          1000 Y", 365.0*24*3600*1000.0);
+				testDurationFormater("         10000 Y", 365.0*24*3600*10000.0);
+				testDurationFormater("        100000 Y", 365.0*24*3600*100000.0);
+				testDurationFormater("       1000000 Y", 365.0*24*3600*1000000.0);
+				testDurationFormater("      10000000 Y", 365.0*24*3600*10000000.0);
+				testDurationFormater("     100000000 Y", 365.0*24*3600*100000000.0);
+				testDurationFormater("    1000000000 Y", 365.0*24*3600*1000000000.0);
+				testDurationFormater("   10000000000 Y", 365.0*24*3600*10000000000.0);
+				testDurationFormater("  100000000000 Y", 365.0*24*3600*100000000000.0);
+				testDurationFormater(" 1000000000000 Y", 365.0*24*3600*1000000000000.0);
+				testDurationFormater("10000000000000 Y", 365.0*24*3600*10000000000000.0);
+			}
+			
+			private static void testDurationFormater(String label, double value) {
+				System.out.printf("%s -> [%s] %s%n", label, value, getDurationsString(value));
+			}
+			
+			private static String getDurationsString(double value) {
+				if (value < 60) return formatValue("in %1.1f s", value);
+				value /= 60;
+				int sec = (int)Math.floor((value    - Math.floor(value   ))*60);
+				int min = (int)Math.floor((value/60 - Math.floor(value/60))*60);
+				
+				if (value < 60) return formatValue("in %d:%02d min", min, sec);
+				value/=60;
+				int hour = (int)Math.floor((value/24 - Math.floor(value/24))*24);
+				
+				if (value < 24) return formatValue("in %d:%02d:%02d h", hour, min, sec);
+				value/=24;
+				
+				if (value <  10) return formatValue("in %1.0f:%02d:%02d d", Math.floor(value), hour, min);
+				if (value < 100) return formatValue("in %1.2f d", value);
+				if (value < 365) return formatValue("in %1.1f d", value);
+				value/=365;
+				
+				if (value <   10) return formatValue("in %1.2f Y", value);
+				if (value <  100) return formatValue("in %1.1f Y", value);
+				if (value < 1000) return formatValue("in %1.0f Y", value);
+				value/=1000;
+				
+				if (value <   10) return formatValue("in %1.2f kY", value);
+				if (value <  100) return formatValue("in %1.1f kY", value);
+				if (value < 1000) return formatValue("in %1.0f kY", value);
+				value/=1000;
+				
+				if (value <   10) return formatValue("in %1.2f MY", value);
+				if (value <  100) return formatValue("in %1.1f MY", value);
+				if (value < 1000) return formatValue("in %1.0f MY", value);
+				value/=1000;
+				
+				if (value <   10) return formatValue("in %1.2f GY", value);
+				if (value <  100) return formatValue("in %1.1f GY", value);
+				if (value < 1000) return formatValue("in %1.0f GY", value);
+				value/=1000;
+				
+				return "after a long time";
 			}
 
 			void setRate(double rate) {
@@ -561,6 +682,25 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 			double getRate() {
 				return rate;
+			}
+			
+			void addToPanel(JPanel panel, int gridy, String label) {
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				
+				c.weighty = 0;
+				c.gridwidth = 1;
+				c.gridheight = 1;
+				
+				c.weightx = 0; c.gridy = gridy  ; c.gridx = 0; panel.add(new JLabel(label+": "), c);
+				c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
+				c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
+				c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; panel.add(fieldRate , c);
+				c.weightx = 1; c.gridy = gridy+1; c.gridx = 2; panel.add(fieldRate2Level, c);
+				
+				fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
+				fieldRate.setForeground(Color.GRAY);
+				fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
 			}
 		}
 	}

@@ -23,8 +23,10 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
+import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
+import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GeneralDataPanel.TerraformingStatesPanel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
@@ -64,7 +66,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			return;
 		
 		switch (event.changedValue) {
-		case Label:
+		case Label: case Energy:
 			heatPanel    .updateContent();
 			pressurePanel.updateContent();
 			oxygenePanel .updateContent();
@@ -135,6 +137,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			tableModel.setTable(table);
 			tableModel.setColumnWidths(table);
 			tableModel.setDefaultCellEditorsAndRenderers();
+			
+			new TableContextMenu(table, tableModel);
 			
 			Dimension size = table.getPreferredSize();
 			size.width  += 30;
@@ -239,6 +243,18 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				return false;
 			}
 		}
+
+		private class TableContextMenu extends ContextMenu {
+			private static final long serialVersionUID = 612689032221865765L;
+
+			TableContextMenu(JTable table, ObjectsTableModel tableModel) {
+				add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
+					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
+				}));
+				
+				addTo(table);
+			}
+		}
 		
 		private static class ObjectsTableRow {
 			
@@ -304,11 +320,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 				Count     ("Count"     , Integer.class,  50),
 				Name      ("Name"      , String .class, 130),
-				BaseSum   ("Base Sum"  , Double .class,  80),
+				BaseSum   ("Base Sum"  , Double .class, 100),
 				Multiplier("Multi"     , Double .class,  50),
-				FinalSum  ("Final Sum" , Double .class,  80),
+				FinalSum  ("Final Sum" , Double .class, 100),
 				Energy    ("Energy"    , Double .class,  80),
-				Efficiency("Efficiency", Double .class, 100),
+				Efficiency("Efficiency", Double .class, 110),
 				;
 				private final SimplifiedColumnConfig cfg;
 				ColumnID(String name, Class<?> colClass, int width) {
