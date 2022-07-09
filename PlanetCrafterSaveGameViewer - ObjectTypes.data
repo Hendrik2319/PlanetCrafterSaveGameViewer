@@ -105,6 +105,11 @@ label = Advanced Craft Station
 energy = -12.5
 <finished>
 
+ObjectType: Destructor1
+label = Shredder Machine
+energy = -18.0
+<finished>
+
 ObjectType: DisplayCase
 label = Display Case
 <finished>
@@ -381,6 +386,11 @@ ObjectType: PulsarQuartz
 label = Pulsar Quartz
 <finished>
 
+ObjectType: RecyclingMachine
+label = Recycling Machine
+energy = -12.5
+<finished>
+
 ObjectType: RedPowder1
 label = Explosive Powder
 <finished>
@@ -559,6 +569,11 @@ ObjectType: Titanium
 label = Titanium
 <finished>
 
+ObjectType: Tree0Seed
+label = Tree Seed "Iterra" (125%, ???)
+oxygenBooster = 1.25
+<finished>
+
 ObjectType: Tree1Seed
 label = Tree Seed "Linifolia" (125%, Shanga150)
 oxygenBooster = 1.25
@@ -615,6 +630,13 @@ label = Tree Spreader T2
 oxygen = 1950.0
 biomass = 149.0
 energy = -71.0
+<finished>
+
+ObjectType: TreeSpreader2
+label = Tree Spreader T3
+oxygen = 12500.0
+biomass = 680.0
+energy = -193.0
 <finished>
 
 ObjectType: Uranim
