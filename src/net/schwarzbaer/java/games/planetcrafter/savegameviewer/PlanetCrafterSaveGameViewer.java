@@ -24,6 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import net.schwarzbaer.gui.FileChooser;
 import net.schwarzbaer.gui.ProgressDialog;
+import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
@@ -104,7 +105,7 @@ public class PlanetCrafterSaveGameViewer {
 			JMenu achievementsMenu = add(new JMenu("Achievements"));
 			
 			achievementsMenu.add(createMenuItem("Configure Achievements", e->{
-				new Achievements.ConfigDialog(mainWindow,achievements).showDialog();
+				new Achievements.ConfigDialog(mainWindow,achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
 				achievements.writeToFile(new File(FILE_ACHIEVEMENTS));
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
@@ -373,7 +374,10 @@ public class PlanetCrafterSaveGameViewer {
 
 	static class AppSettings extends Settings.DefaultAppSettings<AppSettings.ValueGroup, AppSettings.ValueKey> {
 		public enum ValueKey {
-			OpenFile
+			OpenFile,
+			AchievementsConfigDialogWidth,
+			AchievementsConfigDialogHeight,
+			AchievementsConfigDialogShowTabbedView
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

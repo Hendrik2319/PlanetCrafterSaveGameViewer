@@ -504,11 +504,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 
 		void updateAfterAchievementsChange() {
-			oxygenRow   .updateAfterAchievementsChange();
-			heatRow     .updateAfterAchievementsChange();
-			pressureRow .updateAfterAchievementsChange();
-			biomassRow  .updateAfterAchievementsChange();
-			terraformRow.updateAfterAchievementsChange();
+			oxygenRow   .updateAchievementField();
+			heatRow     .updateAchievementField();
+			pressureRow .updateAchievementField();
+			biomassRow  .updateAchievementField();
+			terraformRow.updateAchievementField();
 		}
 
 		void setRateOfPhysicalValue(PhysicalValue physicalValue, double rate) {
@@ -562,10 +562,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				fieldRate        = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
 				//fieldRate2Level  = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
 				fieldAchievement = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
-				updateAfterAchievementsChange();
+				updateAchievementField();
 			}
 
-			void updateAfterAchievementsChange() {
+			void updateAchievementField() {
 				Achievements.Achievement achievement = achievements.getNextAchievement(level,physicalValue);
 				String achievementText = getAchievementText(achievement);
 				fieldAchievement.setText(achievementText);
@@ -678,6 +678,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
 				//fieldRate      .setText(formatRate.apply(rate));
 				//fieldRate2Level.setText(String.format(Locale.ENGLISH, "%1.2f", rate2Level));
+				updateAchievementField();
 			}
 
 			double getRate() {

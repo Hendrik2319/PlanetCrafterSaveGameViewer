@@ -2,6 +2,7 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +16,10 @@ import java.util.Comparator;
 import java.util.Vector;
 import java.util.function.Function;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -51,20 +56,82 @@ class Achievements {
 
 	static class ConfigDialog extends StandardDialog {
 		private static final long serialVersionUID = -4205705986591481227L;
+		
+		private boolean showTabbedView;
+		private final JButton btnSwitchView;
+		private final JButton btnClose;
+		private final AchievementsTablePanel    oxygenAchievementsPanel;
+		private final AchievementsTablePanel      heatAchievementsPanel;
+		private final AchievementsTablePanel  pressureAchievementsPanel;
+		private final AchievementsTablePanel   biomassAchievementsPanel;
+		private final AchievementsTablePanel terraformAchievementsPanel;
 
 		public ConfigDialog(Window parent, Achievements achievements) {
 			super(parent, "Achievements Configuration");
 			
-			JTabbedPane contentPane = new JTabbedPane();
-			contentPane.addTab(PhysicalValue.Oxygen  .name(), new AchievementsTablePanel(achievements.   oxygenAchievements, Data.TerraformingStates::formatOxygenLevel   ));
-			contentPane.addTab(PhysicalValue.Heat    .name(), new AchievementsTablePanel(achievements.     heatAchievements, Data.TerraformingStates::formatHeatLevel     ));
-			contentPane.addTab(PhysicalValue.Pressure.name(), new AchievementsTablePanel(achievements. pressureAchievements, Data.TerraformingStates::formatPressureLevel ));
-			contentPane.addTab(PhysicalValue.Biomass .name(), new AchievementsTablePanel(achievements.  biomassAchievements, Data.TerraformingStates::formatBiomassLevel  ));
-			contentPane.addTab("Terraformation"             , new AchievementsTablePanel(achievements.terraformAchievements, Data.TerraformingStates::formatTerraformation));
+			showTabbedView = PlanetCrafterSaveGameViewer.settings.getBool(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
+			btnSwitchView = PlanetCrafterSaveGameViewer.createButton(
+				showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View",
+				true, e->switchView()
+			);
+			btnClose = PlanetCrafterSaveGameViewer.createButton("Close", true, e->closeDialog());
 			
-			createGUI(contentPane, PlanetCrafterSaveGameViewer.createButton("Close", true, e->closeDialog()));
+			   oxygenAchievementsPanel = new AchievementsTablePanel(achievements.   oxygenAchievements, Data.TerraformingStates::formatOxygenLevel   );
+			     heatAchievementsPanel = new AchievementsTablePanel(achievements.     heatAchievements, Data.TerraformingStates::formatHeatLevel     );
+			 pressureAchievementsPanel = new AchievementsTablePanel(achievements. pressureAchievements, Data.TerraformingStates::formatPressureLevel );
+			  biomassAchievementsPanel = new AchievementsTablePanel(achievements.  biomassAchievements, Data.TerraformingStates::formatBiomassLevel  );
+			terraformAchievementsPanel = new AchievementsTablePanel(achievements.terraformAchievements, Data.TerraformingStates::formatTerraformation);
+			
+			createView();
+			
+			PlanetCrafterSaveGameViewer.settings.registerWindowSizeListener(
+					this,
+					PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogWidth,
+					PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogHeight,
+					-1, -1);
 		}
-		
+
+		private void switchView() {
+			showTabbedView = !showTabbedView;
+			PlanetCrafterSaveGameViewer.settings.putBool(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, showTabbedView);
+			btnSwitchView.setText(showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View");
+			createView();
+		}
+
+		private void createView() {
+			JComponent contentPane;
+			
+			if (showTabbedView) {
+				JTabbedPane tabbedPane = new JTabbedPane();
+				contentPane = tabbedPane;
+				tabbedPane.addTab(PhysicalValue.Oxygen  .name(),    oxygenAchievementsPanel);
+				tabbedPane.addTab(PhysicalValue.Heat    .name(),      heatAchievementsPanel);
+				tabbedPane.addTab(PhysicalValue.Pressure.name(),  pressureAchievementsPanel);
+				tabbedPane.addTab(PhysicalValue.Biomass .name(),   biomassAchievementsPanel);
+				tabbedPane.addTab("Terraformation"             , terraformAchievementsPanel);
+				
+			} else {
+				JPanel gridPanel = new JPanel(new GridLayout(1,0));
+				contentPane = gridPanel;
+				addSubPanel(gridPanel, PhysicalValue.Oxygen  .name(),    oxygenAchievementsPanel);
+				addSubPanel(gridPanel, PhysicalValue.Heat    .name(),      heatAchievementsPanel);
+				addSubPanel(gridPanel, PhysicalValue.Pressure.name(),  pressureAchievementsPanel);
+				addSubPanel(gridPanel, PhysicalValue.Biomass .name(),   biomassAchievementsPanel);
+				addSubPanel(gridPanel, "Terraformation"             , terraformAchievementsPanel);
+			}
+			
+			createGUI( contentPane, btnSwitchView, btnClose );
+		}
+
+		private void addSubPanel(JPanel panel, String title, AchievementsTablePanel subPanel) {
+			addTitledBorder(title, subPanel);
+			panel.add(subPanel);
+		}
+
+		private void addTitledBorder(String title, AchievementsTablePanel subPanel) {
+			subPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), subPanel.getBorder()));
+		}
+
 		private static class AchievementsTablePanel extends JScrollPane {
 			private static final long serialVersionUID = 5790599615513764895L;
 

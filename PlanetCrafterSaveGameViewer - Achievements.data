@@ -1,12 +1,63 @@
 Oxygen
+1000.0|Indoor Ladder
+1850.0|Heater T2
+5000.0|Oxygen Tank T3
+12000.0|Food Grower
+30000.0|Vegetube T3
+80000.0|Heater T3
+150000.0|Grass Spreader
+420000.0|Flower Pot
+6.3E7|Heater T4
+7.5E9|Tree Spreader T2
 
 Heat
+500.0|Vegetube T2
+2000.0|Screen - Progress
+5000.0|Beacon
+10000.0|Exoskeleton T2
+21000.0|Drill T3
+100000.0|Biodome T1
+500000.0|Sign
+2000000.0|Algae Generator T1
+1.2E7|Biodome T2
+4.1E7|Drill T4
+7.5E8|Nuclear Fusion Generator
 
 Pressure
+70.0|Oxygen Tank T2
+250.0|Living Compartment Window
+1200.0|Drill T2
+4000.0|Communication Antenna
+4000.0|Living Compartment Glass
+4000.0|Screen - Transmissions
+60000.0|Nuclear Reactor T1
+155000.0|Ore Extractor T1
+1500000.0|Nuclear Reactor T1
+2500000.0|Flower Spreader T1
+1.0E8|Gas Extractor
+3.645E8|Ore Extractor T2
 
 Biomass
 
 Terraformation
+300.0|Backpack T2
+1000.0|Solar Panel T1
+2500.0|Backpack T3
+17500.0|Solar Panel T2
+25000.0|Double Bed
+50000.0|Locker Storage
+175000.0|Advanced Craft Station
+345000.0|Launch Platform
+875000.0|Atmospheric Water Collector
+5000000.0|Backpack T5
+5.0E7|Lake Water Collector
+6.5E8|Seeds Spreader Rocket
+7.0E8|DNA Manipulator
+7.25E8|Super Alloy Rod
+1.0E9|Water Filter
+2.0E9|Screen - Orbital Informations
+2.5E10|Teleporter
+4.95E10|Tree Spreader T3
 1.75E11|Pulsar Quartz
-3.65E11|Fusion Power Cell
+3.6E11|Fusion Energy Cell
 

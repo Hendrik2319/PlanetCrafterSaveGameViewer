@@ -348,7 +348,7 @@ class Data {
 		}
 
 		static String formatHeatLevel(double value) {
-			if (value < 2000) return formatValue("%1.2f pk", value);
+			if (value < 2000) return formatValue("%1.2f pK", value);
 			value/=1000;
 			if (value < 2000) return formatValue("%1.2f nK", value);
 			value/=1000;
