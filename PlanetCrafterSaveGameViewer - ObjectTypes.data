@@ -199,6 +199,10 @@ ObjectType: Foundation
 label = Foundation
 <finished>
 
+ObjectType: FusionEnergyCell
+label = Fusion Energy Cell
+<finished>
+
 ObjectType: GasExtractor1
 label = GasExtractor T1
 heat = 13.0
