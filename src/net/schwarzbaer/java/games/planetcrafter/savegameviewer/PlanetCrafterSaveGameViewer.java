@@ -35,6 +35,7 @@ import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper.OptionalValues;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser.ParseException;
+import net.schwarzbaer.system.DateTimeFormatter;
 import net.schwarzbaer.system.Settings;
 
 public class PlanetCrafterSaveGameViewer {
@@ -54,6 +55,7 @@ public class PlanetCrafterSaveGameViewer {
 	}
 	
 	static final AppSettings settings = new AppSettings();
+	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
 
 	private final StandardMainWindow mainWindow;
 	private final FileChooser jsonFileChooser;
@@ -148,7 +150,7 @@ public class PlanetCrafterSaveGameViewer {
 		mainWindow.setTitle(
 			openFile == null
 			?               "Planet Crafter - SaveGame Viewer"
-			: String.format("Planet Crafter - SaveGame Viewer - \"%s\"", openFile.getName())
+			: String.format("Planet Crafter - SaveGame Viewer - \"%s\" [%s]", openFile.getName(), dtFormatter.getTimeStr(openFile.lastModified(), false, true, false, true, false))
 		);
 	}
 
