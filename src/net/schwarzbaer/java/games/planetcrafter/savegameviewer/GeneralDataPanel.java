@@ -163,8 +163,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
-		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged)
+		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged) {
 			energyPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
+			for (PlayerStatesPanel p : playerStatesPanels)
+				p.objectTypeValueChanged(event.objectTypeID, event.changedValue);
+		}
 	}
 
 	private <PanelType extends JPanel, ValueType> Vector<PanelType> createPanels(Vector<ValueType> values,
@@ -708,6 +711,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 	private static class PlayerStatesPanel extends JPanel {
 		private static final long serialVersionUID = 6272012218012618784L;
+		private JTextArea textArea;
+		private Iterable<String> unlockedObjectTypes;
 
 		PlayerStatesPanel(Data.PlayerStates data) {
 			super(new GridBagLayout());
@@ -740,9 +745,12 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Rotation: "), c);
 			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.rotation)), c);
 			
-			Vector<String> unlockedGroups = new Vector<>(Arrays.asList(data.unlockedGroups));
-			unlockedGroups.sort(Data.caseIgnoringComparator);
-			JTextArea textArea = new JTextArea(String.join(", ", unlockedGroups));
+			unlockedObjectTypes = ()->Arrays.stream(data.unlockedObjectTypes).map(ObjectType::getName).sorted().iterator();
+			
+			//Vector<String> unlockedObjectTypes = new Vector<>(Arrays.asList(data.unlockedGroups));
+			//unlockedObjectTypes.sort(Data.caseIgnoringComparator);
+			
+			textArea = new JTextArea(String.join(",\r\n", unlockedObjectTypes));
 			textArea.setEditable(false);
 			textArea.setLineWrap(true);
 			textArea.setWrapStyleWord(true);
@@ -764,6 +772,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 //			c.gridwidth = 2;
 //			c.gridx = 0;
 //			add(new JLabel(), c);
+		}
+
+		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
+			if (changedValue==ObjectTypeValue.Label)
+				textArea.setText(String.join(",\r\n", unlockedObjectTypes));
 		}
 	}
 

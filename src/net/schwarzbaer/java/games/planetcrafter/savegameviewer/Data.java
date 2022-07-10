@@ -2,7 +2,6 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -21,9 +20,9 @@ class Data {
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
-	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, HashMap<String,ObjectType> objectTypes, HashSet<String> newObjectTypes) {
+	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, Function<String,ObjectType> getOrCreateObjectType) {
 		try {
-			return new Data(jsonStructure, objectTypes, newObjectTypes);
+			return new Data(jsonStructure, getOrCreateObjectType);
 			
 		} catch (ParseException ex) {
 			System.err.printf("ParseException while parsing JSON structure: %s%n", ex.getMessage());
@@ -49,13 +48,15 @@ class Data {
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
 	
-	private Data(Vector<Vector<Value<NV, V>>> dataVec, HashMap<String, ObjectType> objectTypes, HashSet<String> newObjectTypes) throws ParseException, TraverseException {
+	private Data(Vector<Vector<Value<NV, V>>> dataVec, Function<String,ObjectType> getOrCreateObjectType) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
+		
+		ParseConstructor<PlayerStates> createPlayerStates = (value, debugLabel) -> new PlayerStates(value, getOrCreateObjectType, debugLabel);
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
 		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"); blockIndex++;
-		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates      ::new, "PlayerStates"      ); blockIndex++;
+		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), createPlayerStates     , "PlayerStates"      ); blockIndex++;
 		/* 2 */ worldObjects       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject       ::new, "WorldObjects"      ); blockIndex++;
 		/* 3 */ objectLists        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList        ::new, "ObjectLists"       ); blockIndex++;
 		/* 4 */ generalData1       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1      ::new, "GeneralData1"      ); blockIndex++;
@@ -74,7 +75,7 @@ class Data {
 				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
 			}
 			
-			wo.objectType = ObjectType.getOrCreate(objectTypes, wo.objectTypeID, newObjectTypes);
+			wo.objectType = getOrCreateObjectType.apply(wo.objectTypeID);
 			if (0 < wo.listId)
 				for (ObjectList ol : objectLists)
 					if (ol.id==wo.listId) {
@@ -391,6 +392,7 @@ class Data {
 		final Coord3 position;
 		final Rotation rotation;
 		final String[] unlockedGroups;
+		final ObjectType[] unlockedObjectTypes;
 		/*
 			Block[1]: 1 entries
 			-> Format: [2 blocks]
@@ -404,7 +406,7 @@ class Data {
 			        playerRotation:String
 			        unlockedGroups:String
 		 */
-		PlayerStates(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+		PlayerStates(Value<NV, V> value, Function<String, ObjectType> getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			String positionStr, rotationStr, unlockedGroupsStr; 
 			health            = JSON_Data.getFloatValue (object, "playerGaugeHealth", debugLabel);
@@ -417,6 +419,10 @@ class Data {
 			position = new Coord3  (positionStr, debugLabel+".playerPosition");
 			rotation = new Rotation(rotationStr, debugLabel+".playerRotation");
 			unlockedGroups = parseStringArray(unlockedGroupsStr, debugLabel+".unlockedGroups");
+			
+			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
+			for (int i=0; i<unlockedGroups.length; i++)
+				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i] );
 		}
 	}
 	
@@ -530,8 +536,8 @@ class Data {
 		}
 		
 		String getName() {
-			if (objectType!=null && objectType.label!=null)
-				return objectType.label;
+			if (objectType!=null)
+				return objectType.getName();
 			if (objectTypeID!=null)
 				return String.format("{%s}", objectTypeID);
 			return String.format("[%d]", id);

@@ -44,6 +44,12 @@ class ObjectType {
 		isProducer = false;
 	}
 	
+	String getName() {
+		if (label!=null && !label.isBlank())
+			return label;
+		return String.format("{%s}", id);
+	}
+
 	enum ObjectTypeValue {
 		Finished, Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, IsProducer
 	}
@@ -153,7 +159,7 @@ class ObjectType {
 		return null;
 	}
 
-	public static ObjectType getOrCreate(HashMap<String, ObjectType> objectTypes, String objectTypeID, HashSet<String> newObjectTypes) {
+	static ObjectType getOrCreate(HashMap<String, ObjectType> objectTypes, String objectTypeID, HashSet<String> newObjectTypes) {
 		if (objectTypes==null) throw new IllegalArgumentException();
 		if (objectTypeID==null) throw new IllegalArgumentException();
 		

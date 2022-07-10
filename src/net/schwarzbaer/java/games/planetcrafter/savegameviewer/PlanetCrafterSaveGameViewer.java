@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -197,7 +198,9 @@ public class PlanetCrafterSaveGameViewer {
 			
 			showIndeterminateTask(pd, "Parse JSON Structure");
 			HashSet<String> newObjectTypes = new HashSet<>();
-			Data data = Data.parse(jsonStructure, objectTypes, newObjectTypes);
+			Function<String,ObjectType> getOrCreateObjectType =
+					objectTypeID -> ObjectType.getOrCreate(objectTypes, objectTypeID, newObjectTypes);
+			Data data = Data.parse(jsonStructure, getOrCreateObjectType);
 			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
 			if (data == null) return;
 			

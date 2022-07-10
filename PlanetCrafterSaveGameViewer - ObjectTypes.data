@@ -223,6 +223,10 @@ ObjectType: GoldenEffigie2
 label = Golden Effigie "Landing Pod"
 <finished>
 
+ObjectType: GoldenEffigie3
+label = Golden Effigie "Com. Antenna"
+<finished>
+
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
 oxygen = 108.0
@@ -262,6 +266,11 @@ label = Microchip - Compass
 
 ObjectType: ice
 label = Ice
+<finished>
+
+ObjectType: InsideLamp1
+label = Area Lamp
+energy = -1.2
 <finished>
 
 ObjectType: Iridium
@@ -380,6 +389,10 @@ label = Living Compartment
 
 ObjectType: Pod4x
 label = Big Living Compartment (2x2)
+<finished>
+
+ObjectType: podAngle
+label = Living Compartment Corner
 <finished>
 
 ObjectType: PulsarQuartz

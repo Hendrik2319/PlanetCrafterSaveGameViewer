@@ -356,7 +356,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 
 			void setData(Collection<ObjectsTableRow> data) {
 				rows = new Vector<>(data);
-				rows.sort(Comparator.<ObjectsTableRow,String>comparing(row->row.name));
+				rows.sort(
+						Comparator
+						.<ObjectsTableRow,String>comparing(row->row.name)
+						.thenComparing(row->row.multiplier,Comparator.nullsFirst(Comparator.naturalOrder()))
+				);
 				fireTableUpdate();
 			}
 
