@@ -255,10 +255,10 @@ public class PlanetCrafterSaveGameViewer {
 		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
 		
 		dataTabPane.addTab("General", generalDataPanel);
-		dataTabPane.addTab("Terraforming", terraformingPanel);
-		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data));
-		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data));
 		dataTabPane.addTab("Map", mapPanel);
+		dataTabPane.addTab("Terraforming", terraformingPanel);
+		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data,mapPanel));
+		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
 		dataTabPane.addTab("Object Types", objectTypesPanel);
 		
 		SwingUtilities.invokeLater(() -> {

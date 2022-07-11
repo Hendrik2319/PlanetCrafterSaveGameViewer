@@ -2,7 +2,9 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 
+import javax.swing.JMenuItem;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -16,9 +18,53 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID> {
 	private static final long serialVersionUID = 8733627835226098636L;
 
-	WorldObjectsPanel(Data data) {
-		super(new WorldObjectsTableModel(data), LayoutPos.Right, new Dimension(300, 200));
+	WorldObjectsPanel(Data data, MapPanel mapPanel) {
+		super(new WorldObjectsTableModel(data), (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300, 200));
 		setDefaultRenderer(Data.Color.class, new ColorTCR(getTableModel()));
+	}
+	
+	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
+		private static final long serialVersionUID = -8757567111391531443L;
+		private int clickedRowIndex;
+		private WorldObject clickedRow;
+
+		TableContextMenu(JTable table, WorldObjectsTableModel tableModel, MapPanel mapPanel) {
+			super(table);
+			clickedRowIndex = -1;
+			
+			JMenuItem miShowInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show in Map", e->{
+				if (!WorldObject.isInstalled(clickedRow)) return;
+				mapPanel.showWorldObject(clickedRow);
+			}));
+			
+			JMenuItem miShowContainerInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show Container in Map", e->{
+				if (clickedRow==null) return;
+				if (!WorldObject.isInstalled(clickedRow.container))return;
+				mapPanel.showWorldObject(clickedRow.container);
+			}));
+			
+			addContextMenuInvokeListener((comp, x, y) -> {
+				int rowV = table.rowAtPoint(new Point(x,y));
+				clickedRowIndex = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+				clickedRow = clickedRowIndex<0 ? null : tableModel.getRow(clickedRowIndex);
+				
+				miShowInMap.setEnabled(
+					WorldObject.isInstalled(clickedRow) );
+				miShowInMap.setText(
+					! WorldObject.isInstalled(clickedRow)
+					? "Show in Map"
+					: String.format("Show \"%s\" in Map", clickedRow.getName())
+				);
+				
+				miShowContainerInMap.setEnabled(
+					clickedRow!=null && WorldObject.isInstalled(clickedRow.container));
+				miShowContainerInMap.setText(
+					clickedRow==null || !WorldObject.isInstalled(clickedRow.container)
+					? "Show Container in Map"
+					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
+				);
+			});
+		}
 	}
 	
 	static class ColorTCR implements TableCellRenderer {

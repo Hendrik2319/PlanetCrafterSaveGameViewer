@@ -34,10 +34,16 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 	}
 	
-	AbstractTablePanel(AbstractTablePanel.AbstractTableModel<ValueType, ColumnID> tableModel) {
-		this(tableModel, LayoutPos.Bottom, new Dimension(100,100));
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel) {
+		this(tableModel, null, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	AbstractTablePanel(AbstractTablePanel.AbstractTableModel<ValueType, ColumnID> tableModel, LayoutPos textAreaPos, Dimension textAreaSize) {
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, TableContextMenuConstructor<TableModelType> tcmConstructor) {
+		this(tableModel, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
+	}
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, LayoutPos textAreaPos, Dimension textAreaSize) {
+		this(tableModel, null, textAreaPos, textAreaSize);
+	}
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
 		this.tableModel = tableModel;
 		
@@ -61,7 +67,10 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		tableModel.setTable(table);
 		tableModel.setColumnWidths(table);
 		
-		new TableContextMenu(table,tableModel);
+		TableContextMenu tableContextMenu;
+		if (tcmConstructor==null) tableContextMenu = new TableContextMenu(table);
+		else tableContextMenu = tcmConstructor.create(table,tableModel);
+		tableContextMenu.addTo(table);
 		
 		JScrollPane tableScrollPane = new JScrollPane(table);
 		JScrollPane textareaScrollPane = new JScrollPane(textArea);
@@ -78,16 +87,18 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 	void setDefaultRenderer(Class<?> columnClass, TableCellRenderer renderer) {
 		table.setDefaultRenderer(columnClass, renderer);
 	}
+	
+	protected interface TableContextMenuConstructor<TableModelType> {
+		TableContextMenu create(JTable table, TableModelType tableModel);
+	}
 
-	protected class TableContextMenu extends ContextMenu {
+	protected static class TableContextMenu extends ContextMenu {
 		private static final long serialVersionUID = 1755523803906870773L;
 
-		TableContextMenu(JTable table, AbstractTablePanel.AbstractTableModel<ValueType,ColumnID> tableModel) {
+		TableContextMenu(JTable table) {
 			add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
 				System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 			}));
-			
-			addTo(table);
 		}
 	}
 	

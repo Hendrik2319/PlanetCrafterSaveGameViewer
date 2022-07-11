@@ -43,8 +43,9 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
 	private static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
 	private static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
-	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED = new Color(0xFFDD00);
-	private static final Color COLOR_WORLDOBJECT_FILL         = Color.LIGHT_GRAY;
+	private static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
+	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
+	private static final Color COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN = Color.RED;
 
 	
 	
@@ -89,24 +90,30 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		cmbbxColoring.addActionListener(e->{
 			selectedColoringType = cmbbxColoring.getItemAt(cmbbxColoring.getSelectedIndex());
-			switch (selectedColoringType) {
-			case FindInstalledObject:
-				cmbbxObjLabels.setEnabled(true);
-				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
-				break;
-				
-			case FindStoredObject:
-				cmbbxObjLabels.setEnabled(true);
-				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
-				break;
-				
-			case ProducersFillingLevel:
+			
+			if (selectedColoringType==null)
 				cmbbxObjLabels.setEnabled(false);
-				break;
-				
-			case StoragesFillingLevel:
-				cmbbxObjLabels.setEnabled(false);
-				break;
+			else {
+				switch (selectedColoringType) {
+				case FindInstalledObject:
+					cmbbxObjLabels.setEnabled(true);
+					cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
+					break;
+					
+				case FindStoredObject:
+					cmbbxObjLabels.setEnabled(true);
+					cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
+					break;
+					
+				case ProducersFillingLevel:
+					cmbbxObjLabels.setEnabled(false);
+					break;
+					
+				case StoragesFillingLevel:
+					cmbbxObjLabels.setEnabled(false);
+					break;
+				}
+				mapView.setExtraShownObject(null);
 			}
 			cmbbxObjLabels.setSelectedItem(null);
 			mapModel.setColoring(selectedColoringType, null);
@@ -117,6 +124,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			String selectedObjLabel = cmbbxObjLabels.getItemAt(cmbbxObjLabels.getSelectedIndex());
 			if (selectedColoringType==ColoringType.FindInstalledObject || selectedColoringType==ColoringType.FindStoredObject) {
 				mapModel.setColoring(selectedColoringType, selectedObjLabel);
+				mapView.setExtraShownObject(null);
 				mapView.repaint();
 			}
 		});
@@ -150,6 +158,13 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	void initialize() {
 		mapView.reset();
 		//System.out.printf("MapPanel.initialize() -> MapView.reset() -> ViewStateOk? %s%n", mapView.isViewStateOk());
+	}
+
+	void showWorldObject(WorldObject wo) {
+		cmbbxColoring.setSelectedItem(null);
+		cmbbxObjLabels.setSelectedItem(null);
+		mapView.setExtraShownObject(wo);
+		mapView.repaint();
 	}
 
 	@Override
@@ -426,6 +441,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		private final OverView overView;
 		private final JTextArea textOut;
+		private WorldObject extraShownObject;
 		private WorldObject hoveredObject;
 		private ToolTipBox toolTipBox;
 
@@ -436,6 +452,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			this.overView = overView;
 			this.textOut = textOut;
 			hoveredObject = null;
+			extraShownObject = null;
 			toolTipBox = null;
 			overView.setRange(this.mapModel.range);
 			
@@ -449,6 +466,10 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 			addZoomListener(new ZoomListener() {
 				@Override public void zoomChanged() { updateOverviewImage(); }
 			});
+		}
+
+		void setExtraShownObject(WorldObject extraShownObject) {
+			this.extraShownObject = extraShownObject;
 		}
 
 		@Override
@@ -591,12 +612,15 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && !mapModel.isHighlighted(wo))
+					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo))
 						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL);
 				
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && mapModel.isHighlighted(wo))
+					if (wo!=hoveredObject && wo!=extraShownObject && mapModel.isHighlighted(wo))
 						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, mapModel.getHighlightColor(wo));
+				
+				if (extraShownObject!=null && hoveredObject!=extraShownObject)
+					drawWorldObject(g2, clip, extraShownObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN);
 				
 				if (hoveredObject!=null)
 					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);

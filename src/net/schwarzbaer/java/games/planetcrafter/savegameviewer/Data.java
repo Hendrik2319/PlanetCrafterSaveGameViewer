@@ -583,6 +583,10 @@ class Data {
 			return !rotation.isZero() || !position.isZero();
 		}
 		
+		static boolean isInstalled(WorldObject wo) {
+			return wo!=null && wo.isInstalled();
+		}
+
 		String getShortDesc() {
 			return String.format("%s (\"%s\", Pos:%s)", getName(), text, position);
 		}

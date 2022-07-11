@@ -38,12 +38,12 @@ Pressure
 3.645E8|Ore Extractor T2
 
 Biomass
-1.0|Biolab
-2.0|Algae Generator T2
-3.0|Biomass Rocket
-4.0|Flower Spreader T2
-5.0|Food Grower T2
-6.0|Tree Spreader T1
+865.0|Biolab
+25000.0|Algae Generator T2
+175000.0|Biomass Rocket
+500000.0|Flower Spreader T2
+3.5E7|Food Grower T2
+6.5E7|Tree Spreader T1
 
 Terraformation
 300.0|Backpack T2

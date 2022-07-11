@@ -1,7 +1,11 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.util.Iterator;
+
+import javax.swing.JMenuItem;
+import javax.swing.JTable;
 
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
@@ -11,8 +15,40 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID> {
 	private static final long serialVersionUID = -1787920497956857504L;
 
-	ObjectListsPanel(Data data) {
-		super( new ObjectListsTableModel(data), LayoutPos.Right, new Dimension(300,100) );
+	ObjectListsPanel(Data data, MapPanel mapPanel) {
+		super( new ObjectListsTableModel(data), (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300,100) );
+	}
+	
+	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
+		private static final long serialVersionUID = -5452206425591893443L;
+		
+		private int clickedRowIndex;
+		private ObjectList clickedRow;
+
+		TableContextMenu(JTable table, ObjectListsTableModel tableModel, MapPanel mapPanel) {
+			super(table);
+			clickedRowIndex = -1;
+			
+			JMenuItem miShowContainerInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show Container in Map", e->{
+				if (clickedRow==null) return;
+				if (!WorldObject.isInstalled(clickedRow.container))return;
+				mapPanel.showWorldObject(clickedRow.container);
+			}));
+			
+			addContextMenuInvokeListener((comp, x, y) -> {
+				int rowV = table.rowAtPoint(new Point(x,y));
+				clickedRowIndex = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+				clickedRow = clickedRowIndex<0 ? null : tableModel.getRow(clickedRowIndex);
+				
+				miShowContainerInMap.setEnabled(
+					clickedRow!=null && WorldObject.isInstalled(clickedRow.container));
+				miShowContainerInMap.setText(
+					clickedRow==null || !WorldObject.isInstalled(clickedRow.container)
+					? "Show Container in Map"
+					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
+				);
+			});
+		}
 	}
 	
 	static class ObjectListsTableModel extends AbstractTablePanel.AbstractTableModel<ObjectList, ObjectListsTableModel.ColumnID> {
