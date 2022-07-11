@@ -36,6 +36,11 @@ ObjectType: Bacteria1
 label = Bacteria Sample
 <finished>
 
+ObjectType: Beacon
+label = Beacon
+energy = -0.25
+<finished>
+
 ObjectType: biodome
 label = Biodome T1
 oxygen = 135.0
