@@ -424,6 +424,10 @@ class Data {
 			for (int i=0; i<unlockedGroups.length; i++)
 				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i] );
 		}
+		
+		boolean isPositioned() {
+			return !rotation.isZero() || !position.isZero();
+		}
 	}
 	
 	static class WorldObject {

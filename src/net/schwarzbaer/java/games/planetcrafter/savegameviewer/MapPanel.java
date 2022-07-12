@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,6 +12,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
@@ -27,6 +29,7 @@ import javax.swing.JTextArea;
 
 import net.schwarzbaer.gui.Canvas;
 import net.schwarzbaer.gui.ZoomableCanvas;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
@@ -42,6 +45,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private static final Color COLOR_TOOLTIP_BORDER      = new Color(0x70000000,true);
 	private static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
 	private static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
+	private static final Color COLOR_PLAYERPOS           = Color.RED;
 	private static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
 	private static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
 	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
@@ -71,7 +75,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private final JComboBox<ColoringType> cmbbxColoring;
 	private ColoringType selectedColoringType;
 
-	MapPanel(Vector<WorldObject> worldObjects) {
+	MapPanel(Data data) {
 		super(new BorderLayout());
 		
 		OverView overView = new OverView();
@@ -79,7 +83,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		JTextArea textOut = new JTextArea();
 		
-		mapModel = new MapModel(worldObjects);
+		mapModel = new MapModel(data);
 		mapView = new MapView(mapModel, overView, textOut);
 		
 		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
@@ -256,66 +260,51 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	
 	private static class MapModel {
 		
+		final Vector<Data.Coord3> playerPositions;
 		final Vector<WorldObject> displayableObjects;
-		final double minX;
-		final double minY;
-		final double maxX;
-		final double maxY;
+		final MinMax minmax;
 		final Rectangle2D.Double range;
 		final Vector<String> installedObjectLabels;
 		final Vector<String> storedObjectLabels;
 		private ColoringType coloringType;
 		private String objLabel;
 		
-		MapModel(Vector<WorldObject> worldObjects) {
+		MapModel(Data data) {
 			displayableObjects = new Vector<>();
 			installedObjectLabels = new Vector<>();
 			storedObjectLabels = new Vector<>();
 			
 			// ----------------------------------------------------------------
-			// displayableObjects & min,max
+			// playerPositions & displayableObjects & min,max
 			// ----------------------------------------------------------------
-			double minX = Double.NaN;
-			double minY = Double.NaN;
-			double maxX = Double.NaN;
-			double maxY = Double.NaN;
-			boolean isFirst = true;
-			for (WorldObject wo : worldObjects) {
-				if (wo.position.isZero() && wo.rotation.isZero()) continue;
-				displayableObjects.add(wo);
-				double woX = wo.position.getMapX();
-				double woY = wo.position.getMapY();
-				if (isFirst) {
-					minX = woX;
-					minY = woY;
-					maxX = woX;
-					maxY = woY;
-					isFirst = false;
-				} else {
-					if (minX > woX) minX = woX;
-					if (minY > woY) minY = woY;
-					if (maxX < woX) maxX = woX;
-					if (maxY < woY) maxY = woY;
+			MinMax minmax = null;
+			
+			playerPositions = new Vector<>();
+			for (Data.PlayerStates player : data.playerStates)
+				if (player.isPositioned()) {
+					playerPositions.add(player.position);
+					if (minmax==null) minmax = new MinMax(player.position);
+					else              minmax.change(player.position);
 				}
+			
+			for (WorldObject wo : data.worldObjects) {
+				if (!wo.isInstalled()) continue;
+				displayableObjects.add(wo);
+				if (minmax==null) minmax = new MinMax(wo.position);
+				else              minmax.change(wo.position);
 			}
-			this.minX = minX;
-			this.minY = minY;
-			this.maxX = maxX;
-			this.maxY = maxY;
+			this.minmax = minmax;
 			
 			// ----------------------------------------------------------------
 			// range
 			// ----------------------------------------------------------------
-			if (!Double.isNaN(minX) &&
-				!Double.isNaN(minY) &&
-				!Double.isNaN(maxX) &&
-				!Double.isNaN(maxY)) {
-				double width  = maxX-minX;
-				double height = maxY-minY;
+			if (this.minmax!=null) {
+				double width  = this.minmax.maxX - this.minmax.minX;
+				double height = this.minmax.maxY - this.minmax.minY;
 				double maxLength = Math.max(width, height); 
 				if (maxLength>0) {
 					double border = maxLength/10;
-					range = new Rectangle2D.Double(minX-border, minY-border, width+2*border, height+2*border);
+					range = new Rectangle2D.Double(this.minmax.minX-border, this.minmax.minY-border, width+2*border, height+2*border);
 				} else
 					range = null;
 			} else
@@ -432,6 +421,31 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				return null;
 			
 			return nearestObj;
+		}
+
+		private static class MinMax {
+			
+			double minX;
+			double minY;
+			double maxX;
+			double maxY;
+			
+			MinMax(Data.Coord3 pos) {
+				double woX = pos.getMapX();
+				double woY = pos.getMapY();
+				minX = woX;
+				minY = woY;
+				maxX = woX;
+				maxY = woY;
+			}
+			void change(Data.Coord3 pos) {
+				double woX = pos.getMapX();
+				double woY = pos.getMapY();
+				if (minX > woX) minX = woX;
+				if (minY > woY) minY = woY;
+				if (maxX < woX) maxX = woX;
+				if (maxY < woY) maxY = woY;
+			}
 		}
 	}
 
@@ -625,6 +639,9 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				if (hoveredObject!=null)
 					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
 				
+				for (Data.Coord3 plPos : mapModel.playerPositions)
+					drawPlayerPosition(g2, clip, plPos, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
+				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
 				
@@ -632,6 +649,26 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 				
 				g2.setClip(prevClip);
 			}
+		}
+
+		private void drawPlayerPosition(Graphics2D g2, Rectangle clip, Coord3 pos, Color contourColor, Color fillColor) {
+			int screenX = viewState.convertPos_AngleToScreen_LongX(pos.getMapX());
+			int screenY = viewState.convertPos_AngleToScreen_LatY (pos.getMapY());
+			if (!clip.contains(screenX, screenY)) return;
+			
+			Stroke prevStroke = g2.getStroke();
+			
+			g2.setStroke(new BasicStroke(3,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+			g2.setColor(contourColor);
+			g2.drawLine(screenX-4, screenY-4, screenX+4, screenY+4);
+			g2.drawLine(screenX+4, screenY-4, screenX-4, screenY+4);
+			
+			g2.setStroke(new BasicStroke(1.4f,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+			g2.setColor(fillColor);
+			g2.drawLine(screenX-4, screenY-4, screenX+4, screenY+4);
+			g2.drawLine(screenX+4, screenY-4, screenX-4, screenY+4);
+			
+			g2.setStroke(prevStroke);
 		}
 
 		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
@@ -662,14 +699,11 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		
 			@Override
 			protected void determineMinMax(MapLatLong min, MapLatLong max) {
-				if (!Double.isNaN(mapModel.minX) &&
-					!Double.isNaN(mapModel.minY) &&
-					!Double.isNaN(mapModel.maxX) &&
-					!Double.isNaN(mapModel.maxY)) {
-					min.longitude_x = mapModel.minX;
-					min.latitude_y  = mapModel.minY;
-					max.longitude_x = mapModel.maxX;
-					max.latitude_y  = mapModel.maxY;
+				if (mapModel.minmax!=null) {
+					min.longitude_x = mapModel.minmax.minX;
+					min.latitude_y  = mapModel.minmax.minY;
+					max.longitude_x = mapModel.minmax.maxX;
+					max.latitude_y  = mapModel.minmax.maxY;
 				} else {
 					min.longitude_x = 0.0;
 					min.latitude_y  = 0.0;

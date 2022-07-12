@@ -246,7 +246,7 @@ public class PlanetCrafterSaveGameViewer {
 		dataTabPane.removeAll();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
-		MapPanel mapPanel = new MapPanel(data.worldObjects);
+		MapPanel mapPanel = new MapPanel(data);
 
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
 		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
