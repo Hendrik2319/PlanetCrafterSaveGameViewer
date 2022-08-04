@@ -3,6 +3,8 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -61,12 +63,14 @@ public class PlanetCrafterSaveGameViewer {
 	private final JTabbedPane dataTabPane;
 	private final MyMenuBar menuBar;
 	private File openFile;
+	private Data loadedData;
 	private HashMap<String,ObjectType> objectTypes;
 	private Achievements achievements;
 	private GeneralDataPanel generalDataPanel;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
+		loadedData = null;
 		objectTypes = null;
 		achievements = null;
 		generalDataPanel = null;
@@ -86,6 +90,7 @@ public class PlanetCrafterSaveGameViewer {
 		private static final long serialVersionUID = 940262053656728621L;
 		
 		private final JMenuItem miReloadSaveGame;
+		private final JMenuItem miWriteReducedSaveGame;
 
 		MyMenuBar() {
 			JMenu filesMenu = add(new JMenu("Files"));
@@ -97,6 +102,13 @@ public class PlanetCrafterSaveGameViewer {
 			filesMenu.add(createMenuItem("Open SaveGame", e->{
 				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
 					readFile(jsonFileChooser.getSelectedFile());
+			}));
+			
+			miWriteReducedSaveGame = filesMenu.add(createMenuItem("Write Reduced SaveGame", e->{
+				if (openFile!=null)
+					jsonFileChooser.setSelectedFile(openFile);
+				if (loadedData!=null && jsonFileChooser.showSaveDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
+					writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
 			}));
 			
 			filesMenu.addSeparator();
@@ -112,6 +124,11 @@ public class PlanetCrafterSaveGameViewer {
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
 			}));
+		}
+
+		void notifyFileWasLoaded() {
+			miReloadSaveGame.setEnabled(true);
+			miWriteReducedSaveGame.setEnabled(true);
 		}
 	}
 
@@ -221,8 +238,9 @@ public class PlanetCrafterSaveGameViewer {
 				pd.setIndeterminate(true);
 				
 				settings.putFile(AppSettings.ValueKey.OpenFile, file);
-				this.openFile = file;
-				menuBar.miReloadSaveGame.setEnabled(true);
+				loadedData = data;
+				openFile = file;
+				menuBar.notifyFileWasLoaded();
 				setGUI(data);
 				updateWindowTitle();
 			});
@@ -230,14 +248,42 @@ public class PlanetCrafterSaveGameViewer {
 		
 	}
 
+	private void writeReducedFile(File file, Data data) {
+		if (file==null) return;
+		
+		String title = String.format("Write Reduced File \"%s\" [%s]", file.getName(), file.getParent());
+		ProgressDialog.runWithProgressDialog(mainWindow, title, 400, pd->{
+			
+			showIndeterminateTask(pd, "Create JSON Code");
+			Vector<Vector<String>> jsonStrs = data.toJsonStrs();
+			if (Thread.currentThread().isInterrupted()) { System.out.println("File Writing Aborted"); return; }
+			
+			writeContent(pd, file, jsonStrs);
+		
+		});
+	}
+
 	private void writeObjectTypesToFile() {
 		ObjectType.writeToFile(new File(FILE_OBJECT_TYPES), objectTypes);
 	}
 
-	private void showIndeterminateTask(ProgressDialog pd, String taskTitle) {
+	private static void showIndeterminateTask(ProgressDialog pd, String taskTitle) {
 		SwingUtilities.invokeLater(()->{
 			pd.setTaskTitle(taskTitle);
 			pd.setIndeterminate(true);
+		});
+	}
+
+	private static void showTask(ProgressDialog pd, String taskTitle, int max) {
+		SwingUtilities.invokeLater(()->{
+			pd.setTaskTitle(taskTitle);
+			pd.setValue(0, max);
+		});
+	}
+
+	private static void setTaskValue(ProgressDialog pd, int value) {
+		SwingUtilities.invokeLater(()->{
+			pd.setValue(value);
 		});
 	}
 
@@ -265,7 +311,7 @@ public class PlanetCrafterSaveGameViewer {
 		});
 	}
 
-	private Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
+	private static Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
 		showIndeterminateTask(pd, "Read Content");
 		byte[] bytes;
 		try { bytes = Files.readAllBytes(file.toPath()); }
@@ -301,6 +347,38 @@ public class PlanetCrafterSaveGameViewer {
 		if (Thread.currentThread().isInterrupted()) return null;
 		
 		return fileData;
+	}
+
+	private static void writeContent(ProgressDialog pd, File file, Vector<Vector<String>> jsonStrs) {
+		if (Thread.currentThread().isInterrupted()) return;
+		
+		int lineAmount = 0;
+		for (Vector<String> block : jsonStrs)
+			lineAmount += block.size();
+		
+		showTask(pd, "Write JSON code to file", lineAmount);
+		
+		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
+			
+			int lineCounter = 0;
+			for (Vector<String> block : jsonStrs) {
+				out.print("\r");
+				boolean isFirst = true;
+				for (String line : block) {
+					if (Thread.currentThread().isInterrupted()) return;
+					if (!isFirst) out.print("|\n");
+					isFirst = false;
+					out.print(line);
+					setTaskValue(pd, ++lineCounter);
+				}
+				out.print("\r@");
+			}
+			
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	@SuppressWarnings("unused")

@@ -72,17 +72,18 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		c.gridwidth = 1;
 		
 		c.gridheight = 1;
-		c.gridx = 0;
-		c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels), c);
-		c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels      ), c);
-		c.gridy = 2; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels      ), c);
+		c.gridwidth = 2;
+		c.gridx = 0; c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels), c);
+		c.gridwidth = 1;
+		c.gridx = 0; c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels      ), c);
+		c.gridx = 1; c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels      ), c);
 		
-		c.gridheight = 3;
-		c.gridx = 1;
+		c.gridheight = 2;
+		c.gridx = 2;
 		c.gridy = 0; upperPanel.add(createCompoundPanel("Player", playerStatesPanels), c);
 		
-		c.gridheight = 3;
-		c.gridx = 2;
+		c.gridheight = 2;
+		c.gridx = 3;
 		c.gridy = 0; upperPanel.add(energyPanel = new EnergyPanel(data), c);
 		
 		
@@ -511,7 +512,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			y += 2; animalsRow  .addToPanel(this, y, "Animals" );
 			y += 2; terraformRow.addToPanel(this, y, "Terraformation");
 			
-			c.gridy = 11;
+			c.gridy = y+2;
 			c.gridx = 0;
 			c.weighty = 1;
 			c.weightx = 1;

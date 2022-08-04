@@ -389,14 +389,13 @@ class Data {
 		}
 
 		@Override String toJsonStrs() {
-			return String.format(
-					"{\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f}",
-					"unitOxygenLevel"  , oxygenLevel,
-					"unitHeatLevel"    , heatLevel,
-					"unitPressureLevel", pressureLevel,
-					"unitPlantsLevel"  , plantsLevel,
-					"unitInsectsLevel" , insectsLevel,
-					"unitAnimalsLevel" , animalsLevel
+			return toJsonStr(
+					toFloatValueStr("unitOxygenLevel"  , oxygenLevel  , "%1.1f"),
+					toFloatValueStr("unitHeatLevel"    , heatLevel    , "%1.1f"),
+					toFloatValueStr("unitPressureLevel", pressureLevel, "%1.1f"),
+					toFloatValueStr("unitPlantsLevel"  , plantsLevel  , "%1.1f"),
+					toFloatValueStr("unitInsectsLevel" , insectsLevel , "%1.1f"),
+					toFloatValueStr("unitAnimalsLevel" , animalsLevel , "%1.1f")
 					);
 		}
 
@@ -977,16 +976,16 @@ class Data {
 	}
 	
 	static String toFloatValueStr(String field, double value, String format) {
-		return String.format("\"%s\"="+format, field, value);
+		return String.format(Locale.ENGLISH, "\"%s\":"+format, field, value);
 	}
 	static String toLongValueStr(String field, long value) {
-		return String.format("\"%s\"=%d", field, value);
+		return String.format("\"%s\":%d", field, value);
 	}
 	static String toBoolValueStr(String field, boolean value) {
-		return String.format("\"%s\"=%s", field, value);
+		return String.format("\"%s\":%s", field, value);
 	}
 	static String toStringValueStr(String field, String value) {
-		return String.format("\"%s\"=\"%s\"", field, value);
+		return String.format("\"%s\":\"%s\"", field, value);
 	}
 	static String toJsonStr(String...strings) {
 		return String.format("{%s}", String.join(",", strings));
