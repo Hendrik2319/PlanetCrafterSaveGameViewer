@@ -47,7 +47,21 @@ class Data {
 	final Vector<Layer> layers;
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
-	
+
+	Vector<Vector<String>> toJsonStrs() {
+		Vector<Vector<String>> blocks = new Vector<>();
+		blocks.add(Reversable.toJsonStrs(/* 0 */ terraformingStates));
+		blocks.add(Reversable.toJsonStrs(/* 1 */ playerStates      ));
+		blocks.add(Reversable.toJsonStrs(/* 2 */ worldObjects      ));
+		blocks.add(Reversable.toJsonStrs(/* 3 */ objectLists       ));
+		blocks.add(Reversable.toJsonStrs(/* 4 */ generalData1      ));
+		blocks.add(Reversable.toJsonStrs(/* 5 */ messages          ));
+		blocks.add(Reversable.toJsonStrs(/* 6 */ storyEvents       ));
+		blocks.add(Reversable.toJsonStrs(/* 7 */ generalData2      ));
+		blocks.add(Reversable.toJsonStrs(/* 8 */ layers            ));
+		return blocks;
+	}
+
 	private Data(Vector<Vector<Value<NV, V>>> dataVec, Function<String,ObjectType> getOrCreateObjectType) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
 		
@@ -194,6 +208,50 @@ class Data {
 			super(String.format(Locale.ENGLISH, format, args));
 		}
 	}
+	
+	private static abstract class Reversable {
+		
+		enum Marker {
+			Nothing, Removal_ByUser, Removal_ByData
+		}
+		
+		private final boolean canBeRemoved;
+		private Marker marker;
+
+		Reversable(boolean canBeRemoved) {
+			this.canBeRemoved = canBeRemoved;
+			marker = Marker.Nothing;
+		}
+		
+		void markForRemoval(boolean isMarkedForRemoval, boolean isMarkedByUser) {
+			if (!canBeRemoved && isMarkedForRemoval)
+				throw new UnsupportedOperationException();
+			if (marker==Marker.Removal_ByData) {
+				if (isMarkedByUser)
+					throw new IllegalStateException();
+				marker = !isMarkedForRemoval ? Marker.Nothing : Marker.Removal_ByData;
+			} else {
+				marker = !isMarkedForRemoval ? Marker.Nothing : isMarkedByUser ? Marker.Removal_ByUser : Marker.Removal_ByData;
+			}
+			updateMarkerInChildren(isMarkedForRemoval);
+		}
+		
+		protected void updateMarkerInChildren(boolean isMarkedForRemoval) {}
+
+		boolean isMarkedForRemoval() {
+			return marker == Marker.Removal_ByUser || marker == Marker.Removal_ByData;
+		}
+
+		abstract String toJsonStrs();
+
+		static Vector<String> toJsonStrs(Vector<? extends Reversable> data) {
+			Vector<String> strs = new Vector<>();
+			for (Reversable value : data)
+				if (!value.isMarkedForRemoval())
+					strs.add(value.toJsonStrs());
+			return strs;
+		}
+	}
 
 	static class Color {
 	
@@ -294,7 +352,7 @@ class Data {
 			out.add(indentLevel, "W", w);
 		}
 	}
-	static class TerraformingStates {
+	static class TerraformingStates extends Reversable {
 		final double oxygenLevel;
 		final double heatLevel;
 		final double pressureLevel;
@@ -318,6 +376,8 @@ class Data {
 			        unitAnimalsLevel:Float
 		 */
 		TerraformingStates(Value<NV, V> value, String debugLabel) throws TraverseException {
+			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			oxygenLevel   = JSON_Data.getFloatValue(object, "unitOxygenLevel"  , debugLabel);
 			heatLevel     = JSON_Data.getFloatValue(object, "unitHeatLevel"    , debugLabel);
@@ -326,6 +386,18 @@ class Data {
 			plantsLevel   = JSON_Data.getFloatValue(object, "unitPlantsLevel"  , debugLabel);
 			insectsLevel  = JSON_Data.getFloatValue(object, "unitInsectsLevel" , debugLabel);
 			animalsLevel  = JSON_Data.getFloatValue(object, "unitAnimalsLevel" , debugLabel);
+		}
+
+		@Override String toJsonStrs() {
+			return String.format(
+					"{\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f,\"%s\"=%1.1f}",
+					"unitOxygenLevel"  , oxygenLevel,
+					"unitHeatLevel"    , heatLevel,
+					"unitPressureLevel", pressureLevel,
+					"unitPlantsLevel"  , plantsLevel,
+					"unitInsectsLevel" , insectsLevel,
+					"unitAnimalsLevel" , animalsLevel
+					);
 		}
 
 		double getTerraformLevel() {
@@ -410,7 +482,7 @@ class Data {
 		}
 	}
 
-	static class PlayerStates {
+	static class PlayerStates extends Reversable {
 		final double health;
 		final double oxygen;
 		final double thirst;
@@ -418,6 +490,9 @@ class Data {
 		final Rotation rotation;
 		final String[] unlockedGroups;
 		final ObjectType[] unlockedObjectTypes;
+		private final String positionStr;
+		private final String rotationStr;
+		private final String unlockedGroupsStr;
 		/*
 			Block[1]: 1 entries
 			-> Format: [2 blocks]
@@ -432,8 +507,9 @@ class Data {
 			        unlockedGroups:String
 		 */
 		PlayerStates(Value<NV, V> value, Function<String, ObjectType> getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
+			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			String positionStr, rotationStr, unlockedGroupsStr; 
 			health            = JSON_Data.getFloatValue (object, "playerGaugeHealth", debugLabel);
 			oxygen            = JSON_Data.getFloatValue (object, "playerGaugeOxygen", debugLabel);
 			thirst            = JSON_Data.getFloatValue (object, "playerGaugeThirst", debugLabel);
@@ -450,12 +526,23 @@ class Data {
 				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i] );
 		}
 		
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toStringValueStr("playerPosition"   , positionStr      ),
+					toStringValueStr("playerRotation"   , rotationStr      ),
+					toStringValueStr("unlockedGroups"   , unlockedGroupsStr),
+					toFloatValueStr ("playerGaugeOxygen", oxygen, "%1.1f"  ),
+					toFloatValueStr ("playerGaugeThirst", thirst, "%1.6f"  ),
+					toFloatValueStr ("playerGaugeHealth", health, "%1.6f"  )
+					);
+		}
+
 		boolean isPositioned() {
 			return !rotation.isZero() || !position.isZero();
 		}
 	}
 	
-	static class WorldObject {
+	static class WorldObject extends Reversable {
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
@@ -495,6 +582,8 @@ class Data {
 			        grwth :Integer
 		 */
 		WorldObject(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+			super(true);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
@@ -564,6 +653,28 @@ class Data {
 			}
 		}
 		
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toLongValueStr  ("id"    , id          ),
+					toStringValueStr("gId"   , objectTypeID),
+					toLongValueStr  ("liId"  , listId      ),
+					toStringValueStr("liGrps", _liGrps     ),
+					toStringValueStr("pos"   , positionStr ),
+					toStringValueStr("rot"   , rotationStr ),
+					toLongValueStr  ("wear"  , _wear       ),
+					toStringValueStr("pnls"  , _pnls       ),
+					toStringValueStr("color" , colorStr    ),
+					toStringValueStr("text"  , text        ),
+					toLongValueStr  ("grwth" , growth      )
+					);
+		}
+
+		@Override
+		protected void updateMarkerInChildren(boolean isMarkedForRemoval) {
+			if (list!=null)
+				list.markForRemoval(isMarkedForRemoval, false);
+		}
+
 		String getName() {
 			if (objectType!=null)
 				return objectType.getName();
@@ -628,12 +739,13 @@ class Data {
 		}
 	}
 
-	static class ObjectList {
+	static class ObjectList extends Reversable {
 		final long id;
 		final long size;
 		final int[] worldObjIds;
 		WorldObject[] worldObjs;
 		WorldObject container; // container using this list
+		private final String woIdsStr;
 
 		/*
 			Block[3]: 221 entries
@@ -646,8 +758,9 @@ class Data {
 			        woIds:String
 		 */
 		ObjectList(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+			super(true);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			String woIdsStr;
 			id          = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			size        = JSON_Data.getIntegerValue(object, "size"  , debugLabel);
 			woIdsStr    = JSON_Data.getStringValue (object, "woIds" , debugLabel);
@@ -655,6 +768,21 @@ class Data {
 			worldObjIds = parseIntegerArray(woIdsStr, debugLabel+".woIds");
 			worldObjs = null; // will be set in post processing at end of Data constructor
 			container = null;
+		}
+
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toLongValueStr  ("id"   , id      ),
+					toStringValueStr("woIds", woIdsStr),
+					toLongValueStr  ("size" , size    )
+					);
+		}
+
+		@Override
+		protected void updateMarkerInChildren(boolean isMarkedForRemoval) {
+			if (worldObjs==null) return;
+			for (WorldObject wo : worldObjs)
+				wo.markForRemoval(isMarkedForRemoval, false);
 		}
 
 		Vector<Map.Entry<String,Integer>> getContentResume() {
@@ -692,7 +820,7 @@ class Data {
 		}
 	}
 
-	static class GeneralData1 {
+	static class GeneralData1 extends Reversable {
 		final long craftedObjects;
 		final long totalSaveFileLoad;
 		final long totalSaveFileTime;
@@ -708,14 +836,24 @@ class Data {
 			        totalSaveFileTime:Integer
 		 */
 		GeneralData1(Value<NV, V> value, String debugLabel) throws TraverseException {
+			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			craftedObjects    = JSON_Data.getIntegerValue(object, "craftedObjects"   , debugLabel);
 			totalSaveFileLoad = JSON_Data.getIntegerValue(object, "totalSaveFileLoad", debugLabel);
 			totalSaveFileTime = JSON_Data.getIntegerValue(object, "totalSaveFileTime", debugLabel);
 		}
+
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toLongValueStr("craftedObjects"   , craftedObjects   ),
+					toLongValueStr("totalSaveFileLoad", totalSaveFileLoad),
+					toLongValueStr("totalSaveFileTime", totalSaveFileTime)
+					);
+		}
 	}
 
-	static class Message {
+	static class Message extends Reversable {
 		final boolean isRead;
 		final String stringId;
 
@@ -729,13 +867,21 @@ class Data {
 			        stringId:String
 		 */
 		Message(Value<NV, V> value, String debugLabel) throws TraverseException {
+			super(false);
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			isRead   = JSON_Data.getBoolValue  (object, "isRead"  , debugLabel);
 			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
 		}
+
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toStringValueStr("stringId", stringId),
+					toBoolValueStr  ("isRead"  , isRead  )
+					);
+		}
 	}
 
-	static class StoryEvent {
+	static class StoryEvent extends Reversable {
 		final String stringId;
 
 		/*
@@ -747,12 +893,19 @@ class Data {
 			        stringId:String
 		 */
 		StoryEvent(Value<NV, V> value, String debugLabel) throws TraverseException {
+			super(false);
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
 		}
+
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toStringValueStr("stringId", stringId)
+					);
+		}
 	}
 
-	static class GeneralData2 {
+	static class GeneralData2 extends Reversable {
 		final boolean hasPlayedIntro;
 		final String mode;
 
@@ -766,13 +919,21 @@ class Data {
 			        mode:String
 		 */
 		GeneralData2(Value<NV, V> value, String debugLabel) throws TraverseException {
+			super(false);
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			hasPlayedIntro = JSON_Data.getBoolValue  (object, "hasPlayedIntro", debugLabel);
 			mode           = JSON_Data.getStringValue(object, "mode"          , debugLabel);
 		}
+
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toStringValueStr("mode"          , mode          ),
+					toBoolValueStr  ("hasPlayedIntro", hasPlayedIntro)
+					);
+		}
 	}
 
-	static class Layer {
+	static class Layer extends Reversable {
 		final String layerId;
 		final String colorBaseStr;
 		final Color  colorBase;
@@ -793,6 +954,8 @@ class Data {
 			        layerId        :String
 		 */
 		Layer(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			layerId         = JSON_Data.getStringValue (object, "layerId"        , debugLabel);
 			colorBaseStr    = JSON_Data.getStringValue (object, "colorBase"      , debugLabel);
@@ -802,6 +965,31 @@ class Data {
 			colorBase       = colorBaseStr  .isEmpty() ? null : new Color(colorBaseStr  , debugLabel+".colorBase"  );
 			colorCustom     = colorCustomStr.isEmpty() ? null : new Color(colorCustomStr, debugLabel+".colorCustom");
 		}
+		@Override String toJsonStrs() {
+			return toJsonStr(
+					toStringValueStr("layerId"        , layerId        ),
+					toStringValueStr("colorBase"      , colorBaseStr   ),
+					toStringValueStr("colorCustom"    , colorCustomStr ),
+					toLongValueStr  ("colorBaseLerp"  , colorBaseLerp  ),
+					toLongValueStr  ("colorCustomLerp", colorCustomLerp)
+					);
+		}
+	}
+	
+	static String toFloatValueStr(String field, double value, String format) {
+		return String.format("\"%s\"="+format, field, value);
+	}
+	static String toLongValueStr(String field, long value) {
+		return String.format("\"%s\"=%d", field, value);
+	}
+	static String toBoolValueStr(String field, boolean value) {
+		return String.format("\"%s\"=%s", field, value);
+	}
+	static String toStringValueStr(String field, String value) {
+		return String.format("\"%s\"=\"%s\"", field, value);
+	}
+	static String toJsonStr(String...strings) {
+		return String.format("{%s}", String.join(",", strings));
 	}
 
 /*
