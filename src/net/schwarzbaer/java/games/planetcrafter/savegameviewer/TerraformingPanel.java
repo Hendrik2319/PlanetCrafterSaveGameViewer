@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -27,10 +25,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
-import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
-import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GeneralDataPanel.TerraformingStatesPanel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
@@ -128,13 +123,13 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			c.fill = GridBagConstraints.BOTH;
 			
 			c.weightx = 0; resumePanel.add(new JLabel("Production Rate: "),c);
-			c.weightx = 1; resumePanel.add(fieldProductionRate = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+			c.weightx = 1; resumePanel.add(fieldProductionRate = GUI.createOutputTextField("---"),c);
 			
 			c.weightx = 0; resumePanel.add(new JLabel("  Booster Rockets: "),c);
-			c.weightx = 1; resumePanel.add(fieldBoosterRockets = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+			c.weightx = 1; resumePanel.add(fieldBoosterRockets = GUI.createOutputTextField("---"),c);
 			
 			c.weightx = 0; resumePanel.add(new JLabel("  Final Production Rate: "),c);
-			c.weightx = 1; resumePanel.add(fieldProductionRateFinal = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+			c.weightx = 1; resumePanel.add(fieldProductionRateFinal = GUI.createOutputTextField("---"),c);
 			
 			tableModel = new ObjectsTableModel(this.physicalValue);
 			JTable table = new JTable(tableModel);
@@ -147,7 +142,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			tableModel.setColumnWidths(table);
 			tableModel.setDefaultCellEditorsAndRenderers();
 			
-			new TableContextMenu(table, tableModel);
+			new GUI.ObjectsTableContextMenu(table, tableModel);
 			
 			Dimension size = table.getPreferredSize();
 			size.width  += 30;
@@ -157,6 +152,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			add(resumePanel, BorderLayout.NORTH);
 			add(tableScrollPane, BorderLayout.CENTER);
 			setBorder(BorderFactory.createTitledBorder(this.physicalValue.toString()));
+			
+			Data.addRemoveStateListener(tableModel::updateRemoveStates);
 			
 			SwingUtilities.invokeLater(this::updateContent);
 		}
@@ -255,86 +252,25 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				return false;
 			}
 		}
-
-		private class TableContextMenu extends ContextMenu {
-			private static final long serialVersionUID = 612689032221865765L;
-			private int clickedRowIndex;
-			private ObjectsTableRow clickedRow;
-
-			TableContextMenu(JTable table, ObjectsTableModel tableModel) {
-				add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
-					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
-				}));
-				
-				addSeparator();
-				
-				JMenuItem miMarkForRemoval = add(PlanetCrafterSaveGameViewer.createMenuItem("Mark clicked object for removal", e->{
-					if (clickedRow!=null) {
-						clickedRow.markForRemoval( !clickedRow.isMarkedForRemoval() );
-						tableModel.fireTableRowUpdate(clickedRowIndex);
-					}
-				}));
-				
-				addContextMenuInvokeListener((comp, x, y) -> {
-					int rowV = table.rowAtPoint(new Point(x,y));
-					clickedRowIndex = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
-					clickedRow = clickedRowIndex<0 ? null : tableModel.getRow(clickedRowIndex);
-					
-					miMarkForRemoval.setEnabled(clickedRow!=null);
-					miMarkForRemoval.setText(
-							clickedRow == null
-								? "Mark clicked object for removal"
-								: clickedRow.isMarkedForRemoval()
-									? String.format("Remove Removal Marker from %s", clickedRow.getName())
-									: String.format("Mark %s for removal", clickedRow.getName())
-					);
-				});
-				
-				addTo(table);
-			}
-		}
 		
-		private static class ObjectsTableRow {
+		private static class ObjectsTableRow extends GUI.ObjectsTableRow {
 			
-			final String name;
 			final Double multiplier;
-			final Vector<WorldObject> objects;
 			double baseSum;
 			double energySum;
-			boolean isMarkedForRemoval;
 			
 			ObjectsTableRow(String name, Double multiplier) {
-				this.name = name;
+				super(name);
 				this.multiplier = multiplier;
-				objects = new Vector<>();
 				baseSum = 0;
 				energySum = 0;
-				isMarkedForRemoval = false;
 			}
 
 			void add(WorldObject wo, double value) {
-				objects.add(wo);
+				add(wo);
 				baseSum += value;
 				if (wo.objectType.energy!=null)
 					energySum += wo.objectType.energy;
-			}
-
-			int getCount() {
-				return objects.size();
-			}
-
-			String getName() {
-				return String.format("%d %s", objects.size(), name) ;
-			}
-
-			void markForRemoval(boolean b) {
-				isMarkedForRemoval = b;
-				for (WorldObject wo : objects)
-					wo.markForRemoval(isMarkedForRemoval, false);
-			}
-
-			boolean isMarkedForRemoval() {
-				return isMarkedForRemoval;
 			}
 		}
 		
@@ -354,8 +290,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
 				ObjectsTableRow  row = rowM<0 ? null : tableModel.getRow(rowM);
 				ObjectsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
-				
-				
 				
 				String valueStr;
 				if (value==null)
@@ -378,12 +312,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 						}
 				}
 				
-				Supplier<Color> getCustomBackground = ()->{
-					if (row==null) return null;
-					if (!row.isMarkedForRemoval()) return null;
-					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByUser;
-				};
-				
+				Supplier<Color> getCustomBackground = ObjectsTableRow.createCustomBackgroundFunction(row);
 				rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
 				if (value instanceof Number)
 					rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -395,7 +324,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			
 		}
 		
-		private static class ObjectsTableModel extends Tables.SimplifiedTableModel<ObjectsTableModel.ColumnID>{
+		private static class ObjectsTableModel extends GUI.ObjectsTableModel<ObjectsTableRow, ObjectsTableModel.ColumnID> {
 			
 			enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 				Count     ("Count"     , Integer.class,  50),
@@ -406,22 +335,20 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				Energy    ("Energy"    , Double .class,  80),
 				Efficiency("Efficiency", Double .class, 110),
 				;
-				private final SimplifiedColumnConfig cfg;
+				private final Tables.SimplifiedColumnConfig cfg;
 				ColumnID(String name, Class<?> colClass, int width) {
-					cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+					cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 				}
-				@Override public SimplifiedColumnConfig getColumnConfig() {
+				@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
 					return cfg;
 				}
 			}
 
-			private Vector<ObjectsTableRow> rows;
 			private final PhysicalValue physicalValue;
 
 			ObjectsTableModel(PhysicalValue physicalValue) {
 				super( getColumns(physicalValue) );
 				this.physicalValue = physicalValue;
-				rows = null;
 			}
 			
 			private static ColumnID[] getColumns(PhysicalValue physicalValue) {
@@ -434,25 +361,21 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 			}
 			
-			public void setDefaultCellEditorsAndRenderers() {
+			void setDefaultCellEditorsAndRenderers() {
 				ObjectsTableCellRenderer tcr = new ObjectsTableCellRenderer(this);
 				table.setDefaultRenderer(Integer.class, tcr);
 				table.setDefaultRenderer(Double.class, tcr);
 				table.setDefaultRenderer(String.class, tcr);
 			}
 
-			void setData(Collection<ObjectsTableRow> data) {
-				rows = new Vector<>(data);
+			@Override protected void setData(Collection<ObjectsTableRow> data) {
+				super.setData(data);
 				rows.sort(
 						Comparator
 						.<ObjectsTableRow,String>comparing(row->row.name)
 						.thenComparing(row->row.multiplier,Comparator.nullsFirst(Comparator.naturalOrder()))
 				);
 				fireTableUpdate();
-			}
-
-			@Override public int getRowCount() {
-				return rows==null ? 0 : rows.size();
 			}
 
 			@Override
@@ -481,18 +404,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 				return null;
 			}
-
-			private ObjectsTableRow getRow(int rowIndex) {
-				if (rows==null) return null;
-				if (rowIndex<0) return null;
-				if (rowIndex>=rows.size()) return null;
-				return rows.get(rowIndex);
-			}
-
-			@Override public void fireTableRowUpdate(int rowIndex) {
-				super.fireTableRowUpdate(rowIndex);
-			}
-			
 		}
 	}
 

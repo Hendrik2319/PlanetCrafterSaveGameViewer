@@ -97,7 +97,7 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		private static final long serialVersionUID = 1755523803906870773L;
 
 		TableContextMenu(JTable table) {
-			add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
+			add(GUI.createMenuItem("Show Column Widths", e->{
 				System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 			}));
 		}

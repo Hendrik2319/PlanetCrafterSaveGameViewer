@@ -462,9 +462,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		MapContextMenu(MapView mapView) {
 			clickedObject = null;
 			
-			JMenuItem miMarkForRemoval = add(PlanetCrafterSaveGameViewer.createMenuItem("Mark hovered object for removal", e->{
+			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark hovered object for removal", e->{
 				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;
 				clickedObject.markForRemoval( !clickedObject.isMarkedForRemoval(), true );
+				Data.notifyAllRemoveStateListeners();
 			}));
 			
 			addContextMenuInvokeListener((comp, x, y) -> {

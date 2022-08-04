@@ -83,11 +83,11 @@ class Achievements {
 			super(parent, "Achievements Configuration");
 			
 			showTabbedView = PlanetCrafterSaveGameViewer.settings.getBool(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
-			btnSwitchView = PlanetCrafterSaveGameViewer.createButton(
+			btnSwitchView = GUI.createButton(
 				showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View",
 				true, e->switchView()
 			);
-			btnClose = PlanetCrafterSaveGameViewer.createButton("Close", true, e->closeDialog());
+			btnClose = GUI.createButton("Close", true, e->closeDialog());
 			
 			panels = new EnumMap<>(AchievementList.class);
 			for (AchievementList al : AchievementList.values()) {
@@ -202,7 +202,7 @@ class Achievements {
 				private static final long serialVersionUID = -2414452359411563344L;
 
 				TableContextMenu(JTable table, AchievementsTableModel tableModel) {
-					add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
+					add(GUI.createMenuItem("Show Column Widths", e->{
 						System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 					}));
 					

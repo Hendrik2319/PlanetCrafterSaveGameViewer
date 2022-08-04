@@ -12,7 +12,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.Tables;
-import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
@@ -38,12 +37,12 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			
 			addSeparator();
 			
-			JMenuItem miShowInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show in Map", e->{
+			JMenuItem miShowInMap = add(GUI.createMenuItem("Show in Map", e->{
 				if (!WorldObject.isInstalled(clickedRow)) return;
 				mapPanel.showWorldObject(clickedRow);
 			}));
 			
-			JMenuItem miShowContainerInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show Container in Map", e->{
+			JMenuItem miShowContainerInMap = add(GUI.createMenuItem("Show Container in Map", e->{
 				if (clickedRow==null) return;
 				if (!WorldObject.isInstalled(clickedRow.container))return;
 				mapPanel.showWorldObject(clickedRow.container);
@@ -51,19 +50,21 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			
 			addSeparator();
 			
-			JMenuItem miMarkForRemoval = add(PlanetCrafterSaveGameViewer.createMenuItem("Mark clicked object for removal", e->{
+			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark clicked object for removal", e->{
 				if (clickedRow!=null && clickedRow.canMarkedByUser()) {
 					clickedRow.markForRemoval( !clickedRow.isMarkedForRemoval(), true );
 					tableModel.fireTableRowUpdate(clickedRowIndex);
+					Data.notifyAllRemoveStateListeners();
 				}
 			}));
 			
-			JMenuItem miMarkSelectedForRemoval = add(PlanetCrafterSaveGameViewer.createMenuItem("Mark selected object(s) for removal", e->{
+			JMenuItem miMarkSelectedForRemoval = add(GUI.createMenuItem("Mark selected object(s) for removal", e->{
 				boolean markForRemoval = selectedRows[0]==null || !selectedRows[0].isMarkedForRemoval();
 				for (WorldObject wo : selectedRows)
 					if (wo!=null && wo.canMarkedByUser())
 						wo.markForRemoval( markForRemoval, true );
 				tableModel.fireTableUpdate();
+				Data.notifyAllRemoveStateListeners();
 			}));
 			
 			
@@ -144,9 +145,9 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 				if (row==null) return null;
 				if (!row.isMarkedForRemoval()) return null;
 				if (!row.canMarkedByUser())
-					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByData;
+					return GUI.COLOR_Removal_ByData;
 				else
-					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByUser;
+					return GUI.COLOR_Removal_ByUser;
 			};
 			
 			if (value instanceof Data.Color) {
@@ -203,11 +204,11 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			_wear       ("[wear]"      , Long      .class,  50),
 			_pnls       ("[pnls]"      , String    .class,  90),
 			;
-			private final SimplifiedColumnConfig cfg;
+			private final Tables.SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
-				cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
-			@Override public SimplifiedColumnConfig getColumnConfig() {
+			@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
 				return cfg;
 			}
 		

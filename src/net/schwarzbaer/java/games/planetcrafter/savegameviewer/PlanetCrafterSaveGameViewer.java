@@ -1,12 +1,5 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Window;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,21 +8,16 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -39,7 +27,6 @@ import net.schwarzbaer.gui.ProgressDialog;
 import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
@@ -53,8 +40,6 @@ public class PlanetCrafterSaveGameViewer {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	private static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
-	static final Color COLOR_Removal_ByData = new Color(0xFFD5D5);
-	static final Color COLOR_Removal_ByUser = new Color(0xFF7F7F);
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -107,16 +92,16 @@ public class PlanetCrafterSaveGameViewer {
 		MyMenuBar() {
 			JMenu filesMenu = add(new JMenu("Files"));
 			
-			miReloadSaveGame = filesMenu.add(createMenuItem("Reload SaveGame", openFile!=null, e->{
+			miReloadSaveGame = filesMenu.add(GUI.createMenuItem("Reload SaveGame", openFile!=null, e->{
 				readFile(openFile);
 			}));
 			
-			filesMenu.add(createMenuItem("Open SaveGame", e->{
+			filesMenu.add(GUI.createMenuItem("Open SaveGame", e->{
 				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
 					readFile(jsonFileChooser.getSelectedFile());
 			}));
 			
-			miWriteReducedSaveGame = filesMenu.add(createMenuItem("Write Reduced SaveGame", e->{
+			miWriteReducedSaveGame = filesMenu.add(GUI.createMenuItem("Write Reduced SaveGame", e->{
 				if (openFile!=null)
 					jsonFileChooser.setSelectedFile(openFile);
 				if (loadedData!=null && jsonFileChooser.showSaveDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
@@ -124,13 +109,13 @@ public class PlanetCrafterSaveGameViewer {
 			}));
 			
 			filesMenu.addSeparator();
-			filesMenu.add(createMenuItem("Quit", e->{
+			filesMenu.add(GUI.createMenuItem("Quit", e->{
 				System.exit(0);
 			}));
 			
 			JMenu achievementsMenu = add(new JMenu("Achievements"));
 			
-			achievementsMenu.add(createMenuItem("Configure Achievements", e->{
+			achievementsMenu.add(GUI.createMenuItem("Configure Achievements", e->{
 				new Achievements.ConfigDialog(mainWindow,achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
 				achievements.writeToFile(new File(FILE_ACHIEVEMENTS));
 				if (generalDataPanel!=null)
@@ -142,36 +127,6 @@ public class PlanetCrafterSaveGameViewer {
 			miReloadSaveGame.setEnabled(true);
 			miWriteReducedSaveGame.setEnabled(true);
 		}
-	}
-
-	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
-		JButton comp = new JButton(title);
-		if (al!=null) comp.addActionListener(al);
-		comp.setEnabled(isEnabled);
-		return comp;
-	}
-
-	static JMenuItem createMenuItem(String title, ActionListener al) {
-		return createMenuItem(title, true, al);
-	}
-
-	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
-		JMenuItem comp = new JMenuItem(title);
-		if (al!=null) comp.addActionListener(al);
-		comp.setEnabled(isEnabled);
-		return comp;
-	}
-
-	static JTextField createOutputTextField(String text) {
-		JTextField comp = new JTextField(text);
-		comp.setEditable(false);
-		return comp;
-	}
-
-	static JTextField createOutputTextField(String text, int horizontalAlignment) {
-		JTextField comp = createOutputTextField(text);
-		comp.setHorizontalAlignment(horizontalAlignment);
-		return comp;
 	}
 
 	private void updateWindowTitle() {
@@ -268,7 +223,7 @@ public class PlanetCrafterSaveGameViewer {
 		String dlgTitle = "Modified Terraforming States";
 		int result = JOptionPane.showConfirmDialog(mainWindow, msg, dlgTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (JOptionPane.YES_OPTION == result) {
-			modifiedTerraformingStates = TerraformingStatesDialog.show(mainWindow, "Modify Terraforming States", data.terraformingStates);
+			modifiedTerraformingStates = GUI.TerraformingStatesDialog.show(mainWindow, "Modify Terraforming States", data.terraformingStates);
 			if (modifiedTerraformingStates==null)
 				return;
 		} else if (JOptionPane.NO_OPTION == result)
@@ -313,6 +268,7 @@ public class PlanetCrafterSaveGameViewer {
 	}
 
 	private void setGUI(Data data) {
+		Data.clearAllRemoveStateListeners();
 		dataTabPane.removeAll();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
@@ -439,148 +395,6 @@ public class PlanetCrafterSaveGameViewer {
 				entriesCount.value = 0;
 			}
 		}, '@','|');
-	}
-
-	private static class TerraformingStatesDialog extends StandardDialog {
-		private static final long serialVersionUID = -580668583006732866L;
-		
-		private final JButton btnOk;
-		private final DoubleTextField oxygenLevel  ;
-		private final DoubleTextField heatLevel    ;
-		private final DoubleTextField pressureLevel;
-		private final DoubleTextField plantsLevel  ;
-		private final DoubleTextField insectsLevel ;
-		private final DoubleTextField animalsLevel ;
-		private Data.TerraformingStates results;
-		
-		private TerraformingStatesDialog(Window parent, String title, Vector<Data.TerraformingStates> terraformingStates) {
-			super(parent, title);
-			results = null;
-			
-			oxygenLevel   = new DoubleTextField(0.0);
-			heatLevel     = new DoubleTextField(0.0);
-			pressureLevel = new DoubleTextField(0.0);
-			plantsLevel   = new DoubleTextField(0.0);
-			insectsLevel  = new DoubleTextField(0.0);
-			animalsLevel  = new DoubleTextField(0.0);
-			
-			if (!terraformingStates.isEmpty()) {
-				Data.TerraformingStates values = terraformingStates.firstElement();
-				oxygenLevel  .setValue(values.oxygenLevel  );
-				heatLevel    .setValue(values.heatLevel    );
-				pressureLevel.setValue(values.pressureLevel);
-				plantsLevel  .setValue(values.plantsLevel  );
-				insectsLevel .setValue(values.insectsLevel );
-				animalsLevel .setValue(values.animalsLevel );
-			}
-			
-			JPanel contentPane = new JPanel(new GridBagLayout());
-			GridBagConstraints c = new GridBagConstraints();
-			c.fill = GridBagConstraints.BOTH;
-			c.gridwidth = 1;
-			
-			int gridy = 0;
-			addRow(contentPane, c, gridy++, "Oxygen Level"  , oxygenLevel  );
-			addRow(contentPane, c, gridy++, "Heat Level"    , heatLevel    );
-			addRow(contentPane, c, gridy++, "Pressure Level", pressureLevel);
-			addRow(contentPane, c, gridy++, "Plants Level"  , plantsLevel  );
-			addRow(contentPane, c, gridy++, "Insects Level" , insectsLevel );
-			addRow(contentPane, c, gridy++, "Animals Level" , animalsLevel );
-			
-			c.weightx = 1;
-			c.weighty = 1;
-			c.gridx = 0;
-			c.gridy = gridy;
-			c.gridwidth = 2;
-			contentPane.add(new JLabel(), c);
-			
-			createGUI(contentPane,
-					btnOk = createButton("Ok", true, e->{
-						createResult();
-						if (results!=null) closeDialog();
-					}),
-					createButton("Cancel", true, e->{
-						closeDialog();
-					}));
-			
-			updateGUI();
-		}
-
-		private static void addRow(JPanel panel, GridBagConstraints c, int gridy, String label, DoubleTextField txtField) {
-			c.gridy = gridy;
-			c.weightx = 0; c.gridx = 0; panel.add(new JLabel(label+": "), c);
-			c.weightx = 1; c.gridx = 1; panel.add(txtField, c);
-		}
-
-		private boolean areAllValuesOk() {
-			return  oxygenLevel  .isOK() &&
-					heatLevel    .isOK() &&
-					pressureLevel.isOK() &&
-					plantsLevel  .isOK() &&
-					insectsLevel .isOK() &&
-					animalsLevel .isOK();
-		}
-
-		private void createResult() {
-			results = !areAllValuesOk() ? null : new Data.TerraformingStates(
-					oxygenLevel  .value,
-					heatLevel    .value,
-					pressureLevel.value,
-					plantsLevel  .value,
-					insectsLevel .value,
-					animalsLevel .value
-					);
-		}
-		
-		private void updateGUI() {
-			btnOk.setEnabled(areAllValuesOk());
-		}
-
-		private class DoubleTextField extends JTextField {
-			private static final long serialVersionUID = 7631623492689405688L;
-			
-			private double value;
-			private boolean isOK;
-
-			DoubleTextField(double value) {
-				super(20);
-				setValue(value);
-				Color defaultBG = getBackground();
-				isOK = true;
-				
-				Runnable setValue = ()->{
-					isOK = false;
-					try {
-						double newValue = Double.parseDouble(getText());
-						if (!Double.isNaN(newValue)) { this.value = newValue; isOK = true; }
-					} catch (NumberFormatException e1) { }
-					setBackground(isOK ? defaultBG : Color.RED);
-					updateGUI();
-				};
-				
-				addActionListener(e->{setValue.run();});
-				addFocusListener(new FocusListener() {
-					@Override public void focusGained(FocusEvent e) {}
-					@Override public void focusLost(FocusEvent e) { setValue.run(); }
-				});
-			}
-
-			boolean isOK() {
-				return isOK;
-			}
-
-			void setValue(double value) {
-				this.value = value;
-				setText(String.format(Locale.ENGLISH, "%s", this.value));
-			}
-			
-		}
-
-		static TerraformingStates show(Window parent, String title, Vector<TerraformingStates> terraformingStates) {
-			TerraformingStatesDialog dlg = new TerraformingStatesDialog(parent, title, terraformingStates);
-			dlg.showDialog();
-			return dlg.results;
-		}
 	}
 
 	private static class ValueContainer<Val> {

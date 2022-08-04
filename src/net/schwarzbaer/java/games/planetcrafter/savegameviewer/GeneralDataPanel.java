@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -30,8 +31,6 @@ import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
-import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
-import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
@@ -247,7 +246,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			//setBorder(BorderFactory.createTitledBorder("Energy"));
 			//setPreferredSize(new Dimension(250,200));
 			
-			sourcesPanel = new ObjectsPanel(data.worldObjects, "Energy Sources", true);
+			sourcesPanel   = new ObjectsPanel(data.worldObjects, "Energy Sources"  , true );
 			consumersPanel = new ObjectsPanel(data.worldObjects, "Energy Consumers", false);
 			budgetPanel = new BudgetPanel("Energy Budget", sourcesPanel, consumersPanel);
 			
@@ -296,6 +295,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				tableModel.setColumnWidths(table);
 				tableModel.setDefaultCellEditorsAndRenderers();
 				
+				new GUI.ObjectsTableContextMenu(table, tableModel);
+				
 				setViewportView(table);
 				Dimension size = table.getPreferredSize();
 				size.width  += 30;
@@ -303,6 +304,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				setPreferredSize(size);
 				
 				setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), getBorder()));
+				
+				Data.addRemoveStateListener(tableModel::updateRemoveStates);
 			}
 
 			void updateValues() {
@@ -319,8 +322,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 						(!computeSources && energy<0) ) {
 						ObjectsTableRow row = tableContent.get(wo.objectTypeID);
 						if (row==null) tableContent.put(wo.objectTypeID, row = new ObjectsTableRow(wo.getName()));
-						row.count++;
-						row.sum += energy;
+						row.add(wo,energy);
+						
 						totalSum += energy;
 					}
 				}
@@ -329,93 +332,99 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 			double getSum() { return totalSum; }
 			
-			private static class ObjectsTableRow {
-				final String name;
-				int count;
+			private static class ObjectsTableRow extends GUI.ObjectsTableRow {
+				
 				double sum;
+				
 				ObjectsTableRow(String name) {
-					this.name = name;
-					count = 0;
+					super(name);
 					sum = 0;
+				}
+
+				void add(WorldObject wo, double energy) {
+					add(wo);
+					sum += energy;
 				}
 			}
 			
 			private static class ObjectsTableCellRenderer implements TableCellRenderer {
 				
 				private final Tables.LabelRendererComponent rendererComponent;
+				private final ObjectsTableModel tableModel;
 
-				ObjectsTableCellRenderer() {
+				ObjectsTableCellRenderer(ObjectsTableModel tableModel) {
+					this.tableModel = tableModel;
 					rendererComponent = new Tables.LabelRendererComponent();
 				}
 
 				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+					int    rowM =    rowV<0 ? -1 : table.   convertRowIndexToModel(   rowV);
+					//int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
+					ObjectsTableRow  row = rowM<0 ? null : tableModel.getRow(rowM);
+					//ObjectsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
 					
 					String valueStr = value==null ? null : value.toString();
 					if (value instanceof Double ) valueStr = String.format(Locale.ENGLISH, "%1.2f kW", value);
 					if (value instanceof Integer) valueStr = String.format(Locale.ENGLISH, "%d x ", value);
 					
-					rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus);
-					rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
+					Supplier<Color> getCustomBackground = ObjectsTableRow.createCustomBackgroundFunction(row);
+					rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
+					if (value instanceof Number)
+						rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
+					else
+						rendererComponent.setHorizontalAlignment(SwingConstants.LEFT);
+					
 					return rendererComponent;
 				}
 				
 			}
 			
-			private static class ObjectsTableModel extends Tables.SimplifiedTableModel<ObjectsTableModel.ColumnID>{
+			private static class ObjectsTableModel extends GUI.ObjectsTableModel<ObjectsTableRow, ObjectsTableModel.ColumnID> {
 				
 				enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 					Count ("Count" , Integer.class,  50),
 					Name  ("Name"  , String .class, 130),
 					Energy("Energy", Double .class,  80),
 					;
-					private final SimplifiedColumnConfig cfg;
+					private final Tables.SimplifiedColumnConfig cfg;
 					ColumnID(String name, Class<?> colClass, int width) {
-						cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+						cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 					}
-					@Override public SimplifiedColumnConfig getColumnConfig() {
+					@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
 						return cfg;
 					}
 				}
 
-				private Vector<ObjectsTableRow> rows;
-
 				ObjectsTableModel() {
 					super(ColumnID.values());
-					rows = null;
 				}
 				
 				public void setDefaultCellEditorsAndRenderers() {
-					ObjectsTableCellRenderer tcr = new ObjectsTableCellRenderer();
+					ObjectsTableCellRenderer tcr = new ObjectsTableCellRenderer(this);
 					table.setDefaultRenderer(Integer.class, tcr);
-					table.setDefaultRenderer(Double.class, tcr);
+					table.setDefaultRenderer(Double .class, tcr);
+					table.setDefaultRenderer(String .class, tcr);
 				}
 
 				void setData(HashMap<String,ObjectsTableRow> data) {
-					rows = new Vector<>(data.values());
+					super.setData(data.values());
 					rows.sort(Comparator.<ObjectsTableRow,Double>comparing(row->Math.abs(row.sum),Comparator.reverseOrder()).thenComparing(row->row.name));
 					fireTableUpdate();
 				}
 
-				@Override public int getRowCount() {
-					return rows==null ? 0 : rows.size();
-				}
-
 				@Override
 				public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
-					if (rows==null) return null;
-					if (rowIndex<0) return null;
-					if (rowIndex>=rows.size()) return null;
-					ObjectsTableRow row = rows.get(rowIndex);
+					ObjectsTableRow row = getRow(rowIndex);
+					if (row==null) return null;
 					
 					switch (columnID) {
-					case Count : return row.count;
+					case Count : return row.getCount();
 					case Name  : return row.name;
 					case Energy: return row.sum;
 					}
 					return null;
 				}
-				
 			}
 		}
 		
@@ -444,13 +453,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				c.gridx = -1;
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("Production: "),c);
-				c.weightx = 1; c.gridx++; add(fieldProduction = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldProduction = GUI.createOutputTextField("---"),c);
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("  Consumption: "),c);
-				c.weightx = 1; c.gridx++; add(fieldConsumption = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldConsumption = GUI.createOutputTextField("---"),c);
 				
 				c.weightx = 0; c.gridx++; add(new JLabel("  Budget: "),c);
-				c.weightx = 1; c.gridx++; add(fieldBudget = PlanetCrafterSaveGameViewer.createOutputTextField("---"),c);
+				c.weightx = 1; c.gridx++; add(fieldBudget = GUI.createOutputTextField("---"),c);
 			}
 
 			void updateValues() {
@@ -582,10 +591,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				this.rate = 0;
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				fieldLevel       = PlanetCrafterSaveGameViewer.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
-				fieldRate        = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
-				//fieldRate2Level  = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
-				fieldAchievement = PlanetCrafterSaveGameViewer.createOutputTextField("--",JTextField.RIGHT);
+				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
+				fieldRate        = GUI.createOutputTextField("--",JTextField.RIGHT);
+				//fieldRate2Level  = GUI.createOutputTextField("--",JTextField.RIGHT);
+				fieldAchievement = GUI.createOutputTextField("--",JTextField.RIGHT);
 				updateAchievementField();
 			}
 
@@ -748,23 +757,23 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Health: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Thirst: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.oxygen)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.oxygen)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Position: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.position)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.position)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Rotation: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.rotation)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.rotation)), c);
 			
 			unlockedObjectTypes = ()->Arrays.stream(data.unlockedObjectTypes).map(ObjectType::getName).sorted().iterator();
 			
@@ -817,15 +826,15 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Crafted Objects: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.craftedObjects)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.craftedObjects)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Load: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Time: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
 			
 			c.gridy++;
 			c.weighty = 1;
@@ -852,11 +861,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Has Played Intro: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; add(new JLabel("Mode: "), c);
-			c.weightx = 1; c.gridx = 1; add(PlanetCrafterSaveGameViewer.createOutputTextField(String.format("%s", data.mode)), c);
+			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.mode)), c);
 			
 			c.gridy++;
 			c.weighty = 1;
@@ -906,8 +915,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private static final long serialVersionUID = 1755523803906870773L;
 
 			TableContextMenu(JTable table, SimpleTableModel<ValueType> tableModel) {
-				add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
-					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
+				add(GUI.createMenuItem("Show Column Widths", e->{
+					System.out.printf("Column Widths: %s%n", Tables.SimplifiedTableModel.getColumnWidthsAsString(table));
 				}));
 				
 				addTo(table);
@@ -936,15 +945,15 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		static class Column implements Tables.SimplifiedColumnIDInterface {
 			
-			private final SimplifiedColumnConfig config;
+			private final Tables.SimplifiedColumnConfig config;
 			private final Function<Object, Object> getValue;
 
 			Column(String name, Class<?> columnClass, int width, Function<Object,Object> getValue) {
 				this.getValue = getValue;
-				config = new SimplifiedColumnConfig(name, columnClass, 20, -1, width, width);
+				config = new Tables.SimplifiedColumnConfig(name, columnClass, 20, -1, width, width);
 			}
 
-			@Override public SimplifiedColumnConfig getColumnConfig() {
+			@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
 				return config;
 			}
 		}

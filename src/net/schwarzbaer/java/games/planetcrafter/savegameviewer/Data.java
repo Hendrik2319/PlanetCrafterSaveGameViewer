@@ -35,6 +35,18 @@ class Data {
 			return null;
 		}
 	}
+	
+	interface RemoveStateListener {
+		void someObjectsWereMarkedForRemoval();
+	}
+	private static Vector<RemoveStateListener> removeStateListeners = new Vector<>();
+	static void    addRemoveStateListener(RemoveStateListener l) { removeStateListeners.   add(l); }
+	static void removeRemoveStateListener(RemoveStateListener l) { removeStateListeners.remove(l); }
+	static void  clearAllRemoveStateListeners() { removeStateListeners.clear(); }
+	static void notifyAllRemoveStateListeners() {
+		for (RemoveStateListener l : removeStateListeners)
+			l.someObjectsWereMarkedForRemoval();
+	}
 
 	final Vector<TerraformingStates> terraformingStates;
 	final Vector<PlayerStates> playerStates;

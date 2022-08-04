@@ -87,12 +87,12 @@ class ObjectTypesPanel extends JScrollPane {
 			clickedRow = null;
 			clickedRowIndex = -1;
 			
-			JMenuItem miCopyID2Label = add(PlanetCrafterSaveGameViewer.createMenuItem("Copy ID to Clipboard", e->{
+			JMenuItem miCopyID2Label = add(GUI.createMenuItem("Copy ID to Clipboard", e->{
 				if (clickedRow==null) return;
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.id);
 			}));
 			
-			add(PlanetCrafterSaveGameViewer.createMenuItem("Create New Object Type", e->{
+			add(GUI.createMenuItem("Create New Object Type", e->{
 				boolean alreadyExists = true;
 				String objectTypeID = null;;
 				while (alreadyExists) {
@@ -107,7 +107,7 @@ class ObjectTypesPanel extends JScrollPane {
 			
 			addSeparator();
 			
-			add(PlanetCrafterSaveGameViewer.createMenuItem("Show Column Widths", e->{
+			add(GUI.createMenuItem("Show Column Widths", e->{
 				System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 			}));
 			

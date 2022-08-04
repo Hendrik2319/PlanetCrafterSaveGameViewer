@@ -13,7 +13,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.Tables;
-import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 
@@ -36,7 +35,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			
 			addSeparator();
 			
-			JMenuItem miShowContainerInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show Container in Map", e->{
+			JMenuItem miShowContainerInMap = add(GUI.createMenuItem("Show Container in Map", e->{
 				if (clickedRow==null) return;
 				if (!WorldObject.isInstalled(clickedRow.container))return;
 				mapPanel.showWorldObject(clickedRow.container);
@@ -81,9 +80,9 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 				if (row==null) return null;
 				if (!row.isMarkedForRemoval()) return null;
 				if (!row.canMarkedByUser())
-					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByData;
+					return GUI.COLOR_Removal_ByData;
 				else
-					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByUser;
+					return GUI.COLOR_Removal_ByUser;
 			};
 				
 			if (value instanceof Boolean) {
@@ -115,11 +114,11 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			size       ("Size"     , Long   .class,  50),
 			worldObjs  ("Content"  , String .class, 600),
 			;
-			private final SimplifiedColumnConfig cfg;
+			private final Tables.SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
-				cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
-			@Override public SimplifiedColumnConfig getColumnConfig() {
+			@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
 				return cfg;
 			}
 		
