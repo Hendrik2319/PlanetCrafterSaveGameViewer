@@ -2,7 +2,8 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,12 +14,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Vector;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -33,25 +37,38 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
 
 class Achievements {
 	
 	private static final Comparator<Achievement> ACHIEVEMENT_COMPARATOR = Comparator
 	.<Achievement,Double>comparing(a->a.level, Comparator.nullsLast(Comparator.naturalOrder()))
 	.thenComparing(a->a.label);
-	private final Vector<Achievement>    oxygenAchievements;
-	private final Vector<Achievement>      heatAchievements;
-	private final Vector<Achievement>  pressureAchievements;
-	private final Vector<Achievement>   biomassAchievements;
-	private final Vector<Achievement> terraformAchievements;
+	
+	enum AchievementList {
+		Oxygen, Heat, Pressure, Biomass, Plants, Insects, Animals, Terraformation;
+		static AchievementList valueOf_checked(String str) {
+			try { return valueOf(str); }
+			catch (Exception e) { return null; }
+		}
+
+		Function<Double, String> getFormatter() {
+			switch (this) {
+			case Oxygen  : return Data.TerraformingStates::formatOxygenLevel  ;
+			case Heat    : return Data.TerraformingStates::formatHeatLevel    ;
+			case Pressure: return Data.TerraformingStates::formatPressureLevel;
+			case Biomass: case Plants: case Insects: case Animals:
+				return Data.TerraformingStates::formatBiomassLevel;
+			case Terraformation:
+				return Data.TerraformingStates::formatTerraformation;
+			}
+			return null;
+		}
+	}
+	
+	private final EnumMap<AchievementList,Vector<Achievement>> achievements;
 	
 	Achievements() {
-		this.   oxygenAchievements = new Vector<>();
-		this.     heatAchievements = new Vector<>();
-		this. pressureAchievements = new Vector<>();
-		this.  biomassAchievements = new Vector<>();
-		this.terraformAchievements = new Vector<>();
+		achievements = new EnumMap<>(AchievementList.class);
 	}
 
 	static class ConfigDialog extends StandardDialog {
@@ -60,11 +77,7 @@ class Achievements {
 		private boolean showTabbedView;
 		private final JButton btnSwitchView;
 		private final JButton btnClose;
-		private final AchievementsTablePanel    oxygenAchievementsPanel;
-		private final AchievementsTablePanel      heatAchievementsPanel;
-		private final AchievementsTablePanel  pressureAchievementsPanel;
-		private final AchievementsTablePanel   biomassAchievementsPanel;
-		private final AchievementsTablePanel terraformAchievementsPanel;
+		private final EnumMap<AchievementList,AchievementsTablePanel> panels;
 
 		public ConfigDialog(Window parent, Achievements achievements) {
 			super(parent, "Achievements Configuration");
@@ -76,11 +89,12 @@ class Achievements {
 			);
 			btnClose = PlanetCrafterSaveGameViewer.createButton("Close", true, e->closeDialog());
 			
-			   oxygenAchievementsPanel = new AchievementsTablePanel(achievements.   oxygenAchievements, Data.TerraformingStates::formatOxygenLevel   );
-			     heatAchievementsPanel = new AchievementsTablePanel(achievements.     heatAchievements, Data.TerraformingStates::formatHeatLevel     );
-			 pressureAchievementsPanel = new AchievementsTablePanel(achievements. pressureAchievements, Data.TerraformingStates::formatPressureLevel );
-			  biomassAchievementsPanel = new AchievementsTablePanel(achievements.  biomassAchievements, Data.TerraformingStates::formatBiomassLevel  );
-			terraformAchievementsPanel = new AchievementsTablePanel(achievements.terraformAchievements, Data.TerraformingStates::formatTerraformation);
+			panels = new EnumMap<>(AchievementList.class);
+			for (AchievementList al : AchievementList.values()) {
+				Vector<Achievement> list = achievements.achievements.get(al);
+				if (list == null) achievements.achievements.put(al, list = new Vector<>());
+				panels.put(al, new AchievementsTablePanel(list, al.getFormatter()));
+			}
 			
 			createView();
 			
@@ -104,28 +118,54 @@ class Achievements {
 			if (showTabbedView) {
 				JTabbedPane tabbedPane = new JTabbedPane();
 				contentPane = tabbedPane;
-				tabbedPane.addTab(PhysicalValue.Oxygen  .name(),    oxygenAchievementsPanel);
-				tabbedPane.addTab(PhysicalValue.Heat    .name(),      heatAchievementsPanel);
-				tabbedPane.addTab(PhysicalValue.Pressure.name(),  pressureAchievementsPanel);
-				tabbedPane.addTab(PhysicalValue.Biomass .name(),   biomassAchievementsPanel);
-				tabbedPane.addTab("Terraformation"             , terraformAchievementsPanel);
+				for (AchievementList al : AchievementList.values()) {
+					AchievementsTablePanel panel = panels.get(al);
+					tabbedPane.addTab(al.name(), panel);
+				}
 				
 			} else {
-				JPanel gridPanel = new JPanel(new GridLayout(1,0));
+				JPanel gridPanel = new JPanel(new GridBagLayout());
 				contentPane = gridPanel;
-				addSubPanel(gridPanel, PhysicalValue.Oxygen  .name(),    oxygenAchievementsPanel);
-				addSubPanel(gridPanel, PhysicalValue.Heat    .name(),      heatAchievementsPanel);
-				addSubPanel(gridPanel, PhysicalValue.Pressure.name(),  pressureAchievementsPanel);
-				addSubPanel(gridPanel, PhysicalValue.Biomass .name(),   biomassAchievementsPanel);
-				addSubPanel(gridPanel, "Terraformation"             , terraformAchievementsPanel);
+				
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				c.weightx = 1;
+				c.weighty = 1;
+				
+				for (AchievementList al : AchievementList.values()) {
+					switch (al) {
+					
+					case Oxygen  : addSubPanel(gridPanel, al, c, 1, 0, 0); break;
+					case Heat    : addSubPanel(gridPanel, al, c, 1, 1, 0); break;
+					case Pressure: addSubPanel(gridPanel, al, c, 1, 2, 0); break;
+					
+					case Biomass : addSubPanel(gridPanel, al, c, 1, 0, 1); break;
+					case Plants  : addSubPanel(gridPanel, al, c, 1, 1, 1); break;
+					case Insects : addSubPanel(gridPanel, al, c, 1, 2, 1); break;
+					case Animals : addSubPanel(gridPanel, al, c, 1, 3, 1); break;
+					
+					case Terraformation:
+						addSubPanel(gridPanel, al, c, 2, 4, 0); break;
+					}
+				}
+				
+				c.gridheight = 1;
+				c.gridy = 0;
+				c.gridx = 3;
+				gridPanel.add( new JLabel(), c );
 			}
 			
 			createGUI( contentPane, btnSwitchView, btnClose );
 		}
 
-		private void addSubPanel(JPanel panel, String title, AchievementsTablePanel subPanel) {
-			addTitledBorder(title, subPanel);
-			panel.add(subPanel);
+		private void addSubPanel(JPanel panel, AchievementList al, GridBagConstraints c, int gridheight, int gridx, int gridy) {
+			AchievementsTablePanel subPanel = panels.get(al);
+			addTitledBorder(al.name(), subPanel);
+			
+			c.gridheight = gridheight;
+			c.gridx = gridx;
+			c.gridy = gridy;
+			panel.add(subPanel, c);
 		}
 
 		private void addTitledBorder(String title, AchievementsTablePanel subPanel) {
@@ -288,13 +328,19 @@ class Achievements {
 			Vector<Achievement> currentList = null;
 			while ( (line=in.readLine())!=null ) {
 				
-				if (line.isEmpty()) continue;
-				if (line.equals(PhysicalValue.Oxygen  .name())) currentList = achievements.   oxygenAchievements;
-				if (line.equals(PhysicalValue.Heat    .name())) currentList = achievements.     heatAchievements;
-				if (line.equals(PhysicalValue.Pressure.name())) currentList = achievements. pressureAchievements;
-				if (line.equals(PhysicalValue.Biomass .name())) currentList = achievements.  biomassAchievements;
-				if (line.equals("Terraformation"             )) currentList = achievements.terraformAchievements;
-				if ( (value=Achievement.parseLine(line))!=null    ) currentList.add(value);
+				if (line.isEmpty())
+					continue;
+				
+				AchievementList listType = AchievementList.valueOf_checked(line);
+				if (listType!=null) {
+					currentList = achievements.achievements.get(listType);
+					if (currentList==null)
+						achievements.achievements.put(listType, currentList = new Vector<>());
+					continue;
+				}
+				
+				if ( (value=Achievement.parseLine(line))!=null )
+					currentList.add(value);
 				
 			}
 			
@@ -304,15 +350,20 @@ class Achievements {
 			System.err.printf("IOException while reading Achievements: %s%n", ex.getMessage());
 			//ex.printStackTrace();
 		}
-		achievements.   oxygenAchievements.sort( ACHIEVEMENT_COMPARATOR );
-		achievements.     heatAchievements.sort( ACHIEVEMENT_COMPARATOR );
-		achievements. pressureAchievements.sort( ACHIEVEMENT_COMPARATOR );
-		achievements.  biomassAchievements.sort( ACHIEVEMENT_COMPARATOR );
-		achievements.terraformAchievements.sort( ACHIEVEMENT_COMPARATOR );
+		
+		achievements.forEachList((al,list) -> list.sort( ACHIEVEMENT_COMPARATOR ));
 		
 		System.out.printf("Done%n");
 		
 		return achievements;
+	}
+	
+	void forEachList(BiConsumer<AchievementList,Vector<Achievement>> action) {
+		for (AchievementList al : AchievementList.values()) {
+			Vector<Achievement> list = achievements.get(al);
+			if (list!=null)
+				action.accept(al,list);
+		}
 	}
 
 	void writeToFile(File file) {
@@ -321,11 +372,14 @@ class Achievements {
 		
 		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
 			
-			writeToFile(out,PhysicalValue.Oxygen  .name(),   oxygenAchievements);
-			writeToFile(out,PhysicalValue.Heat    .name(),     heatAchievements);
-			writeToFile(out,PhysicalValue.Pressure.name(), pressureAchievements);
-			writeToFile(out,PhysicalValue.Biomass .name(),  biomassAchievements);
-			writeToFile(out,"Terraformation"             ,terraformAchievements);
+			forEachList((al,list) -> {
+				if (!list.isEmpty()) {
+					out.println(al.name());
+					for (Achievement a : list)
+						out.println(a.toLine());
+					out.println();
+				}
+			});
 			
 		} catch (IOException ex) {
 			System.err.printf("IOException while writing Achievements: %s%n", ex.getMessage());
@@ -335,35 +389,21 @@ class Achievements {
 		System.out.printf("Done%n");
 	}
 
-	private void writeToFile(PrintWriter out, String label, Vector<Achievement> achievements) {
-		out.println(label);
-		for (Achievement a : achievements)
-			out.println(a.toLine());
-		out.println();
-	}
-
-	Achievement getNextAchievement(double level, PhysicalValue physicalValue) {
-		Vector<Achievement> list = getAchievementsList(physicalValue);
+	Achievement getNextAchievement(double level, AchievementList listType) {
+		Vector<Achievement> list = getAchievementsList(listType);
 		// pre: list is sorted by level, with level==null at end of list 
-		for (Achievement a : list) {
-			if (a.level==null)
-				return null;
-			if (a.level.doubleValue()>level)
-				return a;
-		}
+		if (list!=null)
+			for (Achievement a : list) {
+				if (a.level==null)
+					return null;
+				if (a.level.doubleValue()>level)
+					return a;
+			}
 		return null;
 	}
 
-	private Vector<Achievement> getAchievementsList(PhysicalValue physicalValue) {
-		if (physicalValue==null)
-			return terraformAchievements;
-		switch (physicalValue) {
-		case Oxygen  : return   oxygenAchievements;
-		case Heat    : return     heatAchievements;
-		case Pressure: return pressureAchievements;
-		case Biomass : return  biomassAchievements;
-		}
-		return null;
+	private Vector<Achievement> getAchievementsList(AchievementList listType) {
+		return achievements.get(listType);
 	}
 
 	static class Achievement {

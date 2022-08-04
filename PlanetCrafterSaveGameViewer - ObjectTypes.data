@@ -5,14 +5,14 @@ label = Algae
 ObjectType: AlgaeGenerator1
 label = AlgaeGenerator T1
 oxygen = 127.0
-biomass = 0.6
+plants = 0.6
 energy = -13.0
 <finished>
 
 ObjectType: AlgaeGenerator2
 label = AlgaeGenerator T2
 oxygen = 350.0
-biomass = 17.0
+plants = 17.0
 energy = -27.0
 <finished>
 
@@ -50,7 +50,7 @@ energy = -37.0
 ObjectType: Biodome2
 label = Biodome T2
 oxygen = 1450.0
-biomass = 11.0
+plants = 11.0
 energy = -75.0
 <finished>
 
@@ -239,7 +239,7 @@ label = Golden Effigie "Com. Antenna"
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
 oxygen = 108.0
-biomass = 0.15
+plants = 0.15
 energy = -13.8
 <finished>
 
@@ -418,8 +418,8 @@ label = Explosive Powder
 <finished>
 
 ObjectType: RocketBiomass1
-label = Biomass Rocket
-isBoosterRocketFor = Biomass
+label = Plants Rocket
+isBoosterRocketFor = Plants
 <finished>
 
 ObjectType: RocketHeat1
@@ -547,14 +547,14 @@ oxygenBooster = 6.0
 ObjectType: SeedSpreader1
 label = Flower Spreader T1
 oxygen = 161.0
-biomass = 7.2
+plants = 7.2
 energy = -28.8
 <finished>
 
 ObjectType: SeedSpreader2
 label = Flower Spreader T2
 oxygen = 325.0
-biomass = 33.5
+plants = 33.5
 energy = -38.8
 <finished>
 
@@ -569,6 +569,9 @@ ObjectType: SpaceMultiplierHeat
 <finished>
 
 ObjectType: SpaceMultiplierOxygen
+<finished>
+
+ObjectType: SpaceMultiplierPlants
 <finished>
 
 ObjectType: SpaceMultiplierPressure
@@ -643,21 +646,21 @@ label = Tree Bark
 ObjectType: TreeSpreader0
 label = Tree Spreader T1
 oxygen = 920.0
-biomass = 85.0
+plants = 85.0
 energy = -31.0
 <finished>
 
 ObjectType: TreeSpreader1
 label = Tree Spreader T2
 oxygen = 1950.0
-biomass = 149.0
+plants = 149.0
 energy = -71.0
 <finished>
 
 ObjectType: TreeSpreader2
 label = Tree Spreader T3
 oxygen = 12500.0
-biomass = 680.0
+plants = 680.0
 energy = -193.0
 <finished>
 

@@ -39,7 +39,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	private final SubPanel heatPanel;
 	private final SubPanel pressurePanel;
 	private final SubPanel oxygenePanel;
-	private final SubPanel biomassPanel;
+	private final SubPanel plantsPanel;
+	private final SubPanel insectsPanel;
+	private final SubPanel animalsPanel;
 
 	TerraformingPanel(Data data, GeneralDataPanel generalDataPanel) {
 		super(new GridLayout(0,2));
@@ -48,13 +50,17 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		heatPanel     = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Heat    );
 		pressurePanel = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Pressure);
-		oxygenePanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Oxygen );
-		biomassPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Biomass );
+		oxygenePanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Oxygen  );
+		plantsPanel   = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Plants  );
+		insectsPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Insects );
+		animalsPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Animals );
 		
 		add(heatPanel);
 		add(pressurePanel);
 		add(oxygenePanel);
-		add(biomassPanel);
+		add(plantsPanel );
+		add(insectsPanel);
+		add(animalsPanel);
 	}
 
 	@Override
@@ -70,28 +76,27 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			heatPanel    .updateContent();
 			pressurePanel.updateContent();
 			oxygenePanel .updateContent();
-			biomassPanel .updateContent();
+			plantsPanel  .updateContent();
+			insectsPanel .updateContent();
+			animalsPanel .updateContent();
 			break;
 			
-		case Heat:
-			heatPanel.updateContent();
-			break;
-			
-		case Pressure:
-			pressurePanel.updateContent();
-			break;
+		case Heat    : heatPanel    .updateContent(); break;
+		case Pressure: pressurePanel.updateContent(); break;
+		case Plants  : plantsPanel  .updateContent(); break;
+		case Animals : animalsPanel .updateContent(); break;
 			
 		case Oxygen:
 		case OxygenBooster:
 			oxygenePanel.updateContent();
 			break;
 			
-		case Biomass:
-			biomassPanel.updateContent();
+		case Insects:
+		case InsectsBooster:
+			insectsPanel.updateContent();
 			break;
 			
-		default:
-			break;
+		case BoosterRocket: case Finished: case IsProducer: break;
 		}
 	}
 	
@@ -157,10 +162,12 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			if (wo.objectType == null) return null;
 			
 			switch (physicalValue) {
+			case Oxygen  : return wo.objectType.oxygen;
 			case Heat    : return wo.objectType.heat;
 			case Pressure: return wo.objectType.pressure;
-			case Oxygen  : return wo.objectType.oxygen;
-			case Biomass : return wo.objectType.biomass;
+			case Plants  : return wo.objectType.plants;
+			case Insects : return wo.objectType.insects;
+			case Animals : return wo.objectType.animals;
 			}
 			return null;
 		}
@@ -208,8 +215,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		}
 		
 		private Double getMultiplier(WorldObject wo) {
-			if (physicalValue!=PhysicalValue.Oxygen) return null;
-			
 			if (wo.list==null) return null;
 			if (wo.list.worldObjs.length==0) return null;
 			
@@ -217,7 +222,13 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			if (multiplierItem==null) return null;
 			if (multiplierItem.objectType==null) return null;
 			
-			return multiplierItem.objectType.oxygenBooster;
+			if (physicalValue == PhysicalValue.Oxygen)
+				return multiplierItem.objectType.oxygenBooster;
+			
+			if (physicalValue == PhysicalValue.Insects)
+				return multiplierItem.objectType.insectsBooster;
+			
+			return null;
 		}
 
 		private static class RowIndex {
@@ -339,13 +350,19 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			private final PhysicalValue physicalValue;
 
 			ObjectsTableModel(PhysicalValue physicalValue) {
-				super(
-					physicalValue==PhysicalValue.Oxygen ?
-						ColumnID.values()
-						: new ColumnID[] {ColumnID.Count, ColumnID.Name, ColumnID.FinalSum, ColumnID.Energy, ColumnID.Efficiency}
-				);
+				super( getColumns(physicalValue) );
 				this.physicalValue = physicalValue;
 				rows = null;
+			}
+			
+			private static ColumnID[] getColumns(PhysicalValue physicalValue) {
+				switch (physicalValue) {
+				case Oxygen:
+				case Insects:
+					return ColumnID.values();
+				default:
+					return new ColumnID[] {ColumnID.Count, ColumnID.Name, ColumnID.FinalSum, ColumnID.Energy, ColumnID.Efficiency};
+				}
 			}
 			
 			public void setDefaultCellEditorsAndRenderers() {
@@ -371,7 +388,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			@Override
 			public String getColumnName(int columnIndex) {
 				ColumnID columnID = getColumnID(columnIndex);
-				if (physicalValue!=PhysicalValue.Oxygen && (columnID==ColumnID.BaseSum || columnID==ColumnID.FinalSum)) return "Sum";
+				if (physicalValue!=PhysicalValue.Oxygen &&
+					physicalValue!=PhysicalValue.Insects &&
+						(columnID==ColumnID.BaseSum || columnID==ColumnID.FinalSum)) return "Sum";
 				return super.getColumnName(columnIndex);
 			}
 

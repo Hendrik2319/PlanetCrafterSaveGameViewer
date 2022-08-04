@@ -32,6 +32,7 @@ import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
@@ -468,17 +469,24 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final Row heatRow;
 		private final Row pressureRow;
 		private final Row biomassRow;
+		private final Row plantsRow;
+		private final Row insectsRow;
+		private final Row animalsRow;
 		private final Row terraformRow;
 		
 		TerraformingStatesPanel(Data.TerraformingStates data, Achievements achievements) {
 			super(new GridBagLayout());
 			
-			double terraformLevel = data.oxygenLevel + data.heatLevel + data.pressureLevel + data.biomassLevel;
-			oxygenRow    = new Row(data.oxygenLevel  , achievements, Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  );
-			heatRow      = new Row(data.heatLevel    , achievements, Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    );
-			pressureRow  = new Row(data.pressureLevel, achievements, Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure);
-			biomassRow   = new Row(data.biomassLevel , achievements, Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Biomass );
-			terraformRow = new Row(terraformLevel    , achievements, Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
+			double terraformLevel = data.getTerraformLevel();
+			double biomassLevel   = data.getBiomassLevel();
+			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  );
+			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    );
+			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure);
+			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , Data.TerraformingStates::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
+			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Plants  );
+			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Insects );
+			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Animals );
+			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -492,11 +500,16 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridx++; add(new JLabel("Level"), c);
 			c.gridx++; add(new JLabel("Next Achievement"), c);
 			
-			oxygenRow   .addToPanel(this, 1, "Oxygen");
-			heatRow     .addToPanel(this, 3, "Heat");
-			pressureRow .addToPanel(this, 5, "Pressure");
-			biomassRow  .addToPanel(this, 7, "Biomass");
-			terraformRow.addToPanel(this, 9, "Terraformation");
+			
+			int y;
+			y =  1; oxygenRow   .addToPanel(this, y, "Oxygen"  );
+			y += 2; heatRow     .addToPanel(this, y, "Heat"    );
+			y += 2; pressureRow .addToPanel(this, y, "Pressure");
+			y += 2; biomassRow  .addToPanel(this, y, "Biomass" );
+			y += 2; plantsRow   .addToPanel(this, y, "Plants"  );
+			y += 2; insectsRow  .addToPanel(this, y, "Insects" );
+			y += 2; animalsRow  .addToPanel(this, y, "Animals" );
+			y += 2; terraformRow.addToPanel(this, y, "Terraformation");
 			
 			c.gridy = 11;
 			c.gridx = 0;
@@ -511,6 +524,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			heatRow     .updateAchievementField();
 			pressureRow .updateAchievementField();
 			biomassRow  .updateAchievementField();
+			plantsRow   .updateAchievementField();
+			insectsRow  .updateAchievementField();
+			animalsRow  .updateAchievementField();
 			terraformRow.updateAchievementField();
 		}
 
@@ -519,8 +535,15 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			case Oxygen  : oxygenRow  .setRate(rate); break;
 			case Heat    : heatRow    .setRate(rate); break;
 			case Pressure: pressureRow.setRate(rate); break;
-			case Biomass : biomassRow .setRate(rate); break;
+			case Plants  : plantsRow  .setRate(rate); break;
+			case Insects : insectsRow .setRate(rate); break;
+			case Animals : animalsRow .setRate(rate); break;
 			}
+			biomassRow.setRate(
+					plantsRow .getRate()+
+					insectsRow.getRate()+
+					animalsRow.getRate()
+			);
 			terraformRow.setRate(
 					oxygenRow  .getRate()+
 					heatRow    .getRate()+
@@ -542,21 +565,18 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			//private final JTextField fieldRate2Level;
 			private final JTextField fieldAchievement;
 			
-			private final PhysicalValue physicalValue;
 			private final Achievements achievements;
 			private final double level;
+			private final AchievementList achievementList;
 			
 			private double rate;
 
-			Row(double level, Achievements achievements, Function<Double,String> formatLevel, PhysicalValue physicalValue) {
-				this(level, achievements, formatLevel, physicalValue, physicalValue::formatRate);
+			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, PhysicalValue physicalValue) {
+				this(level, achievements, achievementList, formatLevel, physicalValue::formatRate);
 			}
-			Row(double level, Achievements achievements, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
-				this(level, achievements, formatLevel, null, formatRate);
-			}
-			private Row(double level, Achievements achievements, Function<Double,String> formatLevel, PhysicalValue physicalValue, Function<Double,String> formatRate) {
+			private Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
 				this.achievements = achievements;
-				this.physicalValue = physicalValue;
+				this.achievementList = achievementList;
 				this.level = level;
 				this.rate = 0;
 				this.formatLevel = formatLevel;
@@ -569,7 +589,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			}
 
 			void updateAchievementField() {
-				Achievements.Achievement achievement = achievements.getNextAchievement(level,physicalValue);
+				Achievements.Achievement achievement = achievements.getNextAchievement(level,achievementList);
 				String achievementText = getAchievementText(achievement);
 				fieldAchievement.setText(achievementText);
 			}

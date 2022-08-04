@@ -25,12 +25,12 @@ class Data {
 			return new Data(jsonStructure, getOrCreateObjectType);
 			
 		} catch (ParseException ex) {
-			System.err.printf("ParseException while parsing JSON structure: %s%n", ex.getMessage());
+			System.err.printf("ParseException while parsing JSON structure (Data.parse()): %s%n", ex.getMessage());
 			//ex.printStackTrace();
 			return null;
 			
 		} catch (TraverseException ex) {
-			System.err.printf("TraverseException while parsing JSON structure: %s%n", ex.getMessage());
+			System.err.printf("TraverseException while parsing JSON structure (Data.parse()): %s%n", ex.getMessage());
 			//ex.printStackTrace();
 			return null;
 		}
@@ -295,10 +295,13 @@ class Data {
 		}
 	}
 	static class TerraformingStates {
-		final double biomassLevel;
-		final double heatLevel;
 		final double oxygenLevel;
+		final double heatLevel;
 		final double pressureLevel;
+		//final double biomassLevel;
+		final double plantsLevel ;
+		final double insectsLevel;
+		final double animalsLevel;
 		/*
 			Block[0]: 1 entries
 			-> Format: [2 blocks]
@@ -309,13 +312,35 @@ class Data {
 			        unitHeatLevel:Float
 			        unitOxygenLevel:Float
 			        unitPressureLevel:Float
+			 * Insecs Update
+			        unitPlantsLevel :Float
+			        unitInsectsLevel:Float
+			        unitAnimalsLevel:Float
 		 */
 		TerraformingStates(Value<NV, V> value, String debugLabel) throws TraverseException {
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			biomassLevel  = JSON_Data.getFloatValue(object, "unitBiomassLevel" , debugLabel);
-			heatLevel     = JSON_Data.getFloatValue(object, "unitHeatLevel"    , debugLabel);
 			oxygenLevel   = JSON_Data.getFloatValue(object, "unitOxygenLevel"  , debugLabel);
+			heatLevel     = JSON_Data.getFloatValue(object, "unitHeatLevel"    , debugLabel);
 			pressureLevel = JSON_Data.getFloatValue(object, "unitPressureLevel", debugLabel);
+			//biomassLevel  = JSON_Data.getFloatValue(object, "unitBiomassLevel" , debugLabel);
+			plantsLevel   = JSON_Data.getFloatValue(object, "unitPlantsLevel"  , debugLabel);
+			insectsLevel  = JSON_Data.getFloatValue(object, "unitInsectsLevel" , debugLabel);
+			animalsLevel  = JSON_Data.getFloatValue(object, "unitAnimalsLevel" , debugLabel);
+		}
+
+		double getTerraformLevel() {
+			return oxygenLevel
+					+ heatLevel
+					+ pressureLevel
+					+ plantsLevel
+					+ insectsLevel
+					+ animalsLevel;
+		}
+
+		double getBiomassLevel() {
+			return plantsLevel
+					+ insectsLevel
+					+ animalsLevel;
 		}
 
 		private static String formatValue(String format, double value) {
@@ -774,8 +799,8 @@ class Data {
 			colorCustomStr  = JSON_Data.getStringValue (object, "colorCustom"    , debugLabel);
 			colorBaseLerp   = JSON_Data.getIntegerValue(object, "colorBaseLerp"  , debugLabel);
 			colorCustomLerp = JSON_Data.getIntegerValue(object, "colorCustomLerp", debugLabel);
-			colorBase       = new Color(colorBaseStr  , debugLabel+".colorBase"  );
-			colorCustom     = new Color(colorCustomStr, debugLabel+".colorCustom");
+			colorBase       = colorBaseStr  .isEmpty() ? null : new Color(colorBaseStr  , debugLabel+".colorBase"  );
+			colorCustom     = colorCustomStr.isEmpty() ? null : new Color(colorCustomStr, debugLabel+".colorCustom");
 		}
 	}
 

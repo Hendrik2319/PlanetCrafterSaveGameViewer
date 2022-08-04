@@ -23,9 +23,12 @@ class ObjectType {
 	Double heat;
 	Double pressure;
 	Double oxygen;
-	Double biomass;
+	Double plants;
+	Double insects;
+	Double animals;
 	Double energy;
 	Double oxygenBooster;
+	Double insectsBooster;
 	PhysicalValue isBoosterRocketFor;
 	boolean isProducer;
 	
@@ -37,9 +40,12 @@ class ObjectType {
 		heat     = null;
 		pressure = null;
 		oxygen   = null;
-		biomass  = null;
+		plants   = null;
+		insects  = null;
+		animals  = null;
 		energy   = null;
 		oxygenBooster = null;
+		insectsBooster = null;
 		isBoosterRocketFor = null;
 		isProducer = false;
 	}
@@ -51,14 +57,16 @@ class ObjectType {
 	}
 
 	enum ObjectTypeValue {
-		Finished, Label, Heat, Pressure, Oxygen, Biomass, Energy, OxygenBooster, BoosterRocket, IsProducer
+		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenBooster, InsectsBooster, BoosterRocket, IsProducer
 	}
 	
 	enum PhysicalValue {
 		Heat    ("pK/s" ),
 		Pressure("nPa/s"),
 		Oxygen  ("ppq/s"),
-		Biomass ("g/s"  ),
+		Plants  ("g/s"  ),
+		Insects ("g/s"  ),
+		Animals ("g/s"  ),
 		;
 		final String rateUnit;
 		PhysicalValue(String rateUnit) {
@@ -91,9 +99,12 @@ class ObjectType {
 				if (ot.heat              !=null) out.printf("heat = "              +"%s%n", ot.heat     );
 				if (ot.pressure          !=null) out.printf("pressure = "          +"%s%n", ot.pressure );
 				if (ot.oxygen            !=null) out.printf("oxygen = "            +"%s%n", ot.oxygen   );
-				if (ot.biomass           !=null) out.printf("biomass = "           +"%s%n", ot.biomass  );
+				if (ot.plants            !=null) out.printf("plants = "            +"%s%n", ot.plants   );
+				if (ot.insects           !=null) out.printf("insects = "           +"%s%n", ot.insects  );
+				if (ot.animals           !=null) out.printf("animals = "           +"%s%n", ot.animals  );
 				if (ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
 				if (ot.oxygenBooster     !=null) out.printf("oxygenBooster = "     +"%s%n", ot.oxygenBooster);
+				if (ot.insectsBooster    !=null) out.printf("insectsBooster = "    +"%s%n", ot.insectsBooster);
 				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
 				if (ot.isProducer              ) out.printf("isProducer"           +  "%n");
 				if (ot.finished                ) out.printf("<finished>"           +  "%n");
@@ -126,12 +137,16 @@ class ObjectType {
 				if ( (valueStr=getValue(line,"heat = "              ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "          ))!=null ) currentOT.pressure = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygen = "            ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"biomass = "           ))!=null ) currentOT.biomass  = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"biomass = "           ))!=null ) currentOT.plants   = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"plants = "            ))!=null ) currentOT.plants   = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insects = "           ))!=null ) currentOT.insects  = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"animals = "           ))!=null ) currentOT.animals  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenBooster = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insectsBooster = "    ))!=null ) currentOT.insectsBooster = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
 				if (        line.equals(     "isProducer"           )        ) currentOT.isProducer = true;
-				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true");
+				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true"); // legacy
 				if (        line.equals(     "<finished>"           )        ) currentOT.finished = true;
 				
 			}

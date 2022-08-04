@@ -32,7 +32,6 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
-import net.schwarzbaer.java.lib.jsonparser.JSON_Helper.OptionalValues;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser.ParseException;
 import net.schwarzbaer.system.DateTimeFormatter;
@@ -44,8 +43,8 @@ public class PlanetCrafterSaveGameViewer {
 	private static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
 
 	public static void main(String[] args) {
-		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
-		// scanFileContent(pathname);
+		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
+		//scanFile(pathname);
 		//GeneralDataPanel.TerraformingStatesPanel.testDurationFormater();
 		
 		try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
@@ -276,9 +275,12 @@ public class PlanetCrafterSaveGameViewer {
 			return null;
 		}
 		if (Thread.currentThread().isInterrupted()) return null;
+		String content = new String(bytes);
+		
+		//showIndeterminateTask(pd, "Scan JSON Structure");
+		//scanFileContent(content);
 		
 		showIndeterminateTask(pd, "Create JSON Structure");
-		String content = new String(bytes);
 		Vector<Vector<Value<NV, V>>> fileData = new Vector<>();
 		Vector<Value<NV, V>> blockData = new Vector<>();
 		
@@ -302,7 +304,7 @@ public class PlanetCrafterSaveGameViewer {
 	}
 
 	@SuppressWarnings("unused")
-	private static void scanFileContent(String pathname) {
+	private static void scanFile(String pathname) {
 		File file = new File(pathname);
 		if (!file.isFile()) return;
 		
@@ -315,7 +317,11 @@ public class PlanetCrafterSaveGameViewer {
 		}
 		
 		String content = new String(bytes);
-		OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<NV,V>();
+		scanFileContent(content);
+	}
+
+	private static void scanFileContent(String content) {
+		JSON_Helper.OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<NV,V>();
 		ValueContainer<Integer> blockIndex = new ValueContainer<>(0);
 		ValueContainer<Integer> entriesCount = new ValueContainer<>(0);
 		

@@ -25,6 +25,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import net.schwarzbaer.gui.Canvas;
@@ -35,7 +36,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.Object
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
-class MapPanel extends JPanel implements ObjectTypesChangeListener {
+class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
 	private static final Color COLOR_OVERVIEW_SCREEN     = Color.RED;
@@ -76,7 +77,7 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 	private ColoringType selectedColoringType;
 
 	MapPanel(Data data) {
-		super(new BorderLayout());
+		super(MapPanel.HORIZONTAL_SPLIT, true);
 		
 		OverView overView = new OverView();
 		overView.setPreferredSize(200,150);
@@ -148,8 +149,9 @@ class MapPanel extends JPanel implements ObjectTypesChangeListener {
 		leftPanel.add(overView, BorderLayout.NORTH);
 		leftPanel.add(lowerLeftPanel, BorderLayout.CENTER);
 		
-		add(leftPanel, BorderLayout.WEST);
-		add(mapView, BorderLayout.CENTER);
+		setLeftComponent(leftPanel);
+		setRightComponent(mapView);
+		setDividerLocation(300);
 		
 		//mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
 		//textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
