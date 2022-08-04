@@ -23,12 +23,14 @@ import java.util.function.Predicate;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
 import net.schwarzbaer.gui.Canvas;
+import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.ZoomableCanvas;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
@@ -49,6 +51,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final Color COLOR_PLAYERPOS           = Color.RED;
 	private static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
 	private static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
+	private static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
 	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
 	private static final Color COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN = Color.RED;
 
@@ -86,6 +89,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 		mapModel = new MapModel(data);
 		mapView = new MapView(mapModel, overView, textOut);
+		new MapContextMenu(mapView);
 		
 		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
 		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
@@ -450,6 +454,33 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 		}
 	}
+	
+	private static class MapContextMenu extends ContextMenu {
+		private static final long serialVersionUID = 8109374615040559202L;
+		private WorldObject clickedObject;
+
+		MapContextMenu(MapView mapView) {
+			clickedObject = null;
+			
+			JMenuItem miMarkForRemoval = add(PlanetCrafterSaveGameViewer.createMenuItem("Mark hovered object for removal", e->{
+				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;
+				clickedObject.markForRemoval( !clickedObject.isMarkedForRemoval(), true );
+			}));
+			
+			addContextMenuInvokeListener((comp, x, y) -> {
+				clickedObject = mapView.hoveredObject;
+				miMarkForRemoval.setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
+				miMarkForRemoval.setText(
+						clickedObject == null
+							? "Mark hovered object for removal"
+							: clickedObject.isMarkedForRemoval()
+								? String.format("Remove Removal Marker from \"%s\"", clickedObject.getName())
+								: String.format("Mark \"%s\" for removal", clickedObject.getName())
+				);
+			});
+			addTo(mapView);
+		}
+	}
 
 	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
@@ -628,8 +659,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo))
-						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL);
+					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo)) {
+						Color fill = wo.isMarkedForRemoval() ? COLOR_WORLDOBJECT_FILL_REMOVAL : COLOR_WORLDOBJECT_FILL;
+						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, fill);
+					}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
 					if (wo!=hoveredObject && wo!=extraShownObject && mapModel.isHighlighted(wo))
@@ -678,10 +711,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(wo.position.getMapX());
 			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (wo.position.getMapY());
 			if (clip.contains(screenX, screenY)) {
-				g2.setColor(fillColor);
-				g2.fillOval(screenX-r, screenY-r, 2*r+1, 2*r+1);
-				g2.setColor(contourColor);
-				g2.drawOval(screenX-r, screenY-r, 2*r, 2*r);
+				if (fillColor!=null) {
+					g2.setColor(fillColor);
+					g2.fillOval(screenX-r, screenY-r, 2*r+1, 2*r+1);
+				}
+				if (contourColor!=null) {
+					g2.setColor(contourColor);
+					g2.drawOval(screenX-r, screenY-r, 2*r, 2*r);
+				}
 			}
 		}
 

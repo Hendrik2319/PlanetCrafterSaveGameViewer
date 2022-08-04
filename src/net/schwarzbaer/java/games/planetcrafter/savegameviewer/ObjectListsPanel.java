@@ -1,11 +1,16 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Iterator;
+import java.util.function.Supplier;
 
 import javax.swing.JMenuItem;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
@@ -16,7 +21,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 	private static final long serialVersionUID = -1787920497956857504L;
 
 	ObjectListsPanel(Data data, MapPanel mapPanel) {
-		super( new ObjectListsTableModel(data), (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300,100) );
+		super( new ObjectListsTableModel(data), true, (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300,100) );
 	}
 	
 	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
@@ -28,6 +33,8 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 		TableContextMenu(JTable table, ObjectListsTableModel tableModel, MapPanel mapPanel) {
 			super(table);
 			clickedRowIndex = -1;
+			
+			addSeparator();
 			
 			JMenuItem miShowContainerInMap = add(PlanetCrafterSaveGameViewer.createMenuItem("Show Container in Map", e->{
 				if (clickedRow==null) return;
@@ -48,6 +55,54 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
 				);
 			});
+		}
+	}
+	
+	static class GeneralTCR implements TableCellRenderer {
+		
+		private final Tables.LabelRendererComponent standardComp;
+		private final Tables.CheckBoxRendererComponent boolComp;
+		private final ObjectListsTableModel tableModel;
+
+		GeneralTCR(ObjectListsTableModel tableModel) {
+			this.tableModel = tableModel;
+			standardComp = new Tables.LabelRendererComponent();
+			boolComp = new Tables.CheckBoxRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+			int rowM = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+			ObjectList row = tableModel.getRow(rowM);
+			
+			final Component selectedRendererComponent;
+			
+			Supplier<Color> getCustomBackground = ()->{
+				if (row==null) return null;
+				if (!row.isMarkedForRemoval()) return null;
+				if (!row.canMarkedByUser())
+					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByData;
+				else
+					return PlanetCrafterSaveGameViewer.COLOR_Removal_ByUser;
+			};
+				
+			if (value instanceof Boolean) {
+				boolean isChecked = (Boolean) value;
+				selectedRendererComponent = boolComp;
+				boolComp.configureAsTableCellRendererComponent(table, isChecked, null, isSelected, hasFocus, null, getCustomBackground);
+				boolComp.setHorizontalAlignment(SwingConstants.CENTER);
+				
+			} else {
+				selectedRendererComponent = standardComp;
+				String valueStr = value==null ? null : value.toString();
+				standardComp.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
+				if (value instanceof Number)
+					standardComp.setHorizontalAlignment(SwingConstants.RIGHT);
+				else
+					standardComp.setHorizontalAlignment(SwingConstants.LEFT);
+			}
+			
+			return selectedRendererComponent;
 		}
 	}
 	
@@ -75,6 +130,13 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 		ObjectListsTableModel(Data data) {
 			super(ColumnID.values(), data.objectLists);
 			this.data = data;
+		}
+
+		@Override public void setDefaultRenderers() {
+			GeneralTCR renderer = new GeneralTCR(this);
+			table.setDefaultRenderer(Long      .class, renderer);
+			table.setDefaultRenderer(Boolean   .class, renderer);
+			table.setDefaultRenderer(String    .class, renderer);
 		}
 
 		@Override protected String getRowText(ObjectList row, int rowIndex) {

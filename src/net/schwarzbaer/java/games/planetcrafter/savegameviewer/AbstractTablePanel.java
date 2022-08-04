@@ -34,16 +34,16 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 	}
 	
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel) {
-		this(tableModel, null, LayoutPos.Bottom, new Dimension(100,100));
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly) {
+		this(tableModel, singleLineSelectionOnly, null, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, TableContextMenuConstructor<TableModelType> tcmConstructor) {
-		this(tableModel, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
+		this(tableModel, singleLineSelectionOnly, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, LayoutPos textAreaPos, Dimension textAreaSize) {
-		this(tableModel, null, textAreaPos, textAreaSize);
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
+		this(tableModel, singleLineSelectionOnly, null, textAreaPos, textAreaSize);
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
+	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
 		this.tableModel = tableModel;
 		
@@ -53,7 +53,7 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		
 		table = new JTable(tableModel);
 		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionMode(singleLineSelectionOnly ? ListSelectionModel.SINGLE_SELECTION : ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.getSelectionModel().addListSelectionListener(e -> {
 			int rowV = table.getSelectedRow();
@@ -66,6 +66,7 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		});
 		tableModel.setTable(table);
 		tableModel.setColumnWidths(table);
+		tableModel.setDefaultRenderers();
 		
 		TableContextMenu tableContextMenu;
 		if (tcmConstructor==null) tableContextMenu = new TableContextMenu(table);
@@ -111,6 +112,11 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 			this.data = data;
 		}
 		
+		public void setDefaultRenderers() {
+			// TODO Auto-generated method stub
+			
+		}
+
 		@Override public int getRowCount() { return data.size(); }
 		
 		ValueType getRow(int rowIndex) {

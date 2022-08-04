@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,8 @@ public class PlanetCrafterSaveGameViewer {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	private static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
+	static final Color COLOR_Removal_ByData = new Color(0xFFD5D5);
+	static final Color COLOR_Removal_ByUser = new Color(0xFF7F7F);
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";

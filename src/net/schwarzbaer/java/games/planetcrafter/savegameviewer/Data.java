@@ -211,7 +211,7 @@ class Data {
 	
 	private static abstract class Reversable {
 		
-		enum Marker {
+		private enum Marker {
 			Nothing, Removal_ByUser, Removal_ByData
 		}
 		
@@ -221,6 +221,10 @@ class Data {
 		Reversable(boolean canBeRemoved) {
 			this.canBeRemoved = canBeRemoved;
 			marker = Marker.Nothing;
+		}
+
+		boolean canMarkedByUser() {
+			return canBeRemoved && marker!=Marker.Removal_ByData;
 		}
 		
 		void markForRemoval(boolean isMarkedForRemoval, boolean isMarkedByUser) {
