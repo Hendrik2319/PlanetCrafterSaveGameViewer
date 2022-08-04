@@ -48,9 +48,9 @@ class Data {
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
 
-	Vector<Vector<String>> toJsonStrs() {
+	Vector<Vector<String>> toJsonStrs(TerraformingStates modifiedTerraformingStates) {
 		Vector<Vector<String>> blocks = new Vector<>();
-		blocks.add(Reversable.toJsonStrs(/* 0 */ terraformingStates));
+		blocks.add(modifiedTerraformingStates==null ? Reversable.toJsonStrs(/* 0 */ terraformingStates) : Reversable.toJsonStrs(modifiedTerraformingStates));
 		blocks.add(Reversable.toJsonStrs(/* 1 */ playerStates      ));
 		blocks.add(Reversable.toJsonStrs(/* 2 */ worldObjects      ));
 		blocks.add(Reversable.toJsonStrs(/* 3 */ objectLists       ));
@@ -248,6 +248,12 @@ class Data {
 
 		abstract String toJsonStrs();
 
+		static Vector<String> toJsonStrs(Reversable singleData) {
+			Vector<String> strs = new Vector<>();
+			strs.add(singleData.toJsonStrs());
+			return strs;
+		}
+
 		static Vector<String> toJsonStrs(Vector<? extends Reversable> data) {
 			Vector<String> strs = new Vector<>();
 			for (Reversable value : data)
@@ -390,6 +396,17 @@ class Data {
 			plantsLevel   = JSON_Data.getFloatValue(object, "unitPlantsLevel"  , debugLabel);
 			insectsLevel  = JSON_Data.getFloatValue(object, "unitInsectsLevel" , debugLabel);
 			animalsLevel  = JSON_Data.getFloatValue(object, "unitAnimalsLevel" , debugLabel);
+		}
+
+		TerraformingStates(double oxygenLevel, double heatLevel, double pressureLevel,
+				double plantsLevel, double insectsLevel, double animalsLevel) {
+			super(false);
+			this.oxygenLevel = oxygenLevel;
+			this.heatLevel = heatLevel;
+			this.pressureLevel = pressureLevel;
+			this.plantsLevel = plantsLevel;
+			this.insectsLevel = insectsLevel;
+			this.animalsLevel = animalsLevel;
 		}
 
 		@Override String toJsonStrs() {
