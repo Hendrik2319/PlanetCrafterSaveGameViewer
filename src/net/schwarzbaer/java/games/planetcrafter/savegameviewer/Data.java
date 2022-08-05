@@ -460,7 +460,9 @@ class Data {
 			value/=1000;
 			if (value < 2000) return formatValue("%1.2f GTi", value);
 			value/=1000;
-			return formatValue("%1.2f TTi", value);
+			if (value < 2000) return formatValue("%1.2f TTi", value);
+			value/=1000;
+			return formatValue("%1.2f PTi", value);
 		}
 
 		static String formatOxygenLevel(double value) {
@@ -510,7 +512,11 @@ class Data {
 			value/=1000;
 			if (value < 2000) return formatValue("%1.2f kt", value);
 			value/=1000;
-			return formatValue("%1.2f Mt", value);
+			if (value < 2000) return formatValue("%1.2f Mt", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%1.2f Gt", value);
+			value/=1000;
+			return formatValue("%1.2f Tt", value);
 		}
 	}
 

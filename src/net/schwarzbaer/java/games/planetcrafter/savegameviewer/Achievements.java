@@ -45,7 +45,7 @@ class Achievements {
 	.thenComparing(a->a.label);
 	
 	enum AchievementList {
-		Oxygen, Heat, Pressure, Biomass, Plants, Insects, Animals, Terraformation;
+		Oxygen, Heat, Pressure, Biomass, Plants, Insects, Animals, Terraformation, Stages;
 		static AchievementList valueOf_checked(String str) {
 			try { return valueOf(str); }
 			catch (Exception e) { return null; }
@@ -58,7 +58,7 @@ class Achievements {
 			case Pressure: return Data.TerraformingStates::formatPressureLevel;
 			case Biomass: case Plants: case Insects: case Animals:
 				return Data.TerraformingStates::formatBiomassLevel;
-			case Terraformation:
+			case Terraformation: case Stages:
 				return Data.TerraformingStates::formatTerraformation;
 			}
 			return null;
@@ -138,6 +138,7 @@ class Achievements {
 					case Oxygen  : addSubPanel(gridPanel, al, c, 1, 0, 0); break;
 					case Heat    : addSubPanel(gridPanel, al, c, 1, 1, 0); break;
 					case Pressure: addSubPanel(gridPanel, al, c, 1, 2, 0); break;
+					case Stages  : addSubPanel(gridPanel, al, c, 1, 3, 0); break;
 					
 					case Biomass : addSubPanel(gridPanel, al, c, 1, 0, 1); break;
 					case Plants  : addSubPanel(gridPanel, al, c, 1, 1, 1); break;

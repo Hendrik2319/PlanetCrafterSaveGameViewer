@@ -243,10 +243,10 @@ class GUI {
 			oxygenLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
 			heatLevel      = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
 			pressureLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
+			biomassLevel   = DoubleTextField.createFormattedValueOutput("");
 			plantsLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
 			insectsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
 			animalsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			biomassLevel   = DoubleTextField.createFormattedValueOutput("");
 			terraformLevel = DoubleTextField.createFormattedValueOutput("");
 			
 			final Data.TerraformingStates initialValues;
@@ -267,14 +267,14 @@ class GUI {
 			c.gridwidth = 1;
 			
 			int gridy = 0;
-			addRow(contentPane, c, gridy++, "Oxygen Level"  , oxygenLevel  , initialValues==null ? null : initialValues.oxygenLevel  );
-			addRow(contentPane, c, gridy++, "Heat Level"    , heatLevel    , initialValues==null ? null : initialValues.heatLevel    );
-			addRow(contentPane, c, gridy++, "Pressure Level", pressureLevel, initialValues==null ? null : initialValues.pressureLevel);
-			addRow(contentPane, c, gridy++, "Biomass Level" , biomassLevel);
-			addRow(contentPane, c, gridy++, "Plants Level"  , plantsLevel  , initialValues==null ? null : initialValues.plantsLevel  );
-			addRow(contentPane, c, gridy++, "Insects Level" , insectsLevel , initialValues==null ? null : initialValues.insectsLevel );
-			addRow(contentPane, c, gridy++, "Animals Level" , animalsLevel , initialValues==null ? null : initialValues.animalsLevel );
-			addRow(contentPane, c, gridy++, "Biomass Level" , terraformLevel);
+			addRow(contentPane, c, gridy++, "Oxygen Level"        , oxygenLevel   , initialValues==null ? null : initialValues.oxygenLevel  );
+			addRow(contentPane, c, gridy++, "Heat Level"          , heatLevel     , initialValues==null ? null : initialValues.heatLevel    );
+			addRow(contentPane, c, gridy++, "Pressure Level"      , pressureLevel , initialValues==null ? null : initialValues.pressureLevel);
+			addRow(contentPane, c, gridy++, "Biomass Level"       , biomassLevel  );
+			addRow(contentPane, c, gridy++, "Plants Level"        , plantsLevel   , initialValues==null ? null : initialValues.plantsLevel  );
+			addRow(contentPane, c, gridy++, "Insects Level"       , insectsLevel  , initialValues==null ? null : initialValues.insectsLevel );
+			addRow(contentPane, c, gridy++, "Animals Level"       , animalsLevel  , initialValues==null ? null : initialValues.animalsLevel );
+			addRow(contentPane, c, gridy++, "Terraformation Level", terraformLevel);
 			
 			c.weightx = 1;
 			c.weighty = 1;
