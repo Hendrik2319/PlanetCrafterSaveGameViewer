@@ -483,20 +483,22 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final Row insectsRow;
 		private final Row animalsRow;
 		private final Row terraformRow;
+		private final Row stagesRow;
 		
 		TerraformingStatesPanel(Data.TerraformingStates data, Achievements achievements) {
 			super(new GridBagLayout());
 			
 			double terraformLevel = data.getTerraformLevel();
 			double biomassLevel   = data.getBiomassLevel();
-			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  );
-			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    );
-			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure);
+			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
+			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
+			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure::formatRate);
 			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , Data.TerraformingStates::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
-			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Plants  );
-			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Insects );
-			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Animals );
+			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Plants  ::formatRate);
+			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
+			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
 			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
+			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.TerraformingStates::formatTerraformation, null, true);
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -520,12 +522,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			y += 2; insectsRow  .addToPanel(this, y, "Insects" );
 			y += 2; animalsRow  .addToPanel(this, y, "Animals" );
 			y += 2; terraformRow.addToPanel(this, y, "Terraformation");
-			
-			c.gridy = y+2;
-			c.gridx = 0; add(new JLabel("Stages: "), c);
+			y += 2; stagesRow   .addToPanel(this, y, "Stages"  );
 			
 			
-			c.gridy = y+3;
+			c.gridy = y+1;
 			c.gridx = 0;
 			c.weighty = 1;
 			c.weightx = 1;
@@ -542,6 +542,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			insectsRow  .updateAchievementField();
 			animalsRow  .updateAchievementField();
 			terraformRow.updateAchievementField();
+			stagesRow   .updateAchievementField();
 		}
 
 		void setRateOfPhysicalValue(PhysicalValue physicalValue, double rate) {
@@ -564,6 +565,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 					pressureRow.getRate()+
 					biomassRow .getRate()
 			);
+			stagesRow.setRate(
+					terraformRow.getRate()
+			);
 		}
 		
 		static void testDurationFormater() {
@@ -576,8 +580,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private final Function<Double, String> formatRate;
 			private final JTextField fieldLevel;
 			private final JTextField fieldRate;
-			//private final JTextField fieldRate2Level;
 			private final JTextField fieldAchievement;
+			private final boolean achievementFieldOnly;
 			
 			private final Achievements achievements;
 			private final double level;
@@ -585,19 +589,19 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			private double rate;
 
-			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, PhysicalValue physicalValue) {
-				this(level, achievements, achievementList, formatLevel, physicalValue::formatRate);
+			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+				this(level, achievements, achievementList, formatLevel, formatRate, false);
 			}
-			private Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean achievementFieldOnly) {
 				this.achievements = achievements;
 				this.achievementList = achievementList;
 				this.level = level;
 				this.rate = 0;
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),6,JTextField.RIGHT);
-				fieldRate        = GUI.createOutputTextField("--",20,JTextField.RIGHT);
-				//fieldRate2Level  = GUI.createOutputTextField("--",10,JTextField.RIGHT);
+				this.achievementFieldOnly = achievementFieldOnly;
+				fieldLevel       = achievementFieldOnly ? null : GUI.createOutputTextField(formatLevel.apply(level),6,JTextField.RIGHT);
+				fieldRate        = achievementFieldOnly ? null : GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				fieldAchievement = GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				updateAchievementField();
 			}
@@ -711,10 +715,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 			void setRate(double rate) {
 				this.rate = rate;
-				double rate2Level = Math.log10(rate/level);
-				fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
-				//fieldRate      .setText(formatRate.apply(rate));
-				//fieldRate2Level.setText(String.format(Locale.ENGLISH, "%1.2f", rate2Level));
+				if (fieldRate!=null) {
+					double rate2Level = Math.log10(rate/level);
+					if (Double.isFinite(rate2Level))
+						fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
+					else
+						fieldRate.setText(formatRate.apply(rate));
+				}
 				updateAchievementField();
 			}
 
@@ -731,14 +738,20 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				c.gridheight = 1;
 				
 				c.weightx = 0; c.gridy = gridy  ; c.gridx = 0; panel.add(new JLabel(label+": "), c);
-				c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
-				c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
-				c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldRate , c);
-				//c.weightx = 1; c.gridy = gridy+1; c.gridx = 2; panel.add(fieldRate2Level, c);
 				
-				//fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
-				fieldRate.setForeground(Color.GRAY);
-				//fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
+				if (achievementFieldOnly) {
+					c.gridwidth = 2;
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldAchievement, c);
+					
+				} else {
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
+					c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldRate , c);
+					
+					//fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
+					fieldRate.setForeground(Color.GRAY);
+					//fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
+				}
 			}
 		}
 	}
