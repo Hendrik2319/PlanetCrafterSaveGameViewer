@@ -93,7 +93,7 @@ class Achievements {
 			for (AchievementList al : AchievementList.values()) {
 				Vector<Achievement> list = achievements.achievements.get(al);
 				if (list == null) achievements.achievements.put(al, list = new Vector<>());
-				panels.put(al, new AchievementsTablePanel(list, al.getFormatter()));
+				panels.put(al, new AchievementsTablePanel(list, al.getFormatter(), al!=AchievementList.Stages && al!=AchievementList.Terraformation));
 			}
 			
 			createView();
@@ -176,9 +176,9 @@ class Achievements {
 		private static class AchievementsTablePanel extends JScrollPane {
 			private static final long serialVersionUID = 5790599615513764895L;
 
-			AchievementsTablePanel(Vector<Achievement> achievements, Function<Double, String> formatLevel) {
+			AchievementsTablePanel(Vector<Achievement> achievements, Function<Double, String> formatLevel, boolean showTIEquivalent) {
 				
-				AchievementsTableModel tableModel = new AchievementsTableModel(achievements, formatLevel);
+				AchievementsTableModel tableModel = new AchievementsTableModel(achievements, formatLevel, showTIEquivalent);
 				
 				JTable table = new JTable(tableModel);
 				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
@@ -238,9 +238,14 @@ class Achievements {
 		private static class AchievementsTableModel extends Tables.SimplifiedTableModel<AchievementsTableModel.ColumnID> {
 
 			enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-				Level("Level"      , Double.class,  90),
-				Label("Achievement", String.class, 200),
+				Level   ("Level"      , Double.class,  70),
+				Label   ("Achievement", String.class, 200),
+				TI_Equiv("TI Equiv."  , Double.class,  70),
 				;
+				static ColumnID[] values(boolean showTIEquivalent) {
+					return !showTIEquivalent ? new ColumnID[] { Level, Label } : values();
+				}
+				
 				private final SimplifiedColumnConfig cfg;
 				ColumnID(String name, Class<?> colClass, int width) {
 					cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
@@ -253,8 +258,8 @@ class Achievements {
 			private final Vector<Achievement> data;
 			private final Function<Double, String> formatLevel;
 
-			AchievementsTableModel(Vector<Achievement> data, Function<Double,String> formatLevel) {
-				super(ColumnID.values());
+			AchievementsTableModel(Vector<Achievement> data, Function<Double,String> formatLevel, boolean showTIEquivalent) {
+				super( ColumnID.values(showTIEquivalent) );
 				this.data = data;
 				this.formatLevel = formatLevel;
 			}
@@ -280,12 +285,17 @@ class Achievements {
 				switch (columnID) {
 				case Label: return a.label;
 				case Level: return a.level;
+				case TI_Equiv: return a.level==null ? null : Data.TerraformingStates.formatTerraformation(a.level);
 				}
 				return null;
 			}
 
 			@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
-				return true;
+				switch (columnID) {
+				case Label: case Level: return true;
+				case TI_Equiv: break;
+				}
+				return false;
 			}
 
 			@Override protected void setValueAt(Object aValue, int rowIndex, int columnIndex, ColumnID columnID) {
@@ -303,6 +313,7 @@ class Achievements {
 				switch (columnID) {
 				case Label: a.label = (String) aValue; break;
 				case Level: a.level = (Double) aValue; break;
+				case TI_Equiv: break;
 				}
 				
 				if (a.isEmpty())

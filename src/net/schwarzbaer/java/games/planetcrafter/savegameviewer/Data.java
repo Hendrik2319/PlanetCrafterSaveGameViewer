@@ -95,7 +95,8 @@ class Data {
 		System.out.printf("Processing Data ...%n");
 		for (WorldObject wo : worldObjects) {
 			
-			if (!mapWorldObjects.containsKey(wo.id)) mapWorldObjects.put(wo.id, wo);
+			if (!mapWorldObjects.containsKey(wo.id))
+				mapWorldObjects.put(wo.id, wo);
 			else {
 				WorldObject other = mapWorldObjects.get(wo.id);
 				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
