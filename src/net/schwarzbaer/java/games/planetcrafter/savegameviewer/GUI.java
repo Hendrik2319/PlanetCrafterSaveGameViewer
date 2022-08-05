@@ -231,17 +231,23 @@ class GUI {
 		private final DoubleTextField insectsLevel ;
 		private final DoubleTextField animalsLevel ;
 		private Data.TerraformingStates results;
+
+		private JTextField biomassLevel;
+
+		private JTextField terraformLevel;
 		
 		private TerraformingStatesDialog(Window parent, String title, Vector<Data.TerraformingStates> terraformingStates) {
 			super(parent, title);
 			results = null;
 			
-			oxygenLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
-			heatLevel     = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
-			pressureLevel = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
-			plantsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			insectsLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			animalsLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			oxygenLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
+			heatLevel      = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
+			pressureLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
+			plantsLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			insectsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			animalsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			biomassLevel   = DoubleTextField.createFormattedValueOutput("");
+			terraformLevel = DoubleTextField.createFormattedValueOutput("");
 			
 			final Data.TerraformingStates initialValues;
 			if (!terraformingStates.isEmpty()) {
@@ -264,9 +270,11 @@ class GUI {
 			addRow(contentPane, c, gridy++, "Oxygen Level"  , oxygenLevel  , initialValues==null ? null : initialValues.oxygenLevel  );
 			addRow(contentPane, c, gridy++, "Heat Level"    , heatLevel    , initialValues==null ? null : initialValues.heatLevel    );
 			addRow(contentPane, c, gridy++, "Pressure Level", pressureLevel, initialValues==null ? null : initialValues.pressureLevel);
+			addRow(contentPane, c, gridy++, "Biomass Level" , biomassLevel);
 			addRow(contentPane, c, gridy++, "Plants Level"  , plantsLevel  , initialValues==null ? null : initialValues.plantsLevel  );
 			addRow(contentPane, c, gridy++, "Insects Level" , insectsLevel , initialValues==null ? null : initialValues.insectsLevel );
 			addRow(contentPane, c, gridy++, "Animals Level" , animalsLevel , initialValues==null ? null : initialValues.animalsLevel );
+			addRow(contentPane, c, gridy++, "Biomass Level" , terraformLevel);
 			
 			c.weightx = 1;
 			c.weighty = 1;
@@ -323,6 +331,13 @@ class GUI {
 			}
 		}
 
+		private void addRow(JPanel panel, GridBagConstraints c, int gridy, String label, JTextField formattedValueOutput) {
+			int gridx = 0;
+			c.gridy = gridy;
+			c.weightx = 0; c.gridx = gridx++; panel.add(new JLabel(label+": "), c);
+			c.weightx = 0; c.gridx = gridx++; panel.add(formattedValueOutput, c);
+		}
+
 		private boolean areAllValuesOk() {
 			return  oxygenLevel  .isOK() &&
 					heatLevel    .isOK() &&
@@ -344,7 +359,29 @@ class GUI {
 		}
 		
 		private void updateGUI() {
-			btnOk.setEnabled(areAllValuesOk());
+			boolean areAllValuesOk = areAllValuesOk();
+			btnOk.setEnabled(areAllValuesOk);
+			
+			if (areAllValuesOk) {
+				double val =
+						oxygenLevel  .value+
+						heatLevel    .value+
+						pressureLevel.value+
+						plantsLevel  .value+
+						insectsLevel .value+
+						animalsLevel .value;
+				terraformLevel.setText(Data.TerraformingStates.formatTerraformation(val));
+			}
+			
+			if (plantsLevel  .isOK() &&
+				insectsLevel .isOK() &&
+				animalsLevel .isOK()) {
+				double val =
+						plantsLevel  .value+
+						insectsLevel .value+
+						animalsLevel .value;
+				biomassLevel.setText(Data.TerraformingStates.formatBiomassLevel(val));
+			}
 		}
 
 		private class DoubleTextField extends JTextField {
@@ -362,13 +399,17 @@ class GUI {
 				this.getFormattedValueStr = getFormattedValueStr;
 				defaultBG = getBackground();
 				isOK = true;
-				formattedValueOutput = createOutputTextField(this.getFormattedValueStr.apply(this.value), 10, JTextField.RIGHT);
+				formattedValueOutput = createFormattedValueOutput(this.getFormattedValueStr.apply(this.value));
 				setHorizontalAlignment(JTextField.RIGHT);
 				addActionListener(e->processInput());
 				addFocusListener(new FocusListener() {
 					@Override public void focusGained(FocusEvent e) {}
 					@Override public void focusLost(FocusEvent e) { processInput(); }
 				});
+			}
+
+			static JTextField createFormattedValueOutput(String txt) {
+				return createOutputTextField(txt, 10, JTextField.RIGHT);
 			}
 
 			private void processInput() {
