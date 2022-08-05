@@ -591,10 +591,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				this.rate = 0;
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),JTextField.RIGHT);
-				fieldRate        = GUI.createOutputTextField("--",JTextField.RIGHT);
-				//fieldRate2Level  = GUI.createOutputTextField("--",JTextField.RIGHT);
-				fieldAchievement = GUI.createOutputTextField("--",JTextField.RIGHT);
+				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),10,JTextField.RIGHT);
+				fieldRate        = GUI.createOutputTextField("--",10,JTextField.RIGHT);
+				//fieldRate2Level  = GUI.createOutputTextField("--",10,JTextField.RIGHT);
+				fieldAchievement = GUI.createOutputTextField("--",10,JTextField.RIGHT);
 				updateAchievementField();
 			}
 

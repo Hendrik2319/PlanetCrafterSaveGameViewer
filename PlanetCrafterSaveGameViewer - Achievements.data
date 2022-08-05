@@ -8,11 +8,11 @@ Oxygen
 150000.0|Grass Spreader
 420000.0|Flower Pot
 6.3E7|Heater T4
-7.5E9|Tree Spreader T2
+6.0E9|Tree Spreader T2
 
 Heat
 500.0|Vegetube T2
-2000.0|Screen - Progress
+2000.0|Screen - Progress 
 5000.0|Beacon
 10000.0|Exoskeleton T2
 21000.0|Drill T3
@@ -32,7 +32,7 @@ Pressure
 4000.0|Screen - Transmissions
 60000.0|Nuclear Reactor T1
 155000.0|Ore Extractor T1
-1500000.0|Nuclear Reactor T1
+1500000.0|Nuclear Reactor T2
 2500000.0|Flower Spreader T1
 1.0E8|Gas Extractor
 3.645E8|Ore Extractor T2
@@ -43,7 +43,26 @@ Biomass
 175000.0|Plants Rocket
 500000.0|Flower Spreader T2
 3.5E7|Food Grower T2
-6.5E7|Tree Spreader T1
+4.5E7|Tree Spreader T1
+
+Plants
+8.0E7|Beehive
+1.4E8|Butterfly Dome
+5.5E8|Butterfly Chevrone Larva (250%)
+8.7E8|Butterfly Aemel Larva (300%)
+2.0E9|Butterfly Liux Larva (500%)
+3.25E9|Butterfly Farm
+
+Insects
+500.0|Tree Seed Cernea
+15000.0|High Quality Food
+100000.0|Tree Seed Elegea
+500000.0|Tree Seed Humelora
+800000.0|Silk Generator
+950000.0|Fabric
+1100000.0|Tree Seed Aemora
+1500000.0|Outdoor Farm
+2500000.0|Butterfly Display Box
 
 Terraformation
 300.0|Backpack T2
@@ -57,12 +76,14 @@ Terraformation
 875000.0|Atmospheric Water Collector
 5000000.0|Backpack T5
 5.0E7|Lake Water Collector
+2.0E8|Screen Biomass
+5.5E8|Screen - Orbital Informations
 6.5E8|Seeds Spreader Rocket
 7.0E8|DNA Manipulator
-7.25E8|Super Alloy Rod
-1.0E9|Water Filter
-2.0E9|Screen - Orbital Informations
+7.5E8|Super Alloy Rod
 3.0E9|Stage "Trees"
+3.0E9|Water Filter
+5.0E9|Incubator
 2.5E10|Teleporter
 4.95E10|Tree Spreader T3
 1.75E11|Pulsar Quartz

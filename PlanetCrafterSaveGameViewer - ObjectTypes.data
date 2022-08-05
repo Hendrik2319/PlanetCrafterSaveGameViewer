@@ -5,14 +5,14 @@ label = Algae
 ObjectType: AlgaeGenerator1
 label = AlgaeGenerator T1
 oxygen = 127.0
-plants = 0.6
+plants = 0.8
 energy = -13.0
 <finished>
 
 ObjectType: AlgaeGenerator2
 label = AlgaeGenerator T2
 oxygen = 350.0
-plants = 17.0
+plants = 23.0
 energy = -27.0
 <finished>
 
@@ -173,7 +173,7 @@ energy = 331.5
 
 ObjectType: EnergyGenerator6
 label = Nuclear Fusion Generator
-energy = 1625.0
+energy = 1485.0
 <finished>
 
 ObjectType: EquipmentIncrease1
@@ -239,7 +239,7 @@ label = Golden Effigie "Com. Antenna"
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
 oxygen = 108.0
-plants = 0.15
+plants = 0.19
 energy = -13.8
 <finished>
 
@@ -469,6 +469,11 @@ ObjectType: Rod-uranium
 label = Uranium Rod
 <finished>
 
+ObjectType: ScreenBiomass
+label = Screen Biomass
+energy = -3.4
+<finished>
+
 ObjectType: ScreenEnergy
 label = Screen - Energy Levels
 energy = -0.4
@@ -547,14 +552,14 @@ oxygenBooster = 6.0
 ObjectType: SeedSpreader1
 label = Flower Spreader T1
 oxygen = 161.0
-plants = 7.2
+plants = 9.2
 energy = -28.8
 <finished>
 
 ObjectType: SeedSpreader2
 label = Flower Spreader T2
 oxygen = 325.0
-plants = 33.5
+plants = 43.5
 energy = -38.8
 <finished>
 
@@ -646,14 +651,14 @@ label = Tree Bark
 ObjectType: TreeSpreader0
 label = Tree Spreader T1
 oxygen = 920.0
-plants = 85.0
+plants = 97.0
 energy = -31.0
 <finished>
 
 ObjectType: TreeSpreader1
 label = Tree Spreader T2
 oxygen = 1950.0
-plants = 149.0
+plants = 175.0
 energy = -71.0
 <finished>
 
@@ -661,7 +666,7 @@ ObjectType: TreeSpreader2
 label = Tree Spreader T3
 oxygen = 12500.0
 plants = 680.0
-energy = -193.0
+energy = -153.0
 <finished>
 
 ObjectType: Uranim

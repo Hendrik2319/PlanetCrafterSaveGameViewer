@@ -11,6 +11,7 @@ import java.awt.event.FocusListener;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.JButton;
@@ -56,8 +57,14 @@ class GUI {
 		return comp;
 	}
 
-	static JTextField createOutputTextField(String text, int horizontalAlignment) {
-		JTextField comp = createOutputTextField(text);
+	static JTextField createOutputTextField(String text, int size) {
+		JTextField comp = new JTextField(text,size);
+		comp.setEditable(false);
+		return comp;
+	}
+
+	static JTextField createOutputTextField(String text, int size, int horizontalAlignment) {
+		JTextField comp = createOutputTextField(text,size);
 		comp.setHorizontalAlignment(horizontalAlignment);
 		return comp;
 	}
@@ -229,12 +236,12 @@ class GUI {
 			super(parent, title);
 			results = null;
 			
-			oxygenLevel   = new DoubleTextField(0.0);
-			heatLevel     = new DoubleTextField(0.0);
-			pressureLevel = new DoubleTextField(0.0);
-			plantsLevel   = new DoubleTextField(0.0);
-			insectsLevel  = new DoubleTextField(0.0);
-			animalsLevel  = new DoubleTextField(0.0);
+			oxygenLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
+			heatLevel     = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
+			pressureLevel = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
+			plantsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			insectsLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			animalsLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
 			
 			final Data.TerraformingStates initialValues;
 			if (!terraformingStates.isEmpty()) {
@@ -299,15 +306,17 @@ class GUI {
 		}
 
 		private void addRow(JPanel panel, GridBagConstraints c, int gridy, String label, DoubleTextField txtField, Double initialValue) {
+			int gridx = 0;
 			c.gridy = gridy;
-			c.weightx = 0; c.gridx = 0; panel.add(new JLabel(label+": "), c);
-			c.weightx = 1; c.gridx = 1; panel.add(txtField, c);
-			c.weightx = 0; c.gridx = 2; panel.add(createButton("Set 0", true, e->{
+			c.weightx = 0; c.gridx = gridx++; panel.add(new JLabel(label+": "), c);
+			c.weightx = 0; c.gridx = gridx++; panel.add(txtField.formattedValueOutput, c);
+			c.weightx = 1; c.gridx = gridx++; panel.add(txtField, c);
+			c.weightx = 0; c.gridx = gridx++; panel.add(createButton("Set 0", true, e->{
 				txtField.setValue(0);
 				updateGUI();
 			}), c);
 			if (initialValue!=null) {
-				c.weightx = 0; c.gridx = 3; panel.add(createButton("Reset", true, e->{
+				c.weightx = 0; c.gridx = gridx++; panel.add(createButton("Reset", true, e->{
 					txtField.setValue(initialValue);
 					updateGUI();
 				}), c);
@@ -343,28 +352,34 @@ class GUI {
 			
 			private double value;
 			private boolean isOK;
+			private final JTextField formattedValueOutput;
+			private final Function<Double, String> getFormattedValueStr;
+			private final Color defaultBG;
 
-			DoubleTextField(double value) {
-				super(20);
-				setValue(value);
-				Color defaultBG = getBackground();
+			DoubleTextField(double value, Function<Double,String> getFormattedValueStr) {
+				super(String.format(Locale.ENGLISH, "%s", value), 20);
+				this.value = value;
+				this.getFormattedValueStr = getFormattedValueStr;
+				defaultBG = getBackground();
 				isOK = true;
-				
-				Runnable setValue = ()->{
-					isOK = false;
-					try {
-						double newValue = Double.parseDouble(getText());
-						if (!Double.isNaN(newValue)) { this.value = newValue; isOK = true; }
-					} catch (NumberFormatException e1) { }
-					setBackground(isOK ? defaultBG : Color.RED);
-					updateGUI();
-				};
-				
-				addActionListener(e->{setValue.run();});
+				formattedValueOutput = createOutputTextField(this.getFormattedValueStr.apply(this.value), 10, JTextField.RIGHT);
+				setHorizontalAlignment(JTextField.RIGHT);
+				addActionListener(e->processInput());
 				addFocusListener(new FocusListener() {
 					@Override public void focusGained(FocusEvent e) {}
-					@Override public void focusLost(FocusEvent e) { setValue.run(); }
+					@Override public void focusLost(FocusEvent e) { processInput(); }
 				});
+			}
+
+			private void processInput() {
+				isOK = false;
+				try {
+					double newValue = Double.parseDouble(getText());
+					if (!Double.isNaN(newValue))
+						changeValue(newValue);
+				} catch (NumberFormatException e1) { }
+				setBackground(isOK ? defaultBG : Color.RED);
+				updateGUI();
 			}
 
 			boolean isOK() {
@@ -372,8 +387,13 @@ class GUI {
 			}
 
 			void setValue(double value) {
-				this.value = value;
+				changeValue(value);
 				setText(String.format(Locale.ENGLISH, "%s", this.value));
+			}
+
+			private void changeValue(double value) {
+				this.value = value;
+				formattedValueOutput.setText(getFormattedValueStr.apply(this.value));
 				isOK = true;
 			}
 			
