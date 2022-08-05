@@ -522,6 +522,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			y += 2; terraformRow.addToPanel(this, y, "Terraformation");
 			
 			c.gridy = y+2;
+			c.gridx = 0; add(new JLabel("Stages: "), c);
+			
+			
+			c.gridy = y+3;
 			c.gridx = 0;
 			c.weighty = 1;
 			c.weightx = 1;
@@ -591,10 +595,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				this.rate = 0;
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),10,JTextField.RIGHT);
-				fieldRate        = GUI.createOutputTextField("--",10,JTextField.RIGHT);
+				fieldLevel       = GUI.createOutputTextField(formatLevel.apply(level),6,JTextField.RIGHT);
+				fieldRate        = GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				//fieldRate2Level  = GUI.createOutputTextField("--",10,JTextField.RIGHT);
-				fieldAchievement = GUI.createOutputTextField("--",10,JTextField.RIGHT);
+				fieldAchievement = GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				updateAchievementField();
 			}
 

@@ -81,12 +81,22 @@ Terraformation
 6.5E8|Seeds Spreader Rocket
 7.0E8|DNA Manipulator
 7.5E8|Super Alloy Rod
-3.0E9|Stage "Trees"
 3.0E9|Water Filter
 5.0E9|Incubator
 2.5E10|Teleporter
 4.95E10|Tree Spreader T3
 1.75E11|Pulsar Quartz
 3.6E11|Fusion Energy Cell
-1.0E12|Stage "Insects"
+
+Stages
+0.0|Barren
+175000.0|Blue Sky
+350000.0|Clouds
+875000.0|Rain
+3000000.0|Liquid Water
+5.0E7|Lakes
+2.0E8|Moss
+7.0E8|Flora
+2.0E9|Trees
+8.0E9|Insects
 

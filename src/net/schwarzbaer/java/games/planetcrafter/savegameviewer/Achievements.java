@@ -298,19 +298,23 @@ class Achievements {
 					a = getRow(rowIndex);
 					if (a==null) return;
 				}
-				setValue(a, aValue, columnID);
 				
-				SwingUtilities.invokeLater(()->{
-					data.sort(ACHIEVEMENT_COMPARATOR);
-					fireTableUpdate();
-				});
-			}
-
-			private void setValue(Achievement a, Object aValue, ColumnID columnID) {
+				//System.out.printf("setValue( Achievement, %s, %s)%n", aValue==null ? "<null>" : aValue, columnID);
 				switch (columnID) {
 				case Label: a.label = (String) aValue; break;
 				case Level: a.level = (Double) aValue; break;
 				}
+				
+				if (a.isEmpty())
+					SwingUtilities.invokeLater(()->{
+						data.remove(a);
+						fireTableRowRemoved(rowIndex);
+					});
+				else
+					SwingUtilities.invokeLater(()->{
+						data.sort(ACHIEVEMENT_COMPARATOR);
+						fireTableUpdate();
+					});
 			}
 			
 		}
@@ -341,7 +345,8 @@ class Achievements {
 				}
 				
 				if ( (value=Achievement.parseLine(line))!=null )
-					currentList.add(value);
+					if (!value.isEmpty())
+						currentList.add(value);
 				
 			}
 			
@@ -416,6 +421,10 @@ class Achievements {
 			this.label = label;
 			this.level = level;
 		}
+		
+		boolean isEmpty() {
+			return (label==null || label.isEmpty()) && level==null;
+		}
 
 		static Achievement parseLine(String line) {
 			int pos = line.indexOf('|');
@@ -424,7 +433,7 @@ class Achievements {
 			if (pos>0)
 				try { level = Double.parseDouble(line.substring(0,pos)); }
 				catch (NumberFormatException e) { return null; }
-			 return new Achievement(line.substring(pos+1), level);
+			return new Achievement(line.substring(pos+1), level);
 		}
 
 		String toLine() {
