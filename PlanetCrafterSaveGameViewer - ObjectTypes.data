@@ -628,28 +628,28 @@ oxygenBooster = 1.25
 <finished>
 
 ObjectType: Tree3Seed
-label = Tree Seed "Cernea" (125%, Nulna300)
-oxygenBooster = 1.25
+label = Tree Seed "Cernea" (150%, Nulna300)
+oxygenBooster = 1.5
 <finished>
 
 ObjectType: Tree4Seed
-label = Tree Seed "Elegea" (125%, Tuska400)
-oxygenBooster = 1.25
+label = Tree Seed "Elegea" (175%, Tuska400)
+oxygenBooster = 1.75
 <finished>
 
 ObjectType: Tree5Seed
-label = Tree Seed "Humelora" (150%, Orema450)
-oxygenBooster = 1.5
+label = Tree Seed "Humelora" (250%, Orema450)
+oxygenBooster = 2.5
 <finished>
 
 ObjectType: Tree6Seed
-label = Tree Seed "Aemora" (150%, Volnus500)
-oxygenBooster = 1.5
+label = Tree Seed "Aemora" (400%, Volnus500)
+oxygenBooster = 4.0
 <finished>
 
 ObjectType: Tree7Seed
-label = Tree Seed "Pleom" (200%, Gold600)
-oxygenBooster = 2.0
+label = Tree Seed "Pleom" (350%, Gold600)
+oxygenBooster = 3.5
 <finished>
 
 ObjectType: Tree8Seed
