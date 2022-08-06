@@ -46,12 +46,12 @@ Biomass
 4.5E7|{TreeSpreader0}
 
 Plants
-8.0E7|Beehive
-1.4E8|Butterfly Dome
+8.0E7|{Beehive1}
+1.4E8|{ButterflyDome1}
 5.5E8|Butterfly Chevrone Larva (250%)
 8.7E8|Butterfly Aemel Larva (300%)
 2.0E9|Butterfly Liux Larva (500%)
-3.25E9|Butterfly Farm
+3.25E9|{ButterflyFarm1}
 
 Insects
 500.0|{Tree3Seed}
@@ -82,7 +82,7 @@ Terraformation
 7.0E8|{GeneticManipulator1}
 7.5E8|{Rod-alloy}
 3.0E9|{WaterFilter}
-5.0E9|Incubator
+5.0E9|{Incubator1}
 2.5E10|{Teleporter1}
 4.95E10|{TreeSpreader2}
 1.75E11|{PulsarQuartz}

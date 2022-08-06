@@ -32,8 +32,9 @@ class ObjectType {
 	Double insects;
 	Double animals;
 	Double energy;
-	Double oxygenBooster;
-	Double insectsBooster;
+	boolean multiplierExpected;
+	Double oxygenMultiplier;
+	Double insectsMultiplier;
 	PhysicalValue isBoosterRocketFor;
 	boolean isProducer;
 	
@@ -49,8 +50,9 @@ class ObjectType {
 		insects  = null;
 		animals  = null;
 		energy   = null;
-		oxygenBooster = null;
-		insectsBooster = null;
+		multiplierExpected = false;
+		oxygenMultiplier = null;
+		insectsMultiplier = null;
 		isBoosterRocketFor = null;
 		isProducer = false;
 	}
@@ -74,13 +76,21 @@ class ObjectType {
 	}
 
 	void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
-		if (oxygen  !=null) addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , findMultiplier(children, ot->ot.oxygenBooster));
-		if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    , null);
-		if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure, null);
-		if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  , null);
-		if (insects !=null) addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , findMultiplier(children, ot->ot.insectsBooster));
-		if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null);
-		if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectType::formatEnergyRate      , energy  , null);
+		if (oxygen  !=null) {
+			if (multiplierExpected)
+				            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , findMultiplier(children, ot->ot.oxygenMultiplier));
+			else            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  );
+		}
+		if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    );
+		if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure);
+		if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  );
+		if (insects !=null) {
+			if (multiplierExpected)
+				            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , findMultiplier(children, ot->ot.insectsMultiplier));
+			else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects );
+		}
+		if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals );
+		if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectType::formatEnergyRate      , energy  );
 	}
 
 	private Double findMultiplier(ObjectType[] objectTypes, Function<ObjectType,Double> getMultiplier) {
@@ -92,13 +102,21 @@ class ObjectType {
 		return null;
 	}
 
+	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate) {
+		addActiveOutputLineTo(out, indentLevel, label, formatRate, rate, null, false);
+	}
 	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier) {
-		if (multiplier==null)
-			out.add(indentLevel, label, "%s", formatRate.apply(rate));
-		else {
+		addActiveOutputLineTo(out, indentLevel, label, formatRate, rate, multiplier, true);
+	}
+
+	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier, boolean multiplierExpected) {
+		if (multiplier != null) {
 			out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", multiplier, formatRate.apply(rate)));
 			out.add(indentLevel,  null, "%s", formatRate.apply(rate*multiplier));
-		}
+		} else if (multiplierExpected)
+			out.add(indentLevel, label, "%s", "<multiplier expected>");
+		else
+			out.add(indentLevel, label, "%s", formatRate.apply(rate));
 	}
 	
 	
@@ -108,7 +126,7 @@ class ObjectType {
 	}
 
 	enum ObjectTypeValue {
-		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenBooster, InsectsBooster, BoosterRocket, IsProducer
+		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenMultiplier, InsectsMultiplier, BoosterRocket, IsProducer, MultiplierExpected
 	}
 	
 	enum PhysicalValue {
@@ -154,8 +172,9 @@ class ObjectType {
 				if (ot.insects           !=null) out.printf("insects = "           +"%s%n", ot.insects  );
 				if (ot.animals           !=null) out.printf("animals = "           +"%s%n", ot.animals  );
 				if (ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
-				if (ot.oxygenBooster     !=null) out.printf("oxygenBooster = "     +"%s%n", ot.oxygenBooster);
-				if (ot.insectsBooster    !=null) out.printf("insectsBooster = "    +"%s%n", ot.insectsBooster);
+				if (ot.multiplierExpected      ) out.printf("multiplierExpected"   +  "%n");
+				if (ot.oxygenMultiplier  !=null) out.printf("oxygenMultiplier = "  +"%s%n", ot.oxygenMultiplier);
+				if (ot.insectsMultiplier !=null) out.printf("insectsMultiplier = " +"%s%n", ot.insectsMultiplier);
 				if (ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
 				if (ot.isProducer              ) out.printf("isProducer"           +  "%n");
 				if (ot.finished                ) out.printf("<finished>"           +  "%n");
@@ -193,8 +212,11 @@ class ObjectType {
 				if ( (valueStr=getValue(line,"insects = "           ))!=null ) currentOT.insects  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"animals = "           ))!=null ) currentOT.animals  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenBooster = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insectsBooster = "    ))!=null ) currentOT.insectsBooster = parseDouble(valueStr);
+				if (        line.equals(     "multiplierExpected"   )        ) currentOT.multiplierExpected = true;
+				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"oxygenMultiplier = "  ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insectsBooster = "    ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"insectsMultiplier = " ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
 				if (        line.equals(     "isProducer"           )        ) currentOT.isProducer = true;
 				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true"); // legacy

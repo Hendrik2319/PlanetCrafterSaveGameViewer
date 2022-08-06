@@ -86,14 +86,20 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		case Animals : animalsPanel .updateContent(); break;
 			
 		case Oxygen:
-		case OxygenBooster:
+		case OxygenMultiplier:
 			oxygenePanel.updateContent();
 			break;
 			
 		case Insects:
-		case InsectsBooster:
+		case InsectsMultiplier:
 			insectsPanel.updateContent();
 			break;
+			
+		case MultiplierExpected:
+			oxygenePanel.updateContent();
+			insectsPanel.updateContent();
+			break;
+			
 			
 		case BoosterRocket: case Finished: case IsProducer: break;
 		}
@@ -185,10 +191,17 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				
 				Double value = getValue(wo);
 				if (value!=null && wo.isInstalled()) {
-					Double multiplier = getMultiplier(wo);
+					Double multiplier = null;
+					if (wo.objectType.multiplierExpected) {
+						multiplier = getMultiplier(wo);
+						if (multiplier==null)
+							continue;
+					}
+					
 					RowIndex rowIndex = new RowIndex(wo.objectTypeID, multiplier==null ? 0 : multiplier.doubleValue());
 					ObjectsTableRow row = tableContent.get(rowIndex);
 					if (row==null) tableContent.put(rowIndex, row = new ObjectsTableRow(wo.getName(), multiplier));
+					
 					row.add(wo,value);
 					totalSum += value * (multiplier==null ? 1 : multiplier.doubleValue());
 				}
@@ -221,10 +234,10 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			if (multiplierItem.objectType==null) return null;
 			
 			if (physicalValue == PhysicalValue.Oxygen)
-				return multiplierItem.objectType.oxygenBooster;
+				return multiplierItem.objectType.oxygenMultiplier;
 			
 			if (physicalValue == PhysicalValue.Insects)
-				return multiplierItem.objectType.insectsBooster;
+				return multiplierItem.objectType.insectsMultiplier;
 			
 			return null;
 		}

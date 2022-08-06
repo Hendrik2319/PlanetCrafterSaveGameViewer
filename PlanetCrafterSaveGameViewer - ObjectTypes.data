@@ -53,6 +53,18 @@ label = Beacon
 energy = -0.25
 <finished>
 
+ObjectType: Bee1Larvae
+label = Bee Larva
+<finished>
+
+ObjectType: Beehive1
+label = Beehive
+plants = 350.0
+insects = 15.0
+energy = -25.0
+isProducer
+<finished>
+
 ObjectType: biodome
 label = Biodome T1
 oxygen = 135.0
@@ -90,6 +102,25 @@ label = Agility Boots T2
 
 ObjectType: BootsSpeed3
 label = Agility Boots T3
+<finished>
+
+ObjectType: Butterfly7Larvae
+label = Butterfly Penga Larva (rare, 230%)
+insectsMultiplier = 2.3
+<finished>
+
+ObjectType: ButterflyDome1
+label = Butterfly Dome
+insects = 20.0
+energy = -139.0
+multiplierExpected
+<finished>
+
+ObjectType: ButterflyFarm1
+label = Butterfly Farm
+insects = 75.0
+energy = -30.0
+multiplierExpected
 <finished>
 
 ObjectType: canister
@@ -282,12 +313,21 @@ pressure = 35.5
 energy = -51.5
 <finished>
 
+ObjectType: honey
+label = Honey
+<finished>
+
 ObjectType: HudCompass
 label = Microchip - Compass
 <finished>
 
 ObjectType: ice
 label = Ice
+<finished>
+
+ObjectType: Incubator1
+label = Incubator
+energy = -215.0
 <finished>
 
 ObjectType: InsideLamp1
@@ -309,6 +349,18 @@ label = Jetpack T2
 
 ObjectType: Jetpack3
 label = Jetpack T3
+<finished>
+
+ObjectType: LarvaeBase1
+label = Common Larva
+<finished>
+
+ObjectType: LarvaeBase2
+label = Uncommon Larva
+<finished>
+
+ObjectType: LarvaeBase3
+label = Rare Larva
 <finished>
 
 ObjectType: LaunchPlatform
@@ -524,42 +576,42 @@ energy = -0.2
 
 ObjectType: Seed0
 label = Seed Lirma (100%)
-oxygenBooster = 1.0
+oxygenMultiplier = 1.0
 <finished>
 
 ObjectType: Seed1
 label = Seed Shanga (150%)
-oxygenBooster = 1.5
+oxygenMultiplier = 1.5
 <finished>
 
 ObjectType: Seed2
 label = Seed Pestera (200%)
-oxygenBooster = 2.0
+oxygenMultiplier = 2.0
 <finished>
 
 ObjectType: Seed3
 label = Seed Nulna (300%)
-oxygenBooster = 3.0
+oxygenMultiplier = 3.0
 <finished>
 
 ObjectType: Seed4
 label = Seed Tuska (400%)
-oxygenBooster = 4.0
+oxygenMultiplier = 4.0
 <finished>
 
 ObjectType: Seed5
 label = Seed Orema (450%)
-oxygenBooster = 4.5
+oxygenMultiplier = 4.5
 <finished>
 
 ObjectType: Seed6
 label = Seed Volnus (500%)
-oxygenBooster = 5.0
+oxygenMultiplier = 5.0
 <finished>
 
 ObjectType: SeedGold
 label = Golden Seeds (600%)
-oxygenBooster = 6.0
+oxygenMultiplier = 6.0
 <finished>
 
 ObjectType: SeedSpreader1
@@ -567,6 +619,7 @@ label = Flower Spreader T1
 oxygen = 161.0
 plants = 9.2
 energy = -28.8
+multiplierExpected
 <finished>
 
 ObjectType: SeedSpreader2
@@ -574,10 +627,15 @@ label = Flower Spreader T2
 oxygen = 325.0
 plants = 43.5
 energy = -38.8
+multiplierExpected
 <finished>
 
 ObjectType: Silicon
 label = Silicon
+<finished>
+
+ObjectType: SilkWorm
+label = Silk Worm
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
@@ -614,47 +672,47 @@ label = Titanium
 
 ObjectType: Tree0Seed
 label = Tree Seed "Iterra" (125%, ???)
-oxygenBooster = 1.25
+oxygenMultiplier = 1.25
 <finished>
 
 ObjectType: Tree1Seed
-label = Tree Seed "Linifolia" (125%, Shanga150)
-oxygenBooster = 1.25
+label = Tree Seed "Linifolia" (125%, Shanga150) #0
+oxygenMultiplier = 1.25
 <finished>
 
 ObjectType: Tree2Seed
-label = Tree Seed "Aleatus" (125%, Pestera200)
-oxygenBooster = 1.25
+label = Tree Seed "Aleatus" (125%, Pestera200) #0
+oxygenMultiplier = 1.25
 <finished>
 
 ObjectType: Tree3Seed
-label = Tree Seed "Cernea" (150%, Nulna300)
-oxygenBooster = 1.5
+label = Tree Seed "Cernea" (150%, Nulna300) #1
+oxygenMultiplier = 1.5
 <finished>
 
 ObjectType: Tree4Seed
-label = Tree Seed "Elegea" (175%, Tuska400)
-oxygenBooster = 1.75
+label = Tree Seed "Elegea" (175%, Tuska400) #2
+oxygenMultiplier = 1.75
 <finished>
 
 ObjectType: Tree5Seed
-label = Tree Seed "Humelora" (250%, Orema450)
-oxygenBooster = 2.5
+label = Tree Seed "Humelora" (250%, Orema450) #3
+oxygenMultiplier = 2.5
 <finished>
 
 ObjectType: Tree6Seed
-label = Tree Seed "Aemora" (400%, Volnus500)
-oxygenBooster = 4.0
+label = Tree Seed "Aemora" (400%, Volnus500) #4
+oxygenMultiplier = 4.0
 <finished>
 
 ObjectType: Tree7Seed
 label = Tree Seed "Pleom" (350%, Gold600)
-oxygenBooster = 3.5
+oxygenMultiplier = 3.5
 <finished>
 
 ObjectType: Tree8Seed
-label = Tree Seed "Soleus" (125%, Lirma100)
-oxygenBooster = 1.25
+label = Tree Seed "Soleus" (125%, Lirma100) #0
+oxygenMultiplier = 1.25
 <finished>
 
 ObjectType: TreeRoot
@@ -666,6 +724,7 @@ label = Tree Spreader T1
 oxygen = 920.0
 plants = 97.0
 energy = -31.0
+multiplierExpected
 <finished>
 
 ObjectType: TreeSpreader1
@@ -673,6 +732,7 @@ label = Tree Spreader T2
 oxygen = 1950.0
 plants = 175.0
 energy = -71.0
+multiplierExpected
 <finished>
 
 ObjectType: TreeSpreader2
@@ -680,6 +740,7 @@ label = Tree Spreader T3
 oxygen = 12500.0
 plants = 680.0
 energy = -153.0
+multiplierExpected
 <finished>
 
 ObjectType: Uranim
@@ -732,18 +793,21 @@ ObjectType: Vegetube1
 label = Vegetube T1
 oxygen = 0.15
 energy = -0.35
+multiplierExpected
 <finished>
 
 ObjectType: Vegetube2
 label = Vegetube T2
 oxygen = 1.2
 energy = -1.25
+multiplierExpected
 <finished>
 
 ObjectType: VegetubeOutside1
 label = Vegetube T3
 oxygen = 13.0
 energy = -7.25
+multiplierExpected
 <finished>
 
 ObjectType: WaterBottle1

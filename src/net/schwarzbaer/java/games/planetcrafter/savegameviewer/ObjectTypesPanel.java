@@ -182,7 +182,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case multiplierExpected:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -191,8 +191,8 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : return PhysicalValue.Insects .formatRate((Double) value);
 			case animals : return PhysicalValue.Animals .formatRate((Double) value);
 			case energy  : return ObjectType.formatEnergyRate((Double) value);
-			case oxygenBooster : return String.format(Locale.ENGLISH, "x %1.2f", value);
-			case insectsBooster: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
 			return null;
 		}
@@ -211,8 +211,9 @@ class ObjectTypesPanel extends JScrollPane {
 			insects           ("Insects"       , Double       .class,  80, ObjectTypeValue.Insects ),
 			animals           ("Animals"       , Double       .class,  80, ObjectTypeValue.Animals ),
 			energy            ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
-			oxygenBooster     ("Oxy. Boost"    , Double       .class,  90, ObjectTypeValue.OxygenBooster),
-			insectsBooster    ("Insects Boost" , Double       .class,  90, ObjectTypeValue.InsectsBooster),
+			multiplierExpected("Multi Expected", Boolean      .class,  90, ObjectTypeValue.MultiplierExpected),
+			oxygenMultiplier  ("Oxy. Multi"    , Double       .class,  90, ObjectTypeValue.OxygenMultiplier),
+			insectsMultiplier ("Insects Multi" , Double       .class,  90, ObjectTypeValue.InsectsMultiplier),
 			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
 			isProducer        ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
 			;
@@ -311,8 +312,9 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : return row.insects;
 			case animals : return row.animals;
 			case energy  : return row.energy;
-			case oxygenBooster     : return row.oxygenBooster;
-			case insectsBooster    : return row.insectsBooster;
+			case multiplierExpected: return row.multiplierExpected;   
+			case oxygenMultiplier  : return row.oxygenMultiplier;
+			case insectsMultiplier : return row.insectsMultiplier;
 			case isBoosterRocketFor: return row.isBoosterRocketFor;
 			case isProducer: return row.isProducer;
 			}
@@ -341,10 +343,11 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : row.insects  = (Double)aValue; break;
 			case animals : row.animals  = (Double)aValue; break;
 			case energy  : row.energy   = (Double)aValue; break;
-			case oxygenBooster     : row.oxygenBooster      = (Double)aValue; break;
-			case insectsBooster    : row.insectsBooster     = (Double)aValue; break;
+			case multiplierExpected: row.multiplierExpected = (Boolean)aValue; break;
+			case oxygenMultiplier  : row.oxygenMultiplier   = (Double)aValue; break;
+			case insectsMultiplier : row.insectsMultiplier  = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
-			case isProducer        : row.isProducer         = (Boolean)aValue;
+			case isProducer        : row.isProducer         = (Boolean)aValue; break;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}
