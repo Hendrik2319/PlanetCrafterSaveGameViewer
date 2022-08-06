@@ -1,49 +1,49 @@
 Oxygen
 1000.0|Indoor Ladder
-1850.0|Heater T2
-5000.0|Oxygen Tank T3
-12000.0|Food Grower T1
-30000.0|Vegetube T3
-80000.0|Heater T3
-150000.0|Grass Spreader
+1850.0|{Heater2}
+5000.0|{OxygenTank3}
+12000.0|{VegetableGrower1}
+30000.0|{VegetubeOutside1}
+80000.0|{Heater3}
+150000.0|{GrassSpreader1}
 420000.0|Flower Pot
-6.3E7|Heater T4
-6.0E9|Tree Spreader T2
+6.3E7|{Heater4}
+6.0E9|{TreeSpreader1}
 
 Heat
-500.0|Vegetube T2
-2000.0|Screen - Progress 
-5000.0|Beacon
-10000.0|Exoskeleton T2
-21000.0|Drill T3
-100000.0|Biodome T1
+500.0|{Vegetube2}
+2000.0|{ScreenTerraStage}
+5000.0|{Beacon}
+10000.0|{EquipmentIncrease2}
+21000.0|{Drill2}
+100000.0|{biodome}
 500000.0|Sign
-2000000.0|Algae Generator T1
-1.2E7|Biodome T2
-4.1E7|Drill T4
-7.5E8|Nuclear Fusion Generator
+2000000.0|{AlgaeGenerator1}
+1.2E7|{Biodome2}
+4.1E7|{Drill3}
+7.5E8|{EnergyGenerator6}
 
 Pressure
-70.0|Oxygen Tank T2
+70.0|{OxygenTank2}
 250.0|Living Compartment Window
-1200.0|Drill T2
-4000.0|Communication Antenna
+1200.0|{Drill1}
+4000.0|{ComAntenna}
 4000.0|Living Compartment Glass
-4000.0|Screen - Transmissions
-60000.0|Nuclear Reactor T1
-155000.0|Ore Extractor T1
-1500000.0|Nuclear Reactor T2
-2500000.0|Flower Spreader T1
-1.0E8|Gas Extractor
-3.645E8|Ore Extractor T2
+4000.0|{ScreenMessage}
+60000.0|{EnergyGenerator4}
+155000.0|{OreExtractor1}
+1500000.0|{EnergyGenerator5}
+2500000.0|{SeedSpreader1}
+1.0E8|{GasExtractor1}
+3.645E8|{OreExtractor2}
 
 Biomass
-865.0|Biolab
-25000.0|Algae Generator T2
-175000.0|Plants Rocket
-500000.0|Flower Spreader T2
-3.5E7|Food Grower T2
-4.5E7|Tree Spreader T1
+865.0|{Biolab}
+25000.0|{AlgaeGenerator2}
+175000.0|{RocketBiomass1}
+500000.0|{SeedSpreader2}
+3.5E7|{VegetableGrower2}
+4.5E7|{TreeSpreader0}
 
 Plants
 8.0E7|Beehive
@@ -54,39 +54,39 @@ Plants
 3.25E9|Butterfly Farm
 
 Insects
-500.0|Tree Seed Cernea
+500.0|{Tree3Seed}
 15000.0|High Quality Food
-100000.0|Tree Seed Elegea
-500000.0|Tree Seed Humelora
+100000.0|{Tree4Seed}
+500000.0|{Tree5Seed}
 800000.0|Silk Generator
-950000.0|Fabric
-1100000.0|Tree Seed Aemora
+950000.0|{FabricBlue}
+1100000.0|{Tree6Seed}
 1500000.0|Outdoor Farm
 2500000.0|Butterfly Display Box
 
 Terraformation
-300.0|Backpack T2
-1000.0|Solar Panel T1
-2500.0|Backpack T3
-17500.0|Solar Panel T2
+300.0|{Backpack2}
+1000.0|{EnergyGenerator2}
+2500.0|{Backpack3}
+17500.0|{EnergyGenerator3}
 25000.0|Double Bed
-50000.0|Locker Storage
-175000.0|Advanced Craft Station
-345000.0|Launch Platform
-875000.0|Atmospheric Water Collector
-5000000.0|Backpack T5
-5.0E7|Lake Water Collector
-2.0E8|Screen Biomass
-5.5E8|Screen - Orbital Informations
-6.5E8|Seeds Spreader Rocket
-7.0E8|DNA Manipulator
-7.5E8|Super Alloy Rod
-3.0E9|Water Filter
+50000.0|{Container2}
+175000.0|{CraftStation2}
+345000.0|{LaunchPlatform}
+875000.0|{WaterCollector1}
+5000000.0|{Backpack5}
+5.0E7|{WaterCollector2}
+2.0E8|{ScreenBiomass}
+5.5E8|{ScreenRockets}
+6.5E8|{RocketOxygen1}
+7.0E8|{GeneticManipulator1}
+7.5E8|{Rod-alloy}
+3.0E9|{WaterFilter}
 5.0E9|Incubator
-2.5E10|Teleporter
-4.95E10|Tree Spreader T3
-1.75E11|Pulsar Quartz
-3.6E11|Fusion Energy Cell
+2.5E10|{Teleporter1}
+4.95E10|{TreeSpreader2}
+1.75E11|{PulsarQuartz}
+3.6E11|{FusionEnergyCell}
 
 Stages
 0.0|Barren

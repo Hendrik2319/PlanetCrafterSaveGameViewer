@@ -3,14 +3,14 @@ label = Algae
 <finished>
 
 ObjectType: AlgaeGenerator1
-label = AlgaeGenerator T1
+label = Algae Generator T1
 oxygen = 127.0
 plants = 0.8
 energy = -13.0
 <finished>
 
 ObjectType: AlgaeGenerator2
-label = AlgaeGenerator T2
+label = Algae Generator T2
 oxygen = 350.0
 plants = 23.0
 energy = -27.0
@@ -26,6 +26,18 @@ label = Aluminium
 
 ObjectType: astrofood
 label = Space Food
+<finished>
+
+ObjectType: Backpack2
+label = Backpack T2
+<finished>
+
+ObjectType: Backpack3
+label = Backpack T3
+<finished>
+
+ObjectType: Backpack4
+label = Backpack T4
 <finished>
 
 ObjectType: Backpack5
@@ -210,7 +222,7 @@ label = Fusion Energy Cell
 <finished>
 
 ObjectType: GasExtractor1
-label = GasExtractor T1
+label = Gas Extractor T1
 heat = 13.0
 energy = -58.0
 isProducer

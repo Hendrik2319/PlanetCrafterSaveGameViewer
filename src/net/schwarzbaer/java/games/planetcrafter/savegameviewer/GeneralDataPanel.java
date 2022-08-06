@@ -508,13 +508,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridheight = 1;
 			c.gridy = -1;
 			
-			c.gridy = 0; c.gridx = 0; c.weightx = 1;
-			c.gridx++; add(new JLabel("Level"), c);
-			c.gridx++; add(new JLabel("Next Achievement"), c);
-			
 			
 			int y;
-			y =  1; oxygenRow   .addToPanel(this, y, "Oxygen"  );
+			y =  0; oxygenRow   .addToPanel(this, y, "Oxygen"  );
 			y += 2; heatRow     .addToPanel(this, y, "Heat"    );
 			y += 2; pressureRow .addToPanel(this, y, "Pressure");
 			y += 2; biomassRow  .addToPanel(this, y, "Biomass" );
@@ -600,7 +596,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
 				this.achievementFieldOnly = achievementFieldOnly;
-				fieldLevel       = achievementFieldOnly ? null : GUI.createOutputTextField(formatLevel.apply(level),6,JTextField.RIGHT);
+				fieldLevel       = achievementFieldOnly ? null : GUI.createOutputTextField(formatLevel.apply(level),10,JTextField.RIGHT);
 				fieldRate        = achievementFieldOnly ? null : GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				fieldAchievement = GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				updateAchievementField();
@@ -744,9 +740,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldAchievement, c);
 					
 				} else {
-					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
-					c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
-					c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldRate , c);
+					c.weightx = 0; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldRate , c);
+					c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldAchievement, c);
+					//c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
+					//c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldRate , c);
 					
 					//fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
 					fieldRate.setForeground(Color.GRAY);
@@ -799,8 +797,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			textArea = new JTextArea(String.join(",\r\n", unlockedObjectTypes));
 			textArea.setEditable(false);
-			textArea.setLineWrap(true);
-			textArea.setWrapStyleWord(true);
+			textArea.setLineWrap(false);
+			//textArea.setLineWrap(true);
+			//textArea.setWrapStyleWord(true);
 			JScrollPane textAreaScrollPane = new JScrollPane(textArea);
 			textAreaScrollPane.setPreferredSize(new Dimension(100,100));
 			//textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));

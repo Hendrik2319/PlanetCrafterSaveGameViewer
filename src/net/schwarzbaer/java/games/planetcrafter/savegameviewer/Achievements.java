@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -30,6 +31,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
@@ -37,12 +39,15 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
-class Achievements {
+class Achievements implements ObjectTypesChangeListener {
 	
 	private static final Comparator<Achievement> ACHIEVEMENT_COMPARATOR = Comparator
-	.<Achievement,Double>comparing(a->a.level, Comparator.nullsLast(Comparator.naturalOrder()))
-	.thenComparing(a->a.label);
+	.<Achievement,Double>comparing(a->a.getLevel(), Comparator.nullsLast(Comparator.naturalOrder()))
+	.thenComparing(a->a.getLabel());
 	
 	enum AchievementList {
 		Oxygen, Heat, Pressure, Biomass, Plants, Insects, Animals, Terraformation, Stages;
@@ -66,12 +71,14 @@ class Achievements {
 	}
 	
 	private final EnumMap<AchievementList,Vector<Achievement>> achievements;
+	private HashMap<String, ObjectType> objectTypes;
 	
 	Achievements() {
 		achievements = new EnumMap<>(AchievementList.class);
 	}
 
-	static Achievements readFromFile(File file) {
+	static Achievements readFromFile() {
+		File file = new File(PlanetCrafterSaveGameViewer.FILE_ACHIEVEMENTS); 		
 		Achievements achievements = new Achievements();
 		
 		System.out.printf("Read Achievements from file \"%s\" ...%n", file.getAbsolutePath());
@@ -107,31 +114,27 @@ class Achievements {
 			//ex.printStackTrace();
 		}
 		
-		achievements.forEachList((al,list) -> list.sort( ACHIEVEMENT_COMPARATOR ));
-		
 		System.out.printf("Done%n");
 		
 		return achievements;
 	}
-	
-	void forEachList(BiConsumer<AchievementList,Vector<Achievement>> action) {
-		for (AchievementList al : AchievementList.values()) {
-			Vector<Achievement> list = achievements.get(al);
-			if (list!=null)
-				action.accept(al,list);
-		}
-	}
 
-	void writeToFile(File file) {
-		
+	void sortAchievements() {
+		forEachList((al,list) -> list.sort( ACHIEVEMENT_COMPARATOR ));
+	}
+	
+	void writeToFile() {
+		File file = new File(PlanetCrafterSaveGameViewer.FILE_ACHIEVEMENTS); 		
 		System.out.printf("Write Achievements to file \"%s\" ...%n", file.getAbsolutePath());
 		
 		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
 			
 			forEachList((al,list) -> {
 				if (!list.isEmpty()) {
+					Vector<Achievement> sorted = new Vector<>(list);
+					sorted.sort(ACHIEVEMENT_COMPARATOR);
 					out.println(al.name());
-					for (Achievement a : list)
+					for (Achievement a : sorted)
 						out.println(a.toLine());
 					out.println();
 				}
@@ -143,6 +146,14 @@ class Achievements {
 		}
 		
 		System.out.printf("Done%n");
+	}
+
+	void forEachList(BiConsumer<AchievementList,Vector<Achievement>> action) {
+		for (AchievementList al : AchievementList.values()) {
+			Vector<Achievement> list = achievements.get(al);
+			if (list!=null)
+				action.accept(al,list);
+		}
 	}
 
 	Achievement getNextAchievement(double level, AchievementList listType) {
@@ -162,18 +173,77 @@ class Achievements {
 		return achievements.get(listType);
 	}
 
-	static class Achievement {
-		private String label;
-		private Double level;
+	@Override
+	public void objectTypesChanged(ObjectTypesChangeEvent event) {
+		switch (event.eventType) {
+		case NewTypeAdded: updateObjectTypeAssignments(); break;
+		case ValueChanged: if (event.changedValue==ObjectTypeValue.Label) updateObjectTypeAssignments(); break;
+		}
+	}
 
-		Achievement() { this("",null); }
-		Achievement(String label, Double level) {
+	void setObjectTypesData(HashMap<String, ObjectType> objectTypes) {
+		this.objectTypes = objectTypes;
+		updateObjectTypeAssignments();
+	}
+
+	private void updateObjectTypeAssignments() {
+		if (objectTypes==null) return;
+		boolean somethingChanged = false;
+		for (AchievementList listID : AchievementList.values()) {
+			Vector<Achievement> list = achievements.get(listID);
+			if (list!=null)
+				for (Achievement a : list) {
+					if (a.objectTypeID!=null) {
+						ObjectType ot = findObjectTypeByID(a.objectTypeID);
+						if (a.objectType != ot) somethingChanged = true;
+						a.label = null;
+						a.objectType = ot;
+						// a.objectTypeID;
+						
+					} else if (a.label!=null && !a.label.isEmpty()) {
+						ObjectType ot = findObjectTypeByName(a.label);
+						if (a.objectType != ot) somethingChanged = true;
+						// a.label;
+						a.objectType = ot;
+						a.objectTypeID = ot==null ? null : ot.id;
+					}
+				}
+		}
+		if (somethingChanged)
+			writeToFile();
+	}
+	
+	private ObjectType findObjectTypeByID(String objectTypeID) {
+		if (objectTypeID==null) return null;
+		if (objectTypes==null) return null;
+		return objectTypes.get(objectTypeID);
+	}
+	
+	private ObjectType findObjectTypeByName(String name) {
+		if (name==null) return null;
+		if (objectTypes==null) return null;
+		for (ObjectType ot : objectTypes.values())
+			if (name.equals(ot.getName()))
+				return ot;
+		return null;
+	}
+
+	static class Achievement {
+		private Double level;
+		private String label;
+		private String objectTypeID;
+		private ObjectType objectType;
+
+		Achievement() { this(null,null,null); }
+		Achievement(Double level, String label, String objectTypeID) {
 			this.label = label;
+			this.objectTypeID = objectTypeID;
 			this.level = level;
+			objectType = null;
 		}
 		
 		boolean isEmpty() {
-			return (label==null || label.isEmpty()) && level==null;
+			return (label==null || label.isEmpty()) && (objectTypeID==null || objectTypeID.isEmpty()) && level==null;
 		}
 
 		static Achievement parseLine(String line) {
@@ -183,16 +253,42 @@ class Achievements {
 			if (pos>0)
 				try { level = Double.parseDouble(line.substring(0,pos)); }
 				catch (NumberFormatException e) { return null; }
-			return new Achievement(line.substring(pos+1), level);
+			
+			String labelStr = line.substring(pos+1);
+			String label = null;
+			String objectTypeID = null;
+			if (labelStr.startsWith("{") && labelStr.endsWith("}"))
+				objectTypeID = labelStr.substring(1, labelStr.length()-1);
+			else
+				label = labelStr;
+			
+			return new Achievement(level, label, objectTypeID);
 		}
 
 		String toLine() {
-			if (level==null) return String.format("|%s", label);
-			return String.format("%s|%s", level, label);
+			String labelStr =
+					objectType!=null
+						? String.format("{%s}", objectType.id)
+						: objectTypeID!=null
+							? String.format("{%s}", objectTypeID)
+							: label!=null
+								? label
+								: "";
+			if (level==null) return String.format("|%s", labelStr);
+			return String.format("%s|%s", level, labelStr);
 		}
 
-		String getLabel() { return label; }
-		Double getLevel() { return level; }
+		Double getLevel() {
+			return level;
+		}
+		
+		String getLabel() {
+			if (objectType!=null)
+				return objectType.getName();
+			if (objectTypeID!=null)
+				return String.format("{%s}", objectTypeID);
+			return label;
+		}
 	}
 
 	static class ConfigDialog extends StandardDialog {
@@ -217,7 +313,9 @@ class Achievements {
 			for (AchievementList al : AchievementList.values()) {
 				Vector<Achievement> list = achievements.achievements.get(al);
 				if (list == null) achievements.achievements.put(al, list = new Vector<>());
-				panels.put(al, new AchievementsTablePanel(list, al.getFormatter(), al!=AchievementList.Stages && al!=AchievementList.Terraformation));
+				boolean showObjType      = al!=AchievementList.Stages;
+				boolean showTIEquivalent = al!=AchievementList.Stages && al!=AchievementList.Terraformation;
+				panels.put(al, new AchievementsTablePanel(achievements, al, list, al.getFormatter(), showObjType, showTIEquivalent));
 			}
 			
 			createView();
@@ -262,21 +360,22 @@ class Achievements {
 					case Oxygen  : addSubPanel(gridPanel, al, c, 1, 0, 0); break;
 					case Heat    : addSubPanel(gridPanel, al, c, 1, 1, 0); break;
 					case Pressure: addSubPanel(gridPanel, al, c, 1, 2, 0); break;
-					case Stages  : addSubPanel(gridPanel, al, c, 1, 3, 0); break;
 					
-					case Biomass : addSubPanel(gridPanel, al, c, 1, 0, 1); break;
-					case Plants  : addSubPanel(gridPanel, al, c, 1, 1, 1); break;
-					case Insects : addSubPanel(gridPanel, al, c, 1, 2, 1); break;
-					case Animals : addSubPanel(gridPanel, al, c, 1, 3, 1); break;
+					case Plants  : addSubPanel(gridPanel, al, c, 1, 0, 1); break;
+					case Insects : addSubPanel(gridPanel, al, c, 1, 1, 1); break;
+					case Animals : addSubPanel(gridPanel, al, c, 1, 2, 1); break;
+					
+					case Biomass : addSubPanel(gridPanel, al, c, 1, 0, 2); break;
+					case Stages  : addSubPanel(gridPanel, al, c, 1, 1, 2); break;
 					
 					case Terraformation:
-						addSubPanel(gridPanel, al, c, 2, 4, 0); break;
+						addSubPanel(gridPanel, al, c, 3, 3, 0); break;
 					}
 				}
 				
 				c.gridheight = 1;
-				c.gridy = 0;
-				c.gridx = 3;
+				c.gridx = 2;
+				c.gridy = 2;
 				gridPanel.add( new JLabel(), c );
 			}
 			
@@ -294,15 +393,16 @@ class Achievements {
 		}
 	
 		private void addTitledBorder(String title, AchievementsTablePanel subPanel) {
-			subPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), subPanel.getBorder()));
+			subPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), subPanel.getDefaultBorder()));
 		}
 	
 		private static class AchievementsTablePanel extends JScrollPane {
 			private static final long serialVersionUID = 5790599615513764895L;
+			private final Border defaultBorder;
 	
-			AchievementsTablePanel(Vector<Achievement> achievements, Function<Double, String> formatLevel, boolean showTIEquivalent) {
+			AchievementsTablePanel(Achievements main, AchievementList listID, Vector<Achievement> list, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
 				
-				AchievementsTableModel tableModel = new AchievementsTableModel(achievements, formatLevel, showTIEquivalent);
+				AchievementsTableModel tableModel = new AchievementsTableModel(main, list, formatLevel, showObjType, showTIEquivalent);
 				
 				JTable table = new JTable(tableModel);
 				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
@@ -320,9 +420,17 @@ class Achievements {
 				size.width  += 30;
 				size.height = 250;
 				setPreferredSize(size);
+				System.out.printf("PreferredWidth: [%s] %d%n", listID, size.width);
+				
+				defaultBorder = getBorder();
 			}
 			
 	
+			Border getDefaultBorder() {
+				return defaultBorder;
+			}
+
+
 			private static class TableContextMenu extends ContextMenu {
 				private static final long serialVersionUID = -2414452359411563344L;
 	
@@ -338,22 +446,49 @@ class Achievements {
 		
 		private static class AchievementsTableCellRenderer implements TableCellRenderer {
 			
-			private final Tables.LabelRendererComponent rendererComponent;
+			private final AchievementsTableModel tableModel;
 			private final Function<Double, String> formatLevel;
+			private final Tables.LabelRendererComponent rendererComponent;
 	
-			AchievementsTableCellRenderer(Function<Double,String> formatLevel) {
+			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel) {
+				this.tableModel = tableModel;
 				this.formatLevel = formatLevel;
 				rendererComponent = new Tables.LabelRendererComponent();
 			}
 	
 			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+				int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
+				AchievementsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
 				
 				String valueStr = value==null ? null : value.toString();
-				if (value instanceof Double) valueStr = formatLevel.apply((Double) value);
+				if (columnID!=null)
+					switch (columnID) {
+					case Level:
+						if (value instanceof Double)
+							valueStr = formatLevel.apply((Double) value);
+						break;
+						
+					case Label:
+						break;
+						
+					case ObjectType:
+						if (value instanceof ObjectType)
+							valueStr = String.format("{ %s }", ((ObjectType) value).id);
+						break;
+						
+					case TI_Equiv:
+						if (value instanceof Double)
+							valueStr = Data.TerraformingStates.formatTerraformation((Double) value);
+						break;
+					}
 				
 				rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus);
-				rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
+				if (value instanceof Number)
+					rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
+				else
+					rendererComponent.setHorizontalAlignment(SwingConstants.LEFT);
+				
 				return rendererComponent;
 			}
 			
@@ -362,12 +497,16 @@ class Achievements {
 		private static class AchievementsTableModel extends Tables.SimplifiedTableModel<AchievementsTableModel.ColumnID> {
 	
 			enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-				Level   ("Level"      , Double.class,  70),
-				Label   ("Achievement", String.class, 200),
-				TI_Equiv("TI Equiv."  , Double.class,  70),
+				Level     ("Level"      , Double    .class,  70),
+				Label     ("Achievement", String    .class, 160),
+				ObjectType("Object Type", ObjectType.class, 140),
+				TI_Equiv  ("TI Equiv."  , Double    .class,  70),
 				;
-				static ColumnID[] values(boolean showTIEquivalent) {
-					return !showTIEquivalent ? new ColumnID[] { Level, Label } : values();
+				static ColumnID[] values(boolean showObjType, boolean showTIEquivalent) {
+					if (showObjType && showTIEquivalent) return values();
+					if (showObjType     ) return new ColumnID[] { Level, Label, ObjectType };
+					if (showTIEquivalent) return new ColumnID[] { Level, Label, TI_Equiv };
+					return new ColumnID[] { Level, Label };
 				}
 				
 				private final SimplifiedColumnConfig cfg;
@@ -379,17 +518,44 @@ class Achievements {
 				}
 			}
 	
+			private final Achievements main;
 			private final Vector<Achievement> data;
 			private final Function<Double, String> formatLevel;
 	
-			AchievementsTableModel(Vector<Achievement> data, Function<Double,String> formatLevel, boolean showTIEquivalent) {
-				super( ColumnID.values(showTIEquivalent) );
+			AchievementsTableModel(Achievements main, Vector<Achievement> data, Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
+				super( ColumnID.values(showObjType, showTIEquivalent) );
+				this.main = main;
 				this.data = data;
 				this.formatLevel = formatLevel;
 			}
 	
 			void setDefaultCellEditorsAndRenderers() {
-				table.setDefaultRenderer(Double.class, new AchievementsTableCellRenderer(formatLevel));
+				AchievementsTableCellRenderer tcr = new AchievementsTableCellRenderer(this,formatLevel);
+				table.setDefaultRenderer(Double.class, tcr);
+				table.setDefaultRenderer(String.class, tcr);
+				table.setDefaultRenderer(ObjectType.class, tcr);
+				
+				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<ObjectType>(()->{
+					Vector<ObjectType> sorted = new Vector<>(main.objectTypes.values());
+					sorted.sort(Comparator.<ObjectType,String>comparing(ot->{
+						if (ot.label!=null && !ot.label.isBlank())
+							return ot.label.toLowerCase();
+						return ot.id.toLowerCase();
+					}));
+					return sorted;
+				});
+				Function<Object,String> rend = obj->{
+					if (obj instanceof ObjectType) {
+						ObjectType ot = (ObjectType) obj;
+						if (ot.label!=null && !ot.label.isBlank())
+							return ot.label;
+						return String.format("{ %s }", ot.id);
+					}
+					return obj==null ? null : obj.toString();
+				};
+				tce.setRenderer(rend);
+				
+				table.setDefaultEditor(ObjectType.class, tce);
 			}
 	
 			@Override public int getRowCount() {
@@ -407,17 +573,23 @@ class Achievements {
 				Achievement a = getRow(rowIndex);
 				if (a==null) return null;
 				switch (columnID) {
-				case Label: return a.label;
-				case Level: return a.level;
-				case TI_Equiv: return a.level==null ? null : Data.TerraformingStates.formatTerraformation(a.level);
+				case Level     : return a.getLevel();
+				case Label     : return a.getLabel();
+				case ObjectType: return a.objectType;
+				case TI_Equiv  : return a.getLevel();
 				}
 				return null;
 			}
 	
 			@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
 				switch (columnID) {
-				case Label: case Level: return true;
-				case TI_Equiv: break;
+				case Level:
+				case Label:
+				case ObjectType:
+					return true;
+					
+				case TI_Equiv:
+					break;
 				}
 				return false;
 			}
@@ -434,9 +606,38 @@ class Achievements {
 				}
 				
 				//System.out.printf("setValue( Achievement, %s, %s)%n", aValue==null ? "<null>" : aValue, columnID);
+				ObjectType ot;
 				switch (columnID) {
-				case Label: a.label = (String) aValue; break;
-				case Level: a.level = (Double) aValue; break;
+				case Level:
+					a.level = (Double) aValue;
+					break;
+					
+				case Label:
+					String labelStr = (String) aValue;
+					ot = main.findObjectTypeByName(labelStr);
+					if (ot!=null) {
+						a.label = null;
+						a.objectType = ot;
+						a.objectTypeID = ot.id;
+					} else {
+						a.label = labelStr;
+						a.objectType = null;
+						a.objectTypeID = null;
+					}
+					break;
+					
+				case ObjectType:
+					ot = (ObjectType) aValue;
+					a.label = null;
+					if (ot!=null) {
+						a.objectType = ot;
+						a.objectTypeID = ot.id;
+					} else {
+						a.objectType = null;
+						a.objectTypeID = null;
+					}
+					break;
+					
 				case TI_Equiv: break;
 				}
 				

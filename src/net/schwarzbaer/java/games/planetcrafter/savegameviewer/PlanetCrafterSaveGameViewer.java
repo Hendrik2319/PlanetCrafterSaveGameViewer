@@ -39,7 +39,7 @@ import net.schwarzbaer.system.Settings;
 public class PlanetCrafterSaveGameViewer {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
-	private static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
+	static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -117,7 +117,7 @@ public class PlanetCrafterSaveGameViewer {
 			
 			achievementsMenu.add(GUI.createMenuItem("Configure Achievements", e->{
 				new Achievements.ConfigDialog(mainWindow,achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
-				achievements.writeToFile(new File(FILE_ACHIEVEMENTS));
+				achievements.writeToFile();
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
 			}));
@@ -141,7 +141,9 @@ public class PlanetCrafterSaveGameViewer {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
 		objectTypes = ObjectType.readFromFile(new File(FILE_OBJECT_TYPES));
-		achievements = Achievements.readFromFile(new File(FILE_ACHIEVEMENTS));
+		achievements = Achievements.readFromFile();
+		achievements.setObjectTypesData(objectTypes);
+		achievements.sortAchievements();
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
@@ -279,6 +281,7 @@ public class PlanetCrafterSaveGameViewer {
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
 		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
+		objectTypesPanel.addObjectTypesChangeListener(achievements);
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Map", mapPanel);
