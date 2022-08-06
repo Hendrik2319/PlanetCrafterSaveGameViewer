@@ -78,35 +78,35 @@ class ObjectType {
 	void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
 		if (oxygen  !=null) {
 			if (multiplierExpected)
-				            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , findMultiplier(children, ot->ot.oxygenMultiplier));
-			else            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  );
+				            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , sumUpMultipliers(children, ot->ot.oxygenMultiplier), true);
+			else            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , null, false);
 		}
-		if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    );
-		if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure);
-		if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  );
+		if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    , null, false);
+		if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure, null, false);
+		if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  , null, false);
 		if (insects !=null) {
 			if (multiplierExpected)
-				            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , findMultiplier(children, ot->ot.insectsMultiplier));
-			else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects );
+				            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , sumUpMultipliers(children, ot->ot.insectsMultiplier), true);
+			else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , null, false);
 		}
-		if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals );
-		if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectType::formatEnergyRate      , energy  );
+		if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
+		if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectType::formatEnergyRate      , energy  , null, false);
 	}
 
-	private Double findMultiplier(ObjectType[] objectTypes, Function<ObjectType,Double> getMultiplier) {
+	static Double sumUpMultipliers(ObjectType[] objectTypes, Function<ObjectType,Double> getMultiplier) {
 		if (objectTypes==null) return null;
+		
+		Double multiplierSum = null;
 		for (ObjectType ot : objectTypes) {
 			Double multiplier = getMultiplier.apply(ot);
-			if (multiplier!=null) return multiplier;
+			if (multiplier!=null) {
+				if (multiplierSum == null)
+					multiplierSum = multiplier;
+				else
+					multiplierSum += multiplier;
+			}
 		}
-		return null;
-	}
-
-	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate) {
-		addActiveOutputLineTo(out, indentLevel, label, formatRate, rate, null, false);
-	}
-	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier) {
-		addActiveOutputLineTo(out, indentLevel, label, formatRate, rate, multiplier, true);
+		return multiplierSum;
 	}
 
 	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier, boolean multiplierExpected) {

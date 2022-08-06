@@ -28,6 +28,10 @@ ObjectType: astrofood
 label = Space Food
 <finished>
 
+ObjectType: astrofood2
+label = High Quality Food
+<finished>
+
 ObjectType: Backpack2
 label = Backpack T2
 <finished>
@@ -102,6 +106,11 @@ label = Agility Boots T2
 
 ObjectType: BootsSpeed3
 label = Agility Boots T3
+<finished>
+
+ObjectType: Butterfly6Larvae
+label = Butterfly Empalio Larva (rare, 120%)
+insectsMultiplier = 1.2
 <finished>
 
 ObjectType: Butterfly7Larvae

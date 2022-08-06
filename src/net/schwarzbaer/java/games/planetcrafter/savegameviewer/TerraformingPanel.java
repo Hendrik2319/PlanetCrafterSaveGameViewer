@@ -229,15 +229,12 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			if (wo.list==null) return null;
 			if (wo.list.worldObjs.length==0) return null;
 			
-			WorldObject multiplierItem = wo.list.worldObjs[0];
-			if (multiplierItem==null) return null;
-			if (multiplierItem.objectType==null) return null;
-			
+			ObjectType[] objectTypes = Data.WorldObject.getObjectTypes(wo.list.worldObjs);
 			if (physicalValue == PhysicalValue.Oxygen)
-				return multiplierItem.objectType.oxygenMultiplier;
+				return ObjectType.sumUpMultipliers(objectTypes, ot->ot.oxygenMultiplier);
 			
 			if (physicalValue == PhysicalValue.Insects)
-				return multiplierItem.objectType.insectsMultiplier;
+				return ObjectType.sumUpMultipliers(objectTypes, ot->ot.insectsMultiplier);
 			
 			return null;
 		}
