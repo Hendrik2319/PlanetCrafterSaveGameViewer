@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
@@ -193,9 +194,13 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				if (value!=null && wo.isInstalled()) {
 					Double multiplier = null;
 					if (wo.objectType.multiplierExpected) {
-						multiplier = getMultiplier(wo);
-						if (multiplier==null)
-							continue;
+						if (physicalValue==PhysicalValue.Oxygen) {
+							multiplier = getMultiplier(wo,ot->ot.oxygenMultiplier);
+							if (multiplier==null) continue;
+						} else if (physicalValue==PhysicalValue.Insects) {
+							multiplier = getMultiplier(wo,ot->ot.insectsMultiplier);
+							if (multiplier==null) continue;
+						}
 					}
 					
 					RowIndex rowIndex = new RowIndex(wo.objectTypeID, multiplier==null ? 0 : multiplier.doubleValue());
@@ -225,18 +230,12 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				panel.setRateOfPhysicalValue(physicalValue, totalSumFinal);
 		}
 		
-		private Double getMultiplier(WorldObject wo) {
+		private Double getMultiplier(WorldObject wo, Function<ObjectType, Double> getMultiplier) {
 			if (wo.list==null) return null;
 			if (wo.list.worldObjs.length==0) return null;
 			
 			ObjectType[] objectTypes = Data.WorldObject.getObjectTypes(wo.list.worldObjs);
-			if (physicalValue == PhysicalValue.Oxygen)
-				return ObjectType.sumUpMultipliers(objectTypes, ot->ot.oxygenMultiplier);
-			
-			if (physicalValue == PhysicalValue.Insects)
-				return ObjectType.sumUpMultipliers(objectTypes, ot->ot.insectsMultiplier);
-			
-			return null;
+			return ObjectType.sumUpMultipliers(objectTypes, getMultiplier);
 		}
 
 		private static class RowIndex {

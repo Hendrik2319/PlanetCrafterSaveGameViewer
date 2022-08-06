@@ -118,6 +118,16 @@ label = Butterfly Penga Larva (rare, 230%)
 insectsMultiplier = 2.3
 <finished>
 
+ObjectType: Butterfly8Larvae
+label = Butterfly Chevrone Larva (rare, 250%)
+insectsMultiplier = 2.5
+<finished>
+
+ObjectType: Butterfly9Larvae
+label = Butterfly Aemel Larva (rare, 300%)
+insectsMultiplier = 3.0
+<finished>
+
 ObjectType: ButterflyDome1
 label = Butterfly Dome
 insects = 20.0
