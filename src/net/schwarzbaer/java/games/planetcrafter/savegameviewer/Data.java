@@ -100,6 +100,8 @@ class Data {
 			else {
 				WorldObject other = mapWorldObjects.get(wo.id);
 				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
+				wo.nonUniqueID = true;
+				other.nonUniqueID = true;
 			}
 			
 			wo.objectType = getOrCreateObjectType.apply(wo.objectTypeID);
@@ -115,8 +117,14 @@ class Data {
 		mapObjectLists = new HashMap<>();
 		for (ObjectList ol : objectLists) {
 			
-			if (!mapObjectLists.containsKey(ol.id)) mapObjectLists.put(ol.id, ol);
-			else System.err.printf("Non unique ID in ObjectList: %d%n", ol.id);
+			if (!mapObjectLists.containsKey(ol.id))
+				mapObjectLists.put(ol.id, ol);
+			else {
+				ObjectList other = mapObjectLists.get(ol.id);
+				System.err.printf("Non unique ID in ObjectList: %d%n", ol.id);
+				ol.nonUniqueID = true;
+				other.nonUniqueID = true;
+			}
 			
 			int[] worldObjIds = ol.worldObjIds;
 			ol.worldObjs = new WorldObject[worldObjIds.length];
@@ -597,11 +605,13 @@ class Data {
 		final String   text;
 		final long     growth;
 		
+		boolean        nonUniqueID; // is <id> unique over all WorldObjects
 		ObjectList     list; // list associated with listId
 		WorldObject    container; // container, it is containing this object
 		ObjectList     containerList; // list, it is containing this object
 		ObjectType     objectType;
 		MapWorldObjectData mapWorldObjectData;
+		
 		/*
 			Block[2]: 3033 entries
 			-> Format: [2 blocks]
@@ -726,6 +736,7 @@ class Data {
 			ValueListOutput out = new ValueListOutput();
 			out.add(0, "Name", getName());
 			out.add(0, "ID", id);
+			if (nonUniqueID) out.add(0, null, "%s", "is not unique");
 			out.add(0, "ObjectTypeID", objectTypeID);
 			
 			if (!text.isEmpty())   out.add(0, "Text", text);
@@ -805,6 +816,7 @@ class Data {
 		WorldObject[] worldObjs;
 		WorldObject container; // container using this list
 		private final String woIdsStr;
+		boolean nonUniqueID; // is <id> unique over all ObjectLists
 
 		/*
 			Block[3]: 221 entries
@@ -861,6 +873,8 @@ class Data {
 			ValueListOutput out = new ValueListOutput();
 			
 			out.add(0, "ID", id);
+			if (nonUniqueID)
+				out.add(0, null, "%s", "is not unique");
 			out.add(0, "Size", "%d", size);
 			if (container!=null) {
 				out.add(0, "Container using this list");

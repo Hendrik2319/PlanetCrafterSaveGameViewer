@@ -109,7 +109,8 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id         ("ID"       , Long   .class,  75),
-			twinID     ("#"        , Boolean.class,  30),
+			NonUniqueID("UnI"      , Boolean.class,  30),
+			twinID     ("Twin"     , Boolean.class,  35),
 			container  ("Container", String .class, 350),
 			size       ("Size"     , Long   .class,  50),
 			worldObjs  ("Content"  , String .class, 600),
@@ -151,10 +152,11 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, ObjectListsTableModel.ColumnID columnID, ObjectList row) {
 			switch (columnID) {
-			case id       : return row.id;
-			case twinID   : return data.mapWorldObjects.containsKey(row.id);
-			case container: return row.container==null ? "--" : row.container.getShortDesc();
-			case size     : return row.size;
+			case id         : return row.id;
+			case NonUniqueID: return row.nonUniqueID;
+			case twinID     : return data.mapWorldObjects.containsKey(row.id);
+			case container  : return row.container==null ? "--" : row.container.getShortDesc();
+			case size       : return row.size;
 			case worldObjs:
 				//Iterator<String> it = Arrays.stream(row.worldObjIds).mapToObj(n->Integer.toString(n)).iterator();
 				//Iterator<String> it = Arrays.stream(row.worldObjs).map(wo->wo==null ? "<????>" : wo.objType).iterator();

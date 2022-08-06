@@ -190,7 +190,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id          ("ID"          , Long      .class,  75),
-			twinID      ("#"           , Boolean   .class,  30),
+			NonUniqueID ("UnI"         , Boolean   .class,  30),
+			twinID      ("Twin"        , Boolean   .class,  35),
 			objectTypeID("ObjectTypeID", String    .class, 130),
 			Name        ("Name"        , String    .class, 130),
 			container   ("Container"   , String    .class, 350),
@@ -257,6 +258,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			case text         : return row.text;
 			case Name         : return row.getName();
 			case twinID       : return data.mapObjectLists.containsKey(row.id);
+			case NonUniqueID  : return row.nonUniqueID;
 			case container:
 				if (row.containerList==null)
 					return null;

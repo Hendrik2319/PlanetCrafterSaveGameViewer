@@ -111,11 +111,8 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 			super(columns);
 			this.data = data;
 		}
-		
-		public void setDefaultRenderers() {
-			// TODO Auto-generated method stub
-			
-		}
+
+		public void setDefaultRenderers() {}
 
 		@Override public int getRowCount() { return data.size(); }
 		
