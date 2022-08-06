@@ -52,6 +52,7 @@ label = Biodome T2
 oxygen = 1450.0
 plants = 11.0
 energy = -75.0
+isProducer
 <finished>
 
 ObjectType: Biolab

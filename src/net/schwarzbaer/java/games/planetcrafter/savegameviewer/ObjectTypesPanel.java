@@ -190,7 +190,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case plants  : return PhysicalValue.Plants  .formatRate((Double) value);
 			case insects : return PhysicalValue.Insects .formatRate((Double) value);
 			case animals : return PhysicalValue.Animals .formatRate((Double) value);
-			case energy  : return String.format(Locale.ENGLISH, "%1.2f kW"   , value);
+			case energy  : return ObjectType.formatEnergyRate((Double) value);
 			case oxygenBooster : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsBooster: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}

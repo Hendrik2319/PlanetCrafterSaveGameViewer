@@ -304,9 +304,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 						case Multiplier:
 							valueStr = String.format(Locale.ENGLISH, "x %1.2f", value); break;
 						case Energy:
-							valueStr = String.format(Locale.ENGLISH, "%1.2f kW", value); break;
+							valueStr = String.format(Locale.ENGLISH, "%1.2f %s", value, ObjectType.EnergyRateUnit); break;
 						case Efficiency:
-							valueStr = String.format(Locale.ENGLISH, "%1.2f (%s)/kW", value, tableModel.physicalValue.rateUnit); break;
+							valueStr = String.format(Locale.ENGLISH, "%1.2f (%s)/%s", value, tableModel.physicalValue.rateUnit, ObjectType.EnergyRateUnit); break;
 						case BaseSum: case FinalSum:
 							valueStr = tableModel.physicalValue.formatRate((Double) value); break;
 						}

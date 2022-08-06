@@ -360,13 +360,13 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
 					int    rowM =    rowV<0 ? -1 : table.   convertRowIndexToModel(   rowV);
-					//int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
+					int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
 					ObjectsTableRow  row = rowM<0 ? null : tableModel.getRow(rowM);
-					//ObjectsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
+					ObjectsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
 					
 					String valueStr = value==null ? null : value.toString();
-					if (value instanceof Double ) valueStr = String.format(Locale.ENGLISH, "%1.2f kW", value);
-					if (value instanceof Integer) valueStr = String.format(Locale.ENGLISH, "%d x ", value);
+					if (columnID==ObjectsTableModel.ColumnID.Energy && value instanceof Double ) valueStr = ObjectType.formatEnergyRate((Double)value);
+					if (columnID==ObjectsTableModel.ColumnID.Count  && value instanceof Integer) valueStr = String.format(Locale.ENGLISH, "%d x ", value);
 					
 					Supplier<Color> getCustomBackground = ObjectsTableRow.createCustomBackgroundFunction(row);
 					rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
@@ -465,9 +465,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			void updateValues() {
 				double sumSources   = sourcesPanel  .getSum();
 				double sumConsumers = consumersPanel.getSum();
-				fieldProduction .setText(String.format(Locale.ENGLISH, "%1.2f kW",  sumSources  ));
-				fieldConsumption.setText(String.format(Locale.ENGLISH, "%1.2f kW", -sumConsumers));
-				fieldBudget     .setText(String.format(Locale.ENGLISH, "%1.2f kW", sumSources+sumConsumers));
+				fieldProduction .setText(ObjectType.formatEnergyRate( sumSources  ));
+				fieldConsumption.setText(ObjectType.formatEnergyRate(-sumConsumers));
+				fieldBudget     .setText(ObjectType.formatEnergyRate(sumSources+sumConsumers));
 			}
 		}
 	}

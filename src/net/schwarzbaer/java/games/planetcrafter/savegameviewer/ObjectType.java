@@ -14,8 +14,13 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.function.Function;
+
+import net.schwarzbaer.gui.ValueListOutput;
 
 class ObjectType {
+	
+	static final String EnergyRateUnit = "kW";
 	
 	final String id;
 	boolean finished;
@@ -54,6 +59,52 @@ class ObjectType {
 		if (label!=null && !label.isBlank())
 			return label;
 		return String.format("{%s}", id);
+	}
+
+	boolean isActive() {
+		return
+				oxygen  !=null ||
+				heat    !=null ||
+				pressure!=null ||
+				plants  !=null ||
+				insects !=null ||
+				animals !=null ||
+				energy  !=null
+				;
+	}
+
+	void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
+		if (oxygen  !=null) addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , findMultiplier(children, ot->ot.oxygenBooster));
+		if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    , null);
+		if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure, null);
+		if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  , null);
+		if (insects !=null) addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , findMultiplier(children, ot->ot.insectsBooster));
+		if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null);
+		if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectType::formatEnergyRate      , energy  , null);
+	}
+
+	private Double findMultiplier(ObjectType[] objectTypes, Function<ObjectType,Double> getMultiplier) {
+		if (objectTypes==null) return null;
+		for (ObjectType ot : objectTypes) {
+			Double multiplier = getMultiplier.apply(ot);
+			if (multiplier!=null) return multiplier;
+		}
+		return null;
+	}
+
+	void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier) {
+		if (multiplier==null)
+			out.add(indentLevel, label, "%s", formatRate.apply(rate));
+		else {
+			out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", multiplier, formatRate.apply(rate)));
+			out.add(indentLevel,  null, "%s", formatRate.apply(rate*multiplier));
+		}
+	}
+	
+	
+	
+	static String formatEnergyRate(double energy) {
+		return String.format(Locale.ENGLISH, "%1.2f %s", energy, EnergyRateUnit);
 	}
 
 	enum ObjectTypeValue {

@@ -727,15 +727,19 @@ class Data {
 			out.add(0, "Name", getName());
 			out.add(0, "ID", id);
 			out.add(0, "ObjectTypeID", objectTypeID);
-			if (!text   .isEmpty())   out.add(0, "Text", text);
-			if ( color!=null       ) {
+			
+			if (!text.isEmpty())   out.add(0, "Text", text);
+			
+			if (color!=null) {
 				out.add(0, "Color");
 				out.add(1, null, "%s", color);
 				out.add(1, null, "\"%s\"", colorStr);
 			} else if (!colorStr.isEmpty())
 				out.add(0, "Color", colorStr);
+			
 			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
 			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
+			
 			if (containerList!=null) {
 				out.add(0, "Is IN a Container");
 				if (container==null)
@@ -743,6 +747,13 @@ class Data {
 				else
 					container.addShortDescTo(out, 1);
 			}
+			
+			if (objectType!=null && objectType.isActive()) {
+				out.add(0, "Is Active");
+				ObjectType[] objectTypes = list==null ? null : getObjectTypes(list.worldObjs);
+				objectType.addActiveOutputTo(out, 1, objectTypes);
+			}
+			
 			if (listId>0) {
 				out.add(0, "Is a Container");
 				out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");
@@ -758,6 +769,15 @@ class Data {
 			return out.generateOutput();
 		}
 		
+		static ObjectType[] getObjectTypes(WorldObject[] worldObjs) {
+			ObjectType[] ots = new ObjectType[worldObjs==null ? 0 : worldObjs.length];
+			for (int i=0; i<ots.length; i++) {
+				WorldObject wo = worldObjs[i];
+				ots[i] = wo==null ? null : wo.objectType;
+			}
+			return ots;
+		}
+
 		boolean isInstalled() {
 			return !rotation.isZero() || !position.isZero();
 		}

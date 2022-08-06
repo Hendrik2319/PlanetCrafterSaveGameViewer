@@ -54,9 +54,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
 	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
 	private static final Color COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN = Color.RED;
+	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND = Color.GREEN;
+	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00    = Color.GREEN;
+	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05    = Color.YELLOW;
+	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10    = Color.RED;
+	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX   = new Color(0x00BFFF);
 
-	
-	
+
+
 	private enum ColoringType {
 		StoragesFillingLevel ("Filling Level of Storages"),
 		ProducersFillingLevel("Filling Level of Producers"),
@@ -351,13 +356,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				switch (coloringType) {
 				
 				case FindInstalledObject: case FindStoredObject:
-					return Color.GREEN;
+					return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND;
 					
 				case ProducersFillingLevel: case StoragesFillingLevel:
-					if (wo.list==null)
-						return Color.GREEN;
+					if (wo.list==null) return null; // shouldn't be
 					double value = wo.list.worldObjIds.length / (double)wo.list.size;
-					return getMixedColor(value, Color.GREEN, Color.YELLOW, Color.RED, Color.MAGENTA);
+					return getMixedColor(value,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX);
 				}
 			return null;
 		}
