@@ -741,7 +741,7 @@ class GUI {
 				String objectTypeID = getObjectTypeID(rowIndex);
 				if (objectTypeID==null) return;
 				
-				System.out.printf("ColorTableModel.setValueAt(%s,%s): [%s] %s%n", objectTypeID, columnID, aValue==null ? "" : aValue.getClass().getName(), aValue==null ? "<null>" : aValue.toString());
+				//System.out.printf("ColorTableModel.setValueAt(%s,%s): [%s] %s%n", objectTypeID, columnID, aValue==null ? "" : aValue.getClass().getName(), aValue==null ? "<null>" : aValue.toString());
 				
 				switch (columnID) {
 				case ID: case Label: break;
