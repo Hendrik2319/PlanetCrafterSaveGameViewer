@@ -190,8 +190,8 @@ class ObjectType {
 		System.out.printf("Done%n");
 	}
 
-	static HashMap<String,ObjectType> readFromFile(File file) {
-		HashMap<String,ObjectType> objectTypes = new HashMap<>();
+	static HashMap<String, ObjectType> readFromFile(File file) {
+		HashMap<String, ObjectType> objectTypes = new HashMap<>();
 		
 		System.out.printf("Read ObjectTypes from file \"%s\" ...%n", file.getAbsolutePath());
 		

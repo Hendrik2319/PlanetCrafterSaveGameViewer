@@ -1,6 +1,8 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -9,21 +11,34 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.gui.ContextMenu;
+import net.schwarzbaer.gui.HSColorChooser;
 import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.Tables;
+import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
+import net.schwarzbaer.gui.Tables.SimplifiedColumnIDInterface;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 
@@ -67,6 +82,110 @@ class GUI {
 		JTextField comp = createOutputTextField(text,size);
 		comp.setHorizontalAlignment(horizontalAlignment);
 		return comp;
+	}
+	
+	static class ColorTCE extends AbstractCellEditor implements TableCellEditor {
+		private static final long serialVersionUID = -6683601147557918947L;
+		
+		private final ColorTCR renderer;
+		private final HSColorChooser.ColorDialog hsColorChooserDialog;
+		private Color result;
+		
+		ColorTCE(Window window, ColorTCR renderer) {
+			this.renderer = renderer;
+			hsColorChooserDialog = new HSColorChooser.ColorDialog(window, "title", Color.GRAY);
+			result = null;
+		}
+
+		@Override public boolean shouldSelectCell(EventObject anEvent) {
+			return true;
+		}
+
+		@Override public Object getCellEditorValue() {
+			return result;
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int rowV, int columnV) {
+			Component rendererComponent = renderer.getTableCellRendererComponent(table, value, isSelected, true, rowV, columnV);
+			
+			new Thread(()->{
+				result = null;
+				Color color = MapPanel.COLOR_WORLDOBJECT_FILL;
+				if (value instanceof Color) {
+					color = (Color) value;
+					result = color;
+				}
+				hsColorChooserDialog.setInitialColor(color);
+				hsColorChooserDialog.showDialog(StandardDialog.Position.PARENT_CENTER);
+				Color dlgResult = hsColorChooserDialog.getColor();
+				if (dlgResult==null) {
+					fireEditingCanceled();
+				} else {
+					result = dlgResult;
+					fireEditingStopped();
+				}
+			}).start();
+			
+			return rendererComponent;
+		}
+
+//		@Override public void cancelCellEditing() {
+//			System.err.printf("ColorTCE.cancelCellEditing [START]%n");
+//			super.cancelCellEditing();
+//			System.err.printf("ColorTCE.cancelCellEditing [END]%n");
+//		}
+//
+//		@Override public boolean stopCellEditing() {
+//			System.err.printf("ColorTCE.stopCellEditing [START]%n");
+//			boolean b = super.stopCellEditing();
+//			System.err.printf("ColorTCE.stopCellEditing [END]%n");
+//			return b;
+//		}
+//
+//		@Override
+//		protected void fireEditingStopped() {
+//			System.err.printf("ColorTCE.fireEditingStopped [START]%n");
+//			super.fireEditingStopped();
+//			System.err.printf("ColorTCE.fireEditingStopped [END]%n");
+//		}
+//
+//		@Override
+//		protected void fireEditingCanceled() {
+//			System.err.printf("ColorTCE.fireEditingCanceled [START]%n");
+//			super.fireEditingCanceled();
+//			System.err.printf("ColorTCE.fireEditingCanceled [END]%n");
+//		}
+	}
+	
+	static class ColorTCR implements TableCellRenderer {
+		
+		interface SurrogateTextSource {
+			String getSurrogateText(int rowM, int columnM);
+		}
+		
+		private final Tables.ColorRendererComponent rendererComponent;
+		private final SurrogateTextSource getSurrogateText;
+
+		ColorTCR(SurrogateTextSource getSurrogateText) {
+			this.getSurrogateText = getSurrogateText;
+			rendererComponent = new Tables.ColorRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
+			if (value instanceof Data.Color) {
+				Data.Color color = (Data.Color) value;
+				value = color.getColor();
+			}
+			rendererComponent.configureAsTableCellRendererComponent(table, value, isSelected, hasFocus, ()->{
+				if (getSurrogateText==null) return null;
+				int rowM = table.convertRowIndexToModel(rowV);
+				int columnM = table.convertColumnIndexToModel(columnV);
+				return getSurrogateText.getSurrogateText(rowM, columnM);
+			});
+			return rendererComponent;
+		}
 	}
 	
 	static class ObjectsTableContextMenu extends ContextMenu {
@@ -445,6 +564,202 @@ class GUI {
 			dlg.showDialog();
 			return dlg.results;
 		}
+	}
+
+	static class ObjectTypeColorsDialog extends StandardDialog {
+		private static final long serialVersionUID = 7975796985768293299L;
+		
+		private final PlanetCrafterSaveGameViewer main;
+		private final ColorTableModel tableModel;
+		private final JTable table;
+
+
+		ObjectTypeColorsDialog(PlanetCrafterSaveGameViewer main, String title) {
+			super(main.getMainWindow(), title);
+			this.main = main;
+			
+			tableModel = new ColorTableModel();
+			table = new JTable(tableModel);
+			JScrollPane contentPane = new JScrollPane(table);
+			
+			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			
+			tableModel.setTable(table);
+			tableModel.setColumnWidths(table);
+			tableModel.setDefaultCellEditorsAndRenderers(this);
+			
+			Dimension size = table.getPreferredSize();
+			size.width  += 30;
+			size.height = 500;
+			contentPane.setPreferredSize(size);
+			
+			createGUI(contentPane, createButton("Close", true, e->closeDialog()));
+		}
+
+		public HashMap<String, Color> showDialogAndGetColors() {
+			String colorArrStr = PlanetCrafterSaveGameViewer.settings.getString(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.ObjectTypeColors, "");
+			//System.out.printf("ObjectTypeColorsDialog.input: %s%n", colorArrStr);
+			HashMap<String, Color> colors = decodeColors(colorArrStr);
+			//colors.forEach((id,color)->System.out.printf("ObjectTypeColorsDialog.input: \"%s\", %s%n", id, color));
+			tableModel.setData(colors, main.getObjectTypes());
+			
+			showDialog();
+			
+			if (tableModel.wasSomethingChanged()) {
+				colors = tableModel.getData();
+				//colors.forEach((id,color)->System.out.printf("ObjectTypeColorsDialog.result: \"%s\", %s%n", id, color));
+				colorArrStr = encodeColors(colors);
+				//System.out.printf("ObjectTypeColorsDialog.result: %s%n", colorArrStr);
+				PlanetCrafterSaveGameViewer.settings.putString(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.ObjectTypeColors, colorArrStr);
+			}
+			
+			return colors;
+		}
+
+		private static String encodeColors(HashMap<String, Color> colors) {
+			Vector<Entry<String, Color>> entries = new Vector<>(colors.entrySet());
+			entries.sort(Comparator.comparing(Entry<String, Color>::getKey));
+			Iterable<String> it = ()->entries.stream().map(e->String.format("%s,%06X", e.getKey(), e.getValue().getRGB())).iterator();
+			return String.join("|", it);
+		}
+
+		private static HashMap<String, Color> decodeColors(String colorArrStr) {
+			HashMap<String, Color> colors = new HashMap<>();
+			String[] parts = colorArrStr.split("\\|",-1);
+			//System.out.printf("parts: %s%n", Arrays.toString(parts));
+			for (String part : parts) {
+				int pos = part.indexOf(',');
+				if (pos<0) continue;
+				String objectTypeID = part.substring(0, pos);
+				String colorStr     = part.substring(pos+1);
+				int colorVal;
+				try { colorVal = Integer.parseUnsignedInt(colorStr, 16); }
+				catch (NumberFormatException e) {
+					System.err.printf("Can't parse color value \"%s\" of ObjectTypeID \"%s\"%n", colorStr, objectTypeID);
+					continue;
+				}
+				colors.put(objectTypeID, new Color(colorVal));
+			}
+			return colors;
+		}
+
+		public class ColorTableModel extends Tables.SimplifiedTableModel<ColorTableModel.ColumnID>{
+
+			enum ColumnID implements SimplifiedColumnIDInterface {
+				ID    ("ID"   , String.class, 130),
+				Label ("Label", String.class, 260),
+				Color ("Color", Color .class,  60),
+				
+				;
+				private final SimplifiedColumnConfig cfg;
+				ColumnID(String name, Class<?> columnClass, int width) {
+					cfg = new SimplifiedColumnConfig(name, columnClass, 20, -1, width, width);
+				}
+
+				@Override public SimplifiedColumnConfig getColumnConfig() { return cfg; }
+			
+			}
+			
+			private boolean somethingWasChanged;
+			private final HashMap<String, Color> colors;
+			private final Vector<String> objectTypeIDs;
+			private HashMap<String, ObjectType> objectTypes;
+
+			protected ColorTableModel() {
+				super(ColumnID.values());
+				somethingWasChanged = false;
+				colors = new HashMap<>();
+				objectTypeIDs = new Vector<>();
+				objectTypes = null;
+			}
+
+			void setDefaultCellEditorsAndRenderers(Window window) {
+				ColorTCR colorTCR = new ColorTCR(null);
+				ColorTCE colorTCE = new ColorTCE(window, colorTCR);
+				table.setDefaultRenderer(Color.class, colorTCR);
+				table.setDefaultEditor  (Color.class, colorTCE);
+			}
+
+			boolean wasSomethingChanged() {
+				return somethingWasChanged;
+			}
+
+			void setData(HashMap<String, Color> colors, HashMap<String, ObjectType> objectTypes) {
+				this.objectTypes = objectTypes;
+				this.colors.clear();
+				this.colors.putAll(colors);
+				somethingWasChanged = false;
+				HashSet<String> objectTypeIDSet = new HashSet<>(objectTypes.keySet());
+				objectTypeIDSet.addAll(this.colors.keySet());
+				objectTypeIDs.clear();
+				objectTypeIDs.addAll(objectTypeIDSet);
+				objectTypeIDs.sort(Comparator.comparing(String::toLowerCase));
+			}
+
+			HashMap<String, Color> getData() {
+				return new HashMap<>(colors);
+			}
+
+			private String getObjectTypeID(int rowIndex) {
+				if (rowIndex<0) return null;
+				if (rowIndex>objectTypeIDs.size()) return null;
+				return objectTypeIDs.get(rowIndex);
+			}
+
+			@Override public int getRowCount() {
+				return objectTypeIDs.size();
+			}
+
+			@Override public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
+				String objectTypeID = getObjectTypeID(rowIndex);
+				if (objectTypeID==null) return null;
+				
+				switch (columnID) {
+				case ID:
+					return objectTypeID;
+					
+				case Label:
+					if (objectTypes==null) return null;
+					ObjectType ot = objectTypes.get(objectTypeID);
+					if (ot==null) return null;
+					return ot.label;
+					
+				case Color:
+					return colors.get(objectTypeID);
+				}
+				return null;
+			}
+
+			@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
+				return columnID==ColumnID.Color;
+			}
+
+			@Override
+			protected void setValueAt(Object aValue, int rowIndex, int columnIndex, ColumnID columnID) {
+				String objectTypeID = getObjectTypeID(rowIndex);
+				if (objectTypeID==null) return;
+				
+				System.out.printf("ColorTableModel.setValueAt(%s,%s): [%s] %s%n", objectTypeID, columnID, aValue==null ? "" : aValue.getClass().getName(), aValue==null ? "<null>" : aValue.toString());
+				
+				switch (columnID) {
+				case ID: case Label: break;
+				case Color:
+					if (aValue == null) {
+						colors.remove(objectTypeID);
+						somethingWasChanged = true;
+					} else if (aValue instanceof Color) {
+						Color newColor = (Color) aValue;
+						Color oldColor = colors.put(objectTypeID, newColor);
+						somethingWasChanged = !newColor.equals(oldColor);
+					}
+					break;
+				}
+			}
+		
+		}
+	
 	}
 
 }

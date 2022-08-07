@@ -16,6 +16,7 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.Predicate;
@@ -41,24 +42,24 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.
 class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
 	
-	private static final Color COLOR_OVERVIEW_SCREEN     = Color.RED;
-	private static final Color COLOR_MAP_AXIS            = new Color(0x70000000,true);
-	private static final Color COLOR_MAP_BORDER          = COLOR_MAP_AXIS;
-	private static final Color COLOR_MAP_BACKGROUND      = Color.WHITE;
-	private static final Color COLOR_TOOLTIP_BORDER      = new Color(0x70000000,true);
-	private static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
-	private static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
-	private static final Color COLOR_PLAYERPOS           = Color.RED;
-	private static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
-	private static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
-	private static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
-	private static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
-	private static final Color COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN = Color.RED;
-	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND = Color.GREEN;
-	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00    = Color.GREEN;
-	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05    = Color.YELLOW;
-	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10    = Color.RED;
-	private static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX   = new Color(0x00BFFF);
+	static final Color COLOR_OVERVIEW_SCREEN     = Color.RED;
+	static final Color COLOR_MAP_AXIS            = new Color(0x70000000,true);
+	static final Color COLOR_MAP_BORDER          = COLOR_MAP_AXIS;
+	static final Color COLOR_MAP_BACKGROUND      = Color.WHITE;
+	static final Color COLOR_TOOLTIP_BORDER      = new Color(0x70000000,true);
+	static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
+	static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
+	static final Color COLOR_PLAYERPOS           = Color.RED;
+	static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
+	static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
+	static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
+	static final Color COLOR_WORLDOBJECT_FILL_HOVERED     = new Color(0xFFDD00);
+	static final Color COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN = Color.RED;
+	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND = Color.GREEN;
+	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00    = Color.GREEN;
+	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05    = Color.YELLOW;
+	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10    = Color.RED;
+	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX   = new Color(0x00BFFF);
 
 
 
@@ -67,6 +68,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		ProducersFillingLevel("Filling Level of Producers"),
 		FindInstalledObject  ("Find installed Object"),
 		FindStoredObject     ("Find stored Object"),
+		ObjectType           ("Object Type"),
 		;
 		private final String text;
 		ColoringType(String text) {
@@ -84,7 +86,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private final JComboBox<ColoringType> cmbbxColoring;
 	private ColoringType selectedColoringType;
 
-	MapPanel(Data data) {
+	MapPanel(PlanetCrafterSaveGameViewer main, Data data) {
 		super(MapPanel.HORIZONTAL_SPLIT, true);
 		
 		OverView overView = new OverView();
@@ -120,11 +122,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					break;
 					
 				case ProducersFillingLevel:
+				case StoragesFillingLevel:
 					cmbbxObjLabels.setEnabled(false);
 					break;
 					
-				case StoragesFillingLevel:
+				case ObjectType:
 					cmbbxObjLabels.setEnabled(false);
+					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(main, "Object Type Colors").showDialogAndGetColors();
+					mapModel.setObjectTypeColors(objectTypeColors);
 					break;
 				}
 				mapView.setExtraShownObject(null);
@@ -279,11 +284,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		final Vector<String> storedObjectLabels;
 		private ColoringType coloringType;
 		private String objLabel;
+		private HashMap<String, Color> objectTypeColors;
 		
 		MapModel(Data data) {
 			displayableObjects = new Vector<>();
 			installedObjectLabels = new Vector<>();
 			storedObjectLabels = new Vector<>();
+			objectTypeColors = null;
 			
 			// ----------------------------------------------------------------
 			// playerPositions & displayableObjects & min,max
@@ -335,6 +342,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			updateStoredObjectLabels();
 		}
 		
+		void setObjectTypeColors(HashMap<String, Color> objectTypeColors) {
+			this.objectTypeColors = objectTypeColors;
+		}
+
 		void setColoring(ColoringType coloringType, String objLabel) {
 			this.coloringType = coloringType;
 			this.objLabel = objLabel;
@@ -347,6 +358,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
 				case ProducersFillingLevel: return wo.objectType!=null && wo.objectType.isProducer && wo.list!=null;
 				case StoragesFillingLevel : return wo.list!=null;
+				case ObjectType           : return wo.objectType!=null && objectTypeColors!=null && objectTypeColors.get(wo.objectType.id)!=null;
 				}
 			return false;
 		}
@@ -366,6 +378,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10,
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX);
+				
+				case  ObjectType:
+					if (wo.objectType==null || objectTypeColors==null) return null; // shouldn't be
+					return objectTypeColors.get(wo.objectType.id);
 				}
 			return null;
 		}

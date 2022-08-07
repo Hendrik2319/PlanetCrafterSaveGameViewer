@@ -97,14 +97,14 @@ public class PlanetCrafterSaveGameViewer {
 			}));
 			
 			filesMenu.add(GUI.createMenuItem("Open SaveGame", e->{
-				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
+				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
 					readFile(jsonFileChooser.getSelectedFile());
 			}));
 			
 			miWriteReducedSaveGame = filesMenu.add(GUI.createMenuItem("Write Reduced SaveGame", e->{
 				if (openFile!=null)
 					jsonFileChooser.setSelectedFile(openFile);
-				if (loadedData!=null && jsonFileChooser.showSaveDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
+				if (loadedData!=null && jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
 					writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
 			}));
 			
@@ -116,7 +116,7 @@ public class PlanetCrafterSaveGameViewer {
 			JMenu achievementsMenu = add(new JMenu("Achievements"));
 			
 			achievementsMenu.add(GUI.createMenuItem("Configure Achievements", e->{
-				new Achievements.ConfigDialog(mainWindow,achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
+				new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
 				achievements.writeToFile();
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
@@ -249,6 +249,14 @@ public class PlanetCrafterSaveGameViewer {
 		ObjectType.writeToFile(new File(FILE_OBJECT_TYPES), objectTypes);
 	}
 
+	StandardMainWindow getMainWindow() {
+		return mainWindow;
+	}
+
+	HashMap<String,ObjectType> getObjectTypes() {
+		return objectTypes;
+	}
+
 	private static void showIndeterminateTask(ProgressDialog pd, String taskTitle) {
 		SwingUtilities.invokeLater(()->{
 			pd.setTaskTitle(taskTitle);
@@ -274,7 +282,7 @@ public class PlanetCrafterSaveGameViewer {
 		dataTabPane.removeAll();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
-		MapPanel mapPanel = new MapPanel(data);
+		MapPanel mapPanel = new MapPanel(this, data);
 
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
 		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
@@ -450,7 +458,7 @@ public class PlanetCrafterSaveGameViewer {
 			OpenFile,
 			AchievementsConfigDialogWidth,
 			AchievementsConfigDialogHeight,
-			AchievementsConfigDialogShowTabbedView
+			AchievementsConfigDialogShowTabbedView, ObjectTypeColors
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

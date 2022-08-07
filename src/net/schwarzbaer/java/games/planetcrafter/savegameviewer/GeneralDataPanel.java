@@ -119,7 +119,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				new SimpleTablePanel.Column("Color Custom    ", Data.Color.class,  90, row->((Data.Layer)row).colorCustom    ),
 				new SimpleTablePanel.Column("Color BaseLerp  ", Long      .class,  90, row->((Data.Layer)row).colorBaseLerp  ),
 				new SimpleTablePanel.Column("Color CustomLerp", Long      .class, 100, row->((Data.Layer)row).colorCustomLerp)
-			).setDefaultRenderer(Data.Color.class, new ColorTCR((rowM, columnM) -> {
+			).setDefaultRenderer(Data.Color.class, new GUI.ColorTCR((rowM, columnM) -> {
 				if (rowM<0 || rowM>=data.layers.size()) return null;
 				Layer layer = data.layers.get(rowM);
 				if (layer!=null)
@@ -202,36 +202,6 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			panel.addTab(Integer.toString(i), panels.get(i));
 		
 		return panel;
-	}
-	
-	static class ColorTCR implements TableCellRenderer {
-		
-		interface SurrogateTextSource {
-			String getSurrogateText(int rowM, int columnM);
-		}
-		
-		private final Tables.ColorRendererComponent rendererComponent;
-		private final SurrogateTextSource getSurrogateText;
-
-		ColorTCR(SurrogateTextSource getSurrogateText) {
-			this.getSurrogateText = getSurrogateText;
-			rendererComponent = new Tables.ColorRendererComponent();
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
-			if (value instanceof Data.Color) {
-				Data.Color color = (Data.Color) value;
-				value = color.getColor();
-			}
-			rendererComponent.configureAsTableCellRendererComponent(table, value, isSelected, hasFocus, ()->{
-				if (getSurrogateText==null) return null;
-				int rowM = table.convertRowIndexToModel(rowV);
-				int columnM = table.convertColumnIndexToModel(columnV);
-				return getSurrogateText.getSurrogateText(rowM, columnM);
-			});
-			return rendererComponent;
-		}
 	}
 
 	private static class EnergyPanel extends JPanel {
