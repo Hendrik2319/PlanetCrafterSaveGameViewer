@@ -108,6 +108,16 @@ ObjectType: BootsSpeed3
 label = Agility Boots T3
 <finished>
 
+ObjectType: Butterfly4Larvae
+label = Butterfly Galaxe Larva (common, 175%)
+insectsMultiplier = 1.75
+<finished>
+
+ObjectType: Butterfly5Larvae
+label = Butterfly Abstreus Larva (common, 175%)
+insectsMultiplier = 1.75
+<finished>
+
 ObjectType: Butterfly6Larvae
 label = Butterfly Empalio Larva (rare, 120%)
 insectsMultiplier = 1.2
@@ -127,6 +137,9 @@ ObjectType: Butterfly9Larvae
 label = Butterfly Aemel Larva (rare, 300%)
 insectsMultiplier = 3.0
 <finished>
+
+ObjectType: ButterflyDisplayer1
+label = Butterfly Display Box
 
 ObjectType: ButterflyDome1
 label = Butterfly Dome
@@ -255,12 +268,21 @@ ObjectType: FabricBlue
 label = Fabric
 <finished>
 
+ObjectType: Farm1
+label = Outdoor Farm
+isProducer
+
 ObjectType: Fertilizer1
 label = Fertilizer T1
 <finished>
 
 ObjectType: Fertilizer2
 label = Fertilizer T2
+<finished>
+
+ObjectType: FlowerPot1
+label = Flower Pot
+oxygen = 5.0
 <finished>
 
 ObjectType: Foundation
@@ -652,6 +674,10 @@ multiplierExpected
 ObjectType: Silicon
 label = Silicon
 <finished>
+
+ObjectType: SilkGenerator
+label = Silk Generator
+isProducer
 
 ObjectType: SilkWorm
 label = Silk Worm

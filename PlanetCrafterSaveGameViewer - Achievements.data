@@ -6,7 +6,7 @@ Oxygen
 30000.0|{VegetubeOutside1}
 80000.0|{Heater3}
 150000.0|{GrassSpreader1}
-420000.0|Flower Pot
+420000.0|{FlowerPot1}
 6.3E7|{Heater4}
 6.0E9|{TreeSpreader1}
 
@@ -48,8 +48,8 @@ Biomass
 Plants
 8.0E7|{Beehive1}
 1.4E8|{ButterflyDome1}
-5.5E8|Butterfly Chevrone Larva (250%)
-8.7E8|Butterfly Aemel Larva (300%)
+5.5E8|{Butterfly8Larvae}
+8.7E8|{Butterfly9Larvae}
 2.0E9|Butterfly Liux Larva (500%)
 3.25E9|{ButterflyFarm1}
 
@@ -58,11 +58,11 @@ Insects
 15000.0|{astrofood2}
 100000.0|{Tree4Seed}
 500000.0|{Tree5Seed}
-800000.0|Silk Generator
+800000.0|{SilkGenerator}
 950000.0|{FabricBlue}
 1100000.0|{Tree6Seed}
-1500000.0|Outdoor Farm
-2500000.0|Butterfly Display Box
+1500000.0|{Farm1}
+2500000.0|{ButterflyDisplayer1}
 
 Terraformation
 300.0|{Backpack2}
