@@ -785,6 +785,11 @@ class Data {
 				objectType.addActiveOutputTo(out, 1, objectTypes);
 			}
 			
+			if (product!=null)
+				out.add(0, "Product", "%s", product.getName());
+			else if (!productID.isEmpty())
+				out.add(0, "Product", "{%s}", productID);
+			
 			if (listId>0) {
 				out.add(0, "Is a Container");
 				out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");

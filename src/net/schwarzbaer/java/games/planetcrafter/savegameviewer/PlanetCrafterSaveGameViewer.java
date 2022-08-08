@@ -1,5 +1,8 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,22 +13,28 @@ import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.schwarzbaer.gui.Disabler;
 import net.schwarzbaer.gui.FileChooser;
 import net.schwarzbaer.gui.ProgressDialog;
 import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ToolbarIcons;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
@@ -34,7 +43,7 @@ import net.schwarzbaer.java.lib.jsonparser.JSON_Parser.ParseException;
 import net.schwarzbaer.system.DateTimeFormatter;
 import net.schwarzbaer.system.Settings;
 
-public class PlanetCrafterSaveGameViewer {
+public class PlanetCrafterSaveGameViewer implements ActionListener {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
@@ -56,12 +65,12 @@ public class PlanetCrafterSaveGameViewer {
 	private final StandardMainWindow mainWindow;
 	private final FileChooser jsonFileChooser;
 	private final JTabbedPane dataTabPane;
-	private final MyMenuBar menuBar;
 	private File openFile;
 	private Data loadedData;
 	private ObjectTypes objectTypes;
 	private Achievements achievements;
 	private GeneralDataPanel generalDataPanel;
+	private final Disabler<ActionCommand> disabler;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
@@ -71,68 +80,118 @@ public class PlanetCrafterSaveGameViewer {
 		generalDataPanel = null;
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
+		disabler = new Disabler<>();
+		disabler.setCareFor(ActionCommand.values());
+		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
-		mainWindow.startGUI(dataTabPane, menuBar = new MyMenuBar());
-		mainWindow.setIconImagesFromResource("/icons/icon_", "24.png", "32.png", "48.png", "64.png", "96.png");
+		
+		JPanel contentPane = new JPanel(new BorderLayout());
+		contentPane.add(new MyToolBar(), BorderLayout.PAGE_START);
+		contentPane.add(dataTabPane, BorderLayout.CENTER);
+		
+		mainWindow.startGUI(contentPane);
+		//mainWindow.startGUI(contentPane, new MyMenuBar());
+		//mainWindow.setIconImagesFromResource("/icons/icon_", "24.png", "32.png", "48.png", "64.png", "96.png");
+		mainWindow.setIconImagesFromResource("/icons/icon_%d.png", 24,32,48,64,96);
 		
 		settings.registerAppWindow(mainWindow);
 		updateWindowTitle();
-		
+		updateGuiAccess();
 	}
 	
-	private class MyMenuBar extends JMenuBar {
-		private static final long serialVersionUID = 940262053656728621L;
-		
-		private final JMenuItem miReloadSaveGame;
-		private final JMenuItem miWriteReducedSaveGame;
-
-		MyMenuBar() {
-			JMenu filesMenu = add(new JMenu("Files"));
-			
-			miReloadSaveGame = filesMenu.add(GUI.createMenuItem("Reload SaveGame", openFile!=null, e->{
-				readFile(openFile);
-			}));
-			
-			filesMenu.add(GUI.createMenuItem("Open SaveGame", e->{
-				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
-					readFile(jsonFileChooser.getSelectedFile());
-			}));
-			
-			miWriteReducedSaveGame = filesMenu.add(GUI.createMenuItem("Write Reduced SaveGame", e->{
-				if (openFile!=null)
-					jsonFileChooser.setSelectedFile(openFile);
-				if (loadedData!=null && jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
-					writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
-			}));
-			
-			filesMenu.addSeparator();
-			filesMenu.add(GUI.createMenuItem("Quit", e->{
-				System.exit(0);
-			}));
-			
-			JMenu achievementsMenu = add(new JMenu("Achievements"));
-			
-			achievementsMenu.add(GUI.createMenuItem("Configure Achievements", e->{
-				new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
-				achievements.writeToFile();
-				if (generalDataPanel!=null)
-					generalDataPanel.updateAfterAchievementsChange();
-			}));
-		}
-
-		void notifyFileWasLoaded() {
-			miReloadSaveGame.setEnabled(true);
-			miWriteReducedSaveGame.setEnabled(true);
-		}
-	}
-
 	private void updateWindowTitle() {
 		mainWindow.setTitle(
 			openFile == null
 			?               "Planet Crafter - SaveGame Viewer"
 			: String.format("Planet Crafter - SaveGame Viewer - \"%s\" [%s]", openFile.getName(), dtFormatter.getTimeStr(openFile.lastModified(), false, true, false, true, false))
 		);
+	}
+
+	private void updateGuiAccess() {
+		disabler.setEnable(ac->{
+			switch (ac) {
+			case OpenSaveGame: break;
+			
+			case ReloadSaveGame:
+			case WriteReducedSaveGame:
+				return openFile!=null;
+				
+			case ConfigureAchievements: break;
+			}
+			return null;
+		});
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		ActionCommand ac;
+		try { ac = ActionCommand.valueOf(e.getActionCommand()); }
+		catch (Exception ex) { return; }
+		
+		switch (ac) {
+		
+		case ReloadSaveGame:
+			readFile(openFile);
+			break;
+			
+		case OpenSaveGame:
+			if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+				readFile(jsonFileChooser.getSelectedFile());
+			break;
+			
+		case WriteReducedSaveGame:
+			if (loadedData!=null) {
+				if (openFile!=null)
+					jsonFileChooser.setSelectedFile(openFile);
+				if (jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+					writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
+			}
+			break;
+			
+		case ConfigureAchievements:
+			new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
+			achievements.writeToFile();
+			if (generalDataPanel!=null)
+				generalDataPanel.updateAfterAchievementsChange();
+			break;
+		}
+	}
+
+	private class MyToolBar extends JToolBar {
+		private static final long serialVersionUID = -545321067655154725L;
+		MyToolBar() {
+			this.setFloatable(false);
+			add(createButton("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame        ));
+			add(createButton("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame      ));
+			add(createButton("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
+			addSeparator();
+			add(createButton("Configure Achievements", null                   , true , ActionCommand.ConfigureAchievements));
+		}
+		JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionCommand ac) {
+			return GUI.createButton(title, icon, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private class MyMenuBar extends JMenuBar {
+		private static final long serialVersionUID = 940262053656728621L;
+
+		MyMenuBar() {
+			JMenu filesMenu = add(new JMenu("Files"));
+			filesMenu.add(createMenuItem("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame));
+			filesMenu.add(createMenuItem("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame));
+			filesMenu.add(createMenuItem("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
+			filesMenu.addSeparator();
+			filesMenu.add(GUI.createMenuItem("Quit", e->System.exit(0)));
+			
+			JMenu achievementsMenu = add(new JMenu("Achievements"));
+			achievementsMenu.add(createMenuItem("Configure Achievements", null, true, ActionCommand.ConfigureAchievements));
+		}
+		
+		JMenuItem createMenuItem(String title, ToolbarIcons icon, boolean isEnabled, ActionCommand ac) {
+			return GUI.createMenuItem(title, icon, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac);
+		}
 	}
 
 	private void initialize() {
@@ -208,9 +267,9 @@ public class PlanetCrafterSaveGameViewer {
 				settings.putFile(AppSettings.ValueKey.OpenFile, file);
 				loadedData = data;
 				openFile = file;
-				menuBar.notifyFileWasLoaded();
 				setGUI(data);
 				updateWindowTitle();
+				updateGuiAccess();
 			});
 		});
 		

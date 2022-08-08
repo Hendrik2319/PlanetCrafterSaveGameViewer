@@ -144,7 +144,7 @@ occurrences = WorldObject
 
 ObjectType: Butterfly2Larvae
 label = Butterfly ???? Larva (common, ###%)
-occurrences = Product
+occurrences = WorldObject,Product
 
 ObjectType: Butterfly3Larvae
 label = Butterfly Fensea Larva (common, 200%)
@@ -179,7 +179,7 @@ occurrences = WorldObject
 ObjectType: Butterfly8Larvae
 label = Butterfly Chevrone Larva (rare, 250%)
 insectsMultiplier = 2.5
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Butterfly9Larvae
