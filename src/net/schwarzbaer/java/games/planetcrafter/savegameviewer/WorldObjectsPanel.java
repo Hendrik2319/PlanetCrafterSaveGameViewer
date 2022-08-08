@@ -198,12 +198,12 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			listId      ("List-ID"     , Long      .class,  70),
 			text        ("Text"        , String    .class, 120),
 			growth      ("Growth"      , Long      .class,  60),
+			product     ("Product"     , String    .class, 130),
 			position    ("Position"    , Coord3    .class, 200),
 			rotation    ("Rotation"    , Rotation  .class, 205),
-			color       ("color"       , Data.Color.class,  50),
-			_liGrps     ("[liGrps]"    , String    .class,  50),
+			color       ("Color"       , Data.Color.class,  50),
+			mods        ("Mods"        , String    .class,  90),
 			_wear       ("[wear]"      , Long      .class,  50),
-			_pnls       ("[pnls]"      , String    .class,  90),
 			;
 			private final Tables.SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
@@ -245,15 +245,15 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
 			switch (columnID) {
-			case _liGrps      : return row._liGrps;
-			case _pnls        : return row._pnls;
 			case _wear        : return row._wear;
 			case color        : return row.color;
 			case growth       : return row.growth;
 			case id           : return row.id;
 			case listId       : return row.listId;
+			case mods         : return row.mods;
 			case objectTypeID : return row.objectTypeID;
 			case position     : return row.position;
+			case product      : return row.product!=null ? row.product.getName() : row.productID.isEmpty() ? "" : String.format("{%s}", row.productID);
 			case rotation     : return row.rotation;
 			case text         : return row.text;
 			case Name         : return row.getName();

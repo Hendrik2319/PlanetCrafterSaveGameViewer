@@ -1,5 +1,6 @@
 ObjectType: Algae1Seed
 label = Algae
+occurrences = WorldObject
 <finished>
 
 ObjectType: AlgaeGenerator1
@@ -59,6 +60,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Bacteria1
 label = Bacteria Sample
+occurrences = WorldObject
 <finished>
 
 ObjectType: Beacon
@@ -128,6 +130,28 @@ label = Agility Boots T3
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: Butterfly15Larvae
+label = Butterfly Futura Larva (<found>, 800%)
+insectsMultiplier = 8.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Butterfly1Larvae
+label = Butterfly Azurae Larva (common, 120%)
+insectsMultiplier = 1.2
+occurrences = WorldObject
+<finished>
+
+ObjectType: Butterfly2Larvae
+label = Butterfly ???? Larva (common, ###%)
+occurrences = Product
+
+ObjectType: Butterfly3Larvae
+label = Butterfly Fensea Larva (common, 200%)
+insectsMultiplier = 2.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: Butterfly4Larvae
 label = Butterfly Galaxe Larva (common, 175%)
 insectsMultiplier = 1.75
@@ -167,6 +191,7 @@ occurrences = WorldObject,Achievement
 ObjectType: ButterflyDisplayer1
 label = Butterfly Display Box
 occurrences = WorldObject,Achievement
+<finished>
 
 ObjectType: ButterflyDome1
 label = Butterfly Dome
@@ -320,8 +345,17 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Farm1
 label = Outdoor Farm
+plants = 95.0
+insects = 8.0
+energy = -45.5
 occurrences = WorldObject,Achievement
 isProducer
+<finished>
+
+ObjectType: Fence
+label = Fence
+occurrences = Blueprint
+<finished>
 
 ObjectType: Fertilizer1
 label = Fertilizer T1
@@ -330,6 +364,7 @@ occurrences = WorldObject
 
 ObjectType: Fertilizer2
 label = Fertilizer T2
+occurrences = WorldObject
 <finished>
 
 ObjectType: FlowerPot1
@@ -379,6 +414,11 @@ occurrences = WorldObject
 
 ObjectType: GoldenEffigie3
 label = Golden Effigie "Com. Antenna"
+occurrences = WorldObject
+<finished>
+
+ObjectType: GoldenEffigie4
+label = Golden Effigie "Jetpack"
 occurrences = WorldObject
 <finished>
 
@@ -809,10 +849,17 @@ label = Silicon
 occurrences = WorldObject
 <finished>
 
+ObjectType: Silk
+label = Silk
+occurrences = WorldObject
+<finished>
+
 ObjectType: SilkGenerator
 label = Silk Generator
+energy = -38.0
 occurrences = WorldObject,Achievement
 isProducer
+<finished>
 
 ObjectType: SilkWorm
 label = Silk Worm

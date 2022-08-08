@@ -171,6 +171,10 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		
 		return ot;
 	}
+	
+	interface ObjectTypeCreator {
+		ObjectType getOrCreate(String objectTypeID, Occurrence occurrence);
+	}
 
 	ObjectType getOrCreate(String objectTypeID, Occurrence occurrence, HashSet<String> newObjectTypes) {
 		if (objectTypeID==null) throw new IllegalArgumentException();
@@ -188,12 +192,13 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 	
 	enum Occurrence {
-		WorldObject, Achievement, Blueprint, User;
+		WorldObject, Achievement, Blueprint, User, Product;
 		
 		String getShortLabel() {
 			switch (this) {
 			case Achievement: return "A";
 			case Blueprint  : return "B";
+			case Product    : return "P";
 			case User       : return "U";
 			case WorldObject: return "WO";
 			}

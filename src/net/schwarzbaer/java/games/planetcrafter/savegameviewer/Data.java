@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeCreator;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
@@ -22,7 +22,7 @@ class Data {
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
-	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType) {
+	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, ObjectTypeCreator getOrCreateObjectType) {
 		try {
 			return new Data(jsonStructure, getOrCreateObjectType);
 			
@@ -76,16 +76,14 @@ class Data {
 		return blocks;
 	}
 
-	private Data(Vector<Vector<Value<NV, V>>> dataVec, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType) throws ParseException, TraverseException {
+	private Data(Vector<Vector<Value<NV, V>>> dataVec, ObjectTypeCreator getOrCreateObjectType) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
-		
-		ParseConstructor<PlayerStates> createPlayerStates = (value, debugLabel) -> new PlayerStates(value, getOrCreateObjectType, debugLabel);
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
 		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"); blockIndex++;
-		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), createPlayerStates     , "PlayerStates"      ); blockIndex++;
-		/* 2 */ worldObjects       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject       ::new, "WorldObjects"      ); blockIndex++;
+		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates      ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject       ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
 		/* 3 */ objectLists        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList        ::new, "ObjectLists"       ); blockIndex++;
 		/* 4 */ generalData1       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1      ::new, "GeneralData1"      ); blockIndex++;
 		/* 5 */ messages           = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message           ::new, "Messages"          ); blockIndex++;
@@ -106,7 +104,6 @@ class Data {
 				other.nonUniqueID = true;
 			}
 			
-			wo.objectType = getOrCreateObjectType.apply(wo.objectTypeID, ObjectTypes.Occurrence.WorldObject);
 			if (0 < wo.listId)
 				for (ObjectList ol : objectLists)
 					if (ol.id==wo.listId) {
@@ -147,7 +144,28 @@ class Data {
 		System.out.printf("Done%n");
 	}
 	
-	private static <ValueType> Vector<ValueType> parseArray(Vector<Value<NV, V>> vector, ParseConstructor<ValueType> parseConstructor, String debugLabel) throws ParseException, TraverseException {
+	interface ParseConstructor1<ValueType> {
+		ValueType parse(Value<NV, V> value, String debugLabel) throws ParseException, TraverseException;
+	}
+
+	interface ParseConstructor2<ValueType> {
+		ValueType parse(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws ParseException, TraverseException;
+	}
+
+	private static <ValueType> Vector<ValueType> parseArray(
+			Vector<Value<NV, V>> vector,
+			ParseConstructor2<ValueType> parseConstructor,
+			String debugLabel,
+			ObjectTypeCreator getOrCreateObjectType
+	) throws ParseException, TraverseException {
+		return parseArray(vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), debugLabel);
+	}
+	
+	private static <ValueType> Vector<ValueType> parseArray(
+			Vector<Value<NV, V>> vector,
+			ParseConstructor1<ValueType> parseConstructor,
+			String debugLabel
+	) throws ParseException, TraverseException {
 		Vector<ValueType> parsedVec = new Vector<>();
 		for (int i=0; i< vector.size(); i++) {
 			Value<NV, V> val = vector.get(i);
@@ -220,10 +238,6 @@ class Data {
 		return parseCommaSeparatedArray(str, debugLabel, "String", String[]::new, str1->str1);
 	}
 
-	interface ParseConstructor<ValueType> {
-		ValueType parse(Value<NV, V> value, String debugLabel) throws ParseException, TraverseException;
-	}
-	
 	static class ParseException extends Exception {
 		private static final long serialVersionUID = 7894187588880980010L;
 
@@ -555,7 +569,7 @@ class Data {
 			        playerRotation:String
 			        unlockedGroups:String
 		 */
-		PlayerStates(Value<NV, V> value, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
+		PlayerStates(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
@@ -572,7 +586,7 @@ class Data {
 			
 			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
 			for (int i=0; i<unlockedGroups.length; i++)
-				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i], ObjectTypes.Occurrence.Blueprint );
+				unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], ObjectTypes.Occurrence.Blueprint );
 		}
 		
 		@Override String toJsonStrs() {
@@ -595,23 +609,25 @@ class Data {
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
-		final String   _liGrps;
+		final String   productID;
 		final Coord3   position;
 		final String   positionStr;
 		final Rotation rotation;
 		final String   rotationStr;
 		final long     _wear;
-		final String   _pnls;
+		final String   mods;
 		final String   colorStr;
 		final Color    color;
 		final String   text;
 		final long     growth;
 		
+		final ObjectType objectType;
+		final ObjectType product; // result of producers like Incubators and DNA Manipulators
+		
 		boolean        nonUniqueID; // is <id> unique over all WorldObjects
 		ObjectList     list; // list associated with listId
 		WorldObject    container; // container, it is containing this object
 		ObjectList     containerList; // list, it is containing this object
-		ObjectType     objectType;
 		MapWorldObjectData mapWorldObjectData;
 		
 		/*
@@ -632,18 +648,18 @@ class Data {
 			        text  :String
 			        grwth :Integer
 		 */
-		WorldObject(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+		WorldObject(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(true);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
-			_liGrps      = JSON_Data.getStringValue (object, "liGrps", debugLabel); // result ID in GeneticManipulator1
+			productID    = JSON_Data.getStringValue (object, "liGrps", debugLabel);
 			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
 			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
 			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
-			_pnls        = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
+			mods         = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
 			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
@@ -652,25 +668,27 @@ class Data {
 			rotation     = new Rotation(rotationStr, debugLabel+".rot");
 			color        = colorStr.isEmpty() ? null : new Color(colorStr, debugLabel+".color");
 			
-			list      = null;
-			container = null;
+			objectType   =                              getOrCreateObjectType.getOrCreate(objectTypeID, ObjectTypes.Occurrence.WorldObject);
+			product      = productID.isEmpty() ? null : getOrCreateObjectType.getOrCreate(productID   , ObjectTypes.Occurrence.Product    );
+			
+			list          = null;
+			container     = null;
 			containerList = null;
-			objectType = null;
 			mapWorldObjectData = new MapWorldObjectData();
 			
 			// -------------------------------------------------------------------
 			//      show special values in fields
 			// -------------------------------------------------------------------
-			boolean _liGrpsIsNotEmpty = !_liGrps.isEmpty();
+			//boolean _liGrpsIsNotEmpty = !productID.isEmpty();
 			boolean _wearIsNotZero    =  _wear  !=0;
-			//boolean _pnlsIsNotEmpty   = !_pnls  .isEmpty();
-			//boolean _colorIsNotEmpty  = !colorStr .isEmpty();
+			//boolean _pnlsIsNotEmpty   = !mods.isEmpty();
+			//boolean _colorIsNotEmpty  = !colorStr.isEmpty();
 			if (//_pnlsIsNotEmpty   ||
 				//_colorIsNotEmpty  ||
-				_wearIsNotZero    ||
-				_liGrpsIsNotEmpty ) {
+				//_liGrpsIsNotEmpty ||
+				_wearIsNotZero     ) {
 				Vector<String> vars = new Vector<>();
-				if (_liGrpsIsNotEmpty) vars.add("_liGrps");
+				//if (_liGrpsIsNotEmpty) vars.add("_liGrps");
 				if (_wearIsNotZero   ) vars.add("_wear");
 				//if (_pnlsIsNotEmpty  ) vars.add("_pnls");
 				//if (_colorIsNotEmpty ) vars.add("_color");
@@ -691,12 +709,12 @@ class Data {
 						id          ,
 						objectTypeID,
 						listId      ,
-						_liGrps     ,
+						productID   ,
 						positionStr ,
 						rotationStr ,
 						_wear       ,
-						_pnls       ,
-						colorStr      ,
+						mods        ,
+						colorStr    ,
 						text        ,
 						growth      ,
 						String.join(", ", vars)
@@ -709,11 +727,11 @@ class Data {
 					toLongValueStr  ("id"    , id          ),
 					toStringValueStr("gId"   , objectTypeID),
 					toLongValueStr  ("liId"  , listId      ),
-					toStringValueStr("liGrps", _liGrps     ),
+					toStringValueStr("liGrps", productID   ),
 					toStringValueStr("pos"   , positionStr ),
 					toStringValueStr("rot"   , rotationStr ),
 					toLongValueStr  ("wear"  , _wear       ),
-					toStringValueStr("pnls"  , _pnls       ),
+					toStringValueStr("pnls"  , mods        ),
 					toStringValueStr("color" , colorStr    ),
 					toStringValueStr("text"  , text        ),
 					toLongValueStr  ("grwth" , growth      )

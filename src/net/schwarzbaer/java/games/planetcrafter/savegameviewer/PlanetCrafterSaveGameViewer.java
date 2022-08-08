@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -27,7 +26,6 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
@@ -185,9 +183,10 @@ public class PlanetCrafterSaveGameViewer {
 			
 			showIndeterminateTask(pd, "Parse JSON Structure");
 			HashSet<String> newObjectTypes = new HashSet<>();
-			BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType =
-					(objectTypeID,occurrence) -> objectTypes.getOrCreate(objectTypeID, occurrence, newObjectTypes);
-			Data data = Data.parse(jsonStructure, getOrCreateObjectType);
+			Data data = Data.parse(
+					jsonStructure,
+					(objectTypeID,occurrence) -> objectTypes.getOrCreate(objectTypeID, occurrence, newObjectTypes)
+			);
 			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
 			if (data == null) return;
 			
