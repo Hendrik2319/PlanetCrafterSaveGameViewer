@@ -29,7 +29,8 @@ import javax.swing.table.TableCellRenderer;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GeneralDataPanel.TerraformingStatesPanel;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
@@ -235,7 +236,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			if (wo.list.worldObjs.length==0) return null;
 			
 			ObjectType[] objectTypes = Data.WorldObject.getObjectTypes(wo.list.worldObjs);
-			return ObjectType.sumUpMultipliers(objectTypes, getMultiplier);
+			return ObjectTypes.sumUpMultipliers(objectTypes, getMultiplier);
 		}
 
 		private static class RowIndex {
@@ -313,9 +314,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 						case Multiplier:
 							valueStr = String.format(Locale.ENGLISH, "x %1.2f", value); break;
 						case Energy:
-							valueStr = String.format(Locale.ENGLISH, "%1.2f %s", value, ObjectType.EnergyRateUnit); break;
+							valueStr = String.format(Locale.ENGLISH, "%1.2f %s", value, ObjectTypes.EnergyRateUnit); break;
 						case Efficiency:
-							valueStr = String.format(Locale.ENGLISH, "%1.2f (%s)/%s", value, tableModel.physicalValue.rateUnit, ObjectType.EnergyRateUnit); break;
+							valueStr = String.format(Locale.ENGLISH, "%1.2f (%s)/%s", value, tableModel.physicalValue.rateUnit, ObjectTypes.EnergyRateUnit); break;
 						case BaseSum: case FinalSum:
 							valueStr = tableModel.physicalValue.formatRate((Double) value); break;
 						}

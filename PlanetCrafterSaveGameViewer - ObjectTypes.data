@@ -7,6 +7,7 @@ label = Algae Generator T1
 oxygen = 127.0
 plants = 0.8
 energy = -13.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: AlgaeGenerator2
@@ -14,30 +15,37 @@ label = Algae Generator T2
 oxygen = 350.0
 plants = 23.0
 energy = -27.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Alloy
 label = Super Alloy
+occurrences = WorldObject
 <finished>
 
 ObjectType: Aluminium
 label = Aluminium
+occurrences = WorldObject
 <finished>
 
 ObjectType: astrofood
 label = Space Food
+occurrences = WorldObject
 <finished>
 
 ObjectType: astrofood2
 label = High Quality Food
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Backpack2
 label = Backpack T2
+occurrences = Achievement
 <finished>
 
 ObjectType: Backpack3
 label = Backpack T3
+occurrences = Achievement
 <finished>
 
 ObjectType: Backpack4
@@ -46,6 +54,7 @@ label = Backpack T4
 
 ObjectType: Backpack5
 label = Backpack T5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Bacteria1
@@ -55,10 +64,12 @@ label = Bacteria Sample
 ObjectType: Beacon
 label = Beacon
 energy = -0.25
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Bee1Larvae
 label = Bee Larva
+occurrences = WorldObject
 <finished>
 
 ObjectType: Beehive1
@@ -66,6 +77,7 @@ label = Beehive
 plants = 350.0
 insects = 15.0
 energy = -25.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
@@ -73,6 +85,7 @@ ObjectType: biodome
 label = Biodome T1
 oxygen = 135.0
 energy = -37.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Biodome2
@@ -80,72 +93,87 @@ label = Biodome T2
 oxygen = 1450.0
 plants = 11.0
 energy = -75.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
 ObjectType: Biolab
 label = Biolab
 energy = -40.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Bioplastic1
 label = Bioplastic Nugget
+occurrences = WorldObject
 <finished>
 
 ObjectType: BlueprintT1
 label = Blueprint Chip
+occurrences = WorldObject
 <finished>
 
 ObjectType: BootsSpeed1
 label = Agility Boots T1
+occurrences = Blueprint
 <finished>
 
 ObjectType: BootsSpeed2
 label = Agility Boots T2
+occurrences = Blueprint
 <finished>
 
 ObjectType: BootsSpeed3
 label = Agility Boots T3
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Butterfly4Larvae
 label = Butterfly Galaxe Larva (common, 175%)
 insectsMultiplier = 1.75
+occurrences = WorldObject
 <finished>
 
 ObjectType: Butterfly5Larvae
 label = Butterfly Abstreus Larva (common, 175%)
 insectsMultiplier = 1.75
+occurrences = WorldObject
 <finished>
 
 ObjectType: Butterfly6Larvae
 label = Butterfly Empalio Larva (rare, 120%)
 insectsMultiplier = 1.2
+occurrences = WorldObject
 <finished>
 
 ObjectType: Butterfly7Larvae
 label = Butterfly Penga Larva (rare, 230%)
 insectsMultiplier = 2.3
+occurrences = WorldObject
 <finished>
 
 ObjectType: Butterfly8Larvae
 label = Butterfly Chevrone Larva (rare, 250%)
 insectsMultiplier = 2.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Butterfly9Larvae
 label = Butterfly Aemel Larva (rare, 300%)
 insectsMultiplier = 3.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ButterflyDisplayer1
 label = Butterfly Display Box
+occurrences = WorldObject,Achievement
 
 ObjectType: ButterflyDome1
 label = Butterfly Dome
 insects = 20.0
 energy = -139.0
 multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ButterflyFarm1
@@ -153,46 +181,56 @@ label = Butterfly Farm
 insects = 75.0
 energy = -30.0
 multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: canister
 label = Canister
+occurrences = WorldObject
 <finished>
 
 ObjectType: Cobalt
 label = Cobalt
+occurrences = WorldObject
 <finished>
 
 ObjectType: ComAntenna
 label = Communication Antenna
 energy = -15.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Container1
 label = Storage Crate
+occurrences = WorldObject
 <finished>
 
 ObjectType: Container2
 label = Locker Storage
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: CraftStation1
 label = Craft Station T2
 energy = -0.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: CraftStation2
 label = Advanced Craft Station
 energy = -12.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Destructor1
 label = Shredder Machine
 energy = -18.0
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: DisplayCase
 label = Display Case
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Drill0
@@ -206,6 +244,7 @@ label = Drill T2
 heat = 0.1
 pressure = 1.5
 energy = -5.0
+occurrences = Achievement
 <finished>
 
 ObjectType: Drill2
@@ -213,6 +252,7 @@ label = Drill T3
 heat = 0.25
 pressure = 17.0
 energy = -8.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Drill3
@@ -220,36 +260,43 @@ label = Drill T4
 heat = 25.0
 pressure = 459.0
 energy = -45.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EnergyGenerator1
 label = Wind Turbine
 energy = 1.2
+occurrences = WorldObject
 <finished>
 
 ObjectType: EnergyGenerator2
 label = Solar Panel T1
 energy = 6.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EnergyGenerator3
 label = Solar Panel T2
 energy = 19.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EnergyGenerator4
 label = Nuclear Reactor T1
 energy = 86.5
+occurrences = Achievement
 <finished>
 
 ObjectType: EnergyGenerator5
 label = Nuclear Reactor T2
 energy = 331.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EnergyGenerator6
 label = Nuclear Fusion Generator
 energy = 1485.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EquipmentIncrease1
@@ -258,22 +305,27 @@ label = Exoskeleton T1
 
 ObjectType: EquipmentIncrease2
 label = Exoskeleton T2
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EscapePod
 label = Landing Pod
+occurrences = WorldObject
 <finished>
 
 ObjectType: FabricBlue
 label = Fabric
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Farm1
 label = Outdoor Farm
+occurrences = WorldObject,Achievement
 isProducer
 
 ObjectType: Fertilizer1
 label = Fertilizer T1
+occurrences = WorldObject
 <finished>
 
 ObjectType: Fertilizer2
@@ -283,42 +335,51 @@ label = Fertilizer T2
 ObjectType: FlowerPot1
 label = Flower Pot
 oxygen = 5.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Foundation
 label = Foundation
+occurrences = WorldObject
 <finished>
 
 ObjectType: FusionEnergyCell
 label = Fusion Energy Cell
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: GasExtractor1
 label = Gas Extractor T1
 heat = 13.0
 energy = -58.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
 ObjectType: GeneticManipulator1
 label = DNA Manipulator
 energy = -117.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: GoldenContainer
 label = Golden Container
+occurrences = WorldObject
 <finished>
 
 ObjectType: GoldenEffigie1
 label = Golden Effigie "Rocket"
+occurrences = WorldObject
 <finished>
 
 ObjectType: GoldenEffigie2
 label = Golden Effigie "Landing Pod"
+occurrences = WorldObject
 <finished>
 
 ObjectType: GoldenEffigie3
 label = Golden Effigie "Com. Antenna"
+occurrences = WorldObject
 <finished>
 
 ObjectType: GrassSpreader1
@@ -326,18 +387,21 @@ label = Grass Spreader T1
 oxygen = 108.0
 plants = 0.19
 energy = -13.8
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Heater1
 label = Heater T1
 heat = 0.3
 energy = -1.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Heater2
 label = Heater T2
 heat = 4.5
 energy = -3.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Heater3
@@ -345,6 +409,7 @@ label = Heater T3
 heat = 28.5
 pressure = 0.6
 energy = -17.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Heater4
@@ -352,77 +417,95 @@ label = Heater T4
 heat = 538.0
 pressure = 35.5
 energy = -51.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: honey
 label = Honey
+occurrences = WorldObject
 <finished>
 
 ObjectType: HudCompass
 label = Microchip - Compass
+occurrences = Blueprint
 <finished>
 
 ObjectType: ice
 label = Ice
+occurrences = WorldObject
 <finished>
 
 ObjectType: Incubator1
 label = Incubator
 energy = -215.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: InsideLamp1
 label = Area Lamp
 energy = -1.2
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Iridium
 label = Iridium
+occurrences = WorldObject
 <finished>
 
 ObjectType: Iron
 label = Iron
+occurrences = WorldObject
 <finished>
 
 ObjectType: Jetpack2
 label = Jetpack T2
+occurrences = Blueprint
 <finished>
 
 ObjectType: Jetpack3
 label = Jetpack T3
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: LarvaeBase1
 label = Common Larva
+occurrences = WorldObject
 <finished>
 
 ObjectType: LarvaeBase2
 label = Uncommon Larva
+occurrences = WorldObject
 <finished>
 
 ObjectType: LarvaeBase3
 label = Rare Larva
+occurrences = WorldObject
 <finished>
 
 ObjectType: LaunchPlatform
 label = Launch Platform
 energy = -55.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Magnesium
 label = Magnesium
+occurrences = WorldObject
 <finished>
 
 ObjectType: MethanCapsule1
 label = Methane Cartridge
+occurrences = WorldObject
 <finished>
 
 ObjectType: MultiBuild
 label = Microchip - Construction
+occurrences = WorldObject
 <finished>
 
 ObjectType: MultiDeconstruct
 label = Microchip - Deconstruction
+occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolLight1
@@ -431,26 +514,32 @@ label = Microchip - Torch T1
 
 ObjectType: MultiToolLight2
 label = Microchip - Torch T2
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed1
 label = Microchip - Mining Speed  T1
+occurrences = Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed2
 label = Microchip - Mining Speed  T2
+occurrences = Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed3
 label = Microchip - Mining Speed  T3
+occurrences = Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed4
 label = Microchip - Mining Speed  T4
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Mutagen1
 label = Mutagen
+occurrences = WorldObject
 <finished>
 
 ObjectType: OreExtractor1
@@ -458,6 +547,7 @@ label = Ore Extractor T1
 heat = 17.5
 pressure = 15.0
 energy = -34.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
@@ -466,20 +556,24 @@ label = Ore Extractor T2
 heat = 79.5
 pressure = 85.0
 energy = -164.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
 ObjectType: Osmium
 label = Osmium
+occurrences = WorldObject
 <finished>
 
 ObjectType: OutsideLamp1
 label = Outside Lamp
 energy = -0.3
+occurrences = WorldObject
 <finished>
 
 ObjectType: OxygenCapsule1
 label = Oxygen Capsule
+occurrences = WorldObject
 <finished>
 
 ObjectType: OxygenTank1
@@ -488,171 +582,208 @@ label = Oxygen Tank T1
 
 ObjectType: OxygenTank2
 label = Oxygen Tank T2
+occurrences = Achievement
 <finished>
 
 ObjectType: OxygenTank3
 label = Oxygen Tank T3
+occurrences = Achievement
 <finished>
 
 ObjectType: OxygenTank4
 label = Oxygen Tank T4
+occurrences = WorldObject
 <finished>
 
 ObjectType: pod
 label = Living Compartment
+occurrences = WorldObject
 <finished>
 
 ObjectType: Pod4x
 label = Big Living Compartment (2x2)
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: podAngle
 label = Living Compartment Corner
+occurrences = Blueprint
 <finished>
 
 ObjectType: PulsarQuartz
 label = Pulsar Quartz
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RecyclingMachine
 label = Recycling Machine
 energy = -12.5
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RedPowder1
 label = Explosive Powder
+occurrences = WorldObject
 <finished>
 
 ObjectType: RocketBiomass1
 label = Plants Rocket
 isBoosterRocketFor = Plants
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
 isBoosterRocketFor = Heat
+occurrences = WorldObject
 <finished>
 
 ObjectType: RocketInformations1
 label = Map Information Rocket
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap1
 label = GPS Satellite T1
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap2
 label = GPS Satellite T2
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap3
 label = GPS Satellite T3
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
 isBoosterRocketFor = Oxygen
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketPressure1
 label = Magnetic Field Protection Rocket (Pressure, Iridium)
 isBoosterRocketFor = Pressure
+occurrences = WorldObject
 <finished>
 
 ObjectType: RocketReactor
 label = Rocket Engine
+occurrences = WorldObject
 <finished>
 
 ObjectType: Rod-alloy
 label = Super Alloy Rod
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Rod-iridium
 label = Iridium Rod
+occurrences = WorldObject
 <finished>
 
 ObjectType: Rod-uranium
 label = Uranium Rod
+occurrences = WorldObject
 <finished>
 
 ObjectType: ScreenBiomass
 label = Screen Biomass
 energy = -3.4
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ScreenEnergy
 label = Screen - Energy Levels
 energy = -0.4
+occurrences = WorldObject
 <finished>
 
 ObjectType: ScreenMap1
 label = Screen - Mapping
 energy = -14.7
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: ScreenMessage
 label = Screen - Transmissions
 energy = -0.4
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ScreenRockets
 label = Screen - Orbital Informations
 energy = -35.2
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ScreenTerraformation
 label = Screen - Terraformation
 energy = -0.4
+occurrences = WorldObject
 <finished>
 
 ObjectType: ScreenTerraStage
 label = Screen - Progress
 energy = -1.3
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ScreenUnlockables
 label = Screen - Blueprints
 energy = -0.2
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed0
 label = Seed Lirma (100%)
 oxygenMultiplier = 1.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed1
 label = Seed Shanga (150%)
 oxygenMultiplier = 1.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed2
 label = Seed Pestera (200%)
 oxygenMultiplier = 2.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed3
 label = Seed Nulna (300%)
 oxygenMultiplier = 3.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed4
 label = Seed Tuska (400%)
 oxygenMultiplier = 4.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed5
 label = Seed Orema (450%)
 oxygenMultiplier = 4.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Seed6
 label = Seed Volnus (500%)
 oxygenMultiplier = 5.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: SeedGold
 label = Golden Seeds (600%)
 oxygenMultiplier = 6.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: SeedSpreader1
@@ -661,6 +792,7 @@ oxygen = 161.0
 plants = 9.2
 energy = -28.8
 multiplierExpected
+occurrences = Achievement
 <finished>
 
 ObjectType: SeedSpreader2
@@ -669,14 +801,17 @@ oxygen = 325.0
 plants = 43.5
 energy = -38.8
 multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Silicon
 label = Silicon
+occurrences = WorldObject
 <finished>
 
 ObjectType: SilkGenerator
 label = Silk Generator
+occurrences = WorldObject,Achievement
 isProducer
 
 ObjectType: SilkWorm
@@ -687,81 +822,99 @@ ObjectType: SpaceMultiplierBiomass
 <finished>
 
 ObjectType: SpaceMultiplierHeat
+occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierOxygen
+occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierPlants
+occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierPressure
+occurrences = WorldObject
 <finished>
 
 ObjectType: Stairs
 label = Stairs
+occurrences = WorldObject
 <finished>
 
 ObjectType: Sulfur
 label = Sulfur
+occurrences = WorldObject
 <finished>
 
 ObjectType: Teleporter1
 label = Teleporter
 energy = -276.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Titanium
 label = Titanium
+occurrences = WorldObject
 <finished>
 
 ObjectType: Tree0Seed
 label = Tree Seed "Iterra" (125%, ???)
 oxygenMultiplier = 1.25
+occurrences = WorldObject
 <finished>
 
 ObjectType: Tree1Seed
 label = Tree Seed "Linifolia" (125%, Shanga150) #0
 oxygenMultiplier = 1.25
+occurrences = WorldObject
 <finished>
 
 ObjectType: Tree2Seed
 label = Tree Seed "Aleatus" (125%, Pestera200) #0
 oxygenMultiplier = 1.25
+occurrences = WorldObject
 <finished>
 
 ObjectType: Tree3Seed
 label = Tree Seed "Cernea" (150%, Nulna300) #1
 oxygenMultiplier = 1.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Tree4Seed
 label = Tree Seed "Elegea" (175%, Tuska400) #2
 oxygenMultiplier = 1.75
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Tree5Seed
 label = Tree Seed "Humelora" (250%, Orema450) #3
 oxygenMultiplier = 2.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Tree6Seed
 label = Tree Seed "Aemora" (400%, Volnus500) #4
 oxygenMultiplier = 4.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Tree7Seed
 label = Tree Seed "Pleom" (350%, Gold600)
 oxygenMultiplier = 3.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Tree8Seed
 label = Tree Seed "Soleus" (125%, Lirma100) #0
 oxygenMultiplier = 1.25
+occurrences = WorldObject
 <finished>
 
 ObjectType: TreeRoot
 label = Tree Bark
+occurrences = WorldObject
 <finished>
 
 ObjectType: TreeSpreader0
@@ -770,6 +923,7 @@ oxygen = 920.0
 plants = 97.0
 energy = -31.0
 multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: TreeSpreader1
@@ -778,6 +932,7 @@ oxygen = 1950.0
 plants = 175.0
 energy = -71.0
 multiplierExpected
+occurrences = Achievement
 <finished>
 
 ObjectType: TreeSpreader2
@@ -786,52 +941,64 @@ oxygen = 12500.0
 plants = 680.0
 energy = -153.0
 multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Uranim
 label = Uranium
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable0Growable
 label = Eggplant
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable0Seed
 label = Eggplant Seeds
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable1Growable
 label = Squash
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable1Seed
 label = Squash Seeds
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable2Growable
 label = Beans
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable2Seed
 label = Beans Seeds
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable3Growable
 label = Mushroom
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable3Seed
 label = Mushroom Seed
+occurrences = WorldObject
 <finished>
 
 ObjectType: VegetableGrower1
 label = Food Grower T1
 energy = -15.0
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VegetableGrower2
 label = Food Grower T2
 energy = -29.5
+occurrences = Achievement
 <finished>
 
 ObjectType: Vegetube1
@@ -846,6 +1013,7 @@ label = Vegetube T2
 oxygen = 1.2
 energy = -1.25
 multiplierExpected
+occurrences = Achievement
 <finished>
 
 ObjectType: VegetubeOutside1
@@ -853,31 +1021,38 @@ label = Vegetube T3
 oxygen = 13.0
 energy = -7.25
 multiplierExpected
+occurrences = Achievement
 <finished>
 
 ObjectType: WaterBottle1
 label = Water Bottle
+occurrences = WorldObject
 <finished>
 
 ObjectType: WaterCollector1
 label = Atmospheric Water Collector
 energy = -11.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
 ObjectType: WaterCollector2
 label = Lake Water Collector
 energy = -19.0
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
 ObjectType: WaterFilter
 label = Water Filter
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: wreckpilar
+occurrences = WorldObject
 
 ObjectType: Zeolite
 label = Zeolite
+occurrences = WorldObject
 <finished>
 

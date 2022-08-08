@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Supplier;
@@ -21,8 +21,10 @@ import net.schwarzbaer.gui.ContextMenu;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.system.ClipboardTools;
 
 class ObjectTypesPanel extends JScrollPane {
@@ -30,7 +32,7 @@ class ObjectTypesPanel extends JScrollPane {
 	private ObjectTypesTableModel tableModel;
 	private JTable table;
 	
-	ObjectTypesPanel(HashMap<String,ObjectType> objectTypes) {
+	ObjectTypesPanel(ObjectTypes objectTypes) {
 		
 		tableModel = new ObjectTypesTableModel(this, objectTypes);
 		table = new JTable(tableModel);
@@ -182,7 +184,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case multiplierExpected:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case multiplierExpected: case occurrences:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -190,7 +192,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case plants  : return PhysicalValue.Plants  .formatRate((Double) value);
 			case insects : return PhysicalValue.Insects .formatRate((Double) value);
 			case animals : return PhysicalValue.Animals .formatRate((Double) value);
-			case energy  : return ObjectType.formatEnergyRate((Double) value);
+			case energy  : return ObjectTypes.formatEnergyRate((Double) value);
 			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
@@ -202,6 +204,7 @@ class ObjectTypesPanel extends JScrollPane {
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			finished          ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
+			occurrences        ("Occ."          , String       .class,  50, null),
 			id                ("ID"            , String       .class, 130, null),
 			label             ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
 			heat              ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
@@ -230,12 +233,12 @@ class ObjectTypesPanel extends JScrollPane {
 		
 		private final Vector<ObjectTypesChangeListener> objectTypesChangeListeners;
 		private final Vector<String> objTypeIDs;
-		private final HashMap<String, ObjectType> objectTypes;
+		private final ObjectTypes objectTypes;
 
-		private ObjectTypesTableModel(ObjectTypesPanel panel, HashMap<String, ObjectType> objectTypes) {
+		private ObjectTypesTableModel(ObjectTypesPanel panel, ObjectTypes objectTypes) {
 			super(ColumnID.values());
 			this.objectTypes = objectTypes;
-			objTypeIDs = new Vector<>(objectTypes.keySet());
+			objTypeIDs = new Vector<>(this.objectTypes.keySet());
 			objTypeIDs.sort(Data.caseIgnoringComparator);
 			objectTypesChangeListeners = new Vector<>();
 		}
@@ -248,7 +251,7 @@ class ObjectTypesPanel extends JScrollPane {
 					System.err.printf("Can't create a new Object Type with ID \"%s\". This ID is already used.", objectTypeID);
 				if (cmpVal>0) {
 					objTypeIDs.insertElementAt(objectTypeID, i);
-					objectTypes.put(objectTypeID, new ObjectType(objectTypeID));
+					objectTypes.put(objectTypeID, new ObjectType(objectTypeID, ObjectTypes.Occurrence.User));
 					fireTableRowAdded(i);
 					fireObjectTypeAddedEvent(objectTypeID);
 					break;
@@ -295,7 +298,7 @@ class ObjectTypesPanel extends JScrollPane {
 		private ObjectType getRow(int rowIndex) {
 			if (rowIndex<0) return null;
 			if (rowIndex>=objTypeIDs.size()) return null;
-			return objectTypes.get(objTypeIDs.get(rowIndex));
+			return objectTypes.get(objTypeIDs.get(rowIndex), null);
 		}
 		
 		@Override
@@ -317,15 +320,22 @@ class ObjectTypesPanel extends JScrollPane {
 			case insectsMultiplier : return row.insectsMultiplier;
 			case isBoosterRocketFor: return row.isBoosterRocketFor;
 			case isProducer: return row.isProducer;
+			case occurrences: return toString(row.occurrences);
 			}
 			return null;
+		}
+
+		private String toString(EnumSet<Occurrence> occurrences) {
+			if (occurrences.isEmpty()) return " - ";
+			Iterable<String> it = ()->occurrences.stream().sorted().map(Occurrence::getShortLabel).iterator();
+			return String.join(", ", it);
 		}
 
 		@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
 			ObjectType row = getRow(rowIndex);
 			if (row==null) return false;
 			if (row.finished) return columnID==ColumnID.finished;
-			return columnID!=ColumnID.id;
+			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences;
 		}
 
 		@Override
@@ -334,7 +344,8 @@ class ObjectTypesPanel extends JScrollPane {
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
 			case finished: row.finished = (Boolean)aValue; fireTableRowUpdate(rowIndex); break;
-			case id      : break;
+			case occurrences: break;
+			case id         : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
 			case heat    : row.heat     = (Double)aValue; break;
 			case pressure: row.pressure = (Double)aValue; break;

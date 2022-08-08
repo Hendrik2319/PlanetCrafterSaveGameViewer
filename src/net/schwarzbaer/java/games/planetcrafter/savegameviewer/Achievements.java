@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -39,7 +38,8 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedTableModel;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
@@ -71,10 +71,11 @@ class Achievements implements ObjectTypesChangeListener {
 	}
 	
 	private final EnumMap<AchievementList,Vector<Achievement>> achievements;
-	private HashMap<String, ObjectType> objectTypes;
+	private ObjectTypes objectTypes;
 	
 	Achievements() {
 		achievements = new EnumMap<>(AchievementList.class);
+		objectTypes = null;
 	}
 
 	static Achievements readFromFile() {
@@ -181,7 +182,7 @@ class Achievements implements ObjectTypesChangeListener {
 		}
 	}
 
-	void setObjectTypesData(HashMap<String, ObjectType> objectTypes) {
+	void setObjectTypesData(ObjectTypes objectTypes) {
 		this.objectTypes = objectTypes;
 		updateObjectTypeAssignments();
 	}
@@ -214,18 +215,13 @@ class Achievements implements ObjectTypesChangeListener {
 	}
 	
 	private ObjectType findObjectTypeByID(String objectTypeID) {
-		if (objectTypeID==null) return null;
 		if (objectTypes==null) return null;
-		return objectTypes.get(objectTypeID);
+		return objectTypes.findObjectTypeByID(objectTypeID, ObjectTypes.Occurrence.Achievement);
 	}
 	
 	private ObjectType findObjectTypeByName(String name) {
-		if (name==null) return null;
 		if (objectTypes==null) return null;
-		for (ObjectType ot : objectTypes.values())
-			if (name.equals(ot.getName()))
-				return ot;
-		return null;
+		return objectTypes.findObjectTypeByName(name, ObjectTypes.Occurrence.Achievement);
 	}
 
 	static class Achievement {

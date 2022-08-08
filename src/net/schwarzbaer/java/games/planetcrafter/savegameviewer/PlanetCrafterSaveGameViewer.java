@@ -6,11 +6,10 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -28,6 +27,7 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
@@ -61,7 +61,7 @@ public class PlanetCrafterSaveGameViewer {
 	private final MyMenuBar menuBar;
 	private File openFile;
 	private Data loadedData;
-	private HashMap<String,ObjectType> objectTypes;
+	private ObjectTypes objectTypes;
 	private Achievements achievements;
 	private GeneralDataPanel generalDataPanel;
 
@@ -140,7 +140,7 @@ public class PlanetCrafterSaveGameViewer {
 	private void initialize() {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
-		objectTypes = ObjectType.readFromFile(new File(FILE_OBJECT_TYPES));
+		objectTypes = ObjectTypes.readFromFile(new File(FILE_OBJECT_TYPES));
 		achievements = Achievements.readFromFile();
 		achievements.setObjectTypesData(objectTypes);
 		achievements.sortAchievements();
@@ -185,8 +185,8 @@ public class PlanetCrafterSaveGameViewer {
 			
 			showIndeterminateTask(pd, "Parse JSON Structure");
 			HashSet<String> newObjectTypes = new HashSet<>();
-			Function<String,ObjectType> getOrCreateObjectType =
-					objectTypeID -> ObjectType.getOrCreate(objectTypes, objectTypeID, newObjectTypes);
+			BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType =
+					(objectTypeID,occurrence) -> objectTypes.getOrCreate(objectTypeID, occurrence, newObjectTypes);
 			Data data = Data.parse(jsonStructure, getOrCreateObjectType);
 			if (Thread.currentThread().isInterrupted()) { System.out.println("File Reading Aborted"); return; }
 			if (data == null) return;
@@ -246,14 +246,14 @@ public class PlanetCrafterSaveGameViewer {
 	}
 
 	private void writeObjectTypesToFile() {
-		ObjectType.writeToFile(new File(FILE_OBJECT_TYPES), objectTypes);
+		objectTypes.writeToFile(new File(FILE_OBJECT_TYPES));
 	}
 
 	StandardMainWindow getMainWindow() {
 		return mainWindow;
 	}
 
-	HashMap<String,ObjectType> getObjectTypes() {
+	ObjectTypes getObjectTypes() {
 		return objectTypes;
 	}
 

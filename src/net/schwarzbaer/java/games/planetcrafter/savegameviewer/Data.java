@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
@@ -20,7 +22,7 @@ class Data {
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
 
-	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, Function<String,ObjectType> getOrCreateObjectType) {
+	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType) {
 		try {
 			return new Data(jsonStructure, getOrCreateObjectType);
 			
@@ -74,7 +76,7 @@ class Data {
 		return blocks;
 	}
 
-	private Data(Vector<Vector<Value<NV, V>>> dataVec, Function<String,ObjectType> getOrCreateObjectType) throws ParseException, TraverseException {
+	private Data(Vector<Vector<Value<NV, V>>> dataVec, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
 		
 		ParseConstructor<PlayerStates> createPlayerStates = (value, debugLabel) -> new PlayerStates(value, getOrCreateObjectType, debugLabel);
@@ -104,7 +106,7 @@ class Data {
 				other.nonUniqueID = true;
 			}
 			
-			wo.objectType = getOrCreateObjectType.apply(wo.objectTypeID);
+			wo.objectType = getOrCreateObjectType.apply(wo.objectTypeID, ObjectTypes.Occurrence.WorldObject);
 			if (0 < wo.listId)
 				for (ObjectList ol : objectLists)
 					if (ol.id==wo.listId) {
@@ -553,7 +555,7 @@ class Data {
 			        playerRotation:String
 			        unlockedGroups:String
 		 */
-		PlayerStates(Value<NV, V> value, Function<String, ObjectType> getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
+		PlayerStates(Value<NV, V> value, BiFunction<String,ObjectTypes.Occurrence,ObjectType> getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
@@ -570,7 +572,7 @@ class Data {
 			
 			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
 			for (int i=0; i<unlockedGroups.length; i++)
-				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i] );
+				unlockedObjectTypes[i] = getOrCreateObjectType.apply( unlockedGroups[i], ObjectTypes.Occurrence.Blueprint );
 		}
 		
 		@Override String toJsonStrs() {

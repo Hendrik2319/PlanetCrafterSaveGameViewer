@@ -34,8 +34,9 @@ import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.ObjectTypeValue;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectType.PhysicalValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 
@@ -335,7 +336,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 					ObjectsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
 					
 					String valueStr = value==null ? null : value.toString();
-					if (columnID==ObjectsTableModel.ColumnID.Energy && value instanceof Double ) valueStr = ObjectType.formatEnergyRate((Double)value);
+					if (columnID==ObjectsTableModel.ColumnID.Energy && value instanceof Double ) valueStr = ObjectTypes.formatEnergyRate((Double)value);
 					if (columnID==ObjectsTableModel.ColumnID.Count  && value instanceof Integer) valueStr = String.format(Locale.ENGLISH, "%d x ", value);
 					
 					Supplier<Color> getCustomBackground = ObjectsTableRow.createCustomBackgroundFunction(row);
@@ -435,9 +436,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			void updateValues() {
 				double sumSources   = sourcesPanel  .getSum();
 				double sumConsumers = consumersPanel.getSum();
-				fieldProduction .setText(ObjectType.formatEnergyRate( sumSources  ));
-				fieldConsumption.setText(ObjectType.formatEnergyRate(-sumConsumers));
-				fieldBudget     .setText(ObjectType.formatEnergyRate(sumSources+sumConsumers));
+				fieldProduction .setText(ObjectTypes.formatEnergyRate( sumSources  ));
+				fieldConsumption.setText(ObjectTypes.formatEnergyRate(-sumConsumers));
+				fieldBudget     .setText(ObjectTypes.formatEnergyRate(sumSources+sumConsumers));
 			}
 		}
 	}

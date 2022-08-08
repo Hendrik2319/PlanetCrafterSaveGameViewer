@@ -41,6 +41,7 @@ import net.schwarzbaer.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.gui.Tables.SimplifiedColumnIDInterface;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 
 class GUI {
 	static final Color COLOR_Removal_ByData = new Color(0xFFD5D5);
@@ -665,7 +666,7 @@ class GUI {
 			private boolean somethingWasChanged;
 			private final HashMap<String, Color> colors;
 			private final Vector<String> objectTypeIDs;
-			private HashMap<String, ObjectType> objectTypes;
+			private ObjectTypes objectTypes;
 
 			protected ColorTableModel() {
 				super(ColumnID.values());
@@ -686,12 +687,12 @@ class GUI {
 				return somethingWasChanged;
 			}
 
-			void setData(HashMap<String, Color> colors, HashMap<String, ObjectType> objectTypes) {
+			void setData(HashMap<String, Color> colors, ObjectTypes objectTypes) {
 				this.objectTypes = objectTypes;
 				this.colors.clear();
 				this.colors.putAll(colors);
 				somethingWasChanged = false;
-				HashSet<String> objectTypeIDSet = new HashSet<>(objectTypes.keySet());
+				HashSet<String> objectTypeIDSet = new HashSet<>(this.objectTypes.keySet());
 				objectTypeIDSet.addAll(this.colors.keySet());
 				objectTypeIDs.clear();
 				objectTypeIDs.addAll(objectTypeIDSet);
@@ -722,7 +723,7 @@ class GUI {
 					
 				case Label:
 					if (objectTypes==null) return null;
-					ObjectType ot = objectTypes.get(objectTypeID);
+					ObjectType ot = objectTypes.get(objectTypeID, null);
 					if (ot==null) return null;
 					return ot.label;
 					
