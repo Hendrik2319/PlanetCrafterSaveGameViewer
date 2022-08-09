@@ -157,7 +157,7 @@ occurrences = WorldObject,Product
 ObjectType: Butterfly3Larvae
 label = Butterfly Fensea Larva (common, 200%)
 insectsMultiplier = 2.0
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Butterfly4Larvae
