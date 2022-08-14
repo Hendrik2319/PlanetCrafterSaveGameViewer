@@ -136,6 +136,18 @@ insectsMultiplier = 5.0
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: Butterfly11Larvae
+label = Butterfly Nere Larva (<found>, 600%)
+insectsMultiplier = 6.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Butterfly13Larvae
+label = Butterfly Fiorente Larva (<found>, 600%)
+insectsMultiplier = 6.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: Butterfly15Larvae
 label = Butterfly Futura Larva (<found>, 800%)
 insectsMultiplier = 8.0
@@ -181,7 +193,7 @@ occurrences = WorldObject,Product
 ObjectType: Butterfly7Larvae
 label = Butterfly Penga Larva (rare, 230%)
 insectsMultiplier = 2.3
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Butterfly8Larvae
