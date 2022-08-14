@@ -89,9 +89,14 @@ class ObjectTypesPanel extends JScrollPane {
 			clickedRow = null;
 			clickedRowIndex = -1;
 			
-			JMenuItem miCopyID2Label = add(GUI.createMenuItem("Copy ID to Clipboard", e->{
+			JMenuItem miCopyID2Clipboard = add(GUI.createMenuItem("Copy ID to Clipboard", e->{
 				if (clickedRow==null) return;
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.id);
+			}));
+			
+			JMenuItem miCopyLabel2Clipboard = add(GUI.createMenuItem("Copy Label to Clipboard", e->{
+				if (clickedRow==null) return;
+				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label);
 			}));
 			
 			add(GUI.createMenuItem("Create New Object Type", e->{
@@ -120,10 +125,14 @@ class ObjectTypesPanel extends JScrollPane {
 				clickedRowIndex = rowM;
 				clickedRow = rowM<0 ? null : tableModel.getRow(rowM);
 				
-				miCopyID2Label.setEnabled(clickedRow!=null);
-				miCopyID2Label.setText(clickedRow == null
+				miCopyID2Clipboard   .setEnabled(clickedRow!=null);
+				miCopyLabel2Clipboard.setEnabled(clickedRow!=null);
+				miCopyID2Clipboard.setText(clickedRow == null
 						? "Copy ID to Clipboard"
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
+				miCopyLabel2Clipboard.setText(clickedRow == null
+						? "Copy Label to Clipboard"
+						: String.format("Copy Label \"%s\" to Clipboard", clickedRow.label));
 			});
 		}
 	}
@@ -204,7 +213,7 @@ class ObjectTypesPanel extends JScrollPane {
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			finished          ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
-			occurrences        ("Occ."          , String       .class,  50, null),
+			occurrences       ("Occ."          , String       .class,  50, null),
 			id                ("ID"            , String       .class, 130, null),
 			label             ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
 			heat              ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
