@@ -148,6 +148,12 @@ insectsMultiplier = 6.0
 occurrences = WorldObject
 <finished>
 
+ObjectType: Butterfly14Larvae
+label = Butterfly Alben Larva (<found>, 700%)
+insectsMultiplier = 7.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: Butterfly15Larvae
 label = Butterfly Futura Larva (<found>, 800%)
 insectsMultiplier = 8.0
