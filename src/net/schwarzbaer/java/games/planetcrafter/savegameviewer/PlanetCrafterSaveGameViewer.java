@@ -484,9 +484,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				while( !content.isEmpty() ) {
 					if (Thread.currentThread().isInterrupted()) break;
 					
-					JSON_Parser<NV, V> parser = new JSON_Parser<NV,V>(content, null);
 					glueChar = null;
-					JSON_Data.Value<NV,V> result = parser.parse_withParseException(str -> {
+					JSON_Data.Value<NV,V> result = JSON_Parser.<NV,V>parse_withParseException(content, null, str -> {
 						//if (str.length()>40) System.out.printf("Remaining Text: \"%s...\"%n", str.substring(0, 40));
 						//else                 System.out.printf("Remaining Text: \"%s\"%n", str);
 						content = str.trim();
