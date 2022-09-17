@@ -283,10 +283,9 @@ class ObjectTypesPanel extends JScrollPane {
 				dcl.objectTypesChanged(event);
 		}
 		
-		@SuppressWarnings("unused")
-		void fireTableCellUpdate(int rowIndex, ColumnID columnID) {
-			int columnIndex = getColumn(columnID);
-			super.fireTableCellUpdate(rowIndex, columnIndex);
+		@Override
+		public void fireTableCellUpdate(int rowIndex, ColumnID columnID) {
+			super.fireTableCellUpdate(rowIndex, columnID);
 		}
 
 		void setDefaultCellEditorsAndRenderers() {
