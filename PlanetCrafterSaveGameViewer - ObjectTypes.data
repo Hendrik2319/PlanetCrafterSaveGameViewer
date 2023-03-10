@@ -240,6 +240,11 @@ label = Canister
 occurrences = WorldObject
 <finished>
 
+ObjectType: CircuitBoard1
+label = Circuit Board
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Cobalt
 label = Cobalt
 occurrences = WorldObject
@@ -314,6 +319,14 @@ energy = -45.5
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: Drill4
+label = Drill T5
+heat = 295.0
+pressure = 3950.0
+energy = -375.5
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: EnergyGenerator1
 label = Wind Turbine
 energy = 1.2
@@ -359,6 +372,11 @@ label = Exoskeleton T2
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: EquipmentIncrease3
+label = Exoskeleton T3
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: EscapePod
 label = Landing Pod
 occurrences = WorldObject
@@ -393,6 +411,10 @@ label = Fertilizer T2
 occurrences = WorldObject
 <finished>
 
+ObjectType: Fish1Eggs
+label = Fish Provios Eggs (100%)
+occurrences = WorldObject,Achievement
+
 ObjectType: FlowerPot1
 label = Flower Pot
 oxygen = 5.0
@@ -413,6 +435,15 @@ ObjectType: GasExtractor1
 label = Gas Extractor T1
 heat = 13.0
 energy = -58.0
+occurrences = WorldObject,Achievement
+isProducer
+<finished>
+
+ObjectType: GasExtractor2
+label = Gas Extractor T2
+heat = 45.0
+pressure = 32.0
+energy = -218.0
 occurrences = WorldObject,Achievement
 isProducer
 <finished>
@@ -445,6 +476,11 @@ occurrences = WorldObject
 
 ObjectType: GoldenEffigie4
 label = Golden Effigie "Jetpack"
+occurrences = WorldObject
+<finished>
+
+ObjectType: GoldenEffigie5
+label = Golden Effigie "Warden's Key"
 occurrences = WorldObject
 <finished>
 
@@ -483,6 +519,14 @@ label = Heater T4
 heat = 538.0
 pressure = 35.5
 energy = -51.5
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Heater5
+label = Heater T5
+heat = 4530.0
+pressure = 280.0
+energy = -360.5
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -578,7 +622,9 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolDeconstruct2
-occurrences = Blueprint
+label = Microchip - Deconstruction T2
+occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: MultiToolLight1
 label = Microchip - Torch T1
@@ -610,8 +656,18 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Mutagen1
-label = Mutagen
+label = Mutagen T1
 occurrences = WorldObject
+<finished>
+
+ObjectType: Mutagen2
+label = Mutagen T2
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: NitrogenCapsule1
+label = Nitrogen Cartridge
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: OreExtractor1
@@ -664,6 +720,21 @@ occurrences = Achievement
 
 ObjectType: OxygenTank4
 label = Oxygen Tank T4
+occurrences = WorldObject
+<finished>
+
+ObjectType: Phytoplankton1
+label = Phytoplankton A
+occurrences = WorldObject
+<finished>
+
+ObjectType: Phytoplankton2
+label = Phytoplankton B
+occurrences = WorldObject
+<finished>
+
+ObjectType: Phytoplankton3
+label = Phytoplankton C
 occurrences = WorldObject
 <finished>
 
@@ -734,7 +805,9 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap4
+label = GPS Satellite T4
 occurrences = Blueprint
+<finished>
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
@@ -761,6 +834,11 @@ occurrences = WorldObject,Achievement
 ObjectType: Rod-iridium
 label = Iridium Rod
 occurrences = WorldObject
+<finished>
+
+ObjectType: Rod-osmium
+label = Osmium Rod
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Rod-uranium
@@ -1110,6 +1188,11 @@ multiplierExpected
 occurrences = Achievement
 <finished>
 
+ObjectType: WardenKey
+label = Warden's Key
+occurrences = WorldObject
+<finished>
+
 ObjectType: WaterBottle1
 label = Water Bottle
 occurrences = WorldObject
@@ -1132,6 +1215,13 @@ isProducer
 ObjectType: WaterFilter
 label = Water Filter
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: WaterLifeCollector1
+label = Water Life Collector
+energy = -105.5
+occurrences = WorldObject,Achievement
+isProducer
 <finished>
 
 ObjectType: wreckpilar
