@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -85,7 +86,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		case Heat    : heatPanel    .updateContent(); break;
 		case Pressure: pressurePanel.updateContent(); break;
 		case Plants  : plantsPanel  .updateContent(); break;
-		case Animals : animalsPanel .updateContent(); break;
 			
 		case Oxygen:
 		case OxygenMultiplier:
@@ -95,6 +95,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		case Insects:
 		case InsectsMultiplier:
 			insectsPanel.updateContent();
+			break;
+			
+		case Animals:
+		case AnimalsMultiplier:
+			animalsPanel.updateContent();
 			break;
 			
 		case MultiplierExpected:
@@ -194,14 +199,10 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				Double value = getValue(wo);
 				if (value!=null && wo.isInstalled()) {
 					Double multiplier = null;
-					if (wo.objectType.multiplierExpected) {
-						if (physicalValue==PhysicalValue.Oxygen) {
-							multiplier = getMultiplier(wo,ot->ot.oxygenMultiplier);
-							if (multiplier==null) continue;
-						} else if (physicalValue==PhysicalValue.Insects) {
-							multiplier = getMultiplier(wo,ot->ot.insectsMultiplier);
-							if (multiplier==null) continue;
-						}
+					if (wo.objectType.multiplierExpected && physicalValue.isMultiplierBased)
+					{
+						multiplier = getMultiplier( wo, physicalValue.getMultiplierFcn );
+						if (multiplier==null) continue;
 					}
 					
 					RowIndex rowIndex = new RowIndex(wo.objectTypeID, multiplier==null ? 0 : multiplier.doubleValue());
@@ -358,17 +359,20 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 
 			ObjectsTableModel(PhysicalValue physicalValue) {
 				super( getColumns(physicalValue) );
-				this.physicalValue = physicalValue;
+				this.physicalValue = Objects.requireNonNull( physicalValue );
 			}
 			
 			private static ColumnID[] getColumns(PhysicalValue physicalValue) {
-				switch (physicalValue) {
-				case Oxygen:
-				case Insects:
+				if (physicalValue.isMultiplierBased)
 					return ColumnID.values();
-				default:
-					return new ColumnID[] {ColumnID.Count, ColumnID.Name, ColumnID.FinalSum, ColumnID.Energy, ColumnID.Efficiency};
-				}
+				
+				return new ColumnID[] {
+						ColumnID.Count,
+						ColumnID.Name,
+						ColumnID.FinalSum,
+						ColumnID.Energy,
+						ColumnID.Efficiency
+				};
 			}
 			
 			void setDefaultCellEditorsAndRenderers() {
@@ -391,9 +395,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			@Override
 			public String getColumnName(int columnIndex) {
 				ColumnID columnID = getColumnID(columnIndex);
-				if (physicalValue!=PhysicalValue.Oxygen &&
-					physicalValue!=PhysicalValue.Insects &&
-						(columnID==ColumnID.BaseSum || columnID==ColumnID.FinalSum)) return "Sum";
+				if (!physicalValue.isMultiplierBased && (columnID==ColumnID.BaseSum || columnID==ColumnID.FinalSum)) return "Sum";
 				return super.getColumnName(columnIndex);
 			}
 

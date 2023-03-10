@@ -22,21 +22,31 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
 
 	enum ObjectTypeValue {
-		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenMultiplier, InsectsMultiplier, BoosterRocket, IsProducer, MultiplierExpected
+		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier, BoosterRocket, IsProducer, MultiplierExpected
 	}
 
 	enum PhysicalValue {
 		Heat    ("pK/s" ),
 		Pressure("nPa/s"),
-		Oxygen  ("ppq/s"),
+		Oxygen  ("ppq/s", true, ot->ot.oxygenMultiplier),
 		Plants  ("g/s"  ),
-		Insects ("g/s"  ),
-		Animals ("g/s"  ),
+		Insects ("g/s"  , true, ot->ot.insectsMultiplier),
+		Animals ("g/s"  , true, ot->ot.animalsMultiplier),
 		;
+		
 		final String rateUnit;
+		final boolean isMultiplierBased;
+		final Function<ObjectType, Double> getMultiplierFcn;
+		
 		PhysicalValue(String rateUnit) {
-			this.rateUnit = rateUnit;
+			this(rateUnit, false, null);
 		}
+		PhysicalValue(String rateUnit, boolean isMultiplierBased, Function<ObjectType,Double> getMultiplierFcn) {
+			this.rateUnit = rateUnit;
+			this.isMultiplierBased = isMultiplierBased;
+			this.getMultiplierFcn = getMultiplierFcn;
+		}
+		
 		String formatRate(double value) {
 			return String.format(Locale.ENGLISH, "%1.2f %s" , value, rateUnit);
 		}
@@ -80,6 +90,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( (valueStr=getValue(line,"oxygenMultiplier = "  ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"insectsBooster = "    ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr); // legacy
 				if ( (valueStr=getValue(line,"insectsMultiplier = " ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"animalsMultiplier = " ))!=null ) currentOT.animalsMultiplier = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"occurrences = "       ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
 				if (        line.equals(     "isProducer"           )        ) currentOT.isProducer = true;
@@ -122,6 +133,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( ot.multiplierExpected      ) out.printf("multiplierExpected"   +  "%n");
 				if ( ot.oxygenMultiplier  !=null) out.printf("oxygenMultiplier = "  +"%s%n", ot.oxygenMultiplier);
 				if ( ot.insectsMultiplier !=null) out.printf("insectsMultiplier = " +"%s%n", ot.insectsMultiplier);
+				if ( ot.animalsMultiplier !=null) out.printf("animalsMultiplier = " +"%s%n", ot.animalsMultiplier);
 				if ( ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
 				if (!ot.occurrences.isEmpty()   ) out.printf("occurrences = "       +"%s%n", Occurrence.toDataStr(ot.occurrences));
 				if ( ot.isProducer              ) out.printf("isProducer"           +  "%n");
@@ -255,6 +267,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		boolean multiplierExpected;
 		Double oxygenMultiplier;
 		Double insectsMultiplier;
+		Double animalsMultiplier;
 		PhysicalValue isBoosterRocketFor;
 		boolean isProducer;
 		final EnumSet<Occurrence> occurrences;
@@ -274,6 +287,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			multiplierExpected = false;
 			oxygenMultiplier = null;
 			insectsMultiplier = null;
+			animalsMultiplier = null;
 			isBoosterRocketFor = null;
 			isProducer = false;
 			occurrences = EnumSet.noneOf(Occurrence.class);
@@ -319,7 +333,11 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 					            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , sumUpMultipliers(children, ot->ot.insectsMultiplier), true);
 				else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , null, false);
 			}
-			if (animals !=null) addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
+			if (animals !=null) {
+				if (multiplierExpected)
+					            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , sumUpMultipliers(children, ot->ot.animalsMultiplier), true);
+				else            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
+			}
 			if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectTypes::formatEnergyRate     , energy  , null, false);
 		}
 	

@@ -204,6 +204,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case energy  : return ObjectTypes.formatEnergyRate((Double) value);
 			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
 			return null;
 		}
@@ -226,6 +227,7 @@ class ObjectTypesPanel extends JScrollPane {
 			multiplierExpected("Multi Expected", Boolean      .class,  90, ObjectTypeValue.MultiplierExpected),
 			oxygenMultiplier  ("Oxy. Multi"    , Double       .class,  90, ObjectTypeValue.OxygenMultiplier),
 			insectsMultiplier ("Insects Multi" , Double       .class,  90, ObjectTypeValue.InsectsMultiplier),
+			animalsMultiplier ("Animals Multi" , Double       .class,  90, ObjectTypeValue.AnimalsMultiplier),
 			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
 			isProducer        ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
 			;
@@ -326,6 +328,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case multiplierExpected: return row.multiplierExpected;   
 			case oxygenMultiplier  : return row.oxygenMultiplier;
 			case insectsMultiplier : return row.insectsMultiplier;
+			case animalsMultiplier : return row.animalsMultiplier;
 			case isBoosterRocketFor: return row.isBoosterRocketFor;
 			case isProducer: return row.isProducer;
 			case occurrences: return toString(row.occurrences);
@@ -365,6 +368,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case multiplierExpected: row.multiplierExpected = (Boolean)aValue; break;
 			case oxygenMultiplier  : row.oxygenMultiplier   = (Double)aValue; break;
 			case insectsMultiplier : row.insectsMultiplier  = (Double)aValue; break;
+			case animalsMultiplier : row.animalsMultiplier  = (Double)aValue; break;
 			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
 			case isProducer        : row.isProducer         = (Boolean)aValue; break;
 			}

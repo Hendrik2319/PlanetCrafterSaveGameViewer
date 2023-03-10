@@ -327,6 +327,16 @@ energy = -375.5
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: Drone1
+label = Drone T1
+occurrences = WorldObject
+
+ObjectType: DroneStation1
+label = Drone Station
+energy = -850.0
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: EnergyGenerator1
 label = Wind Turbine
 energy = 1.2
@@ -413,7 +423,9 @@ occurrences = WorldObject
 
 ObjectType: Fish1Eggs
 label = Fish Provios Eggs (100%)
+animalsMultiplier = 1.0
 occurrences = WorldObject,Achievement
+<finished>
 
 ObjectType: FlowerPot1
 label = Flower Pot
