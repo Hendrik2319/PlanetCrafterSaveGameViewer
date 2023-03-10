@@ -133,7 +133,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: Butterfly10Larvae
 label = Butterfly Liux Larva (rare, 500%)
 insectsMultiplier = 5.0
-occurrences = WorldObject,Product
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Butterfly11Larvae
@@ -491,6 +491,9 @@ label = Honey
 occurrences = WorldObject
 <finished>
 
+ObjectType: HudChipCleanConstruction
+occurrences = Blueprint
+
 ObjectType: HudCompass
 label = Microchip - Compass
 occurrences = Blueprint
@@ -535,7 +538,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: LarvaeBase1
 label = Common Larva
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: LarvaeBase2
@@ -573,6 +576,9 @@ ObjectType: MultiDeconstruct
 label = Microchip - Deconstruction
 occurrences = WorldObject
 <finished>
+
+ObjectType: MultiToolDeconstruct2
+occurrences = Blueprint
 
 ObjectType: MultiToolLight1
 label = Microchip - Torch T1
@@ -698,6 +704,9 @@ isBoosterRocketFor = Plants
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: RocketDrones1
+occurrences = Blueprint
+
 ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
 isBoosterRocketFor = Heat
@@ -723,6 +732,9 @@ ObjectType: RocketMap3
 label = GPS Satellite T3
 occurrences = WorldObject,Blueprint
 <finished>
+
+ObjectType: RocketMap4
+occurrences = Blueprint
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
@@ -807,7 +819,7 @@ occurrences = WorldObject
 ObjectType: Seed0
 label = Seed Lirma (100%)
 oxygenMultiplier = 1.0
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Seed1
@@ -1011,8 +1023,8 @@ occurrences = Achievement
 
 ObjectType: TreeSpreader2
 label = Tree Spreader T3
-oxygen = 12500.0
-plants = 680.0
+oxygen = 8500.0
+plants = 1250.0
 energy = -153.0
 multiplierExpected
 occurrences = WorldObject,Achievement

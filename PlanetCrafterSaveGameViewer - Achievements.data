@@ -9,6 +9,7 @@ Oxygen
 420000.0|{FlowerPot1}
 6.3E7|{Heater4}
 6.0E9|{TreeSpreader1}
+1.55E11|Water Life Collector
 
 Heat
 500.0|{Vegetube2}
@@ -22,6 +23,7 @@ Heat
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
 7.5E8|{EnergyGenerator6}
+1.0E9|Mutagen T3
 
 Pressure
 70.0|{OxygenTank2}
@@ -36,6 +38,7 @@ Pressure
 2500000.0|{SeedSpreader1}
 1.0E8|{GasExtractor1}
 3.645E8|{OreExtractor2}
+1.333E10|Ore Extractor T3
 
 Biomass
 865.0|{Biolab}
@@ -44,14 +47,24 @@ Biomass
 500000.0|{SeedSpreader2}
 3.5E7|{VegetableGrower2}
 4.5E7|{TreeSpreader0}
+8.3E9|Heater T5
+1.77E10|Insect Spreader Rocket
+2.9E10|Drill T5
+3.9E10|Fish Provios Eggs
+4.5E10|Fish Gerrero Eggs
+6.5E10|Aquarium T2
 
 Plants
 8.0E7|{Beehive1}
 1.4E8|{ButterflyDome1}
 5.5E8|{Butterfly8Larvae}
 8.7E8|{Butterfly9Larvae}
-2.0E9|Butterfly Liux Larva (500%)
+2.0E9|{Butterfly10Larvae}
 3.25E9|{ButterflyFarm1}
+5.7E9|Tree Seed Shreox
+8.4E9|Butterfly Imeo Larva
+1.55E10|Gas Extractor T2
+2.21E10|Butterfly Serena Larva
 
 Insects
 500.0|{Tree3Seed}
@@ -63,6 +76,17 @@ Insects
 1100000.0|{Tree6Seed}
 1500000.0|{Farm1}
 2500000.0|{ButterflyDisplayer1}
+5.0E7|Mutagen T2
+2.25E8|Beehive T2
+9.25E8|Butterfly Farm T2
+
+Animals
+50000.0|Fish Ulani Eggs
+250000.0|Fish Aelera Eggs
+2500000.0|Fish Display
+5500000.0|Fish Farm
+7800000.0|{Seed0}
+2.2E7|{LarvaeBase1}
 
 Terraformation
 300.0|{Backpack2}
@@ -81,12 +105,19 @@ Terraformation
 6.5E8|{RocketOxygen1}
 7.0E8|{GeneticManipulator1}
 7.5E8|{Rod-alloy}
-3.0E9|{WaterFilter}
+1.0E9|Exoskeleton T3
+2.0E9|Air Filter
+2.5E9|Auto Crafter
 5.0E9|{Incubator1}
+7.0E9|{WaterFilter}
 2.5E10|{Teleporter1}
-4.95E10|{TreeSpreader2}
+3.2E10|{TreeSpreader2}
+5.35E10|Osmium Rod
+6.6E10|{FusionEnergyCell}
+7.8E10|Drone Station
+1.4E11|Aquarium T1
+1.6E11|Circuit Board
 1.75E11|{PulsarQuartz}
-3.6E11|{FusionEnergyCell}
 
 Stages
 0.0|Barren
@@ -99,5 +130,7 @@ Stages
 7.0E8|Flora
 2.0E9|Trees
 8.0E9|Insects
-5.0E12|Fish
+3.2E10|Breathable Atmosphere
+1.4E11|Fish
+8.0E14|Amphibians (Dummy)
 
