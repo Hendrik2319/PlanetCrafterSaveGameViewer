@@ -1,6 +1,7 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -11,9 +12,15 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -71,6 +78,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private Achievements achievements;
 	private GeneralDataPanel generalDataPanel;
 	private final Disabler<ActionCommand> disabler;
+	private final AutoReloader autoReloader;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
@@ -82,6 +90,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		disabler = new Disabler<>();
 		disabler.setCareFor(ActionCommand.values());
+		
+		autoReloader = new AutoReloader();
 		
 		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
@@ -96,6 +106,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		mainWindow.setIconImagesFromResource("/icons/icon_%d.png", 24,32,48,64,96);
 		
 		settings.registerAppWindow(mainWindow);
+		
 		updateWindowTitle();
 		updateGuiAccess();
 	}
@@ -113,6 +124,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			switch (ac) {
 			case OpenSaveGame: break;
 			
+			case ReloadSaveGameAutoSwitch:
 			case ReloadSaveGame:
 			case WriteReducedSaveGame:
 				return openFile!=null;
@@ -129,44 +141,100 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		try { ac = ActionCommand.valueOf(e.getActionCommand()); }
 		catch (Exception ex) { return; }
 		
+		actionPerformed(ac);
+	}
+
+	private void actionPerformed(ActionCommand ac)
+	{
 		switch (ac) {
-		
-		case ReloadSaveGame:
-			readFile(openFile);
-			break;
 			
-		case OpenSaveGame:
-			if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
-				readFile(jsonFileChooser.getSelectedFile());
-			break;
+			case ReloadSaveGame:
+				readFile(openFile);
+				break;
+				
+			case OpenSaveGame:
+				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+					readFile(jsonFileChooser.getSelectedFile());
+				break;
+				
+			case WriteReducedSaveGame:
+				if (loadedData!=null) {
+					if (openFile!=null)
+						jsonFileChooser.setSelectedFile(openFile);
+					if (jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+						writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
+				}
+				break;
+				
+			case ConfigureAchievements:
+				new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
+				achievements.writeToFile();
+				if (generalDataPanel!=null)
+					generalDataPanel.updateAfterAchievementsChange();
+				break;
 			
-		case WriteReducedSaveGame:
-			if (loadedData!=null) {
-				if (openFile!=null)
-					jsonFileChooser.setSelectedFile(openFile);
-				if (jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
-					writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
-			}
-			break;
-			
-		case ConfigureAchievements:
-			new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
-			achievements.writeToFile();
-			if (generalDataPanel!=null)
-				generalDataPanel.updateAfterAchievementsChange();
-			break;
+			case ReloadSaveGameAutoSwitch:
+				break;
 		}
+		
+	}
+	
+	private class AutoReloader {
+		private static final Color COLOR_BUTTON_BG_RELOAD = new Color(0xB7FF00);
+		private final FileChangeObserver fileChangeObserver;
+		
+		AutoReloader() {
+			fileChangeObserver = new FileChangeObserver(2000, (dateChanged, sizeChanged, isFileChanged) ->
+			{
+				//System.out.printf("AutoReloader.filePropsChanged( dateChanged:%s, sizeChanged:%s, isFileChanged:%s )%n", dateChanged, sizeChanged, isFileChanged);
+				if (dateChanged || sizeChanged || isFileChanged)
+				{
+					if (isActive())
+						actionPerformed(ActionCommand.ReloadSaveGame);
+					else
+						setButton(COLOR_BUTTON_BG_RELOAD);
+
+				}
+				//System.out.printf("AutoReloader.filePropsChanged( dateChanged:%s, sizeChanged:%s, isFileChanged:%s ) -> finished%n", dateChanged, sizeChanged, isFileChanged);
+			});
+			fileChangeObserver.start();
+		}
+		
+		void setFile(File file)
+		{
+			setButton(null);
+			fileChangeObserver.setFile(file);
+		}
+
+		private void setButton(Color color)
+		{
+			SwingUtilities.invokeLater( ()->{
+				disabler.configureAbstractButton(ActionCommand.ReloadSaveGame, btn -> {
+					btn.setBackground(color);
+				});
+			} );
+		}
+		
+		boolean isActive()                { return settings.getBool(AppSettings.ValueKey.ReloadAutomatically, false ); }
+		void    setActive(boolean active) {        settings.putBool(AppSettings.ValueKey.ReloadAutomatically, active); }
+		
 	}
 
 	private class MyToolBar extends JToolBar {
 		private static final long serialVersionUID = -545321067655154725L;
+		
 		MyToolBar() {
 			this.setFloatable(false);
-			add(createButton("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame        ));
-			add(createButton("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame      ));
-			add(createButton("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
+			add(createButton  ("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame        ));
+			add(createButton  ("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame      ));
+			add(createCheckBox("Reload Automatically"  , autoReloader.isActive(), true , autoReloader::setActive, ActionCommand.ReloadSaveGameAutoSwitch));
+			add(createButton  ("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
 			addSeparator();
-			add(createButton("Configure Achievements", null                   , true , ActionCommand.ConfigureAchievements));
+			add(createButton  ("Configure Achievements", null                   , true , ActionCommand.ConfigureAchievements));
+		}
+		
+		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
+			return GUI.createCheckBox(title, isChecked, isEnabled, valueChanged, disabler, ac);
 		}
 		JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionCommand ac) {
 			return GUI.createButton(title, icon, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
@@ -267,6 +335,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				settings.putFile(AppSettings.ValueKey.OpenFile, file);
 				loadedData = data;
 				openFile = file;
+				autoReloader.setFile(file);
+				
 				setGUI(data);
 				updateWindowTitle();
 				updateGuiAccess();
@@ -508,6 +578,89 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			}
 		}
 	}
+	
+	static class FileChangeObserver
+	{
+		private final int rate_ms;
+		private final ScheduledExecutorService scheduler;
+		private ScheduledFuture<?> runningTask;
+		private FileProperties file;
+		private final ChangeListener listener;
+		
+		FileChangeObserver(int rate_ms, ChangeListener listener)
+		{
+			this.rate_ms = rate_ms;
+			this.listener = listener;
+			scheduler = Executors.newSingleThreadScheduledExecutor();
+			runningTask = null;
+			file = null;
+		}
+		
+		synchronized void setFile(File file)
+		{
+			this.file = file==null ? null : FileProperties.create( file.getAbsoluteFile() );
+			if (runningTask == null) start();
+		}
+		
+		private synchronized void start()
+		{
+			stop();
+			runningTask = scheduler.scheduleAtFixedRate(this::checkFile, 10, rate_ms, TimeUnit.MILLISECONDS);
+		}
+		
+		private void checkFile()
+		{
+			FileProperties notifyFile = null;
+			synchronized (this) {
+				if (file!=null && file.hasChanged())
+				{
+					notifyFile = file;
+					file = FileProperties.create( file.file );
+				}
+			}
+			if (notifyFile!=null)
+				notifyFile.notifyListener( listener );
+		}
+
+		private synchronized void stop()
+		{
+			if (runningTask!=null)
+			{
+				runningTask.cancel(false);
+				runningTask = null;
+			}
+		}
+		
+		interface ChangeListener
+		{
+			void filePropsChanged(boolean dateChanged, boolean sizeChanged, boolean isFileChanged);
+		}
+		
+		private record FileProperties(File file, long date, long size, boolean isFile)
+		{
+			static FileProperties create(File file)
+			{
+				return new FileProperties(file, file.lastModified(), file.length(), file.isFile());
+			}
+			
+			void notifyListener(ChangeListener listener)
+			{
+				listener.filePropsChanged(
+					date != file.lastModified(),
+					size != file.length(),
+					isFile != file.isFile()
+				);
+			}
+
+			boolean hasChanged()
+			{
+				return
+					date != file.lastModified() ||
+					size != file.length() ||
+					isFile != file.isFile();
+			}
+		}
+	}
 
 
 	static class AppSettings extends Settings.DefaultAppSettings<AppSettings.ValueGroup, AppSettings.ValueKey> {
@@ -515,7 +668,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			OpenFile,
 			AchievementsConfigDialogWidth,
 			AchievementsConfigDialogHeight,
-			AchievementsConfigDialogShowTabbedView, ObjectTypeColors
+			AchievementsConfigDialogShowTabbedView,
+			ObjectTypeColors,
+			ReloadAutomatically
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -25,6 +26,7 @@ import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -60,7 +62,7 @@ class GUI {
 	}
 
 	enum ActionCommand {
-		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements
+		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch
 		
 	}
 	
@@ -68,13 +70,14 @@ class GUI {
 			Type comp,
 			String title,
 			ToolbarIcons icon,
+			Boolean isChecked,
 			boolean isEnabled,
 			ActionListener al,
-			Disabler<ActionCommand> disabler,
-			ActionCommand ac
+			Disabler<ActionCommand> disabler, ActionCommand ac
 		) {
-		if (title!=null) comp.setText(title);
-		if (icon !=null) comp.setIcon(icon.getIcon());
+		if (title    !=null) comp.setText(title);
+		if (icon     !=null) comp.setIcon(icon.getIcon());
+		if (isChecked!=null) comp.setSelected(isChecked);
 		if (al!=null) {
 			comp.addActionListener(al);
 			if (ac!=null) {
@@ -85,31 +88,30 @@ class GUI {
 		comp.setEnabled(isEnabled);
 		return comp;
 	}
+	
+	static JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, Disabler<ActionCommand> disabler, ActionCommand ac) {
+		JCheckBox comp = new JCheckBox();
+		return setAbstractButton(comp, title, null, isChecked, isEnabled, e->valueChanged.accept(comp.isSelected()), disabler, ac);
+	}
 
 	static JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
-		return setAbstractButton(new JButton(), title, icon, isEnabled, al, disabler, ac);
+		return setAbstractButton(new JButton(), title, icon, null, isEnabled, al, disabler, ac);
 	}
 	
 	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
-		JButton comp = new JButton(title);
-		if (al!=null) comp.addActionListener(al);
-		comp.setEnabled(isEnabled);
-		return comp;
+		return setAbstractButton(new JButton(), title, null, null, isEnabled, al, null, null);
 	}
 	
 	static JMenuItem createMenuItem(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
-		return setAbstractButton(new JMenuItem(), title, icon, isEnabled, al, disabler, ac);
-	}
-
-	static JMenuItem createMenuItem(String title, ActionListener al) {
-		return createMenuItem(title, true, al);
+		return setAbstractButton(new JMenuItem(), title, icon, null, isEnabled, al, disabler, ac);
 	}
 
 	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
-		JMenuItem comp = new JMenuItem(title);
-		if (al!=null) comp.addActionListener(al);
-		comp.setEnabled(isEnabled);
-		return comp;
+		return setAbstractButton(new JMenuItem(), title, null, null, isEnabled, al, null, null);
+	}
+
+	static JMenuItem createMenuItem(String title, ActionListener al) {
+		return setAbstractButton(new JMenuItem(), title, null, null, true, al, null, null);
 	}
 
 	static JTextField createOutputTextField(String text) {
