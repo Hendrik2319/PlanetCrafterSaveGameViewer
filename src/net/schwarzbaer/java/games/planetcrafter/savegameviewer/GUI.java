@@ -638,6 +638,8 @@ class GUI {
 			tableModel.setColumnWidths(table);
 			tableModel.setDefaultCellEditorsAndRenderers(this);
 			
+			new ObjectsTableContextMenu(table, tableModel);
+			
 			Dimension size = table.getPreferredSize();
 			size.width  += 30;
 			size.height = 500;
@@ -692,8 +694,41 @@ class GUI {
 			}
 			return colors;
 		}
+		
+		private static class ObjectsTableContextMenu extends ContextMenu {
+			private static final long serialVersionUID = 7730330222817550351L;
+			private int clickedRowIndex;
+			private String clickedObjectTypeID;
 
-		public class ColorTableModel extends Tables.SimplifiedTableModel<ColorTableModel.ColumnID>{
+			ObjectsTableContextMenu(JTable table, ColorTableModel tableModel) {
+				
+				JMenuItem miRemoveColor = add(createMenuItem("Remove Color", e->{
+					if (clickedObjectTypeID==null) return;
+					tableModel.removeColor(clickedObjectTypeID);
+				}));
+				
+				addTo(table);
+				
+				addContextMenuInvokeListener((comp, x, y) ->
+				{
+					int rowV = table.rowAtPoint(new Point(x,y));
+					clickedRowIndex = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+					clickedObjectTypeID = clickedRowIndex<0 ? null : tableModel.getObjectTypeID(clickedRowIndex);
+					
+					miRemoveColor.setEnabled( clickedObjectTypeID==null ? false : tableModel.hasColor(clickedObjectTypeID) );
+					String label = clickedObjectTypeID==null ? null : tableModel.getLabel(clickedObjectTypeID);
+					miRemoveColor.setText(
+							label != null && !label.isBlank()
+								? String.format("Remove Color from \"%s\"", label)
+								: clickedObjectTypeID != null
+									? String.format("Remove Color from ID:%s", clickedObjectTypeID)
+									: "Remove Color"
+					);
+				});
+			}
+		}
+
+		private static class ColorTableModel extends Tables.SimplifiedTableModel<ColorTableModel.ColumnID>{
 
 			enum ColumnID implements SimplifiedColumnIDInterface {
 				ID    ("ID"   , String.class, 130),
@@ -760,28 +795,42 @@ class GUI {
 				return objectTypeIDs.size();
 			}
 
+			boolean hasColor(String objectTypeID)
+			{
+				return colors.containsKey(objectTypeID);
+			}
+
+			String getLabel(String objectTypeID)
+			{
+				if (objectTypes==null) return null;
+				ObjectType ot = objectTypes.get(objectTypeID, null);
+				if (ot==null) return null;
+				return ot.label;
+			}
+
 			@Override public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
 				String objectTypeID = getObjectTypeID(rowIndex);
 				if (objectTypeID==null) return null;
 				
 				switch (columnID) {
-				case ID:
-					return objectTypeID;
-					
-				case Label:
-					if (objectTypes==null) return null;
-					ObjectType ot = objectTypes.get(objectTypeID, null);
-					if (ot==null) return null;
-					return ot.label;
-					
-				case Color:
-					return colors.get(objectTypeID);
+				case ID   : return objectTypeID;
+				case Label: return getLabel(objectTypeID);
+				case Color: return colors.get(objectTypeID);
 				}
 				return null;
 			}
 
 			@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
 				return columnID==ColumnID.Color;
+			}
+
+			void removeColor(String objectTypeID)
+			{
+				TableCellEditor editor = table.getCellEditor();
+				if (editor!=null) editor.cancelCellEditing();
+				colors.remove(objectTypeID);
+				somethingWasChanged = true;
+				fireTableColumnUpdate(ColumnID.Color);
 			}
 
 			@Override
