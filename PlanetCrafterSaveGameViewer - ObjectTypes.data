@@ -1,3 +1,8 @@
+ObjectType: AirFilter1
+label = Air Filter
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Algae1Seed
 label = Algae
 occurrences = WorldObject
@@ -27,6 +32,25 @@ occurrences = WorldObject
 ObjectType: Aluminium
 label = Aluminium
 occurrences = WorldObject
+<finished>
+
+ObjectType: Aquarium1
+label = Aquarium T1
+animals = 4.0
+energy = -75.0
+multiplierExpected
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Aquarium2
+label = Aquarium T2
+oxygen = 250.0
+plants = 18.0
+insects = 25.0
+animals = 65.0
+energy = -225.0
+multiplierExpected
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: astrofood
@@ -75,10 +99,19 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Beehive1
-label = Beehive
+label = Beehive T1
 plants = 350.0
 insects = 15.0
 energy = -25.0
+occurrences = WorldObject,Achievement
+isProducer
+<finished>
+
+ObjectType: Beehive2
+label = Beehive T2
+plants = 358.0
+insects = 390.0
+energy = -95.0
 occurrences = WorldObject,Achievement
 isProducer
 <finished>
@@ -160,6 +193,18 @@ insectsMultiplier = 8.0
 occurrences = WorldObject
 <finished>
 
+ObjectType: Butterfly16Larvae
+label = Butterfly Imeo Larva (1000%)
+insectsMultiplier = 10.0
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Butterfly17Larvae
+label = Butterfly Serena Larva (1200%)
+insectsMultiplier = 12.0
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Butterfly1Larvae
 label = Butterfly Azurae Larva (common, 120%)
 insectsMultiplier = 1.2
@@ -228,9 +273,17 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ButterflyFarm1
-label = Butterfly Farm
+label = Butterfly Farm T1
 insects = 75.0
 energy = -30.0
+multiplierExpected
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: ButterflyFarm2
+label = Butterfly Farm T2
+insects = 475.0
+energy = -45.0
 multiplierExpected
 occurrences = WorldObject,Achievement
 <finished>
@@ -330,6 +383,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Drone1
 label = Drone T1
 occurrences = WorldObject
+<finished>
 
 ObjectType: DroneStation1
 label = Drone Station
@@ -421,9 +475,54 @@ label = Fertilizer T2
 occurrences = WorldObject
 <finished>
 
+ObjectType: Fish11Eggs
+label = Golden Fish Eggs (500% | P.C, M.T3, F)
+animalsMultiplier = 5.0
+occurrences = WorldObject,Product
+<finished>
+
 ObjectType: Fish1Eggs
-label = Fish Provios Eggs (100%)
+label = Fish Provios Eggs (100% | P.A, M.T3, F)
 animalsMultiplier = 1.0
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Fish3Eggs
+label = Fish Gerrero Eggs (150% | P.B, M.T3, F)
+animalsMultiplier = 1.5
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Fish4Eggs
+label = Fish Khrom Eggs (200% | P.B, M.T3, F)
+animalsMultiplier = 2.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Fish5Eggs
+label = Fish Ulani Eggs (250% | P.C, M.T3, F)
+animalsMultiplier = 2.5
+occurrences = WorldObject,Achievement,Product
+<finished>
+
+ObjectType: Fish6Eggs
+label = Fish Aelera Eggs (300% | P.C, M.T2, F)
+animalsMultiplier = 3.0
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Fish8Eggs
+label = Fish Ecaru Eggs (325%)
+animalsMultiplier = 3.25
+occurrences = WorldObject
+
+ObjectType: Fish9Eggs
+label = Fish Buyu Eggs (350%)
+animalsMultiplier = 3.5
+occurrences = WorldObject,Product
+
+ObjectType: FishDisplayer1
+label = Fish Display
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -548,7 +647,9 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: HudChipCleanConstruction
+label = Microchip - Construction Menu Filter
 occurrences = Blueprint
+<finished>
 
 ObjectType: HudCompass
 label = Microchip - Compass
@@ -590,6 +691,11 @@ occurrences = Blueprint
 ObjectType: Jetpack3
 label = Jetpack T3
 occurrences = WorldObject,Blueprint
+<finished>
+
+ObjectType: Ladder
+label = Indoor Ladder
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: LarvaeBase1
@@ -674,6 +780,11 @@ occurrences = WorldObject
 
 ObjectType: Mutagen2
 label = Mutagen T2
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Mutagen3
+label = Mutagen T3
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -788,7 +899,9 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketDrones1
-occurrences = Blueprint
+label = Drones Visualisation Rocket
+occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
@@ -799,6 +912,12 @@ occurrences = WorldObject
 ObjectType: RocketInformations1
 label = Map Information Rocket
 occurrences = WorldObject,Blueprint
+<finished>
+
+ObjectType: RocketInsects1
+label = Insect Spreader Rocket
+isBoosterRocketFor = Insects
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketMap1
@@ -818,7 +937,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: RocketMap4
 label = GPS Satellite T4
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketOxygen1
@@ -1001,6 +1120,10 @@ ObjectType: SpaceMultiplierHeat
 occurrences = WorldObject
 <finished>
 
+ObjectType: SpaceMultiplierInsects
+occurrences = WorldObject
+<finished>
+
 ObjectType: SpaceMultiplierOxygen
 occurrences = WorldObject
 <finished>
@@ -1086,6 +1209,12 @@ ObjectType: Tree8Seed
 label = Tree Seed "Soleus" (125%, Lirma100) #0
 oxygenMultiplier = 1.25
 occurrences = WorldObject
+<finished>
+
+ObjectType: Tree9Seed
+label = Tree Seed "Shreox" (450%, MutT2)
+oxygenMultiplier = 4.5
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: TreeRoot
@@ -1174,7 +1303,7 @@ occurrences = WorldObject,Achievement
 ObjectType: VegetableGrower2
 label = Food Grower T2
 energy = -29.5
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Vegetube1

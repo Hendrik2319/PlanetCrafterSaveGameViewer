@@ -1,5 +1,5 @@
 Oxygen
-1000.0|Indoor Ladder
+1000.0|{Ladder}
 1850.0|{Heater2}
 5000.0|{OxygenTank3}
 12000.0|{VegetableGrower1}
@@ -23,7 +23,7 @@ Heat
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
 7.5E8|{EnergyGenerator6}
-1.0E9|Mutagen T3
+1.0E9|{Mutagen3}
 
 Pressure
 70.0|{OxygenTank2}
@@ -48,11 +48,11 @@ Biomass
 3.5E7|{VegetableGrower2}
 4.5E7|{TreeSpreader0}
 8.3E9|{Heater5}
-1.77E10|Insect Spreader Rocket
+1.77E10|{RocketInsects1}
 2.9E10|{Drill4}
 3.9E10|{Fish1Eggs}
-4.5E10|Fish Gerrero Eggs
-6.5E10|Aquarium T2
+4.5E10|{Fish3Eggs}
+6.5E10|{Aquarium2}
 
 Plants
 8.0E7|{Beehive1}
@@ -61,10 +61,10 @@ Plants
 8.7E8|{Butterfly9Larvae}
 2.0E9|{Butterfly10Larvae}
 3.25E9|{ButterflyFarm1}
-5.7E9|Tree Seed Shreox
-8.4E9|Butterfly Imeo Larva
+5.7E9|{Tree9Seed}
+8.4E9|{Butterfly16Larvae}
 1.55E10|{GasExtractor2}
-2.21E10|Butterfly Serena Larva
+2.21E10|{Butterfly17Larvae}
 
 Insects
 500.0|{Tree3Seed}
@@ -77,13 +77,13 @@ Insects
 1500000.0|{Farm1}
 2500000.0|{ButterflyDisplayer1}
 5.0E7|{Mutagen2}
-2.25E8|Beehive T2
-9.25E8|Butterfly Farm T2
+2.25E8|{Beehive2}
+9.25E8|{ButterflyFarm2}
 
 Animals
-50000.0|Fish Ulani Eggs
-250000.0|Fish Aelera Eggs
-2500000.0|Fish Display
+50000.0|{Fish5Eggs}
+250000.0|{Fish6Eggs}
+2500000.0|{FishDisplayer1}
 5500000.0|Fish Farm
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
@@ -106,7 +106,7 @@ Terraformation
 7.0E8|{GeneticManipulator1}
 7.5E8|{Rod-alloy}
 1.0E9|{EquipmentIncrease3}
-2.0E9|Air Filter
+2.0E9|{AirFilter1}
 2.5E9|Auto Crafter
 5.0E9|{Incubator1}
 7.0E9|{WaterFilter}
@@ -115,7 +115,7 @@ Terraformation
 5.35E10|{Rod-osmium}
 6.6E10|{FusionEnergyCell}
 7.8E10|{DroneStation1}
-1.4E11|Aquarium T1
+1.4E11|{Aquarium1}
 1.6E11|{CircuitBoard1}
 1.75E11|{PulsarQuartz}
 
