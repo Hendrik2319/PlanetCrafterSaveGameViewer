@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
@@ -44,25 +45,28 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	private final SubPanel plantsPanel;
 	private final SubPanel insectsPanel;
 	private final SubPanel animalsPanel;
+	private final EnumMap<PhysicalValue, SubPanel> subPanels;
 
 	TerraformingPanel(Data data, GeneralDataPanel generalDataPanel) {
 		super(new GridLayout(0,2));
 		
 		Vector<TerraformingStatesPanel> terraformingStatesPanels = generalDataPanel.getTerraformingStatesPanels();
 		
-		heatPanel     = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Heat    );
-		pressurePanel = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Pressure);
-		oxygenePanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Oxygen  );
-		plantsPanel   = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Plants  );
-		insectsPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Insects );
-		animalsPanel  = new SubPanel(data, terraformingStatesPanels, PhysicalValue.Animals );
-		
-		add(heatPanel);
-		add(pressurePanel);
-		add(oxygenePanel);
-		add(plantsPanel );
-		add(insectsPanel);
-		add(animalsPanel);
+		subPanels     = new EnumMap<PhysicalValue,SubPanel>(PhysicalValue.class);
+		heatPanel     = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Heat    );
+		pressurePanel = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Pressure);
+		oxygenePanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Oxygen  );
+		plantsPanel   = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Plants  );
+		insectsPanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Insects );
+		animalsPanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Animals );
+	}
+	
+	private static SubPanel addPanel(TerraformingPanel main, Data data, Vector<TerraformingStatesPanel> terraformingStatesPanels, PhysicalValue physicalValue)
+	{
+		SubPanel subPanel = new SubPanel(data, terraformingStatesPanels, physicalValue);
+		main.add(subPanel);
+		main.subPanels.put(physicalValue, subPanel);
+		return subPanel;
 	}
 
 	@Override
@@ -75,12 +79,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		switch (event.changedValue) {
 		case Label: case Energy:
-			heatPanel    .updateContent();
-			pressurePanel.updateContent();
-			oxygenePanel .updateContent();
-			plantsPanel  .updateContent();
-			insectsPanel .updateContent();
-			animalsPanel .updateContent();
+			subPanels.forEach((phVal,panel)->panel.updateContent());
 			break;
 			
 		case Heat    : heatPanel    .updateContent(); break;
@@ -102,9 +101,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			animalsPanel.updateContent();
 			break;
 			
-		case MultiplierExpected:
-			oxygenePanel.updateContent();
-			insectsPanel.updateContent();
+		case ExpectsMultiplierFor:
+			subPanels.forEach((phVal,panel)->{
+				if (phVal.isMultiplierBased)
+					panel.updateContent();
+			});
 			break;
 			
 			
@@ -186,8 +187,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			return null;
 		}
 
-		void updateContent() {
-			
+		void updateContent()
+		{
 			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
 			double totalSum = 0.0;
 			int numberOfBoosterRockets = 0;
@@ -199,7 +200,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				Double value = getValue(wo);
 				if (value!=null && wo.isInstalled()) {
 					Double multiplier = null;
-					if (wo.objectType.multiplierExpected && physicalValue.isMultiplierBased)
+					if (wo.objectType.expectsMultiplierFor==physicalValue && physicalValue.isMultiplierBased)
 					{
 						multiplier = getMultiplier( wo, physicalValue.getMultiplierFcn );
 						if (multiplier==null) continue;

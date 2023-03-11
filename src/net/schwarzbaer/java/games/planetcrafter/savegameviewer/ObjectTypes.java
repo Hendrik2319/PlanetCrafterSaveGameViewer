@@ -22,7 +22,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
 
 	enum ObjectTypeValue {
-		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier, BoosterRocket, IsProducer, MultiplierExpected
+		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier, BoosterRocket, IsProducer
 	}
 
 	enum PhysicalValue {
@@ -75,27 +75,28 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			while ( (line=in.readLine())!=null ) {
 				
 				if (line.isEmpty()) continue;
-				if ( (valueStr=getValue(line,"ObjectType: "         ))!=null ) objectTypes.put(valueStr, currentOT = new ObjectType(valueStr, null));
-				if ( (valueStr=getValue(line,"label = "             ))!=null ) currentOT.label    = valueStr;
-				if ( (valueStr=getValue(line,"heat = "              ))!=null ) currentOT.heat     = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"pressure = "          ))!=null ) currentOT.pressure = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"oxygen = "            ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"biomass = "           ))!=null ) currentOT.plants   = parseDouble(valueStr); // legacy
-				if ( (valueStr=getValue(line,"plants = "            ))!=null ) currentOT.plants   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insects = "           ))!=null ) currentOT.insects  = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"animals = "           ))!=null ) currentOT.animals  = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"energy = "            ))!=null ) currentOT.energy   = parseDouble(valueStr);
-				if (        line.equals(     "multiplierExpected"   )        ) currentOT.multiplierExpected = true;
-				if ( (valueStr=getValue(line,"oxygenBooster = "     ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr); // legacy
-				if ( (valueStr=getValue(line,"oxygenMultiplier = "  ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insectsBooster = "    ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr); // legacy
-				if ( (valueStr=getValue(line,"insectsMultiplier = " ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"animalsMultiplier = " ))!=null ) currentOT.animalsMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"isBoosterRocketFor = "))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"occurrences = "       ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
-				if (        line.equals(     "isProducer"           )        ) currentOT.isProducer = true;
-				if ( (valueStr=getValue(line,"finished = "          ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true"); // legacy
-				if (        line.equals(     "<finished>"           )        ) currentOT.finished = true;
+				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) objectTypes.put(valueStr, currentOT = new ObjectType(valueStr, null));
+				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label    = valueStr;
+				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"oxygen = "              ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"biomass = "             ))!=null ) currentOT.plants   = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"plants = "              ))!=null ) currentOT.plants   = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insects = "             ))!=null ) currentOT.insects  = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"animals = "             ))!=null ) currentOT.animals  = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"energy = "              ))!=null ) currentOT.energy   = parseDouble(valueStr);
+				if (        line.equals(     "multiplierExpected"     )        ) currentOT.expectsMultiplierFor = PhysicalValue.Oxygen; // legacy:  boolean multiplierExpected 
+				if ( (valueStr=getValue(line,"expectsMultiplierFor = "))!=null ) currentOT.expectsMultiplierFor = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"oxygenBooster = "       ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insectsBooster = "      ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr); // legacy
+				if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
+				if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
+				if ( (valueStr=getValue(line,"finished = "            ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true"); // legacy
+				if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
 				
 			}
 			
@@ -121,23 +122,23 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			
 			for (Entry<String, ObjectType> entry : vector) {
 				ObjectType ot = entry.getValue();
-				                                 out.printf("ObjectType: "         +"%s%n", ot.id       );
-				if ( ot.label             !=null) out.printf("label = "             +"%s%n", ot.label    );
-				if ( ot.heat              !=null) out.printf("heat = "              +"%s%n", ot.heat     );
-				if ( ot.pressure          !=null) out.printf("pressure = "          +"%s%n", ot.pressure );
-				if ( ot.oxygen            !=null) out.printf("oxygen = "            +"%s%n", ot.oxygen   );
-				if ( ot.plants            !=null) out.printf("plants = "            +"%s%n", ot.plants   );
-				if ( ot.insects           !=null) out.printf("insects = "           +"%s%n", ot.insects  );
-				if ( ot.animals           !=null) out.printf("animals = "           +"%s%n", ot.animals  );
-				if ( ot.energy            !=null) out.printf("energy = "            +"%s%n", ot.energy   );
-				if ( ot.multiplierExpected      ) out.printf("multiplierExpected"   +  "%n");
-				if ( ot.oxygenMultiplier  !=null) out.printf("oxygenMultiplier = "  +"%s%n", ot.oxygenMultiplier);
-				if ( ot.insectsMultiplier !=null) out.printf("insectsMultiplier = " +"%s%n", ot.insectsMultiplier);
-				if ( ot.animalsMultiplier !=null) out.printf("animalsMultiplier = " +"%s%n", ot.animalsMultiplier);
-				if ( ot.isBoosterRocketFor!=null) out.printf("isBoosterRocketFor = "+"%s%n", ot.isBoosterRocketFor.name());
-				if (!ot.occurrences.isEmpty()   ) out.printf("occurrences = "       +"%s%n", Occurrence.toDataStr(ot.occurrences));
-				if ( ot.isProducer              ) out.printf("isProducer"           +  "%n");
-				if ( ot.finished                ) out.printf("<finished>"           +  "%n");
+				                                    out.printf("ObjectType: "           +"%s%n", ot.id       );
+				if ( ot.label               !=null) out.printf("label = "               +"%s%n", ot.label    );
+				if ( ot.heat                !=null) out.printf("heat = "                +"%s%n", ot.heat     );
+				if ( ot.pressure            !=null) out.printf("pressure = "            +"%s%n", ot.pressure );
+				if ( ot.oxygen              !=null) out.printf("oxygen = "              +"%s%n", ot.oxygen   );
+				if ( ot.plants              !=null) out.printf("plants = "              +"%s%n", ot.plants   );
+				if ( ot.insects             !=null) out.printf("insects = "             +"%s%n", ot.insects  );
+				if ( ot.animals             !=null) out.printf("animals = "             +"%s%n", ot.animals  );
+				if ( ot.energy              !=null) out.printf("energy = "              +"%s%n", ot.energy   );
+				if ( ot.expectsMultiplierFor!=null) out.printf("expectsMultiplierFor = "+"%s%n", ot.expectsMultiplierFor.name());
+				if ( ot.oxygenMultiplier    !=null) out.printf("oxygenMultiplier = "    +"%s%n", ot.oxygenMultiplier);
+				if ( ot.insectsMultiplier   !=null) out.printf("insectsMultiplier = "   +"%s%n", ot.insectsMultiplier);
+				if ( ot.animalsMultiplier   !=null) out.printf("animalsMultiplier = "   +"%s%n", ot.animalsMultiplier);
+				if ( ot.isBoosterRocketFor  !=null) out.printf("isBoosterRocketFor = "  +"%s%n", ot.isBoosterRocketFor.name());
+				if (!ot.occurrences.isEmpty()     ) out.printf("occurrences = "         +"%s%n", Occurrence.toDataStr(ot.occurrences));
+				if ( ot.isProducer                ) out.printf("isProducer"             +  "%n");
+				if ( ot.finished                  ) out.printf("<finished>"             +  "%n");
 				
 				out.println();
 			}
@@ -264,7 +265,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double insects;
 		Double animals;
 		Double energy;
-		boolean multiplierExpected;
+		PhysicalValue expectsMultiplierFor;
 		Double oxygenMultiplier;
 		Double insectsMultiplier;
 		Double animalsMultiplier;
@@ -284,7 +285,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			insects  = null;
 			animals  = null;
 			energy   = null;
-			multiplierExpected = false;
+			expectsMultiplierFor = null;
 			oxygenMultiplier = null;
 			insectsMultiplier = null;
 			animalsMultiplier = null;
@@ -321,21 +322,21 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	
 		void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
 			if (oxygen  !=null) {
-				if (multiplierExpected)
-					            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , sumUpMultipliers(children, ot->ot.oxygenMultiplier), true);
+				if (expectsMultiplierFor == PhysicalValue.Oxygen)
+					            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
 				else            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , null, false);
 			}
 			if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    , null, false);
 			if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure, null, false);
 			if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  , null, false);
 			if (insects !=null) {
-				if (multiplierExpected)
-					            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , sumUpMultipliers(children, ot->ot.insectsMultiplier), true);
+				if (expectsMultiplierFor == PhysicalValue.Insects)
+					            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
 				else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , null, false);
 			}
 			if (animals !=null) {
-				if (multiplierExpected)
-					            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , sumUpMultipliers(children, ot->ot.animalsMultiplier), true);
+				if (expectsMultiplierFor == PhysicalValue.Animals)
+					            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
 				else            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
 			}
 			if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectTypes::formatEnergyRate     , energy  , null, false);

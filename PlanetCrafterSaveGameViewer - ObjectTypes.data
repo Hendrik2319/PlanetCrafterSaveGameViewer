@@ -38,7 +38,7 @@ ObjectType: Aquarium1
 label = Aquarium T1
 animals = 4.0
 energy = -75.0
-multiplierExpected
+expectsMultiplierFor = Animals
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -49,7 +49,7 @@ plants = 18.0
 insects = 25.0
 animals = 65.0
 energy = -225.0
-multiplierExpected
+expectsMultiplierFor = Animals
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -268,7 +268,7 @@ ObjectType: ButterflyDome1
 label = Butterfly Dome
 insects = 20.0
 energy = -139.0
-multiplierExpected
+expectsMultiplierFor = Insects
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -276,7 +276,7 @@ ObjectType: ButterflyFarm1
 label = Butterfly Farm T1
 insects = 75.0
 energy = -30.0
-multiplierExpected
+expectsMultiplierFor = Insects
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -284,7 +284,7 @@ ObjectType: ButterflyFarm2
 label = Butterfly Farm T2
 insects = 475.0
 energy = -45.0
-multiplierExpected
+expectsMultiplierFor = Insects
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1078,7 +1078,7 @@ label = Flower Spreader T1
 oxygen = 161.0
 plants = 9.2
 energy = -28.8
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = Achievement
 <finished>
 
@@ -1087,7 +1087,7 @@ label = Flower Spreader T2
 oxygen = 325.0
 plants = 43.5
 energy = -38.8
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1227,7 +1227,7 @@ label = Tree Spreader T1
 oxygen = 920.0
 plants = 97.0
 energy = -31.0
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1236,7 +1236,7 @@ label = Tree Spreader T2
 oxygen = 1950.0
 plants = 175.0
 energy = -71.0
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = Achievement
 <finished>
 
@@ -1245,7 +1245,7 @@ label = Tree Spreader T3
 oxygen = 8500.0
 plants = 1250.0
 energy = -153.0
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1310,14 +1310,14 @@ ObjectType: Vegetube1
 label = Vegetube T1
 oxygen = 0.15
 energy = -0.35
-multiplierExpected
+expectsMultiplierFor = Oxygen
 <finished>
 
 ObjectType: Vegetube2
 label = Vegetube T2
 oxygen = 1.2
 energy = -1.25
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = Achievement
 <finished>
 
@@ -1325,7 +1325,7 @@ ObjectType: VegetubeOutside1
 label = Vegetube T3
 oxygen = 13.0
 energy = -7.25
-multiplierExpected
+expectsMultiplierFor = Oxygen
 occurrences = Achievement
 <finished>
 

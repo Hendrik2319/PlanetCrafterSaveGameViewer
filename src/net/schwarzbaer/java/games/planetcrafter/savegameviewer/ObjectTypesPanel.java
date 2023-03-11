@@ -193,7 +193,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case multiplierExpected: case occurrences:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -213,23 +213,23 @@ class ObjectTypesPanel extends JScrollPane {
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			finished          ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
-			occurrences       ("Occ."          , String       .class,  50, null),
-			id                ("ID"            , String       .class, 130, null),
-			label             ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
-			heat              ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
-			pressure          ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
-			oxygen            ("Oxygen"        , Double       .class,  80, ObjectTypeValue.Oxygen  ),
-			plants            ("Plants"        , Double       .class,  80, ObjectTypeValue.Plants  ),
-			insects           ("Insects"       , Double       .class,  80, ObjectTypeValue.Insects ),
-			animals           ("Animals"       , Double       .class,  80, ObjectTypeValue.Animals ),
-			energy            ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
-			multiplierExpected("Multi Expected", Boolean      .class,  90, ObjectTypeValue.MultiplierExpected),
-			oxygenMultiplier  ("Oxy. Multi"    , Double       .class,  90, ObjectTypeValue.OxygenMultiplier),
-			insectsMultiplier ("Insects Multi" , Double       .class,  90, ObjectTypeValue.InsectsMultiplier),
-			animalsMultiplier ("Animals Multi" , Double       .class,  90, ObjectTypeValue.AnimalsMultiplier),
-			isBoosterRocketFor("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
-			isProducer        ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
+			finished             ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
+			occurrences          ("Occ."          , String       .class,  50, null),
+			id                   ("ID"            , String       .class, 130, null),
+			label                ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
+			heat                 ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
+			pressure             ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
+			oxygen               ("Oxygen"        , Double       .class,  80, ObjectTypeValue.Oxygen  ),
+			plants               ("Plants"        , Double       .class,  80, ObjectTypeValue.Plants  ),
+			insects              ("Insects"       , Double       .class,  80, ObjectTypeValue.Insects ),
+			animals              ("Animals"       , Double       .class,  80, ObjectTypeValue.Animals ),
+			energy               ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
+			expectsMultiplierFor ("Multi Expected", PhysicalValue.class,  90, ObjectTypeValue.ExpectsMultiplierFor),
+			oxygenMultiplier     ("Oxy. Multi"    , Double       .class,  90, ObjectTypeValue.OxygenMultiplier),
+			insectsMultiplier    ("Insects Multi" , Double       .class,  90, ObjectTypeValue.InsectsMultiplier),
+			animalsMultiplier    ("Animals Multi" , Double       .class,  90, ObjectTypeValue.AnimalsMultiplier),
+			isBoosterRocketFor   ("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
+			isProducer           ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -325,12 +325,12 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : return row.insects;
 			case animals : return row.animals;
 			case energy  : return row.energy;
-			case multiplierExpected: return row.multiplierExpected;   
-			case oxygenMultiplier  : return row.oxygenMultiplier;
-			case insectsMultiplier : return row.insectsMultiplier;
-			case animalsMultiplier : return row.animalsMultiplier;
-			case isBoosterRocketFor: return row.isBoosterRocketFor;
-			case isProducer: return row.isProducer;
+			case expectsMultiplierFor: return row.expectsMultiplierFor;   
+			case oxygenMultiplier    : return row.oxygenMultiplier;
+			case insectsMultiplier   : return row.insectsMultiplier;
+			case animalsMultiplier   : return row.animalsMultiplier;
+			case isBoosterRocketFor  : return row.isBoosterRocketFor;
+			case isProducer : return row.isProducer;
 			case occurrences: return toString(row.occurrences);
 			}
 			return null;
@@ -351,7 +351,7 @@ class ObjectTypesPanel extends JScrollPane {
 
 		@Override
 		protected void setValueAt(Object aValue, int rowIndex, int columnIndex, ColumnID columnID) {
-			System.out.printf("setValueAt( %s%s )%n", aValue, aValue==null ? "" : String.format(" [%s]", aValue.getClass()));
+			// System.out.printf("setValueAt( %s%s )%n", aValue, aValue==null ? "" : String.format(" [%s]", aValue.getClass()));
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
 			case finished: row.finished = (Boolean)aValue; fireTableRowUpdate(rowIndex); break;
@@ -365,12 +365,12 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : row.insects  = (Double)aValue; break;
 			case animals : row.animals  = (Double)aValue; break;
 			case energy  : row.energy   = (Double)aValue; break;
-			case multiplierExpected: row.multiplierExpected = (Boolean)aValue; break;
-			case oxygenMultiplier  : row.oxygenMultiplier   = (Double)aValue; break;
-			case insectsMultiplier : row.insectsMultiplier  = (Double)aValue; break;
-			case animalsMultiplier : row.animalsMultiplier  = (Double)aValue; break;
-			case isBoosterRocketFor: row.isBoosterRocketFor = (PhysicalValue)aValue; break;
-			case isProducer        : row.isProducer         = (Boolean)aValue; break;
+			case expectsMultiplierFor: row.expectsMultiplierFor = (PhysicalValue)aValue; break;
+			case oxygenMultiplier    : row.oxygenMultiplier     = (Double)aValue; break;
+			case insectsMultiplier   : row.insectsMultiplier    = (Double)aValue; break;
+			case animalsMultiplier   : row.animalsMultiplier    = (Double)aValue; break;
+			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue; break;
+			case isProducer          : row.isProducer           = (Boolean)aValue; break;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}

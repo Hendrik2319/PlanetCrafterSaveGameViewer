@@ -115,7 +115,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		c.gridx++;
 		lowerPanel.add(
 			new SimpleTablePanel<Data.Layer>("Layers", data.layers,
-				new SimpleTablePanel.Column("ID"              , String    .class,  75, row->((Data.Layer)row).layerId        ),
+				new SimpleTablePanel.Column("ID"              , String    .class, 180, row->((Data.Layer)row).layerId        ),
 				new SimpleTablePanel.Column("Color Base      ", Data.Color.class,  90, row->((Data.Layer)row).colorBase      ),
 				new SimpleTablePanel.Column("Color Custom    ", Data.Color.class,  90, row->((Data.Layer)row).colorCustom    ),
 				new SimpleTablePanel.Column("Color BaseLerp  ", Long      .class,  90, row->((Data.Layer)row).colorBaseLerp  ),
