@@ -26,12 +26,12 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Alloy
 label = Super Alloy
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Aluminium
 label = Aluminium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Aquarium1
@@ -61,6 +61,13 @@ occurrences = WorldObject
 ObjectType: astrofood2
 label = High Quality Food
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: AutoCrafter1
+label = Auto-Crafter
+energy = -155.0
+occurrences = WorldObject,Achievement
+isProducer
 <finished>
 
 ObjectType: Backpack2
@@ -105,7 +112,7 @@ occurrences = WorldObject
 
 ObjectType: Bee1Larvae
 label = Bee Larva
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Beehive1
@@ -327,7 +334,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Cobalt
 label = Cobalt
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: ComAntenna
@@ -708,7 +715,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: honey
 label = Honey
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: HudChipCleanConstruction
@@ -740,12 +747,12 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: Iridium
 label = Iridium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Iron
 label = Iron
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Jetpack2
@@ -786,12 +793,12 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Magnesium
 label = Magnesium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MethanCapsule1
 label = Methane Cartridge
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MultiBuild
@@ -855,7 +862,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: NitrogenCapsule1
 label = Nitrogen Cartridge
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: OreExtractor1
@@ -878,7 +885,7 @@ isProducer
 
 ObjectType: Osmium
 label = Osmium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: OutsideLamp1
@@ -889,7 +896,7 @@ occurrences = WorldObject
 
 ObjectType: OxygenCapsule1
 label = Oxygen Capsule
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: OxygenTank1
@@ -913,17 +920,17 @@ occurrences = WorldObject
 
 ObjectType: Phytoplankton1
 label = Phytoplankton A
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Phytoplankton2
 label = Phytoplankton B
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Phytoplankton3
 label = Phytoplankton C
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: pod
@@ -1163,12 +1170,12 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Silicon
 label = Silicon
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Silk
 label = Silk
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: SilkGenerator
@@ -1223,7 +1230,7 @@ occurrences = WorldObject
 
 ObjectType: Sulfur
 label = Sulfur
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: TableSmall
@@ -1239,7 +1246,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Titanium
 label = Titanium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree0Seed
@@ -1304,7 +1311,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: TreeRoot
 label = Tree Bark
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: TreeSpreader0
@@ -1336,7 +1343,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Uranim
 label = Uranium
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable0Growable
@@ -1421,7 +1428,7 @@ occurrences = WorldObject
 
 ObjectType: WaterBottle1
 label = Water Bottle
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: WaterCollector1
@@ -1462,6 +1469,6 @@ occurrences = WorldObject
 
 ObjectType: Zeolite
 label = Zeolite
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 

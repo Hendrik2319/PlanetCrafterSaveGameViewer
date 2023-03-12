@@ -12,6 +12,7 @@ import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeCreator;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
@@ -81,15 +82,15 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"); blockIndex++;
+		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"                 ); blockIndex++;
 		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates      ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
 		/* 2 */ worldObjects       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject       ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList        ::new, "ObjectLists"       ); blockIndex++;
-		/* 4 */ generalData1       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1      ::new, "GeneralData1"      ); blockIndex++;
-		/* 5 */ messages           = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message           ::new, "Messages"          ); blockIndex++;
-		/* 6 */ storyEvents        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), StoryEvent        ::new, "StoryEvents"       ); blockIndex++;
-		/* 7 */ generalData2       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2      ::new, "GeneralData2"      ); blockIndex++;
-		/* 8 */ layers             = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer             ::new, "Layers"            ); blockIndex++;
+		/* 3 */ objectLists        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList        ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1      ::new, "GeneralData1"                       ); blockIndex++;
+		/* 5 */ messages           = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message           ::new, "Messages"                           ); blockIndex++;
+		/* 6 */ storyEvents        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), StoryEvent        ::new, "StoryEvents"                        ); blockIndex++;
+		/* 7 */ generalData2       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2      ::new, "GeneralData2"                       ); blockIndex++;
+		/* 8 */ layers             = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer             ::new, "Layers"                             ); blockIndex++;
 		
 		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
@@ -234,8 +235,14 @@ class Data {
 		return results;
 	}
 
-	static String[] parseStringArray(String str, String debugLabel) throws ParseException {
+	static String[] parseStringArray(String str, String debugLabel) throws ParseException
+	{
 		return parseCommaSeparatedArray(str, debugLabel, "String", String[]::new, str1->str1);
+	}
+
+	static ObjectType[] parseObjectTypeArray(String str, ObjectTypeCreator getOrCreateObjectType, Occurrence occurrence, String debugLabel) throws ParseException
+	{
+		return parseCommaSeparatedArray(str, debugLabel, "ObjectType", ObjectType[]::new, objectTypeID->getOrCreateObjectType.getOrCreate(objectTypeID, occurrence));
 	}
 
 	static class ParseException extends Exception {
@@ -586,7 +593,7 @@ class Data {
 			
 			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
 			for (int i=0; i<unlockedGroups.length; i++)
-				unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], ObjectTypes.Occurrence.Blueprint );
+				unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], Occurrence.Blueprint );
 		}
 		
 		@Override String toJsonStrs() {
@@ -668,8 +675,8 @@ class Data {
 			rotation     = new Rotation(rotationStr, debugLabel+".rot");
 			color        = colorStr.isEmpty() ? null : new Color(colorStr, debugLabel+".color");
 			
-			objectType   =                              getOrCreateObjectType.getOrCreate(objectTypeID, ObjectTypes.Occurrence.WorldObject);
-			product      = productID.isEmpty() ? null : getOrCreateObjectType.getOrCreate(productID   , ObjectTypes.Occurrence.Product    );
+			objectType   =                              getOrCreateObjectType.getOrCreate(objectTypeID, Occurrence.WorldObject);
+			product      = productID.isEmpty() ? null : getOrCreateObjectType.getOrCreate(productID   , Occurrence.Product    );
 			
 			list          = null;
 			container     = null;
@@ -842,6 +849,11 @@ class Data {
 		WorldObject container; // container using this list
 		private final String woIdsStr;
 		boolean nonUniqueID; // is <id> unique over all ObjectLists
+		final Long dronePrio;
+		final String demandItemsStr;
+		final String supplyItemsStr;
+		final ObjectType[] demandItems;
+		final ObjectType[] supplyItems;
 
 		/*
 			Block[3]: 221 entries
@@ -853,17 +865,23 @@ class Data {
 			        size:Integer
 			        woIds:String
 		 */
-		ObjectList(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+		ObjectList(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(true);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			id          = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
-			size        = JSON_Data.getIntegerValue(object, "size"  , debugLabel);
-			woIdsStr    = JSON_Data.getStringValue (object, "woIds" , debugLabel);
+			id             = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
+			size           = JSON_Data.getIntegerValue(object, "size"  , debugLabel);
+			woIdsStr       = JSON_Data.getStringValue (object, "woIds" , debugLabel);
+			demandItemsStr = JSON_Data.getStringValue (object, "demandGrps", true, false, debugLabel);
+			supplyItemsStr = JSON_Data.getStringValue (object, "supplyGrps", true, false, debugLabel);
+			dronePrio      = JSON_Data.getIntegerValue(object, "priority"  , true, false, debugLabel);
 			
 			worldObjIds = parseIntegerArray(woIdsStr, debugLabel+".woIds");
 			worldObjs = null; // will be set in post processing at end of Data constructor
 			container = null;
+			
+			demandItems = demandItemsStr==null ? null : parseObjectTypeArray(demandItemsStr, getOrCreateObjectType, Occurrence.ObjectList, debugLabel+".demandGrps");
+			supplyItems = supplyItemsStr==null ? null : parseObjectTypeArray(supplyItemsStr, getOrCreateObjectType, Occurrence.ObjectList, debugLabel+".supplyGrps");
 		}
 
 		@Override String toJsonStrs() {

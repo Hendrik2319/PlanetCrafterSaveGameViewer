@@ -205,15 +205,16 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 	
 	enum Occurrence {
-		WorldObject, Achievement, Blueprint, User, Product;
+		WorldObject, Achievement, Blueprint, User, Product, ObjectList;
 		
 		String getShortLabel() {
 			switch (this) {
-			case Achievement: return "A";
-			case Blueprint  : return "B";
-			case Product    : return "P";
-			case User       : return "U";
-			case WorldObject: return "WO";
+				case Achievement: return "A";
+				case Blueprint  : return "B";
+				case Product    : return "P";
+				case User       : return "U";
+				case WorldObject: return "WO";
+				case ObjectList : return "OL";
 			}
 			return "??";
 		}
