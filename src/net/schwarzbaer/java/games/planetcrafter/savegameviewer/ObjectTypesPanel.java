@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Point;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Supplier;
@@ -32,9 +33,9 @@ class ObjectTypesPanel extends JScrollPane {
 	private ObjectTypesTableModel tableModel;
 	private JTable table;
 	
-	ObjectTypesPanel(ObjectTypes objectTypes) {
+	ObjectTypesPanel(ObjectTypes objectTypes, HashMap<String,Integer> amounts) {
 		
-		tableModel = new ObjectTypesTableModel(this, objectTypes);
+		tableModel = new ObjectTypesTableModel(this, objectTypes, amounts);
 		table = new JTable(tableModel);
 		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -182,7 +183,10 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null)
 				return SwingConstants.LEFT;
 			
-			if (columnID.cfg.columnClass == Double.class)
+			if (columnID == ObjectTypesTableModel.ColumnID.amount)
+				return SwingConstants.CENTER;
+			
+			if (Number.class.isAssignableFrom( columnID.cfg.columnClass) )
 				return SwingConstants.RIGHT;
 			
 			return SwingConstants.LEFT;
@@ -193,7 +197,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences: case amount:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -215,6 +219,7 @@ class ObjectTypesPanel extends JScrollPane {
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			finished             ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
 			occurrences          ("Occ."          , String       .class,  50, null),
+			amount               ("N"             , Integer      .class,  30, null),
 			id                   ("ID"            , String       .class, 130, null),
 			label                ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
 			heat                 ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
@@ -245,10 +250,12 @@ class ObjectTypesPanel extends JScrollPane {
 		private final Vector<ObjectTypesChangeListener> objectTypesChangeListeners;
 		private final Vector<String> objTypeIDs;
 		private final ObjectTypes objectTypes;
+		private final HashMap<String, Integer> amounts;
 
-		private ObjectTypesTableModel(ObjectTypesPanel panel, ObjectTypes objectTypes) {
+		private ObjectTypesTableModel(ObjectTypesPanel panel, ObjectTypes objectTypes, HashMap<String,Integer> amounts) {
 			super(ColumnID.values());
 			this.objectTypes = objectTypes;
+			this.amounts = amounts;
 			objTypeIDs = new Vector<>(this.objectTypes.keySet());
 			objTypeIDs.sort(Data.caseIgnoringComparator);
 			objectTypesChangeListeners = new Vector<>();
@@ -295,6 +302,7 @@ class ObjectTypesPanel extends JScrollPane {
 			ObjectTypesTableCellRenderer tcr = new ObjectTypesTableCellRenderer(this);
 			table.setDefaultRenderer(String.class, tcr);
 			table.setDefaultRenderer(Double.class, tcr);
+			table.setDefaultRenderer(Integer.class, tcr);
 			table.setDefaultRenderer(Boolean.class, tcr);
 			table.setDefaultRenderer(PhysicalValue.class, tcr);
 			
@@ -332,6 +340,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case isBoosterRocketFor  : return row.isBoosterRocketFor;
 			case isProducer : return row.isProducer;
 			case occurrences: return toString(row.occurrences);
+			case amount: return amounts.get(row.id);
 			}
 			return null;
 		}
@@ -356,6 +365,7 @@ class ObjectTypesPanel extends JScrollPane {
 			switch (columnID) {
 			case finished: row.finished = (Boolean)aValue; fireTableRowUpdate(rowIndex); break;
 			case occurrences: break;
+			case amount     : break;
 			case id         : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
 			case heat    : row.heat     = (Double)aValue; break;

@@ -18,7 +18,7 @@ Heat
 10000.0|{EquipmentIncrease2}
 21000.0|{Drill2}
 100000.0|{biodome}
-500000.0|Sign
+500000.0|{Sign}
 2000000.0|{AlgaeGenerator1}
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
@@ -84,7 +84,7 @@ Animals
 50000.0|{Fish5Eggs}
 250000.0|{Fish6Eggs}
 2500000.0|{FishDisplayer1}
-5500000.0|Fish Farm
+5500000.0|{FishFarm1}
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
 
@@ -93,7 +93,7 @@ Terraformation
 1000.0|{EnergyGenerator2}
 2500.0|{Backpack3}
 17500.0|{EnergyGenerator3}
-25000.0|Double Bed
+25000.0|{BedDouble}
 50000.0|{Container2}
 175000.0|{CraftStation2}
 345000.0|{LaunchPlatform}

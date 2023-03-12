@@ -93,6 +93,16 @@ energy = -0.25
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: BedDouble
+label = Double Bed
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: BedSimple
+label = Bed
+occurrences = WorldObject
+<finished>
+
 ObjectType: Bee1Larvae
 label = Bee Larva
 occurrences = WorldObject,Product
@@ -175,6 +185,12 @@ insectsMultiplier = 6.0
 occurrences = WorldObject
 <finished>
 
+ObjectType: Butterfly12Larvae
+label = Butterfly Lorpen Larva (<found>, 600%)
+insectsMultiplier = 6.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: Butterfly13Larvae
 label = Butterfly Fiorente Larva (<found>, 600%)
 insectsMultiplier = 6.0
@@ -203,6 +219,12 @@ ObjectType: Butterfly17Larvae
 label = Butterfly Serena Larva (1200%)
 insectsMultiplier = 12.0
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Butterfly18Larvae
+label = Butterfly Golden Larva (1500%)
+insectsMultiplier = 15.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Butterfly1Larvae
@@ -293,6 +315,11 @@ label = Canister
 occurrences = WorldObject
 <finished>
 
+ObjectType: Chair1
+label = Chair
+occurrences = WorldObject
+<finished>
+
 ObjectType: CircuitBoard1
 label = Circuit Board
 occurrences = WorldObject,Achievement
@@ -329,6 +356,11 @@ ObjectType: CraftStation2
 label = Advanced Craft Station
 energy = -12.5
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Desktop1
+label = Desktop
+occurrences = WorldObject
 <finished>
 
 ObjectType: Destructor1
@@ -475,6 +507,12 @@ label = Fertilizer T2
 occurrences = WorldObject
 <finished>
 
+ObjectType: Fish10Eggs
+label = Fish Tiloo Eggs (400% | P.C, M.T2, F)
+animalsMultiplier = 4.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: Fish11Eggs
 label = Golden Fish Eggs (500% | P.C, M.T3, F)
 animalsMultiplier = 5.0
@@ -485,6 +523,12 @@ ObjectType: Fish1Eggs
 label = Fish Provios Eggs (100% | P.A, M.T3, F)
 animalsMultiplier = 1.0
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Fish2Eggs
+label = Fish Vilnus Eggs (150% | P.A, M.T3, F)
+animalsMultiplier = 1.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Fish3Eggs
@@ -508,22 +552,43 @@ occurrences = WorldObject,Achievement,Product
 ObjectType: Fish6Eggs
 label = Fish Aelera Eggs (300% | P.C, M.T2, F)
 animalsMultiplier = 3.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
+<finished>
+
+ObjectType: Fish7Eggs
+label = Fish Tegede Eggs (300% | P.A, M.T3, F)
+animalsMultiplier = 3.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: Fish8Eggs
-label = Fish Ecaru Eggs (325%)
+label = Fish Ecaru Eggs (325% | P.B, M.T3, F)
 animalsMultiplier = 3.25
 occurrences = WorldObject
+<finished>
 
 ObjectType: Fish9Eggs
-label = Fish Buyu Eggs (350%)
+label = Fish Buyu Eggs (350% | P.C, M.T3, F)
 animalsMultiplier = 3.5
 occurrences = WorldObject,Product
+<finished>
 
 ObjectType: FishDisplayer1
 label = Fish Display
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: FishFarm1
+label = Fish Farm
+pressure = 10.0
+oxygen = 25.0
+plants = 50.0
+insects = 90.0
+animals = 195.0
+energy = -155.5
+expectsMultiplierFor = Animals
+occurrences = WorldObject,Achievement
+isProducer
 <finished>
 
 ObjectType: FlowerPot1
@@ -1091,6 +1156,11 @@ expectsMultiplierFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: Sign
+label = Sign
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Silicon
 label = Silicon
 occurrences = WorldObject
@@ -1111,6 +1181,16 @@ isProducer
 ObjectType: SilkWorm
 label = Silk Worm
 occurrences = WorldObject,Product
+<finished>
+
+ObjectType: Sofa
+label = Sofa
+occurrences = WorldObject
+<finished>
+
+ObjectType: SofaAngle
+label = Sofa Angle
+occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
@@ -1143,6 +1223,11 @@ occurrences = WorldObject
 
 ObjectType: Sulfur
 label = Sulfur
+occurrences = WorldObject
+<finished>
+
+ObjectType: TableSmall
+label = Table
 occurrences = WorldObject
 <finished>
 
@@ -1366,10 +1451,14 @@ isProducer
 <finished>
 
 ObjectType: wreckpilar
+label = Wreck Pilar (Iron)
 occurrences = WorldObject
+<finished>
 
 ObjectType: WreckServer
+label = Wreck Server (Circuit Board)
 occurrences = WorldObject
+<finished>
 
 ObjectType: Zeolite
 label = Zeolite

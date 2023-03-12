@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.Executors;
@@ -40,6 +41,7 @@ import net.schwarzbaer.gui.StandardDialog;
 import net.schwarzbaer.gui.StandardMainWindow;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ToolbarIcons;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
@@ -411,8 +413,17 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(this, data);
-
-		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes);
+		
+		HashMap<String, Integer> amounts = new HashMap<String,Integer>();
+		if (data.worldObjects!=null)
+			for (WorldObject wo : data.worldObjects)
+			{
+				Integer n = amounts.get( wo.objectTypeID );
+				if (n==null) n = 0;
+				amounts.put( wo.objectTypeID, n+1 );
+			}
+		
+		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes, amounts);
 		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
