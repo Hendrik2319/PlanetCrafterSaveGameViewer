@@ -38,7 +38,7 @@ Pressure
 2500000.0|{SeedSpreader1}
 1.0E8|{GasExtractor1}
 3.645E8|{OreExtractor2}
-1.333E10|Ore Extractor T3
+1.333E10|{OreExtractor3}
 
 Biomass
 865.0|{Biolab}

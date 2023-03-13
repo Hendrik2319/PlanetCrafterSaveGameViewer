@@ -70,6 +70,11 @@ occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
+ObjectType: Backpack1
+label = Backpack T1
+occurrences = WorldObject
+<finished>
+
 ObjectType: Backpack2
 label = Backpack T2
 occurrences = Achievement
@@ -167,7 +172,7 @@ occurrences = WorldObject
 
 ObjectType: BootsSpeed1
 label = Agility Boots T1
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed2
@@ -468,6 +473,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EquipmentIncrease1
 label = Exoskeleton T1
+occurrences = WorldObject
 <finished>
 
 ObjectType: EquipmentIncrease2
@@ -664,6 +670,11 @@ occurrences = WorldObject
 
 ObjectType: GoldenEffigie5
 label = Golden Effigie "Warden's Key"
+occurrences = WorldObject
+<finished>
+
+ObjectType: GoldenEffigie6
+label = Golden Effigie "Sphere?"
 occurrences = WorldObject
 <finished>
 
@@ -883,6 +894,15 @@ occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
+ObjectType: OreExtractor3
+label = Ore Extractor T3
+heat = 202.0
+pressure = 135.0
+energy = -289.0
+occurrences = Achievement
+isProducer
+<finished>
+
 ObjectType: Osmium
 label = Osmium
 occurrences = WorldObject,ObjectList
@@ -905,7 +925,7 @@ label = Oxygen Tank T1
 
 ObjectType: OxygenTank2
 label = Oxygen Tank T2
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank3
