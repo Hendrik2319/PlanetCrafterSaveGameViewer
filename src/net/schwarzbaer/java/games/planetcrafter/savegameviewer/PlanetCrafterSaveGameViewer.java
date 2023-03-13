@@ -435,6 +435,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		dataTabPane.addTab("Terraforming", terraformingPanel);
 		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data,mapPanel));
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
+		dataTabPane.addTab("Supply -> Demand", new SupplyDemandPanel(data));
 		dataTabPane.addTab("Object Types", objectTypesPanel);
 		
 		SwingUtilities.invokeLater(() -> {

@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
@@ -912,27 +913,54 @@ class Data {
 			return resume;
 		}
 
-		public String generateOutput() {
+		String generateOutput() {
 			ValueListOutput out = new ValueListOutput();
-			
-			out.add(0, "ID", id);
+			generateOutput(out, 0, true);
+			return out.generateOutput();
+		}
+
+		void generateOutput(ValueListOutput out, int indentLevel, boolean showContentIDs)
+		{
+			out.add(indentLevel, "ID", id);
 			if (nonUniqueID)
-				out.add(0, null, "%s", "is not unique");
-			out.add(0, "Size", "%d", size);
+				out.add(indentLevel, null, "%s", "is not unique");
+			
+			if (worldObjs==null || size==0)
+				out.add(indentLevel, "Size", "%d", size);
+			else
+				out.add(indentLevel, "Size", "%d (%1.1f%% filled)",  size, worldObjs.length / (double) size * 100);
+			
 			if (container!=null) {
-				out.add(0, "Container using this list");
-				container.addShortDescTo(out,1);
+				out.add(indentLevel, "Container using this list");
+				container.addShortDescTo(out,indentLevel+1);
 			}
-			out.add(0, "Content", "%d items", worldObjs.length);
+			
+			if (supplyItems!=null || supplyItemsStr!=null)
+				out.add(indentLevel, "Supply", "%s", toString(supplyItems, supplyItemsStr));
+			if (demandItems!=null || demandItemsStr!=null)
+				out.add(indentLevel, "Demand", "%s", toString(demandItems, demandItemsStr));
+			if (dronePrio!=null)
+				out.add(indentLevel, "Drone Prio", dronePrio);
+			
+			out.add(indentLevel, "Content", "%d items", worldObjs.length);
 			Vector<Map.Entry<String, Integer>> content = getContentResume();
 			for (Map.Entry<String, Integer> entry : content)
-				out.add(1, null, "%dx %s", entry.getValue(), entry.getKey());
+				out.add(indentLevel+1, null, "%dx %s", entry.getValue(), entry.getKey());
 			
-			out.add(0, "Content IDs", "%d items", worldObjIds.length);
-			for (int woID : worldObjIds)
-				out.add(1, null, woID);
-			
-			return out.generateOutput();
+			if (showContentIDs)
+			{
+				out.add(indentLevel, "Content IDs", "%d items", worldObjIds.length);
+				for (int woID : worldObjIds)
+					out.add(indentLevel+1, null, woID);
+			}
+		}
+		static String toString(ObjectType[] objectTypeArr, String objectTypeArrStr)
+		{
+			if (objectTypeArr!=null)
+				return String.join(", ", (Iterable<String>)()->Arrays.stream(objectTypeArr).map(ot->ot==null ? "<null>" : ot.getName()).iterator());
+			if (objectTypeArrStr!=null)
+				return String.format("\"%s\"", objectTypeArrStr);
+			return null;
 		}
 	}
 

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.function.Supplier;
@@ -17,7 +16,6 @@ import javax.swing.table.TableCellRenderer;
 import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 
 class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID> {
 	private static final long serialVersionUID = -1787920497956857504L;
@@ -124,16 +122,16 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 	static class ObjectListsTableModel extends AbstractTablePanel.AbstractTableModel<ObjectList, ObjectListsTableModel.ColumnID> {
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			id         ("ID"          , Long   .class,  75),
-			nonUniqueID("UnI"         , Boolean.class,  30),
-			IsTwinID   ("Twin"        , Boolean.class,  35),
-			container  ("Container"   , String .class, 350),
-			size       ("Size"        , Long   .class,  50),
-			Filling    ("Filling"     , Double .class,  50),
-			worldObjs  ("Content"     , String .class, 400),
-			demandItems("Demand Items", String .class, 200, true),
-			supplyItems("Supply Items", String .class, 200, true),
-			dronePrio  ("Drone Prio"  , Long   .class,  50, true),
+			id         ("ID"                , Long   .class,  75),
+			nonUniqueID("UnI"               , Boolean.class,  30),
+			IsTwinID   ("Twin"              , Boolean.class,  35),
+			container  ("Assigned Container", String .class, 350),
+			size       ("Size"              , Long   .class,  50),
+			Filling    ("Filling"           , Double .class,  50),
+			worldObjs  ("Content"           , String .class, 400),
+			demandItems("Demand Items"      , String .class, 200, true),
+			supplyItems("Supply Items"      , String .class, 200, true),
+			dronePrio  ("Drone Prio"        , Long   .class,  50, true),
 			;
 			private final Tables.SimplifiedColumnConfig cfg;
 			private final boolean isOptional;
@@ -176,7 +174,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			return str;
 		}
 
-		@Override protected Object getValueAt(int rowIndex, int columnIndex, ObjectListsTableModel.ColumnID columnID, ObjectList row) {
+		@Override protected Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID, ObjectList row) {
 			switch (columnID) {
 				case id         : return row.id;
 				case nonUniqueID: return row.nonUniqueID;
@@ -189,21 +187,13 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 					//Iterator<String> it = Arrays.stream(row.worldObjs).map(wo->wo==null ? "<????>" : wo.objType).iterator();
 					Iterator<String> it = row.getContentResume().stream().map(e->String.format("%dx %s", e.getValue(), e.getKey())).iterator();
 					return String.join(", ", (Iterable<String>)()->it);
-				case demandItems: return toString(row.demandItems, row.demandItemsStr);
-				case supplyItems: return toString(row.supplyItems, row.supplyItemsStr);
+				case demandItems: return ObjectList.toString(row.demandItems, row.demandItemsStr);
+				case supplyItems: return ObjectList.toString(row.supplyItems, row.supplyItemsStr);
 				case dronePrio  : return row.dronePrio;
 			}
 			return null;
 		}
 
-		private String toString(ObjectType[] objectTypeArr, String objectTypeArrStr)
-		{
-			if (objectTypeArr!=null)
-				return String.join(", ", (Iterable<String>)()->Arrays.stream(objectTypeArr).map(ot->ot==null ? "<null>" : ot.getName()).iterator());
-			if (objectTypeArrStr!=null)
-				return String.format("\"%s\"", objectTypeArrStr);
-			return null;
-		}
 		
 	}
 }
