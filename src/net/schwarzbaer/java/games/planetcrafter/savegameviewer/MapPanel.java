@@ -66,6 +66,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private enum ColoringType {
 		StoragesFillingLevel ("Filling Level of Storages"),
 		ProducersFillingLevel("Filling Level of Producers"),
+		GrowthState          ("Growth State"),
 		FindInstalledObject  ("Find installed Object"),
 		FindStoredObject     ("Find stored Object"),
 		ObjectType           ("Object Type"),
@@ -123,6 +124,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					
 				case ProducersFillingLevel:
 				case StoragesFillingLevel:
+				case GrowthState:
 					cmbbxObjLabels.setEnabled(false);
 					break;
 					
@@ -351,18 +353,21 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			this.objLabel = objLabel;
 		}
 
-		boolean isHighlighted(WorldObject wo) {
-			if (coloringType!=null)
-				switch (coloringType) {
-				case FindInstalledObject  : return wo.getName().equals(objLabel);
-				case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
-				case ProducersFillingLevel: return wo.objectType!=null && wo.objectType.isProducer && wo.list!=null;
-				case StoragesFillingLevel : return wo.list!=null;
-				case ObjectType           : return wo.objectType!=null && objectTypeColors!=null && objectTypeColors.get(wo.objectType.id)!=null;
+		boolean isHighlighted(WorldObject wo)
+		{
+			if (coloringType != null)
+				switch (coloringType)
+				{
+					case FindInstalledObject  : return wo.getName().equals(objLabel);
+					case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
+					case ProducersFillingLevel: return wo.objectType != null && wo.objectType.isProducer && wo.list != null;
+					case StoragesFillingLevel : return wo.list != null;
+					case ObjectType           : return wo.objectType != null && objectTypeColors != null && objectTypeColors.get(wo.objectType.id) != null;
+					case GrowthState          : return wo.growth > 0;
 				}
 			return false;
 		}
-
+		
 		Color getHighlightColor(WorldObject wo) {
 			if (coloringType!=null)
 				switch (coloringType) {
@@ -370,14 +375,22 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				case FindInstalledObject: case FindStoredObject:
 					return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND;
 					
-				case ProducersFillingLevel: case StoragesFillingLevel:
-					if (wo.list==null) return null; // shouldn't be
-					double value = wo.list.worldObjIds.length / (double)wo.list.size;
-					return getMixedColor(value,
+				case GrowthState:
+					if (wo.growth == 100)
+						return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
+					return getMixedColor(wo.growth / 100.0,
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX);
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
+					
+				case ProducersFillingLevel: case StoragesFillingLevel:
+					if (wo.list==null) return null; // shouldn't be
+					if (wo.list.worldObjIds.length == wo.list.size)
+						return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
+					return getMixedColor(wo.list.worldObjIds.length / (double)wo.list.size,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
+							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
 				
 				case  ObjectType:
 					if (wo.objectType==null || objectTypeColors==null) return null; // shouldn't be
@@ -386,15 +399,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			return null;
 		}
 
-		private Color getMixedColor(double value, Color color0, Color colorHalf, Color color1, Color colorMax) {
+		private Color getMixedColor(double value, Color color00, Color color05, Color color10) {
 			value = Math.min(Math.max(0, value), 1);
-			
-			if (value<0.5)
-				return computeColor(color0, colorHalf, 2*value);
-			else if (value<1)
-				return computeColor(colorHalf, color1, 2*(value-0.5));
-			else
-				return colorMax;
+			return value<0.5
+					? computeColor(color00, color05, 2* value     )
+					: computeColor(color05, color10, 2*(value-0.5));
 		}
 
 		private Color computeColor(Color color0, Color color1, double f) {

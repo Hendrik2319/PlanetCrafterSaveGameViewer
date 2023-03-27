@@ -358,6 +358,43 @@ label = Locker Storage
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: CookCake1
+label = Birthday Cake
+occurrences = WorldObject
+<finished>
+
+ObjectType: CookChocolate
+label = Chocolate
+occurrences = WorldObject
+<finished>
+
+ObjectType: CookCocoaGrowable
+occurrences = WorldObject
+
+ObjectType: CookCocoaSeed
+occurrences = WorldObject
+
+ObjectType: CookCookie1
+label = Cookie
+occurrences = WorldObject
+<finished>
+
+ObjectType: CookCroissant
+label = Croissant
+occurrences = WorldObject
+<finished>
+
+ObjectType: CookFlour
+label = Flour
+occurrences = WorldObject
+<finished>
+
+ObjectType: CookWheatGrowable
+occurrences = WorldObject
+
+ObjectType: CookWheatSeed
+occurrences = WorldObject
+
 ObjectType: CraftStation1
 label = Craft Station T2
 energy = -0.5

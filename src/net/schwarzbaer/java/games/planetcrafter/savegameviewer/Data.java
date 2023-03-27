@@ -18,11 +18,14 @@ import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
+import net.schwarzbaer.java.lib.jsonparser.JSON_Helper.KnownJsonValues;
+import net.schwarzbaer.java.lib.jsonparser.JSON_Helper.KnownJsonValuesFactory;
 
 class Data {
 	static class NV extends JSON_Data.NamedValueExtra.Dummy {}
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
+	private static final KnownJsonValuesFactory<NV, V> KJV_FACTORY = new KnownJsonValuesFactory<Data.NV, Data.V>("net.schwarzbaer.java.games.planetcrafter.savegameviewer.");
 
 	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, ObjectTypeCreator getOrCreateObjectType) {
 		try {
@@ -80,6 +83,8 @@ class Data {
 
 	private Data(Vector<Vector<Value<NV, V>>> dataVec, ObjectTypeCreator getOrCreateObjectType) throws ParseException, TraverseException {
 		if (dataVec==null) throw new IllegalArgumentException();
+		
+		KJV_FACTORY.clearStatementList();
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
@@ -144,6 +149,8 @@ class Data {
 		
 		
 		System.out.printf("Done%n");
+		
+		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
 	}
 	
 	interface ParseConstructor1<ValueType> {
@@ -408,6 +415,15 @@ class Data {
 		}
 	}
 	static class TerraformingStates extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(TerraformingStates.class)
+				.add("unitOxygenLevel"  , Value.Type.Float)
+				.add("unitHeatLevel"    , Value.Type.Float)
+				.add("unitPressureLevel", Value.Type.Float)
+		//		.add("unitBiomassLevel" , Value.Type.Float)
+				.add("unitPlantsLevel"  , Value.Type.Float)
+				.add("unitInsectsLevel" , Value.Type.Float)
+				.add("unitAnimalsLevel" , Value.Type.Float);
+		
 		final double oxygenLevel;
 		final double heatLevel;
 		final double pressureLevel;
@@ -441,6 +457,8 @@ class Data {
 			plantsLevel   = JSON_Data.getFloatValue(object, "unitPlantsLevel"  , debugLabel);
 			insectsLevel  = JSON_Data.getFloatValue(object, "unitInsectsLevel" , debugLabel);
 			animalsLevel  = JSON_Data.getFloatValue(object, "unitAnimalsLevel" , debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		TerraformingStates(double oxygenLevel, double heatLevel, double pressureLevel,
@@ -554,6 +572,15 @@ class Data {
 	}
 
 	static class PlayerStates extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(PlayerStates.class)
+				.add("playerGaugeHealth", Value.Type.Float)
+				.add("playerGaugeOxygen", Value.Type.Float)
+				.add("playerGaugeThirst", Value.Type.Float)
+				.add("playerPosition"   , Value.Type.String)
+				.add("playerRotation"   , Value.Type.String)
+				.add("unlockedGroups"   , Value.Type.String);
+				
+		
 		final double health;
 		final double oxygen;
 		final double thirst;
@@ -595,6 +622,8 @@ class Data {
 			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
 			for (int i=0; i<unlockedGroups.length; i++)
 				unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], Occurrence.Blueprint );
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 		
 		@Override String toJsonStrs() {
@@ -614,6 +643,19 @@ class Data {
 	}
 	
 	static class WorldObject extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(WorldObject.class)
+				.add("id"    , Value.Type.Integer)
+				.add("gId"   , Value.Type.String )
+				.add("liId"  , Value.Type.Integer)
+				.add("liGrps", Value.Type.String )
+				.add("pos"   , Value.Type.String )
+				.add("rot"   , Value.Type.String )
+				.add("wear"  , Value.Type.Integer)
+				.add("pnls"  , Value.Type.String )
+				.add("color" , Value.Type.String )
+				.add("text"  , Value.Type.String )
+				.add("grwth" , Value.Type.Integer);
+		
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
@@ -671,6 +713,8 @@ class Data {
 			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 			
 			position     = new Coord3  (positionStr, debugLabel+".pos");
 			rotation     = new Rotation(rotationStr, debugLabel+".rot");
@@ -767,7 +811,11 @@ class Data {
 			if (nonUniqueID) out.add(0, null, "%s", "is not unique");
 			out.add(0, "ObjectTypeID", objectTypeID);
 			
-			if (!text.isEmpty())   out.add(0, "Text", text);
+			if (!text.isEmpty())
+				out.add(0, "Text", text);
+			
+			if (growth>0)
+				out.add(0, "Growth", "%d%%", growth);
 			
 			if (color!=null) {
 				out.add(0, "Color");
@@ -843,6 +891,14 @@ class Data {
 	}
 
 	static class ObjectList extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(ObjectList.class)
+				.add("id"        , Value.Type.Integer)
+				.add("size"      , Value.Type.Integer)
+				.add("woIds"     , Value.Type.String )
+				.add("demandGrps", Value.Type.String )
+				.add("supplyGrps", Value.Type.String )
+				.add("priority"  , Value.Type.Integer);
+		
 		final long id;
 		final long size;
 		final int[] worldObjIds;
@@ -870,12 +926,14 @@ class Data {
 			super(true);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			id             = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
-			size           = JSON_Data.getIntegerValue(object, "size"  , debugLabel);
-			woIdsStr       = JSON_Data.getStringValue (object, "woIds" , debugLabel);
+			id             = JSON_Data.getIntegerValue(object, "id"        , debugLabel);
+			size           = JSON_Data.getIntegerValue(object, "size"      , debugLabel);
+			woIdsStr       = JSON_Data.getStringValue (object, "woIds"     , debugLabel);
 			demandItemsStr = JSON_Data.getStringValue (object, "demandGrps", true, false, debugLabel);
 			supplyItemsStr = JSON_Data.getStringValue (object, "supplyGrps", true, false, debugLabel);
 			dronePrio      = JSON_Data.getIntegerValue(object, "priority"  , true, false, debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 			
 			worldObjIds = parseIntegerArray(woIdsStr, debugLabel+".woIds");
 			worldObjs = null; // will be set in post processing at end of Data constructor
@@ -965,6 +1023,11 @@ class Data {
 	}
 
 	static class GeneralData1 extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(GeneralData1.class)
+				.add("craftedObjects"   , Value.Type.Integer)
+				.add("totalSaveFileLoad", Value.Type.Integer)
+				.add("totalSaveFileTime", Value.Type.Integer);
+		
 		final long craftedObjects;
 		final long totalSaveFileLoad;
 		final long totalSaveFileTime;
@@ -986,6 +1049,8 @@ class Data {
 			craftedObjects    = JSON_Data.getIntegerValue(object, "craftedObjects"   , debugLabel);
 			totalSaveFileLoad = JSON_Data.getIntegerValue(object, "totalSaveFileLoad", debugLabel);
 			totalSaveFileTime = JSON_Data.getIntegerValue(object, "totalSaveFileTime", debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		@Override String toJsonStrs() {
@@ -998,6 +1063,10 @@ class Data {
 	}
 
 	static class Message extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(Message.class)
+				.add("isRead"  , Value.Type.Bool  )
+				.add("stringId", Value.Type.String);
+		
 		final boolean isRead;
 		final String stringId;
 
@@ -1012,9 +1081,12 @@ class Data {
 		 */
 		Message(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			isRead   = JSON_Data.getBoolValue  (object, "isRead"  , debugLabel);
 			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		@Override String toJsonStrs() {
@@ -1026,6 +1098,9 @@ class Data {
 	}
 
 	static class StoryEvent extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(StoryEvent.class)
+				.add("stringId", Value.Type.String);
+		
 		final String stringId;
 
 		/*
@@ -1038,8 +1113,11 @@ class Data {
 		 */
 		StoryEvent(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			stringId = JSON_Data.getStringValue(object, "stringId", debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		@Override String toJsonStrs() {
@@ -1050,6 +1128,10 @@ class Data {
 	}
 
 	static class GeneralData2 extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(GeneralData2.class)
+				.add("hasPlayedIntro", Value.Type.Bool  )
+				.add("mode"          , Value.Type.String);
+		
 		final boolean hasPlayedIntro;
 		final String mode;
 
@@ -1064,9 +1146,12 @@ class Data {
 		 */
 		GeneralData2(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
+			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			hasPlayedIntro = JSON_Data.getBoolValue  (object, "hasPlayedIntro", debugLabel);
 			mode           = JSON_Data.getStringValue(object, "mode"          , debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		@Override String toJsonStrs() {
@@ -1078,6 +1163,13 @@ class Data {
 	}
 
 	static class Layer extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(Layer.class)
+				.add("layerId"        , Value.Type.String )
+				.add("colorBase"      , Value.Type.String )
+				.add("colorCustom"    , Value.Type.String )
+				.add("colorBaseLerp"  , Value.Type.Integer)
+				.add("colorCustomLerp", Value.Type.Integer);
+		
 		final String layerId;
 		final String colorBaseStr;
 		final Color  colorBase;
@@ -1108,6 +1200,8 @@ class Data {
 			colorCustomLerp = JSON_Data.getIntegerValue(object, "colorCustomLerp", debugLabel);
 			colorBase       = colorBaseStr  .isEmpty() ? null : new Color(colorBaseStr  , debugLabel+".colorBase"  );
 			colorCustom     = colorCustomStr.isEmpty() ? null : new Color(colorCustomStr, debugLabel+".colorCustom");
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 		@Override String toJsonStrs() {
 			return toJsonStr(
