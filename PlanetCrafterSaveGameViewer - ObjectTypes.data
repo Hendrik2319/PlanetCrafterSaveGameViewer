@@ -369,10 +369,14 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: CookCocoaGrowable
+label = Cocoa
 occurrences = WorldObject
+<finished>
 
 ObjectType: CookCocoaSeed
+label = Cocoa Seed
 occurrences = WorldObject
+<finished>
 
 ObjectType: CookCookie1
 label = Cookie
@@ -390,10 +394,14 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: CookWheatGrowable
+label = Wheat
 occurrences = WorldObject
+<finished>
 
 ObjectType: CookWheatSeed
+label = Wheat Seed
 occurrences = WorldObject
+<finished>
 
 ObjectType: CraftStation1
 label = Craft Station T2
