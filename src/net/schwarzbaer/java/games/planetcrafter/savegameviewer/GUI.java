@@ -141,7 +141,7 @@ class GUI {
 		
 		ColorTCE(Window window, ColorTCR renderer) {
 			this.renderer = renderer;
-			hsColorChooserDialog = new HSColorChooser.ColorDialog(window, "title", Color.GRAY);
+			hsColorChooserDialog = new HSColorChooser.ColorDialog(window, "title", true, Color.GRAY);
 			result = null;
 		}
 
@@ -165,7 +165,7 @@ class GUI {
 					result = color;
 				}
 				hsColorChooserDialog.setInitialColor(color);
-				hsColorChooserDialog.showDialog(StandardDialog.Position.PARENT_CENTER);
+				hsColorChooserDialog.showDialog(HSColorChooser.PARENT_CENTER);
 				Color dlgResult = hsColorChooserDialog.getColor();
 				if (dlgResult==null) {
 					fireEditingCanceled();
