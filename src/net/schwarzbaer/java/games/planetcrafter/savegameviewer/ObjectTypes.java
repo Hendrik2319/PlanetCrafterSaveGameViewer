@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
 
-import net.schwarzbaer.gui.ValueListOutput;
+import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
 class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;

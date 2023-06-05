@@ -29,8 +29,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.gui.ContextMenu;
-import net.schwarzbaer.gui.Tables;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
@@ -39,6 +37,8 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Objec
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
+import net.schwarzbaer.java.lib.gui.ContextMenu;
+import net.schwarzbaer.java.lib.gui.Tables;
 
 class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = -9191759791973305801L;

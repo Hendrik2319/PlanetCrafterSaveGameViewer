@@ -9,10 +9,10 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.gui.Tables;
-import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.lib.gui.Tables;
+import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
 class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDemandTableModel.RowType, SupplyDemandPanel.SupplyDemandTableModel.ColumnID>
 {

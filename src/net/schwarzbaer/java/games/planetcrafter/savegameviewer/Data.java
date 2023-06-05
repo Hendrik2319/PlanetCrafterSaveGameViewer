@@ -9,11 +9,11 @@ import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import net.schwarzbaer.gui.ValueListOutput;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeCreator;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
+import net.schwarzbaer.java.lib.gui.ValueListOutput;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.TraverseException;
