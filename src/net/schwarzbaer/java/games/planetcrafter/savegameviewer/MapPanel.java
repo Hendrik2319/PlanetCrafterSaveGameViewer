@@ -38,6 +38,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.
 import net.schwarzbaer.java.lib.gui.Canvas;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
+import net.schwarzbaer.java.lib.system.ClipboardTools;
 
 class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
@@ -500,10 +501,18 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				clickedObject.markForRemoval( !clickedObject.isMarkedForRemoval(), true );
 				Data.notifyAllRemoveStateListeners();
 			}));
+			JMenuItem miCopyPosToClipboard = add(GUI.createMenuItem("Copy coordinates to clipboard", e->{
+				if (clickedObject==null) return;
+				String coordsStr = clickedObject.position==null ? "<null>" : clickedObject.position.toString();
+				String msg = String.format("Coordinates of \"%s\": %s", clickedObject.getName(), coordsStr);
+				System.out.println(msg);
+				ClipboardTools.copyToClipBoard(msg);
+			}));
 			
 			addContextMenuInvokeListener((comp, x, y) -> {
 				clickedObject = mapView.hoveredObject;
-				miMarkForRemoval.setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
+				miMarkForRemoval    .setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
+				miCopyPosToClipboard.setEnabled(clickedObject!=null);
 				miMarkForRemoval.setText(
 						clickedObject == null
 							? "Mark hovered object for removal"
@@ -511,6 +520,12 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 								? String.format("Remove Removal Marker from \"%s\"", clickedObject.getName())
 								: String.format("Mark \"%s\" for removal", clickedObject.getName())
 				);
+				miCopyPosToClipboard.setText(
+						clickedObject == null
+							? "Copy coordinates to clipboard"
+							: String.format("Copy coordinates of \"%s\" to clipboard", clickedObject.getName())
+				);
+				
 			});
 			addTo(mapView);
 		}

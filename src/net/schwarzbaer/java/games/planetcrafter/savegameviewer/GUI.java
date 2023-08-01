@@ -139,9 +139,9 @@ class GUI {
 		private final HSColorChooser.ColorDialog hsColorChooserDialog;
 		private Color result;
 		
-		ColorTCE(Window window, ColorTCR renderer) {
+		ColorTCE(Window window, ColorTCR renderer, String dlgTitle) {
 			this.renderer = renderer;
-			hsColorChooserDialog = new HSColorChooser.ColorDialog(window, "title", true, Color.GRAY);
+			hsColorChooserDialog = new HSColorChooser.ColorDialog(window, dlgTitle, true, Color.GRAY);
 			result = null;
 		}
 
@@ -760,7 +760,7 @@ class GUI {
 
 			void setDefaultCellEditorsAndRenderers(Window window) {
 				ColorTCR colorTCR = new ColorTCR(null);
-				ColorTCE colorTCE = new ColorTCE(window, colorTCR);
+				ColorTCE colorTCE = new ColorTCE(window, colorTCR, "Select color of object type");
 				table.setDefaultRenderer(Color.class, colorTCR);
 				table.setDefaultEditor  (Color.class, colorTCE);
 			}
