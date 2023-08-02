@@ -187,7 +187,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 	}
 	
 	static class WorldObjectsTableModel extends AbstractTablePanel.AbstractTableModel<WorldObject, WorldObjectsTableModel.ColumnID> {
-
+		
+		// Column Widths: [75, 30, 35, 130, 130, 350, 70, 120, 60, 130, 36, 200, 33, 205, 50, 90, 50] in ModelOrder
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id          ("ID"          , Long      .class,  75),
 			NonUniqueID ("UnI"         , Boolean   .class,  30),
@@ -199,7 +200,9 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			text        ("Text"        , String    .class, 120),
 			growth      ("Growth"      , Long      .class,  60),
 			product     ("Product"     , String    .class, 130),
+			has_position("Pos."        , Boolean   .class,  35),
 			position    ("Position"    , Coord3    .class, 200),
+			has_rotation("Rot."        , Boolean   .class,  35),
 			rotation    ("Rotation"    , Rotation  .class, 205),
 			color       ("Color"       , Data.Color.class,  50),
 			mods        ("Mods"        , String    .class,  90),
@@ -248,6 +251,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			case _wear        : return row._wear;
 			case color        : return row.color;
 			case growth       : return row.growth;
+			case has_position : return row.position!=null && !row.position.isZero();
+			case has_rotation : return row.rotation!=null && !row.rotation.isZero();
 			case id           : return row.id;
 			case listId       : return row.listId;
 			case mods         : return row.mods;

@@ -496,17 +496,17 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		MapContextMenu(MapView mapView) {
 			clickedObject = null;
 			
-			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark hovered object for removal", e->{
-				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;
-				clickedObject.markForRemoval( !clickedObject.isMarkedForRemoval(), true );
-				Data.notifyAllRemoveStateListeners();
-			}));
 			JMenuItem miCopyPosToClipboard = add(GUI.createMenuItem("Copy coordinates to clipboard", e->{
 				if (clickedObject==null) return;
 				String coordsStr = clickedObject.position==null ? "<null>" : clickedObject.position.toString();
 				String msg = String.format("Coordinates of \"%s\": %s", clickedObject.getName(), coordsStr);
 				System.out.println(msg);
 				ClipboardTools.copyToClipBoard(msg);
+			}));
+			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark hovered object for removal", e->{
+				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;
+				clickedObject.markForRemoval( !clickedObject.isMarkedForRemoval(), true );
+				Data.notifyAllRemoveStateListeners();
 			}));
 			
 			addContextMenuInvokeListener((comp, x, y) -> {
