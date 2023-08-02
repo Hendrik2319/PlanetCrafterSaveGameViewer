@@ -18,6 +18,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
@@ -30,11 +31,13 @@ import net.schwarzbaer.java.lib.system.ClipboardTools;
 
 class ObjectTypesPanel extends JScrollPane {
 	private static final long serialVersionUID = 7789343749897706554L;
-	private ObjectTypesTableModel tableModel;
-	private JTable table;
+	private final ObjectTypesTableModel tableModel;
+	private final JTable table;
+	private final PlanetCrafterSaveGameViewer main;
 	
-	ObjectTypesPanel(ObjectTypes objectTypes, HashMap<String,Integer> amounts) {
-		
+	ObjectTypesPanel(PlanetCrafterSaveGameViewer main, ObjectTypes objectTypes, HashMap<String,Integer> amounts)
+	{
+		this.main = main;
 		tableModel = new ObjectTypesTableModel(this, objectTypes, amounts);
 		table = new JTable(tableModel);
 		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
@@ -100,6 +103,11 @@ class ObjectTypesPanel extends JScrollPane {
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label);
 			}));
 			
+			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
+				if (clickedRow==null) return;
+				main.mapShapesEditor.showDialog(clickedRow);
+			}));
+			
 			add(GUI.createMenuItem("Create New Object Type", e->{
 				boolean alreadyExists = true;
 				String objectTypeID = null;;
@@ -128,12 +136,18 @@ class ObjectTypesPanel extends JScrollPane {
 				
 				miCopyID2Clipboard   .setEnabled(clickedRow!=null);
 				miCopyLabel2Clipboard.setEnabled(clickedRow!=null);
+				miEditMapShapes      .setEnabled(clickedRow!=null);
 				miCopyID2Clipboard.setText(clickedRow == null
 						? "Copy ID to Clipboard"
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
 				miCopyLabel2Clipboard.setText(clickedRow == null
 						? "Copy Label to Clipboard"
 						: String.format("Copy Label \"%s\" to Clipboard", clickedRow.label));
+				miEditMapShapes.setText(clickedRow == null
+						? "Create/Edit MapShapes"
+						: main.mapShapes.hasShapes(clickedRow)
+							? String.format(  "Edit MapShapes of \"%s\"", clickedRow.getName())
+							: String.format("Create MapShapes of \"%s\"", clickedRow.getName()));
 			});
 		}
 	}
@@ -197,7 +211,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences: case amount:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences: case amount: case showMarker:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -209,6 +223,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case showMapShape: return ((MapShape)value).label;
 			}
 			return null;
 		}
@@ -235,6 +250,8 @@ class ObjectTypesPanel extends JScrollPane {
 			animalsMultiplier    ("Animals Multi" , Double       .class,  90, ObjectTypeValue.AnimalsMultiplier),
 			isBoosterRocketFor   ("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
 			isProducer           ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
+			showMarker           ("Show Marker?"  , Boolean      .class,  90, null),
+			showMapShape         ("MapShape"      , MapShape     .class,  90, null),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -251,9 +268,11 @@ class ObjectTypesPanel extends JScrollPane {
 		private final Vector<String> objTypeIDs;
 		private final ObjectTypes objectTypes;
 		private final HashMap<String, Integer> amounts;
+		private final ObjectTypesPanel panel;
 
 		private ObjectTypesTableModel(ObjectTypesPanel panel, ObjectTypes objectTypes, HashMap<String,Integer> amounts) {
 			super(ColumnID.values());
+			this.panel = panel;
 			this.objectTypes = objectTypes;
 			this.amounts = amounts;
 			objTypeIDs = new Vector<>(this.objectTypes.keySet());
@@ -282,16 +301,18 @@ class ObjectTypesPanel extends JScrollPane {
 		}
 
 		void fireObjectTypeAddedEvent(String objectTypeID) {
-			ObjectTypesChangeEvent event = ObjectTypesChangeEvent.createNewTypeAddedEvent(objectTypeID);
-			for (ObjectTypesChangeListener dcl : objectTypesChangeListeners)
-				dcl.objectTypesChanged(event);
+			fireObjectTypesChangeEvent(ObjectTypesChangeEvent.createNewTypeAddedEvent(objectTypeID));
 		}
 		void fireValueChangedEvent(String objectTypeID, ObjectTypeValue value) {
-			ObjectTypesChangeEvent event = ObjectTypesChangeEvent.createValueChangedEvent(objectTypeID, value);
+			fireObjectTypesChangeEvent(ObjectTypesChangeEvent.createValueChangedEvent(objectTypeID, value));
+		}
+		
+		private void fireObjectTypesChangeEvent(ObjectTypesChangeEvent event)
+		{
 			for (ObjectTypesChangeListener dcl : objectTypesChangeListeners)
 				dcl.objectTypesChanged(event);
 		}
-		
+
 		@Override
 		public void fireTableCellUpdate(int rowIndex, ColumnID columnID) {
 			super.fireTableCellUpdate(rowIndex, columnID);
@@ -306,9 +327,21 @@ class ObjectTypesPanel extends JScrollPane {
 			table.setDefaultRenderer(Boolean.class, tcr);
 			table.setDefaultRenderer(PhysicalValue.class, tcr);
 			
+			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<MapShape>((rowM, columnM) -> {
+				ObjectType row = getRow(rowM);
+				Vector<MapShape> shapes = panel.main.mapShapes.getShapes(row);
+				if (shapes==null) return new Vector<>();
+				Vector<MapShape> list = new Vector<>();
+				list.add(null);
+				list.addAll(shapes);
+				return list;
+			});
+			mapShapesCellEditor.setRenderer(shape -> shape instanceof MapShape ? ((MapShape)shape).label : "-- none --" );
+			
 			Vector<PhysicalValue> values = new Vector<>(Arrays.asList(PhysicalValue.values()));
 			values.insertElementAt(null, 0);
 			table.setDefaultEditor(PhysicalValue.class, new Tables.ComboboxCellEditor<PhysicalValue>(values));
+			table.setDefaultEditor(MapShape.class, mapShapesCellEditor);
 		}
 
 		@Override public int getRowCount() { return objTypeIDs.size(); }
@@ -338,9 +371,11 @@ class ObjectTypesPanel extends JScrollPane {
 			case insectsMultiplier   : return row.insectsMultiplier;
 			case animalsMultiplier   : return row.animalsMultiplier;
 			case isBoosterRocketFor  : return row.isBoosterRocketFor;
-			case isProducer : return row.isProducer;
-			case occurrences: return toString(row.occurrences);
-			case amount: return amounts.get(row.id);
+			case isProducer  : return row.isProducer;
+			case occurrences : return toString(row.occurrences);
+			case amount      : return amounts.get(row.id);
+			case showMarker  : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.shouldShowMarker(row);
+			case showMapShape: return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
 			}
 			return null;
 		}
@@ -354,6 +389,7 @@ class ObjectTypesPanel extends JScrollPane {
 		@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
 			ObjectType row = getRow(rowIndex);
 			if (row==null) return false;
+			if (columnID==ColumnID.showMarker && columnID==ColumnID.showMapShape) panel.main.mapShapes.hasShapes(row);
 			if (row.finished) return columnID==ColumnID.finished;
 			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences;
 		}
@@ -363,7 +399,7 @@ class ObjectTypesPanel extends JScrollPane {
 			// System.out.printf("setValueAt( %s%s )%n", aValue, aValue==null ? "" : String.format(" [%s]", aValue.getClass()));
 			ObjectType row = getRow(rowIndex);
 			switch (columnID) {
-			case finished: row.finished = (Boolean)aValue; fireTableRowUpdate(rowIndex); break;
+			case finished: row.finished = (boolean)aValue; fireTableRowUpdate(rowIndex); break;
 			case occurrences: break;
 			case amount     : break;
 			case id         : break;
@@ -381,6 +417,8 @@ class ObjectTypesPanel extends JScrollPane {
 			case animalsMultiplier   : row.animalsMultiplier    = (Double)aValue; break;
 			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue; break;
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
+			case showMarker  : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue);
+			case showMapShape: if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue);
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}

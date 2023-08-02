@@ -81,6 +81,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private GeneralDataPanel generalDataPanel;
 	private final Disabler<ActionCommand> disabler;
 	private final AutoReloader autoReloader;
+	final MapShapes.Editor mapShapesEditor;
+	final MapShapes mapShapes;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
@@ -109,6 +111,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		settings.registerAppWindow(mainWindow);
 		
+		mapShapes = new MapShapes();
+		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes);
+		
 		updateWindowTitle();
 		updateGuiAccess();
 	}
@@ -131,7 +136,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case WriteReducedSaveGame:
 				return openFile!=null;
 				
-			case ConfigureAchievements: break;
+			case ConfigureAchievements:
+			case ShowMapShapesEditor:
+				break;
 			}
 			return null;
 		});
@@ -176,6 +183,10 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				break;
 			
 			case ReloadSaveGameAutoSwitch:
+				break;
+				
+			case ShowMapShapesEditor:
+				mapShapesEditor.showDialog();
 				break;
 		}
 		
@@ -233,6 +244,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			add(createButton  ("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
 			addSeparator();
 			add(createButton  ("Configure Achievements", null                   , true , ActionCommand.ConfigureAchievements));
+			add(createButton  ("MapShapes Editor"      , null                   , true , ActionCommand.ShowMapShapesEditor  ));
 		}
 		
 		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
@@ -423,7 +435,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				amounts.put( wo.objectTypeID, n+1 );
 			}
 		
-		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(objectTypes, amounts);
+		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(this, objectTypes, amounts);
 		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
@@ -433,7 +445,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Map", mapPanel);
 		dataTabPane.addTab("Terraforming", terraformingPanel);
-		dataTabPane.addTab("World Objects", new WorldObjectsPanel(data,mapPanel));
+		dataTabPane.addTab("World Objects", new WorldObjectsPanel(this,data,mapPanel));
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
 		dataTabPane.addTab("Supply -> Demand", new SupplyDemandPanel(data));
 		dataTabPane.addTab("Object Types", objectTypesPanel);

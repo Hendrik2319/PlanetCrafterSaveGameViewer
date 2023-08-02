@@ -62,8 +62,7 @@ class GUI {
 	}
 
 	enum ActionCommand {
-		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch
-		
+		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor
 	}
 	
 	private static <Type extends AbstractButton> Type setAbstractButton(

@@ -20,8 +20,8 @@ import net.schwarzbaer.java.lib.gui.Tables;
 class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID> {
 	private static final long serialVersionUID = 8733627835226098636L;
 
-	WorldObjectsPanel(Data data, MapPanel mapPanel) {
-		super(new WorldObjectsTableModel(data), false, (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300, 200));
+	WorldObjectsPanel(PlanetCrafterSaveGameViewer main, Data data, MapPanel mapPanel) {
+		super(new WorldObjectsTableModel(data), false, (table,tableModel) -> new TableContextMenu(main, table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300, 200));
 	}
 	
 	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
@@ -31,7 +31,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		private int[] selectedRowIndexes;
 		private WorldObject[] selectedRows;
 
-		TableContextMenu(JTable table, WorldObjectsTableModel tableModel, MapPanel mapPanel) {
+		TableContextMenu(PlanetCrafterSaveGameViewer main, JTable table, WorldObjectsTableModel tableModel, MapPanel mapPanel) {
 			super(table);
 			clickedRowIndex = -1;
 			
@@ -46,6 +46,13 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 				if (clickedRow==null) return;
 				if (!WorldObject.isInstalled(clickedRow.container))return;
 				mapPanel.showWorldObject(clickedRow.container);
+			}));
+			
+			addSeparator();
+			
+			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
+				if (clickedRow==null) return;
+				main.mapShapesEditor.showDialog(clickedRow.objectType);
 			}));
 			
 			addSeparator();
@@ -113,6 +120,15 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 					clickedRow==null || !WorldObject.isInstalled(clickedRow.container)
 					? "Show Container in Map"
 					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
+				);
+				
+				miEditMapShapes.setEnabled(clickedRow!=null);
+				miEditMapShapes.setText(
+					clickedRow == null
+					? "Create/Edit MapShapes"
+					: main.mapShapes.hasShapes(clickedRow.objectType)
+						? String.format(  "Edit MapShapes of \"%s\"", clickedRow.getName())
+						: String.format("Create MapShapes of \"%s\"", clickedRow.getName())
 				);
 			});
 		}

@@ -98,7 +98,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 		mapModel = new MapModel(data);
 		mapView = new MapView(mapModel, overView, textOut);
-		new MapContextMenu(mapView);
+		new MapContextMenu(mapView, main);
 		
 		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
 		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
@@ -493,7 +493,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private static final long serialVersionUID = 8109374615040559202L;
 		private WorldObject clickedObject;
 
-		MapContextMenu(MapView mapView) {
+		MapContextMenu(MapView mapView, PlanetCrafterSaveGameViewer main) {
 			clickedObject = null;
 			
 			JMenuItem miCopyPosToClipboard = add(GUI.createMenuItem("Copy coordinates to clipboard", e->{
@@ -502,6 +502,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				String msg = String.format("Coordinates of \"%s\": %s", clickedObject.getName(), coordsStr);
 				System.out.println(msg);
 				ClipboardTools.copyToClipBoard(msg);
+			}));
+			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
+				if (clickedObject==null) return;
+				main.mapShapesEditor.showDialog(clickedObject.objectType);
 			}));
 			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark hovered object for removal", e->{
 				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;
@@ -513,6 +517,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				clickedObject = mapView.hoveredObject;
 				miMarkForRemoval    .setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
 				miCopyPosToClipboard.setEnabled(clickedObject!=null);
+				miEditMapShapes     .setEnabled(clickedObject!=null);
 				miMarkForRemoval.setText(
 						clickedObject == null
 							? "Mark hovered object for removal"
@@ -524,6 +529,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 						clickedObject == null
 							? "Copy coordinates to clipboard"
 							: String.format("Copy coordinates of \"%s\" to clipboard", clickedObject.getName())
+				);
+				miEditMapShapes.setText(
+						clickedObject == null
+							? "Create/Edit MapShapes"
+							: main.mapShapes.hasShapes(clickedObject.objectType)
+								? String.format(  "Edit MapShapes of \"%s\"", clickedObject.getName())
+								: String.format("Create MapShapes of \"%s\"", clickedObject.getName())
 				);
 				
 			});
