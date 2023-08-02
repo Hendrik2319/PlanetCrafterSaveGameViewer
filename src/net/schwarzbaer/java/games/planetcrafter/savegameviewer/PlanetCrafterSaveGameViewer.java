@@ -55,7 +55,8 @@ import net.schwarzbaer.java.lib.system.Settings;
 public class PlanetCrafterSaveGameViewer implements ActionListener {
 
 	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
-	static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
+	        static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
+	private static final String FILE_MAPSHAPES    = "PlanetCrafterSaveGameViewer - MapShapes.data";
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -111,7 +112,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		settings.registerAppWindow(mainWindow);
 		
-		mapShapes = new MapShapes();
+		mapShapes = new MapShapes(new File(FILE_MAPSHAPES));
 		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes);
 		
 		updateWindowTitle();
@@ -283,6 +284,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		achievements = Achievements.readFromFile();
 		achievements.setObjectTypesData(objectTypes);
 		achievements.sortAchievements();
+		mapShapes.readFromFile();
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
