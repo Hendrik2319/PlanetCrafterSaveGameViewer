@@ -305,9 +305,9 @@ class MapShapes
 					{
 						selectedShape.forms.clear();
 						selectedShape.forms.addAll(Arrays.asList(forms));
-						Editor.this.mapShapes.writeToFile();
+						//Editor.this.mapShapes.writeToFile();
 						if (isNewShape)
-							updateLineEditorFormsList();
+							updateLineEditor();
 					}
 					else
 						throw new IllegalStateException();
@@ -316,6 +316,29 @@ class MapShapes
 				@Override public boolean canCreateNewForm()
 				{
 					return selectedObjectType!=null;
+				}
+
+				@Override public void guideLinesChanged(LineEditor.GuideLinesChangedEvent e)
+				{
+					switch (e.type())
+					{
+						case Added:
+						case Changed:
+						case Removed:
+							Editor.this.mapShapes.writeToFile();
+							break;
+					}
+				}
+				@Override public void formsChanged(LineEditor.FormsChangedEvent e)
+				{
+					switch (e.type())
+					{
+						case Added:
+						case Removed:
+						case Changed:
+							Editor.this.mapShapes.writeToFile();
+							break;
+					}
 				}
 			});
 			valuePanel = lineEditor.getInitialOptionsPanel();
@@ -333,7 +356,8 @@ class MapShapes
 				if (selectedShape     ==null) { System.err.println("ERROR: Can't delete shape, because no shape is selected."); return; }
 				if (selectedObjectType==null) { System.err.println("ERROR: Can't delete shape, because no ObjectType is selected."); return; }
 				boolean wasDeleted = deleteShape(selectedObjectType, selectedShape);
-				if (wasDeleted) this.mapShapes.writeToFile();
+				if (wasDeleted)
+					this.mapShapes.writeToFile();
 			});
 			JButton btnChangeShapeName = GUI.createButton("Change Shape Name", false, e->{
 				if (selectedShape==null) { System.err.println("ERROR: Can't change shape name, because no shape is selected."); return; }
@@ -363,7 +387,7 @@ class MapShapes
 				System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
 				btnChangeShapeName.setEnabled(selectedShape!=null);
 				btnDeleteShape    .setEnabled(selectedShape!=null);
-				updateLineEditorFormsList();
+				updateLineEditor();
 			});
 			
 			JPanel panelShapeButtons = new JPanel(new GridLayout(0,1));
@@ -419,9 +443,18 @@ class MapShapes
 			);
 		}
 
-		private void updateLineEditorFormsList()
+		private void updateLineEditor()
 		{
-			lineEditor.setForms(selectedShape==null ? null : selectedShape.forms.toArray(Form[]::new));
+			if (selectedShape==null)
+			{
+				lineEditor.setForms(null);
+				lineEditor.setGuideLines(null);
+			}
+			else
+			{
+				lineEditor.setForms(selectedShape.forms.toArray(Form[]::new));
+				lineEditor.setGuideLines(selectedShape.guideLines);
+			}
 		}
 
 		private void updateCmbbxMapShapes()
