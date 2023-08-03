@@ -58,24 +58,29 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 
 	static final String EnergyRateUnit = "kW";
+	private final File datafile;
+
+	ObjectTypes(File datafile)
+	{
+		this.datafile = datafile;
+	}
 
 	static String formatEnergyRate(double energy) {
 		return String.format(Locale.ENGLISH, "%1.2f %s", energy, EnergyRateUnit);
 	}
 
-	static ObjectTypes readFromFile(File file) {
-		ObjectTypes objectTypes = new ObjectTypes();
+	void readFromFile() {
+		System.out.printf("Read ObjectTypes from file \"%s\" ...%n", datafile.getAbsolutePath());
+		clear();
 		
-		System.out.printf("Read ObjectTypes from file \"%s\" ...%n", file.getAbsolutePath());
-		
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(datafile), StandardCharsets.UTF_8))) {
 			
 			String line, valueStr;
 			ObjectType currentOT = null;
 			while ( (line=in.readLine())!=null ) {
 				
 				if (line.isEmpty()) continue;
-				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) objectTypes.put(valueStr, currentOT = new ObjectType(valueStr, null));
+				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) put(valueStr, currentOT = new ObjectType(valueStr, null));
 				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label    = valueStr;
 				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
@@ -108,14 +113,12 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		}
 		
 		System.out.printf("Done%n");
-		
-		return objectTypes;
 	}
 
-	void writeToFile(File file) {
-		System.out.printf("Write ObjectTypes to file \"%s\" ...%n", file.getAbsolutePath());
+	void writeToFile() {
+		System.out.printf("Write ObjectTypes to file \"%s\" ...%n", datafile.getAbsolutePath());
 		
-		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
+		try (PrintWriter out = new PrintWriter(datafile, StandardCharsets.UTF_8)) {
 			
 			Vector<Entry<String, ObjectType>> vector = new Vector<>(entrySet());
 			vector.sort(Comparator.comparing(Entry<String, ObjectType>::getKey,Data.caseIgnoringComparator));

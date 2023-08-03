@@ -75,20 +75,20 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private final StandardMainWindow mainWindow;
 	private final FileChooser jsonFileChooser;
 	private final JTabbedPane dataTabPane;
-	private File openFile;
-	private Data loadedData;
-	private ObjectTypes objectTypes;
-	private Achievements achievements;
-	private GeneralDataPanel generalDataPanel;
+	private       File openFile;
+	private       Data loadedData;
+	private final ObjectTypes objectTypes;
+	private       Achievements achievements;
+	private       GeneralDataPanel generalDataPanel;
 	private final Disabler<ActionCommand> disabler;
 	private final AutoReloader autoReloader;
-	final MapShapes.Editor mapShapesEditor;
-	final MapShapes mapShapes;
+	        final MapShapes.Editor mapShapesEditor;
+	        final MapShapes mapShapes;
 
 	PlanetCrafterSaveGameViewer() {
 		openFile = null;
 		loadedData = null;
-		objectTypes = null;
+		objectTypes = new ObjectTypes(new File(FILE_OBJECT_TYPES));
 		achievements = null;
 		generalDataPanel = null;
 		jsonFileChooser = new FileChooser("JSON File", "json");
@@ -113,7 +113,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		settings.registerAppWindow(mainWindow);
 		
 		mapShapes = new MapShapes(new File(FILE_MAPSHAPES));
-		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes);
+		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes);
 		
 		updateWindowTitle();
 		updateGuiAccess();
@@ -280,12 +280,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void initialize() {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
-		objectTypes = ObjectTypes.readFromFile(new File(FILE_OBJECT_TYPES));
+		objectTypes.readFromFile();
 		achievements = Achievements.readFromFile();
 		achievements.setObjectTypesData(objectTypes);
 		achievements.sortAchievements();
 		mapShapes.readFromFile();
-		mapShapesEditor.setObjectTypes(objectTypes);
+		mapShapesEditor.updateAfterNewObjectTypes();
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
@@ -335,7 +335,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			if (data == null) return;
 			
 			showIndeterminateTask(pd, "Write new ObjectTypes to File");
-			writeObjectTypesToFile();
+			objectTypes.writeToFile();
 			
 			if (!newObjectTypes.isEmpty()) {
 				Vector<String> vec = new Vector<>(newObjectTypes);
@@ -390,10 +390,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		});
 	}
 
-	private void writeObjectTypesToFile() {
-		objectTypes.writeToFile(new File(FILE_OBJECT_TYPES));
-	}
-
 	StandardMainWindow getMainWindow() {
 		return mainWindow;
 	}
@@ -439,11 +435,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			}
 		
 		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(this, objectTypes, amounts);
-		objectTypesPanel.addObjectTypesChangeListener(e -> writeObjectTypesToFile());
+		objectTypesPanel.addObjectTypesChangeListener(e -> objectTypes.writeToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
 		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
 		objectTypesPanel.addObjectTypesChangeListener(achievements);
+		objectTypesPanel.addObjectTypesChangeListener(mapShapesEditor);
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Map", mapPanel);
@@ -452,6 +449,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
 		dataTabPane.addTab("Supply -> Demand", new SupplyDemandPanel(data));
 		dataTabPane.addTab("Object Types", objectTypesPanel);
+		
+		mapShapesEditor.updateAfterNewObjectTypes();
 		
 		SwingUtilities.invokeLater(() -> {
 			mapPanel.initialize();

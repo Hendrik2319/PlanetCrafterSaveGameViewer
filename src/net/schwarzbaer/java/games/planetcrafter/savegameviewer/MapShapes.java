@@ -31,6 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
@@ -250,7 +253,7 @@ class MapShapes
 		}
 	}
 
-	static class Editor extends StandardDialog
+	static class Editor extends StandardDialog implements ObjectTypesChangeListener
 	{
 		private static final long serialVersionUID = 3284148312241943876L;
 		private final JPanel leftPanel;
@@ -262,10 +265,12 @@ class MapShapes
 		private ObjectType selectedObjectType;
 		private Vector<MapShape> selectedShapes;
 		private MapShape selectedShape;
+		private final ObjectTypes objectTypes;
 	
-		public Editor(Window parent, String title, MapShapes mapShapes)
+		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes)
 		{
 			super(parent, title, ModalityType.MODELESS, true);
+			this.objectTypes = objectTypes;
 			this.mapShapes = Objects.requireNonNull(mapShapes);
 			selectedObjectType = null;
 			selectedShape = null;
@@ -315,7 +320,7 @@ class MapShapes
 			});
 			valuePanel = lineEditor.getInitialOptionsPanel();
 			
-			cmbbxObjectTypes = new JComboBox<>();
+			cmbbxObjectTypes = new JComboBox<>(this.objectTypes.getListSortedByName());
 			cmbbxObjectTypes.setRenderer(new Tables.NonStringRenderer<>(obj->obj==null ? "" : ((ObjectType)obj).getName()));
 			cmbbxMapShapes = new JComboBox<>();
 			
@@ -500,13 +505,23 @@ class MapShapes
 			showDialog(Position.PARENT_CENTER);
 		}
 
-		public void setObjectTypes(ObjectTypes objectTypes)
+		public void updateAfterNewObjectTypes()
 		{
 			Vector<ObjectType> list = objectTypes.getListSortedByName();
 			cmbbxObjectTypes.setModel(new DefaultComboBoxModel<>(list));
-			cmbbxObjectTypes.setSelectedItem(null);
+			cmbbxObjectTypes.setSelectedItem(selectedObjectType);
 		}
-		
+
+		@Override
+		public void objectTypesChanged(ObjectTypesChangeEvent event)
+		{
+			if (event==null) return;
+			switch (event.eventType)
+			{
+				case NewTypeAdded: updateAfterNewObjectTypes(); break;
+				case ValueChanged: if (event.changedValue==ObjectTypeValue.Label) updateAfterNewObjectTypes(); break;
+			}
+		}
 	}
 	
 }
