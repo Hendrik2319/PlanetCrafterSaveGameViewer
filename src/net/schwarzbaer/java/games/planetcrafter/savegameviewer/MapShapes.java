@@ -1,6 +1,7 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -255,6 +256,7 @@ class MapShapes
 
 	static class Editor extends StandardDialog implements ObjectTypesChangeListener
 	{
+		private static final Color BGCOLOR_OBJECTTYPE_WITH_SHAPES = new Color(0xFFEB91);
 		private static final long serialVersionUID = 3284148312241943876L;
 		private final JPanel leftPanel;
 		private final LineEditor lineEditor;
@@ -345,8 +347,17 @@ class MapShapes
 			});
 			valuePanel = lineEditor.getInitialOptionsPanel();
 			
+			Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
+					obj -> obj==null ? "" : ((ObjectType)obj).getName()
+			);
+			cmbbxObjectTypesRenderer.setBackgroundColorizer(obj -> {
+				if (obj instanceof ObjectType && Editor.this.mapShapes.hasShapes((ObjectType) obj))
+					return BGCOLOR_OBJECTTYPE_WITH_SHAPES;
+				return null;
+			});
+			
 			cmbbxObjectTypes = new JComboBox<>(this.objectTypes.getListSortedByName());
-			cmbbxObjectTypes.setRenderer(new Tables.NonStringRenderer<>(obj->obj==null ? "" : ((ObjectType)obj).getName()));
+			cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
 			cmbbxMapShapes = new JComboBox<>();
 			
 			JButton btnNewShape = GUI.createButton("New Shape", false, e->{
