@@ -496,13 +496,31 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		MapContextMenu(MapView mapView, PlanetCrafterSaveGameViewer main) {
 			clickedObject = null;
 			
-			JMenuItem miCopyPosToClipboard = add(GUI.createMenuItem("Copy coordinates to clipboard", e->{
+			JMenuItem miCopyPosNRotToClipboard = add(GUI.createMenuItem("Copy position & rotation to clipboard", e->{
 				if (clickedObject==null) return;
-				String coordsStr = clickedObject.position==null ? "<null>" : clickedObject.position.toString();
-				String msg = String.format("Coordinates of \"%s\": %s", clickedObject.getName(), coordsStr);
+				String coordsStr1 = clickedObject.position==null ? "<null>" : clickedObject.position.toString();
+				String coordsStr2 = clickedObject.rotation==null ? "<null>" : clickedObject.rotation.toString();
+				String msg = String.format("Position/Rotation of \"%s\":  %s  /  %s", clickedObject.getName(), coordsStr1, coordsStr2);
 				System.out.println(msg);
 				ClipboardTools.copyToClipBoard(msg);
 			}));
+			JMenuItem miCopyPosToClipboard = add(GUI.createMenuItem("Copy position to clipboard", e->{
+				if (clickedObject==null) return;
+				String coordsStr = clickedObject.position==null ? "<null>" : clickedObject.position.toString();
+				String msg = String.format("Position of \"%s\": %s", clickedObject.getName(), coordsStr);
+				System.out.println(msg);
+				ClipboardTools.copyToClipBoard(msg);
+			}));
+			JMenuItem miCopyRotToClipboard = add(GUI.createMenuItem("Copy rotation to clipboard", e->{
+				if (clickedObject==null) return;
+				String coordsStr = clickedObject.rotation==null ? "<null>" : clickedObject.rotation.toString();
+				String msg = String.format("Rotation of \"%s\": %s", clickedObject.getName(), coordsStr);
+				System.out.println(msg);
+				ClipboardTools.copyToClipBoard(msg);
+			}));
+			
+			addSeparator();
+			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedObject==null) return;
 				main.mapShapesEditor.showDialog(clickedObject.objectType);
@@ -516,7 +534,9 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			addContextMenuInvokeListener((comp, x, y) -> {
 				clickedObject = mapView.hoveredObject;
 				miMarkForRemoval    .setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
+				miCopyPosNRotToClipboard.setEnabled(clickedObject!=null);
 				miCopyPosToClipboard.setEnabled(clickedObject!=null);
+				miCopyRotToClipboard.setEnabled(clickedObject!=null);
 				miEditMapShapes     .setEnabled(clickedObject!=null);
 				miMarkForRemoval.setText(
 						clickedObject == null
@@ -525,10 +545,20 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 								? String.format("Remove Removal Marker from \"%s\"", clickedObject.getName())
 								: String.format("Mark \"%s\" for removal", clickedObject.getName())
 				);
+				miCopyPosNRotToClipboard.setText(
+						clickedObject == null
+							? "Copy position & rotation to clipboard"
+							: String.format("Copy position & rotation of \"%s\" to clipboard", clickedObject.getName())
+				);
 				miCopyPosToClipboard.setText(
 						clickedObject == null
-							? "Copy coordinates to clipboard"
-							: String.format("Copy coordinates of \"%s\" to clipboard", clickedObject.getName())
+							? "Copy position to clipboard"
+							: String.format("Copy position of \"%s\" to clipboard", clickedObject.getName())
+				);
+				miCopyRotToClipboard.setText(
+						clickedObject == null
+							? "Copy rotation to clipboard"
+							: String.format("Copy rotation of \"%s\" to clipboard", clickedObject.getName())
 				);
 				miEditMapShapes.setText(
 						clickedObject == null

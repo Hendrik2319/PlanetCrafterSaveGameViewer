@@ -175,14 +175,14 @@ class ObjectTypesPanel extends JScrollPane {
 			
 			Supplier<Color> getCustomBG = ()->{
 				if (row==null) return null;
-				if (row.finished && columnID!=ObjectTypesTableModel.ColumnID.finished) return Color.LIGHT_GRAY;
+				if (row.finished && !tableModel.isCellEditable(rowM, columnM, columnID)) return Color.LIGHT_GRAY;
 				return null;
 			};
 			
 			if (value instanceof Boolean) {
 				boolean isChecked = (Boolean) value;
 				rcCheckBox.configureAsTableCellRendererComponent(table, isChecked, null, isSelected, hasFocus, null, getCustomBG);
-				rcCheckBox.setEnabled(columnID==ObjectTypesTableModel.ColumnID.finished || (row!=null && !row.finished));
+				rcCheckBox.setEnabled( tableModel.isCellEditable(rowM, columnM, columnID) );
 				return rcCheckBox;
 				
 			} else {
@@ -223,7 +223,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
-			case showMapShape: return ((MapShape)value).label;
+			case mapShape: return ((MapShape)value).label;
 			}
 			return null;
 		}
@@ -251,7 +251,7 @@ class ObjectTypesPanel extends JScrollPane {
 			isBoosterRocketFor   ("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
 			isProducer           ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
 			showMarker           ("Show Marker?"  , Boolean      .class,  90, null),
-			showMapShape         ("MapShape"      , MapShape     .class,  90, null),
+			mapShape             ("MapShape"      , MapShape     .class,  90, null),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -326,6 +326,7 @@ class ObjectTypesPanel extends JScrollPane {
 			table.setDefaultRenderer(Integer.class, tcr);
 			table.setDefaultRenderer(Boolean.class, tcr);
 			table.setDefaultRenderer(PhysicalValue.class, tcr);
+			table.setDefaultRenderer(MapShape.class, tcr);
 			
 			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<MapShape>((rowM, columnM) -> {
 				ObjectType row = getRow(rowM);
@@ -375,7 +376,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case occurrences : return toString(row.occurrences);
 			case amount      : return amounts.get(row.id);
 			case showMarker  : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.shouldShowMarker(row);
-			case showMapShape: return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
+			case mapShape    : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
 			}
 			return null;
 		}
@@ -389,7 +390,7 @@ class ObjectTypesPanel extends JScrollPane {
 		@Override protected boolean isCellEditable(int rowIndex, int columnIndex, ColumnID columnID) {
 			ObjectType row = getRow(rowIndex);
 			if (row==null) return false;
-			if (columnID==ColumnID.showMarker && columnID==ColumnID.showMapShape) panel.main.mapShapes.hasShapes(row);
+			if (columnID==ColumnID.showMarker || columnID==ColumnID.mapShape) return panel.main.mapShapes.hasShapes(row);
 			if (row.finished) return columnID==ColumnID.finished;
 			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences;
 		}
@@ -417,8 +418,8 @@ class ObjectTypesPanel extends JScrollPane {
 			case animalsMultiplier   : row.animalsMultiplier    = (Double)aValue; break;
 			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue; break;
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
-			case showMarker  : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue);
-			case showMapShape: if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue);
+			case showMarker          : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue); break;
+			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); break;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}
