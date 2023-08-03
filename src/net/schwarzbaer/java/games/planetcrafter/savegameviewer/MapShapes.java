@@ -320,6 +320,7 @@ class MapShapes
 
 				@Override public void guideLinesChanged(LineEditor.GuideLinesChangedEvent e)
 				{
+					//System.out.printf("MapShapes.Editor.guideLinesChanged: [%s] \"%s\"%n", e.type(), e.caller());
 					switch (e.type())
 					{
 						case Added:
@@ -331,6 +332,7 @@ class MapShapes
 				}
 				@Override public void formsChanged(LineEditor.FormsChangedEvent e)
 				{
+					//System.out.printf("MapShapes.Editor.formsChanged: [%s] \"%s\"%n", e.type(), e.caller());
 					switch (e.type())
 					{
 						case Added:
@@ -376,7 +378,7 @@ class MapShapes
 			cmbbxObjectTypes.addActionListener(e->{
 				int index = cmbbxObjectTypes.getSelectedIndex();
 				selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
-				System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
+				//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
 				btnNewShape.setEnabled(selectedObjectType!=null);
 				selectedShapes = selectedObjectType==null ? null : this.mapShapes.getShapes(selectedObjectType);
 				updateCmbbxMapShapes();
@@ -384,7 +386,7 @@ class MapShapes
 			cmbbxMapShapes.addActionListener(e->{
 				int index = cmbbxMapShapes.getSelectedIndex();
 				selectedShape = index<0 ? null : cmbbxMapShapes.getItemAt(index);
-				System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
+				//System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
 				btnChangeShapeName.setEnabled(selectedShape!=null);
 				btnDeleteShape    .setEnabled(selectedShape!=null);
 				updateLineEditor();
