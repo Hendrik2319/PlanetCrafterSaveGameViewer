@@ -151,6 +151,13 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		System.out.printf("Done%n");
 	}
 
+	Vector<ObjectType> getListSortedByName()
+	{
+		Vector<ObjectType> list = new Vector<>(this.values());
+		list.sort(Comparator.<ObjectType,String>comparing(ot->ot.getName(), Data.caseIgnoringComparator));
+		return list;
+	}
+
 	private static Double parseDouble(String str) {
 		try { return Double.parseDouble(str); }
 		catch (NumberFormatException e) { return null; }
@@ -308,7 +315,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				return label;
 			return String.format("{%s}", id);
 		}
-	
+
 		boolean isActive() {
 			return
 					oxygen  !=null ||

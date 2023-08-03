@@ -285,6 +285,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		achievements.setObjectTypesData(objectTypes);
 		achievements.sortAchievements();
 		mapShapes.readFromFile();
+		mapShapesEditor.setObjectTypes(objectTypes);
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
@@ -696,7 +697,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			AchievementsConfigDialogHeight,
 			AchievementsConfigDialogShowTabbedView,
 			ObjectTypeColors,
-			ReloadAutomatically
+			ReloadAutomatically,
+			MapShapesEditor_WindowX,
+			MapShapesEditor_WindowY,
+			MapShapesEditor_WindowWidth,
+			MapShapesEditor_WindowHeight,
+			MapShapesEditor_SplitPaneDivider
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

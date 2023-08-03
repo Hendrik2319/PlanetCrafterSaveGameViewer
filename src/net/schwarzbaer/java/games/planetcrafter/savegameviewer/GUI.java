@@ -97,6 +97,10 @@ class GUI {
 		return setAbstractButton(new JButton(), title, icon, null, isEnabled, al, disabler, ac);
 	}
 	
+	static JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al) {
+		return setAbstractButton(new JButton(), title, icon, null, isEnabled, al, null, null);
+	}
+	
 	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
 		return setAbstractButton(new JButton(), title, null, null, isEnabled, al, null, null);
 	}
