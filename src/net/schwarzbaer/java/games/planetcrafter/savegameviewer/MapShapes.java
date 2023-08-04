@@ -290,7 +290,7 @@ class MapShapes
 			
 			leftPanel = new JPanel(new BorderLayout(3,3));
 			
-			lineEditor = new LineEditor(new LineEditorContext(), new LineEditorBackground());
+			lineEditor = new LineEditor(new Rectangle2D.Double(-5,-5,10,10), new LineEditorContext(), new LineEditorBackground());
 			valuePanel = lineEditor.getInitialOptionsPanel();
 			
 			Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
@@ -353,7 +353,7 @@ class MapShapes
 			panelShapeButtons.add(btnNewShape);
 			panelShapeButtons.add(btnDeleteShape);
 			panelShapeButtons.add(btnChangeShapeName);
-			panelShapeButtons.add(btnSaveAllShapes);
+			//panelShapeButtons.add(btnSaveAllShapes);
 			
 			JPanel leftUpperPanel = new JPanel(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -387,8 +387,13 @@ class MapShapes
 			contentPane.setRightComponent(editorViewPanel);
 			contentPane.setResizeWeight(0);
 			
-			createGUI(contentPane, GUI.createButton("Close", true, e->closeDialog()));
-			
+			createGUI(
+				contentPane,
+				GUI.createButton("Fit view to content", true, e->{ lineEditor.fitViewToContent(); }),
+				btnSaveAllShapes,
+				GUI.createButton("Close", true, e->closeDialog())
+			);
+
 			PlanetCrafterSaveGameViewer.settings.registerExtraWindow(this,
 				AppSettings.ValueKey.MapShapesEditor_WindowX,
 				AppSettings.ValueKey.MapShapesEditor_WindowY,
@@ -400,6 +405,8 @@ class MapShapes
 				new AppSettings.SplitPaneDividersDefinition<>(this, AppSettings.ValueKey.class)
 				.add(contentPane, AppSettings.ValueKey.MapShapesEditor_SplitPaneDivider)
 			);
+			
+			lineEditor.init();
 		}
 		
 		private class LineEditorContext implements LineEditor.Context
