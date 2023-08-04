@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -412,6 +413,67 @@ class Data {
 			out.add(indentLevel, "Y", y);
 			out.add(indentLevel, "Z", z);
 			out.add(indentLevel, "W", w);
+		}
+		
+		AffineTransform computeMapTransform() {
+			/*
+			https://de.wikipedia.org/wiki/Quaternion#Drehungen_im_dreidimensionalen_Raum
+			
+			q = q0 + q1*i + q2*j + q3*k
+			
+			     q0² + q1² - q2² - q3²    -2*q0q3 + 2*q1q2        2*q0q2 + 2*q1q3
+			D =    2*q0q3 + 2*q1q2      q0² - q1² + q2² - q3²    -2*q0q1 + 2*q2q3   
+			      -2*q0q2 + 2*q1q3         2*q0q1 + 2*q2q3     q0² - q1² - q2² + q3²
+			      
+			q = w + x*i + y*j + z*k
+			
+			     w² + x² - y² - z²    -2*wz + 2*xy        2*wy + 2*xz
+			D =    2*wz + 2*xy      w² - x² + y² - z²    -2*wx + 2*yz   
+			      -2*wy + 2*xz         2*wx + 2*yz     w² - x² - y² + z²
+			
+			     D11  D12  D13
+			  =  D21  D22  D23
+			     D31  D32  D33
+			
+			      [ x']   [  D11  D12  D13  ] [ x ]   [ D11*x + D12*y + D13*z ]
+			      [ y'] = [  D21  D22  D23  ] [ y ] = [ D21*x + D22*y + D23*z ]
+			      [ z']   [  D31  D32  D33  ] [ z ]   [ D31*x + D32*y + D33*z ]
+			
+			MapX -> z
+			MapY -> x
+			
+			      [ MapY']   [  D11  D12  D13  ] [ MapY ]   [ D11*MapY + D12*0 + D13*MapX ]
+			      [  0   ] = [  D21  D22  D23  ] [  0   ] = [ D21*MapY + D22*0 + D23*MapX ]
+			      [ MapX']   [  D31  D32  D33  ] [ MapX ]   [ D31*MapY + D32*0 + D33*MapX ]
+			
+			      [ MapY']   [  D11  D13  ] [ MapY ]   [ D11*MapY + D13*MapX ]
+			      [ MapX']   [  D31  D33  ] [ MapX ]   [ D31*MapY + D33*MapX ]
+			
+			      [ MapX']   [  D33  D31  ] [ MapX ]   [ D33*MapX + D31*MapY ]
+			      [ MapY']   [  D13  D11  ] [ MapY ]   [ D13*MapX + D11*MapY ]
+			 */
+			
+			double D11 = w*w + x*x - y*y - z*z; // w² + x² - y² - z²
+			double D33 = w*w - x*x - y*y + z*z; // w² - x² - y² + z²
+			double D13 =  2*w*y + 2*x*z; //  2*wy + 2*xz
+			double D31 = -2*w*y + 2*x*z; // -2*wy + 2*xz
+			
+			/*
+			      [ x']   [  m00  m01  m02  ] [ x ]   [ m00x + m01y + m02 ]
+			      [ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
+			      [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
+			AffineTransform(double m00, double m10, double m01, double m11, double m02, double m12)
+			
+			MapX -> z   =>  m00 = D33, m01 = D31
+			MapY -> x   =>  m11 = D11, m10 = D13
+			Rotation only  =>  m02 = 0, m12 = 0
+			
+			      [ x']   [  D33  D31   0   ] [ x ]   [ D33*x + D31*y + 0 ]
+			      [ y'] = [  D13  D11   0   ] [ y ] = [ D13*x + D11*y + 0 ]
+			      [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
+			 */
+			
+			return new AffineTransform(D33, D13, D31, D11, 0, 0);
 		}
 	}
 	static class TerraformingStates extends Reversable {

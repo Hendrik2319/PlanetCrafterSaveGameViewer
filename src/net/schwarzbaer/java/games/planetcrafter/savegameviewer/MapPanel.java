@@ -15,6 +15,7 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,13 +33,16 @@ import javax.swing.JTextArea;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 import net.schwarzbaer.java.lib.gui.Canvas;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
+import net.schwarzbaer.java.lib.image.linegeometry.Form;
 import net.schwarzbaer.java.lib.system.ClipboardTools;
+import net.schwarzbaer.java.tools.lineeditor.LineEditor;
 
 class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static final long serialVersionUID = 1367855618848983614L;
@@ -97,7 +101,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		JTextArea textOut = new JTextArea();
 		
 		mapModel = new MapModel(data);
-		mapView = new MapView(mapModel, overView, textOut);
+		mapView = new MapView(main.mapShapes, mapModel, overView, textOut);
 		new MapContextMenu(mapView, main);
 		
 		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
@@ -584,8 +588,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private ToolTipBox toolTipBox;
 
 		private final MapModel mapModel;
+		private final MapShapes mapShapes;
 
-		MapView(MapModel mapModel, OverView overView, JTextArea textOut) {
+		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
+			this.mapShapes = mapShapes;
 			this.mapModel = mapModel;
 			this.overView = overView;
 			this.textOut = textOut;
@@ -748,6 +754,49 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					g2.setColor(COLOR_MAP_BORDER);
 					g2.drawRect(screenX0-1, screenY0-1, screenX1-screenX0+1, screenY1-screenY0+1);
 				}
+				
+				
+				double originX_scr = viewState.convertPos_AngleToScreen_LongXf(0);
+				double originY_scr = viewState.convertPos_AngleToScreen_LatYf (0);
+				
+				AffineTransform origTransform = g2.getTransform();
+				HashMap<String,MapShape> shapeCache = new HashMap<>(); 
+				for (WorldObject wo : mapModel.displayableObjects)
+				{
+					MapShape cachedShape = shapeCache.get(wo.objectType.id);
+					if (cachedShape==null)
+					{
+						cachedShape = mapShapes.getSelectedShape(wo.objectType);
+						if (cachedShape!=null)
+							shapeCache.put(wo.objectType.id, cachedShape);
+						else
+							cachedShape = new MapShape("dummy");
+					}
+					Vector<Form> forms = cachedShape.getForms();
+					if (!forms.isEmpty())
+					{
+						double woX_scr = viewState.convertPos_AngleToScreen_LongXf(wo.position.getMapX());
+						double woY_scr = viewState.convertPos_AngleToScreen_LatYf (wo.position.getMapY());
+						/*
+						// Without Rotation
+						AffineTransform transform = new AffineTransform(origTransform);
+						transform.translate(
+								woX_scr-originX_scr,
+								woY_scr-originY_scr
+						);
+						*/
+						// With Rotation
+						AffineTransform transform = new AffineTransform(origTransform);
+						transform.translate( woX_scr, woY_scr );
+						transform.concatenate(wo.rotation.computeMapTransform());
+						transform.translate( -originX_scr, -originY_scr );
+						
+						g2.setTransform(transform);
+						g2.setColor(COLOR_WORLDOBJECT_CONTOUR);
+						LineEditor.drawForms(g2, forms, viewState);
+					}
+				}
+				g2.setTransform(origTransform);
 				
 				for (WorldObject wo : mapModel.displayableObjects)
 					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo)) {
