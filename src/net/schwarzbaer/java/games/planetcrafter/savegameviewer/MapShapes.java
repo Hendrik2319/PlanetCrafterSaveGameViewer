@@ -1,11 +1,19 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Stroke;
 import java.awt.Window;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
@@ -38,8 +47,10 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
+import net.schwarzbaer.java.lib.gui.ZoomableCanvas.ViewState;
 import net.schwarzbaer.java.lib.image.linegeometry.Form;
 import net.schwarzbaer.java.lib.image.linegeometry.LinesIO;
+import net.schwarzbaer.java.tools.lineeditor.EditorViewFeature;
 import net.schwarzbaer.java.tools.lineeditor.LineEditor;
 import net.schwarzbaer.java.tools.lineeditor.LineEditor.GuideLinesStorage;
 
@@ -279,72 +290,7 @@ class MapShapes
 			
 			leftPanel = new JPanel(new BorderLayout(3,3));
 			
-			lineEditor = new LineEditor(new LineEditor.Context() {
-				
-				@Override public void switchOptionsPanel(JComponent panel)
-				{
-					if (valuePanel!=null) leftPanel.remove(valuePanel);
-					valuePanel = panel;
-					if (valuePanel!=null) leftPanel.add(valuePanel,BorderLayout.CENTER);
-					leftPanel.revalidate();
-					leftPanel.repaint();
-				}
-				
-				@Override public void replaceForms(Form[] forms)
-				{
-					boolean isNewShape = false;
-					if (selectedShape==null)
-					{
-						if (selectedObjectType==null)
-						{
-							System.err.println("ERROR: New forms were created, but not ObjectType was selected.");
-							return;
-						}
-						createNewShape(selectedObjectType);
-						isNewShape = true;
-					}
-					if (selectedShape!=null)
-					{
-						selectedShape.forms.clear();
-						selectedShape.forms.addAll(Arrays.asList(forms));
-						//Editor.this.mapShapes.writeToFile();
-						if (isNewShape)
-							updateLineEditor();
-					}
-					else
-						throw new IllegalStateException();
-				}
-				
-				@Override public boolean canCreateNewForm()
-				{
-					return selectedObjectType!=null;
-				}
-
-				@Override public void guideLinesChanged(LineEditor.GuideLinesChangedEvent e)
-				{
-					//System.out.printf("MapShapes.Editor.guideLinesChanged: [%s] \"%s\"%n", e.type(), e.caller());
-					switch (e.type())
-					{
-						case Added:
-						case Changed:
-						case Removed:
-							Editor.this.mapShapes.writeToFile();
-							break;
-					}
-				}
-				@Override public void formsChanged(LineEditor.FormsChangedEvent e)
-				{
-					//System.out.printf("MapShapes.Editor.formsChanged: [%s] \"%s\"%n", e.type(), e.caller());
-					switch (e.type())
-					{
-						case Added:
-						case Removed:
-						case Changed:
-							Editor.this.mapShapes.writeToFile();
-							break;
-					}
-				}
-			});
+			lineEditor = new LineEditor(new LineEditorContext(), new LineEditorBackground());
 			valuePanel = lineEditor.getInitialOptionsPanel();
 			
 			Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
@@ -454,6 +400,160 @@ class MapShapes
 				new AppSettings.SplitPaneDividersDefinition<>(this, AppSettings.ValueKey.class)
 				.add(contentPane, AppSettings.ValueKey.MapShapesEditor_SplitPaneDivider)
 			);
+		}
+		
+		private class LineEditorContext implements LineEditor.Context
+		{
+			@Override public void switchOptionsPanel(JComponent panel)
+			{
+				if (valuePanel!=null) leftPanel.remove(valuePanel);
+				valuePanel = panel;
+				if (valuePanel!=null) leftPanel.add(valuePanel,BorderLayout.CENTER);
+				leftPanel.revalidate();
+				leftPanel.repaint();
+			}
+			
+			@Override public void replaceForms(Form[] forms)
+			{
+				boolean isNewShape = false;
+				if (selectedShape==null)
+				{
+					if (selectedObjectType==null)
+					{
+						System.err.println("ERROR: New forms were created, but not ObjectType was selected.");
+						return;
+					}
+					createNewShape(selectedObjectType);
+					isNewShape = true;
+				}
+				if (selectedShape!=null)
+				{
+					selectedShape.forms.clear();
+					selectedShape.forms.addAll(Arrays.asList(forms));
+					//Editor.this.mapShapes.writeToFile();
+					if (isNewShape)
+						updateLineEditor();
+				}
+				else
+					throw new IllegalStateException();
+			}
+			
+			@Override public boolean canCreateNewForm()
+			{
+				return selectedObjectType!=null;
+			}
+
+			@Override public void guideLinesChanged(LineEditor.GuideLinesChangedEvent e)
+			{
+				//System.out.printf("MapShapes.Editor.guideLinesChanged: [%s] \"%s\"%n", e.type(), e.caller());
+				switch (e.type())
+				{
+					case Added:
+					case Changed:
+					case Removed:
+						Editor.this.mapShapes.writeToFile();
+						break;
+				}
+			}
+			@Override public void formsChanged(LineEditor.FormsChangedEvent e)
+			{
+				//System.out.printf("MapShapes.Editor.formsChanged: [%s] \"%s\"%n", e.type(), e.caller());
+				switch (e.type())
+				{
+					case Added:
+					case Removed:
+					case Changed:
+						Editor.this.mapShapes.writeToFile();
+						break;
+				}
+			}
+		}
+		
+		private class LineEditorBackground implements EditorViewFeature
+		{
+			private static final Color COLOR_LINE = new Color(0x70FF00);
+			private static final Color COLOR_TEXT = new Color(0x70FF00);
+			
+			@Override
+			public void draw(Graphics2D g2, int x, int y, int width, int height, ViewState viewState, Iterable<? extends FeatureLineForm> forms)
+			{
+				g2.setColor(COLOR_TEXT);
+				TextDrawer td = new TextDrawer(g2, viewState, 0.3);
+				td.drawText("FRONT",  0,  2, 0);
+				td.drawText("LEFT" ,  2,  0,  Math.PI/2);
+				td.drawText("RIGHT", -2,  0, -Math.PI/2);
+				td.drawText("BACK" ,  0, -2, 0);
+				td.cleanUp();
+				
+				double lineWidth = viewState.convertLength_LengthToScreenF(0.2);
+				Stroke origStroke = g2.getStroke();
+				g2.setStroke(new BasicStroke((float) lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				
+				g2.setColor(COLOR_LINE);
+				drawLine(g2, viewState,  0.0,0.0, 0,1.5);
+				drawLine(g2, viewState,  0.3,1.2, 0,1.5);
+				drawLine(g2, viewState, -0.3,1.2, 0,1.5);
+				
+				g2.setStroke(origStroke);
+			}
+			
+			private void drawLine(Graphics2D g2, ViewState viewState, double x1, double y1, double x2, double y2)
+			{
+				int x1_scr = viewState.convertPos_AngleToScreen_LongX(x1);
+				int y1_scr = viewState.convertPos_AngleToScreen_LatY (y1);
+				int x2_scr = viewState.convertPos_AngleToScreen_LongX(x2);
+				int y2_scr = viewState.convertPos_AngleToScreen_LatY (y2);
+				g2.drawLine(x1_scr, y1_scr, x2_scr, y2_scr);
+			}
+
+			private static class TextDrawer
+			{
+				private final ViewState viewState;
+				private final Graphics2D g2;
+				private final Font font;
+				private final FontRenderContext frc;
+				private final AffineTransform origTransform;
+				private Font origFont;
+
+				TextDrawer(Graphics2D g2, ViewState viewState, double fontSize)
+				{
+					this.viewState = viewState;
+					this.g2 = g2;
+					frc = this.g2.getFontRenderContext();
+					origTransform = this.g2.getTransform();
+					origFont = this.g2.getFont();
+					
+					double fontSize_scr = this.viewState.convertLength_LengthToScreenF(fontSize);
+					font = origFont.deriveFont((float) fontSize_scr).deriveFont(Font.BOLD);
+					this.g2.setFont(font);
+				}
+				
+				void cleanUp()
+				{
+					g2.setTransform(origTransform);
+					g2.setFont(origFont);
+				}
+				
+				void drawText(String text, double centerX, double centerY, double rotation)
+				{
+					double centerX_scr = this.viewState.convertPos_AngleToScreen_LongXf(centerX);
+					double centerY_scr = this.viewState.convertPos_AngleToScreen_LatYf (centerY);
+					
+					AffineTransform transform = new AffineTransform(origTransform);
+					transform.translate( centerX_scr, centerY_scr );
+					transform.rotate( rotation );
+					g2.setTransform(transform);
+					
+					Rectangle2D sb = font.getStringBounds(text, frc);
+					g2.drawString(text, Math.round(-sb.getCenterX()), Math.round(-sb.getCenterY()));
+					
+				}
+			}
+
+
+			@Override public void setEditorView(Component editorView) {}
+			@Override public void addToEditorViewContextMenu(JPopupMenu contextMenu) {}
+			@Override public void prepareContextMenuToShow() {}
 		}
 
 		private void updateLineEditor()
