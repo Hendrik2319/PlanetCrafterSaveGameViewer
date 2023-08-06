@@ -85,22 +85,17 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygen = "              ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"biomass = "             ))!=null ) currentOT.plants   = parseDouble(valueStr); // legacy
 				if ( (valueStr=getValue(line,"plants = "              ))!=null ) currentOT.plants   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"insects = "             ))!=null ) currentOT.insects  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"animals = "             ))!=null ) currentOT.animals  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"energy = "              ))!=null ) currentOT.energy   = parseDouble(valueStr);
-				if (        line.equals(     "multiplierExpected"     )        ) currentOT.expectsMultiplierFor = PhysicalValue.Oxygen; // legacy:  boolean multiplierExpected 
 				if ( (valueStr=getValue(line,"expectsMultiplierFor = "))!=null ) currentOT.expectsMultiplierFor = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"oxygenBooster = "       ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr); // legacy
 				if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insectsBooster = "      ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr); // legacy
 				if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
 				if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
-				if ( (valueStr=getValue(line,"finished = "            ))!=null ) currentOT.finished = valueStr.equalsIgnoreCase("true"); // legacy
 				if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
 				
 			}
@@ -276,11 +271,11 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double insects;
 		Double animals;
 		Double energy;
-		PhysicalValue expectsMultiplierFor;
-		Double oxygenMultiplier;
-		Double insectsMultiplier;
-		Double animalsMultiplier;
-		PhysicalValue isBoosterRocketFor;
+		PhysicalValue expectsMultiplierFor; // TODO: -> MultiplierType expectsMultiplier 
+		Double oxygenMultiplier;  // 
+		Double insectsMultiplier; // -> MultiplierType multiplierType / Double multiplierValue
+		Double animalsMultiplier; // 
+		PhysicalValue isBoosterRocketFor; 
 		boolean isProducer;
 		final EnumSet<Occurrence> occurrences;
 		
