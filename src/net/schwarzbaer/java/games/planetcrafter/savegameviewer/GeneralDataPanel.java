@@ -20,7 +20,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -45,10 +44,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	
 	//private final Data data;
 	private final EnergyPanel energyPanel;
-	private final Vector<TerraformingStatesPanel> terraformingStatesPanels;
-	private final Vector<GeneralData1Panel> generalData1Panels;
-	private final Vector<GeneralData2Panel> generalData2Panels;
-	private final Vector<PlayerStatesPanel> playerStatesPanels;
+	private final TerraformingStatesPanel terraformingStatesPanels;
+	private final GeneralData1Panel generalData1Panels;
+	private final GeneralData2Panel generalData2Panels;
+	private final PlayerStatesPanel playerStatesPanels;
 
 	GeneralDataPanel(Data data, Achievements achievements) {
 		//this.data = data;
@@ -56,10 +55,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		
 		
-		terraformingStatesPanels = createPanels(data.achievedValues, value -> new TerraformingStatesPanel(value, achievements));
-		generalData1Panels = createPanels(data.generalData1, GeneralData1Panel::new);
-		generalData2Panels = createPanels(data.generalData2, GeneralData2Panel::new);
-		playerStatesPanels = createPanels(data.playerStates, PlayerStatesPanel::new);
+		terraformingStatesPanels = new TerraformingStatesPanel(data.achievedValues, achievements);
+		generalData1Panels = new GeneralData1Panel(data.generalData1);
+		generalData2Panels = new GeneralData2Panel(data.generalData2);
+		playerStatesPanels = new PlayerStatesPanel(data.playerStates);
 		
 		
 		
@@ -154,54 +153,25 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		//System.out.printf("%d, %d%n", horizontalScrollBar.getUnitIncrement(), verticalScrollBar.getUnitIncrement());
 	}
 	
-	Vector<TerraformingStatesPanel> getTerraformingStatesPanels() {
+	TerraformingStatesPanel getTerraformingStatesPanel() {
 		return terraformingStatesPanels;
 	}
 
 	public void updateAfterAchievementsChange() {
-		for (TerraformingStatesPanel panel : terraformingStatesPanels)
-			panel.updateAfterAchievementsChange();
+		terraformingStatesPanels.updateAfterAchievementsChange();
 	}
 
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged) {
 			energyPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
-			for (PlayerStatesPanel p : playerStatesPanels)
-				p.objectTypeValueChanged(event.objectTypeID, event.changedValue);
+			playerStatesPanels.objectTypeValueChanged(event.objectTypeID, event.changedValue);
 		}
 	}
 
-	private <PanelType extends JPanel, ValueType> Vector<PanelType> createPanels(Vector<ValueType> values,
-			Function<ValueType, PanelType> panelConstructor) {
-		if (values==null) throw new IllegalArgumentException();
-		
-		Vector<PanelType> panels = new Vector<>();
-		for (ValueType value : values)
-			panels.add(panelConstructor.apply(value));
-		return panels;
-	}
-
-	private <PanelType extends JPanel> JComponent createCompoundPanel(String title, Vector<PanelType> panels) {
-		if (panels==null) throw new IllegalArgumentException();
-		
-		if (panels.isEmpty()) {
-			JPanel panel = new JPanel();
-			panel.setBorder(BorderFactory.createTitledBorder(title));
-			return panel;
-		}
-		
-		if (panels.size()==1) {
-			JPanel panel = panels.firstElement();
-			panel.setBorder(BorderFactory.createTitledBorder(title));
-			return panel;
-		}
-		
-		JTabbedPane panel = new JTabbedPane();
+	private <PanelType extends JPanel> JComponent createCompoundPanel(String title, PanelType panel) {
+		if (panel==null) throw new IllegalArgumentException();
 		panel.setBorder(BorderFactory.createTitledBorder(title));
-		for (int i=0; i<panels.size(); i++)
-			panel.addTab(Integer.toString(i), panels.get(i));
-		
 		return panel;
 	}
 

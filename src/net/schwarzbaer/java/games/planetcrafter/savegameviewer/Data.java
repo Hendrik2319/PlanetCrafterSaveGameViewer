@@ -56,14 +56,14 @@ class Data {
 			l.someObjectsWereMarkedForRemoval();
 	}
 
-	final Vector<AchievedValues> achievedValues;
-	final Vector<PlayerStates> playerStates;
+	final AchievedValues achievedValues;
+	final PlayerStates playerStates;
 	final Vector<WorldObject> worldObjects;
 	final Vector<ObjectList> objectLists;
-	final Vector<GeneralData1> generalData1;
+	final GeneralData1 generalData1;
 	final Vector<Message> messages;
 	final Vector<StoryEvent> storyEvents;
-	final Vector<GeneralData2> generalData2;
+	final GeneralData2 generalData2;
 	final Vector<Layer> layers;
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
@@ -89,15 +89,15 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), AchievedValues::new, "AchievedValues"                     ); blockIndex++;
-		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
-		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
-		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                       ); blockIndex++;
-		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message       ::new, "Messages"                           ); blockIndex++;
-		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                        ); blockIndex++;
-		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                       ); blockIndex++;
-		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer         ::new, "Layers"                             ); blockIndex++;
+		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues"                     ); blockIndex++;
+		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
+		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                       ); blockIndex++;
+		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                           ); blockIndex++;
+		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                        ); blockIndex++;
+		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                       ); blockIndex++;
+		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                             ); blockIndex++;
 		
 		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
@@ -163,15 +163,17 @@ class Data {
 	}
 
 	private static <ValueType> Vector<ValueType> parseArray(
+			int blockIndex,
 			Vector<Value<NV, V>> vector,
 			ParseConstructor2<ValueType> parseConstructor,
 			String debugLabel,
 			ObjectTypeCreator getOrCreateObjectType
 	) throws ParseException, TraverseException {
-		return parseArray(vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), debugLabel);
+		return parseArray(blockIndex, vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), debugLabel);
 	}
 	
 	private static <ValueType> Vector<ValueType> parseArray(
+			int blockIndex,
 			Vector<Value<NV, V>> vector,
 			ParseConstructor1<ValueType> parseConstructor,
 			String debugLabel
@@ -184,6 +186,38 @@ class Data {
 			parsedVec.add(parsedValue);
 		}
 		return parsedVec;
+	}
+
+	private static <ValueType> ValueType parseSingle(
+			int blockIndex,
+			Vector<Value<NV, V>> vector,
+			ParseConstructor2<ValueType> parseConstructor,
+			String debugLabel,
+			ObjectTypeCreator getOrCreateObjectType
+	) throws ParseException, TraverseException {
+		return parseSingle(blockIndex, vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), debugLabel);
+	}
+	
+	private static <ValueType> ValueType parseSingle(
+			int blockIndex,
+			Vector<Value<NV, V>> vector,
+			ParseConstructor1<ValueType> parseConstructor,
+			String debugLabel
+	) throws ParseException, TraverseException {
+		ValueType parsedValue = null;
+		
+		if (vector.isEmpty())
+			System.err.printf("No entries found in block %d.%n", blockIndex);
+		else
+		{
+			if (vector.size()>1)
+				System.err.printf("Wrong number of entries found in block %d: Found %d enties, but expected 1 entry. Other entries than last will be ignored.%n", blockIndex, vector.size());
+			Value<NV, V> val = vector.lastElement();
+			String newDebugLabel = String.format("%s[%d]", debugLabel, vector.size()-1);
+			parsedValue = parseConstructor.parse(val, newDebugLabel);
+		}
+			
+		return parsedValue;
 	}
 	
 	private static <ValueType> ValueType[] parseCommaSeparatedArray(

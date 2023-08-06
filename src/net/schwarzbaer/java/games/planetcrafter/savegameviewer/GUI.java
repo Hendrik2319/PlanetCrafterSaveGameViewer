@@ -37,8 +37,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.AchievedValues;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.Disabler;
@@ -294,7 +292,7 @@ class GUI {
 		
 		enum RemovalState { Fully, Partially, None }
 		
-		private final Vector<WorldObject> objects;
+		private final Vector<Data.WorldObject> objects;
 		        final String name;
 		private       RemovalState removalState;
 		
@@ -306,7 +304,7 @@ class GUI {
 		
 		void markForRemoval(boolean b) {
 			removalState = b ? RemovalState.Fully : RemovalState.None;
-			for (WorldObject wo : objects)
+			for (Data.WorldObject wo : objects)
 				wo.markForRemoval(b, false);
 		}
 	
@@ -317,7 +315,7 @@ class GUI {
 		void updateRemoveState() {
 			boolean none = true;
 			boolean all = true;
-			for (WorldObject wo : objects) {
+			for (Data.WorldObject wo : objects) {
 				if (wo.isMarkedForRemoval()) none = false;
 				else                         all  = false;
 			}
@@ -330,7 +328,7 @@ class GUI {
 				removalState = RemovalState.Partially;
 		}
 	
-		void add(WorldObject wo) {
+		void add(Data.WorldObject wo) {
 			objects.add(wo);
 		}
 		
@@ -406,7 +404,7 @@ class GUI {
 		private final LongTextField allTimeTerraTokens;
 		private Data.AchievedValues results;
 
-		private AchievedValuesDialog(Window parent, String title, Vector<Data.AchievedValues> terraformingStates) {
+		private AchievedValuesDialog(Window parent, String title, Data.AchievedValues initialValues) {
 			super(parent, title);
 			results = null;
 			
@@ -421,9 +419,7 @@ class GUI {
 			terraTokens        = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
 			allTimeTerraTokens = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
 			
-			final Data.AchievedValues initialValues;
-			if (!terraformingStates.isEmpty()) {
-				initialValues = terraformingStates.firstElement();
+			if (initialValues!=null) {
 				oxygenLevel       .setValue(initialValues.oxygenLevel       );
 				heatLevel         .setValue(initialValues.heatLevel         );
 				pressureLevel     .setValue(initialValues.pressureLevel     );
@@ -432,8 +428,7 @@ class GUI {
 				animalsLevel      .setValue(initialValues.animalsLevel      );
 				terraTokens       .setValue(initialValues.terraTokens       );
 				allTimeTerraTokens.setValue(initialValues.allTimeTerraTokens);
-			} else
-				initialValues = null;
+			}
 			
 			JPanel contentPane = new JPanel(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -661,8 +656,8 @@ class GUI {
 			
 		}
 
-		static AchievedValues show(Window parent, String title, Vector<AchievedValues> terraformingStates) {
-			AchievedValuesDialog dlg = new AchievedValuesDialog(parent, title, terraformingStates);
+		static Data.AchievedValues show(Window parent, String title, Data.AchievedValues initialValues) {
+			AchievedValuesDialog dlg = new AchievedValuesDialog(parent, title, initialValues);
 			dlg.showDialog();
 			return dlg.results;
 		}

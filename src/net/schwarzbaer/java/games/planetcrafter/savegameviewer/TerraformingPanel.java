@@ -13,7 +13,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -50,20 +49,20 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	TerraformingPanel(Data data, GeneralDataPanel generalDataPanel) {
 		super(new GridLayout(0,2));
 		
-		Vector<TerraformingStatesPanel> terraformingStatesPanels = generalDataPanel.getTerraformingStatesPanels();
+		TerraformingStatesPanel terraformingStatesPanel = generalDataPanel.getTerraformingStatesPanel();
 		
 		subPanels     = new EnumMap<PhysicalValue,SubPanel>(PhysicalValue.class);
-		heatPanel     = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Heat    );
-		pressurePanel = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Pressure);
-		oxygenePanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Oxygen  );
-		plantsPanel   = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Plants  );
-		insectsPanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Insects );
-		animalsPanel  = addPanel(this, data, terraformingStatesPanels, PhysicalValue.Animals );
+		heatPanel     = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Heat    );
+		pressurePanel = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Pressure);
+		oxygenePanel  = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Oxygen  );
+		plantsPanel   = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Plants  );
+		insectsPanel  = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Insects );
+		animalsPanel  = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Animals );
 	}
 	
-	private static SubPanel addPanel(TerraformingPanel main, Data data, Vector<TerraformingStatesPanel> terraformingStatesPanels, PhysicalValue physicalValue)
+	private static SubPanel addPanel(TerraformingPanel main, Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue)
 	{
-		SubPanel subPanel = new SubPanel(data, terraformingStatesPanels, physicalValue);
+		SubPanel subPanel = new SubPanel(data, terraformingStatesPanel, physicalValue);
 		main.add(subPanel);
 		main.subPanels.put(physicalValue, subPanel);
 		return subPanel;
@@ -124,12 +123,12 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		private final Data data;
 		private final PhysicalValue physicalValue;
 		
-		private final Vector<TerraformingStatesPanel> terraformingStatesPanels;
+		private final TerraformingStatesPanel terraformingStatesPanel;
 
-		SubPanel(Data data, Vector<TerraformingStatesPanel> terraformingStatesPanels, PhysicalValue physicalValue) {
+		SubPanel(Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue) {
 			super(new BorderLayout(3,3));
 			this.data = data;
-			this.terraformingStatesPanels = terraformingStatesPanels;
+			this.terraformingStatesPanel = terraformingStatesPanel;
 			this.physicalValue = physicalValue;
 			
 			JPanel resumePanel = new JPanel(new GridBagLayout());
@@ -229,8 +228,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumFinal));
 			tableModel.setData(tableContent.values());
 			
-			for (TerraformingStatesPanel panel : terraformingStatesPanels)
-				panel.setRateOfPhysicalValue(physicalValue, totalSumFinal);
+			terraformingStatesPanel.setRateOfPhysicalValue(physicalValue, totalSumFinal);
 		}
 		
 		private Double getMultiplier(WorldObject wo, Function<ObjectType, Double> getMultiplier) {

@@ -283,7 +283,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	
 	private static class MapModel {
 		
-		final Vector<Data.Coord3> playerPositions;
+		final Data.Coord3 playerPosition;
 		final Vector<WorldObject> displayableObjects;
 		final MinMax minmax;
 		final Rectangle2D.Double range;
@@ -304,13 +304,12 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			// ----------------------------------------------------------------
 			MinMax minmax = null;
 			
-			playerPositions = new Vector<>();
-			for (Data.PlayerStates player : data.playerStates)
-				if (player.isPositioned()) {
-					playerPositions.add(player.position);
-					if (minmax==null) minmax = new MinMax(player.position);
-					else              minmax.change(player.position);
-				}
+			if (data.playerStates.isPositioned()) {
+				playerPosition = data.playerStates.position;
+				if (minmax==null)
+					minmax = new MinMax(data.playerStates.position);
+			} else
+				playerPosition = null;
 			
 			for (WorldObject wo : data.worldObjects) {
 				if (!wo.isInstalled()) continue;
@@ -814,8 +813,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				if (hoveredObject!=null)
 					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
 				
-				for (Data.Coord3 plPos : mapModel.playerPositions)
-					drawPlayerPosition(g2, clip, plPos, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
+				if (mapModel.playerPosition!=null)
+					drawPlayerPosition(g2, clip, mapModel.playerPosition, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
 				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
