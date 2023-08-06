@@ -609,7 +609,7 @@ class Data {
 					+ animalsLevel;
 		}
 
-		private static String formatValue(String format, double value) {
+		private static String formatValue(String format, Object value) {
 			return String.format(Locale.ENGLISH, format, value);
 		}
 

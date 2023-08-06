@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -44,21 +43,12 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	
 	//private final Data data;
 	private final EnergyPanel energyPanel;
-	private final TerraformingStatesPanel terraformingStatesPanels;
-	private final GeneralData1Panel generalData1Panels;
-	private final GeneralData2Panel generalData2Panels;
-	private final PlayerStatesPanel playerStatesPanels;
+	private final TerraformingStatesPanel terraformingStatesPanel;
+	private final PlayerStatesPanel playerStatesPanel;
 
 	GeneralDataPanel(Data data, Achievements achievements) {
 		//this.data = data;
 		GridBagConstraints c;
-		
-		
-		
-		terraformingStatesPanels = new TerraformingStatesPanel(data.achievedValues, achievements);
-		generalData1Panels = new GeneralData1Panel(data.generalData1);
-		generalData2Panels = new GeneralData2Panel(data.generalData2);
-		playerStatesPanels = new PlayerStatesPanel(data.playerStates);
 		
 		
 		
@@ -72,14 +62,14 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		c.gridheight = 1;
 		c.gridwidth = 2;
-		c.gridx = 0; c.gridy = 0; upperPanel.add(createCompoundPanel("Terraforming",     terraformingStatesPanels), c);
+		c.gridx = 0; c.gridy = 0; upperPanel.add(terraformingStatesPanel = new TerraformingStatesPanel(data.achievedValues, achievements), c);
 		c.gridwidth = 1;
-		c.gridx = 0; c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (1)", generalData1Panels      ), c);
-		c.gridx = 1; c.gridy = 1; upperPanel.add(createCompoundPanel("General Data (2)", generalData2Panels      ), c);
+		c.gridx = 0; c.gridy = 1; upperPanel.add(new GeneralData1Panel(data.generalData1), c);
+		c.gridx = 1; c.gridy = 1; upperPanel.add(new GeneralData2Panel(data.generalData2), c);
 		
 		c.gridheight = 2;
 		c.gridx = 2;
-		c.gridy = 0; upperPanel.add(createCompoundPanel("Player", playerStatesPanels), c);
+		c.gridy = 0; upperPanel.add(playerStatesPanel = new PlayerStatesPanel(data.playerStates, data.achievedValues), c);
 		
 		c.gridheight = 2;
 		c.gridx = 3;
@@ -154,25 +144,19 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	}
 	
 	TerraformingStatesPanel getTerraformingStatesPanel() {
-		return terraformingStatesPanels;
+		return terraformingStatesPanel;
 	}
 
 	public void updateAfterAchievementsChange() {
-		terraformingStatesPanels.updateAfterAchievementsChange();
+		terraformingStatesPanel.updateAfterAchievementsChange();
 	}
 
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged) {
 			energyPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
-			playerStatesPanels.objectTypeValueChanged(event.objectTypeID, event.changedValue);
+			playerStatesPanel.objectTypeValueChanged(event.objectTypeID, event.changedValue);
 		}
-	}
-
-	private <PanelType extends JPanel> JComponent createCompoundPanel(String title, PanelType panel) {
-		if (panel==null) throw new IllegalArgumentException();
-		panel.setBorder(BorderFactory.createTitledBorder(title));
-		return panel;
 	}
 
 	private static class EnergyPanel extends JPanel {
@@ -428,6 +412,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		TerraformingStatesPanel(Data.AchievedValues data, Achievements achievements) {
 			super(new GridBagLayout());
+			setBorder(BorderFactory.createTitledBorder("Terraforming"));
 			
 			double terraformLevel = data.getTerraformLevel();
 			double biomassLevel   = data.getBiomassLevel();
@@ -700,8 +685,12 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private JTextArea textArea;
 		private Iterable<String> unlockedObjectTypes;
 
-		PlayerStatesPanel(Data.PlayerStates data) {
-			super(new GridBagLayout());
+		PlayerStatesPanel(Data.PlayerStates data, Data.AchievedValues achievedValues) {
+			super(new BorderLayout());
+			
+			
+			JPanel playerStatesPanel = new JPanel(new GridBagLayout());
+			playerStatesPanel.setBorder(BorderFactory.createTitledBorder("Player"));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -712,24 +701,34 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridy = -1;
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Health: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Terra Tokens: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(Data.AchievedValues.formatTerraTokens(achievedValues.terraTokens)), c);
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Thirst: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("All Time Terra Tokens: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(Data.AchievedValues.formatTerraTokens(achievedValues.allTimeTerraTokens)), c);
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.oxygen)), c);
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Health: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Position: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.position)), c);
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Thirst: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Rotation: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.rotation)), c);
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Oxygen: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.oxygen)), c);
+			
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Position: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.position)), c);
+			
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Rotation: "), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.rotation)), c);
+			
+			
 			
 			unlockedObjectTypes = ()->Arrays.stream(data.unlockedObjectTypes).map(ObjectType::getName).sorted().iterator();
 			
@@ -746,19 +745,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			//textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));
 			textAreaScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Unlocked Groups"), textAreaScrollPane.getBorder()));
 			
-			c.gridy++;
-			c.gridx = 0; 
-			c.gridwidth = 2;
-			c.weightx = 1;
-			c.weighty = 1;
-			add(textAreaScrollPane, c);
 			
-//			c.gridy = 6;
-//			c.weighty = 1;
-//			c.weightx = 1;
-//			c.gridwidth = 2;
-//			c.gridx = 0;
-//			add(new JLabel(), c);
+			
+			add(playerStatesPanel, BorderLayout.NORTH);
+			add(textAreaScrollPane, BorderLayout.CENTER);
 		}
 
 		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
@@ -772,6 +762,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 		GeneralData1Panel(Data.GeneralData1 data) {
 			super(new GridBagLayout());
+			setBorder(BorderFactory.createTitledBorder("General Data (1)"));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -807,6 +798,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 		GeneralData2Panel(Data.GeneralData2 data) {
 			super(new GridBagLayout());
+			setBorder(BorderFactory.createTitledBorder("General Data (2)"));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
