@@ -400,34 +400,38 @@ class GUI {
 		private final DoubleTextField plantsLevel  ;
 		private final DoubleTextField insectsLevel ;
 		private final DoubleTextField animalsLevel ;
+		private final JTextField biomassLevel;
+		private final JTextField terraformLevel;
+		private final LongTextField terraTokens;
+		private final LongTextField allTimeTerraTokens;
 		private Data.TerraformingStates results;
 
-		private JTextField biomassLevel;
-
-		private JTextField terraformLevel;
-		
 		private TerraformingStatesDialog(Window parent, String title, Vector<Data.TerraformingStates> terraformingStates) {
 			super(parent, title);
 			results = null;
 			
-			oxygenLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
-			heatLevel      = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
-			pressureLevel  = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
-			biomassLevel   = DoubleTextField.createFormattedValueOutput("");
-			plantsLevel    = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			insectsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			animalsLevel   = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			terraformLevel = DoubleTextField.createFormattedValueOutput("");
+			oxygenLevel        = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
+			heatLevel          = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
+			pressureLevel      = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
+			biomassLevel       = DoubleTextField.createFormattedValueOutput("");
+			plantsLevel        = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			insectsLevel       = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			animalsLevel       = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			terraformLevel     = DoubleTextField.createFormattedValueOutput("");
+			terraTokens        = new LongTextField  (0L , Data.TerraformingStates::formatTerraTokens);
+			allTimeTerraTokens = new LongTextField  (0L , Data.TerraformingStates::formatTerraTokens);
 			
 			final Data.TerraformingStates initialValues;
 			if (!terraformingStates.isEmpty()) {
 				initialValues = terraformingStates.firstElement();
-				oxygenLevel  .setValue(initialValues.oxygenLevel  );
-				heatLevel    .setValue(initialValues.heatLevel    );
-				pressureLevel.setValue(initialValues.pressureLevel);
-				plantsLevel  .setValue(initialValues.plantsLevel  );
-				insectsLevel .setValue(initialValues.insectsLevel );
-				animalsLevel .setValue(initialValues.animalsLevel );
+				oxygenLevel       .setValue(initialValues.oxygenLevel       );
+				heatLevel         .setValue(initialValues.heatLevel         );
+				pressureLevel     .setValue(initialValues.pressureLevel     );
+				plantsLevel       .setValue(initialValues.plantsLevel       );
+				insectsLevel      .setValue(initialValues.insectsLevel      );
+				animalsLevel      .setValue(initialValues.animalsLevel      );
+				terraTokens       .setValue(initialValues.terraTokens       );
+				allTimeTerraTokens.setValue(initialValues.allTimeTerraTokens);
 			} else
 				initialValues = null;
 			
@@ -437,14 +441,16 @@ class GUI {
 			c.gridwidth = 1;
 			
 			int gridy = 0;
-			addRow(contentPane, c, gridy++, "Oxygen Level"        , oxygenLevel   , initialValues==null ? null : initialValues.oxygenLevel  );
-			addRow(contentPane, c, gridy++, "Heat Level"          , heatLevel     , initialValues==null ? null : initialValues.heatLevel    );
-			addRow(contentPane, c, gridy++, "Pressure Level"      , pressureLevel , initialValues==null ? null : initialValues.pressureLevel);
-			addRow(contentPane, c, gridy++, "Biomass Level"       , biomassLevel  );
-			addRow(contentPane, c, gridy++, "Plants Level"        , plantsLevel   , initialValues==null ? null : initialValues.plantsLevel  );
-			addRow(contentPane, c, gridy++, "Insects Level"       , insectsLevel  , initialValues==null ? null : initialValues.insectsLevel );
-			addRow(contentPane, c, gridy++, "Animals Level"       , animalsLevel  , initialValues==null ? null : initialValues.animalsLevel );
-			addRow(contentPane, c, gridy++, "Terraformation Level", terraformLevel);
+			addRow(contentPane, c, gridy++, "Oxygen Level"         , oxygenLevel       , initialValues==null ? null : initialValues.oxygenLevel  , 0.0);
+			addRow(contentPane, c, gridy++, "Heat Level"           , heatLevel         , initialValues==null ? null : initialValues.heatLevel    , 0.0);
+			addRow(contentPane, c, gridy++, "Pressure Level"       , pressureLevel     , initialValues==null ? null : initialValues.pressureLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Biomass Level"        , biomassLevel      );
+			addRow(contentPane, c, gridy++, "Plants Level"         , plantsLevel       , initialValues==null ? null : initialValues.plantsLevel , 0.0);
+			addRow(contentPane, c, gridy++, "Insects Level"        , insectsLevel      , initialValues==null ? null : initialValues.insectsLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Animals Level"        , animalsLevel      , initialValues==null ? null : initialValues.animalsLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Terraformation Level" , terraformLevel    );
+			addRow(contentPane, c, gridy++, "Terra Tokens"         , terraTokens       , initialValues==null ? null : initialValues.terraTokens       , 0L);
+			addRow(contentPane, c, gridy++, "All Time Terra Tokens", allTimeTerraTokens, initialValues==null ? null : initialValues.allTimeTerraTokens, 0L);
 			
 			c.weightx = 1;
 			c.weighty = 1;
@@ -455,21 +461,25 @@ class GUI {
 			
 			createGUI(contentPane,
 					createButton("Set All to 0", true, e->{
-						oxygenLevel  .setValue(0);
-						heatLevel    .setValue(0);
-						pressureLevel.setValue(0);
-						plantsLevel  .setValue(0);
-						insectsLevel .setValue(0);
-						animalsLevel .setValue(0);
+						oxygenLevel       .setValue(0.0);
+						heatLevel         .setValue(0.0);
+						pressureLevel     .setValue(0.0);
+						plantsLevel       .setValue(0.0);
+						insectsLevel      .setValue(0.0);
+						animalsLevel      .setValue(0.0);
+						terraTokens       .setValue(0L);
+						allTimeTerraTokens.setValue(0L);
 						updateGUI();
 					}),
 					initialValues==null ? null : createButton("Reset All", true, e->{
-						oxygenLevel  .setValue(initialValues.oxygenLevel  );
-						heatLevel    .setValue(initialValues.heatLevel    );
-						pressureLevel.setValue(initialValues.pressureLevel);
-						plantsLevel  .setValue(initialValues.plantsLevel  );
-						insectsLevel .setValue(initialValues.insectsLevel );
-						animalsLevel .setValue(initialValues.animalsLevel );
+						oxygenLevel       .setValue(initialValues.oxygenLevel       );
+						heatLevel         .setValue(initialValues.heatLevel         );
+						pressureLevel     .setValue(initialValues.pressureLevel     );
+						plantsLevel       .setValue(initialValues.plantsLevel       );
+						insectsLevel      .setValue(initialValues.insectsLevel      );
+						animalsLevel      .setValue(initialValues.animalsLevel      );
+						terraTokens       .setValue(initialValues.terraTokens       );
+						allTimeTerraTokens.setValue(initialValues.allTimeTerraTokens);
 						updateGUI();
 					}),
 					btnOk = createButton("Ok", true, e->{
@@ -483,16 +493,18 @@ class GUI {
 			updateGUI();
 		}
 
-		private void addRow(JPanel panel, GridBagConstraints c, int gridy, String label, DoubleTextField txtField, Double initialValue) {
+		private <ValueType> void addRow(JPanel panel, GridBagConstraints c, int gridy, String label, NumberTextField<ValueType> txtField, ValueType initialValue, ValueType zeroValue) {
 			int gridx = 0;
 			c.gridy = gridy;
 			c.weightx = 0; c.gridx = gridx++; panel.add(new JLabel(label+": "), c);
 			c.weightx = 0; c.gridx = gridx++; panel.add(txtField.formattedValueOutput, c);
 			c.weightx = 1; c.gridx = gridx++; panel.add(txtField, c);
-			c.weightx = 0; c.gridx = gridx++; panel.add(createButton("Set 0", true, e->{
-				txtField.setValue(0);
-				updateGUI();
-			}), c);
+			if (zeroValue!=null) {
+				c.weightx = 0; c.gridx = gridx++; panel.add(createButton("Set 0", true, e->{
+					txtField.setValue(zeroValue);
+					updateGUI();
+				}), c);
+			}
 			if (initialValue!=null) {
 				c.weightx = 0; c.gridx = gridx++; panel.add(createButton("Reset", true, e->{
 					txtField.setValue(initialValue);
@@ -509,22 +521,26 @@ class GUI {
 		}
 
 		private boolean areAllValuesOk() {
-			return  oxygenLevel  .isOK() &&
-					heatLevel    .isOK() &&
-					pressureLevel.isOK() &&
-					plantsLevel  .isOK() &&
-					insectsLevel .isOK() &&
-					animalsLevel .isOK();
+			return  oxygenLevel       .isOK() &&
+					heatLevel         .isOK() &&
+					pressureLevel     .isOK() &&
+					plantsLevel       .isOK() &&
+					insectsLevel      .isOK() &&
+					animalsLevel      .isOK() &&
+					terraTokens       .isOK() &&
+					allTimeTerraTokens.isOK();
 		}
 
 		private void createResult() {
 			results = !areAllValuesOk() ? null : new Data.TerraformingStates(
-					oxygenLevel  .value,
-					heatLevel    .value,
-					pressureLevel.value,
-					plantsLevel  .value,
-					insectsLevel .value,
-					animalsLevel .value
+					oxygenLevel       .value,
+					heatLevel         .value,
+					pressureLevel     .value,
+					plantsLevel       .value,
+					insectsLevel      .value,
+					animalsLevel      .value,
+					terraTokens       .value,
+					allTimeTerraTokens.value
 					);
 		}
 		
@@ -554,16 +570,50 @@ class GUI {
 			}
 		}
 
-		private class DoubleTextField extends JTextField {
+		private class DoubleTextField extends NumberTextField<Double>
+		{
+			private static final long serialVersionUID = -725198905418022339L;
+
+			DoubleTextField(Double value, Function<Double, String> getFormattedValueStr)
+			{
+				super(value, getFormattedValueStr);
+			}
+
+			@Override Double parseValue(String str) throws NumberFormatException
+			{
+				double newValue = Double.parseDouble(str);
+				if (Double.isNaN(newValue)) return null;
+				return newValue;
+			}
+		}
+
+		private class LongTextField extends NumberTextField<Long>
+		{
+			private static final long serialVersionUID = 9212649389660894581L;
+
+			LongTextField(Long value, Function<Long, String> getFormattedValueStr)
+			{
+				super(value, getFormattedValueStr);
+			}
+
+			@Override Long parseValue(String str) throws NumberFormatException
+			{
+				long newValue = Long.parseLong(str);
+				if (newValue<0) return null;
+				return newValue;
+			}
+		}
+
+		private abstract class NumberTextField<ValueType> extends JTextField {
 			private static final long serialVersionUID = 7631623492689405688L;
 			
-			private double value;
+			ValueType value;
 			private boolean isOK;
 			private final JTextField formattedValueOutput;
-			private final Function<Double, String> getFormattedValueStr;
+			private final Function<ValueType, String> getFormattedValueStr;
 			private final Color defaultBG;
 
-			DoubleTextField(double value, Function<Double,String> getFormattedValueStr) {
+			NumberTextField(ValueType value, Function<ValueType,String> getFormattedValueStr) {
 				super(String.format(Locale.ENGLISH, "%s", value), 20);
 				this.value = value;
 				this.getFormattedValueStr = getFormattedValueStr;
@@ -585,24 +635,25 @@ class GUI {
 			private void processInput() {
 				isOK = false;
 				try {
-					double newValue = Double.parseDouble(getText());
-					if (!Double.isNaN(newValue))
-						changeValue(newValue);
+					ValueType newValue = parseValue(getText());
+					if (newValue!=null) changeValue(newValue);
 				} catch (NumberFormatException e1) { }
 				setBackground(isOK ? defaultBG : Color.RED);
 				updateGUI();
 			}
 
+			abstract ValueType parseValue(String str) throws NumberFormatException;
+
 			boolean isOK() {
 				return isOK;
 			}
 
-			void setValue(double value) {
+			void setValue(ValueType value) {
 				changeValue(value);
 				setText(String.format(Locale.ENGLISH, "%s", this.value));
 			}
 
-			private void changeValue(double value) {
+			private void changeValue(ValueType value) {
 				this.value = value;
 				formattedValueOutput.setText(getFormattedValueStr.apply(this.value));
 				isOK = true;

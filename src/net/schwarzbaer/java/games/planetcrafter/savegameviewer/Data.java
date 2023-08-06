@@ -478,13 +478,15 @@ class Data {
 	}
 	static class TerraformingStates extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(TerraformingStates.class)
-				.add("unitOxygenLevel"  , Value.Type.Float)
-				.add("unitHeatLevel"    , Value.Type.Float)
-				.add("unitPressureLevel", Value.Type.Float)
-		//		.add("unitBiomassLevel" , Value.Type.Float)
-				.add("unitPlantsLevel"  , Value.Type.Float)
-				.add("unitInsectsLevel" , Value.Type.Float)
-				.add("unitAnimalsLevel" , Value.Type.Float);
+				.add("unitOxygenLevel"    , Value.Type.Float)
+				.add("unitHeatLevel"      , Value.Type.Float)
+				.add("unitPressureLevel"  , Value.Type.Float)
+		//		.add("unitBiomassLevel"   , Value.Type.Float)
+				.add("unitPlantsLevel"    , Value.Type.Float)
+				.add("unitInsectsLevel"   , Value.Type.Float)
+				.add("unitAnimalsLevel"   , Value.Type.Float)
+				.add("terraTokens"        , Value.Type.Integer)
+				.add("allTimeTerraTokens" , Value.Type.Integer);
 		
 		final double oxygenLevel;
 		final double heatLevel;
@@ -493,6 +495,9 @@ class Data {
 		final double plantsLevel ;
 		final double insectsLevel;
 		final double animalsLevel;
+		final long terraTokens;
+		final long allTimeTerraTokens;
+		
 		/*
 			Block[0]: 1 entries
 			-> Format: [2 blocks]
@@ -507,24 +512,30 @@ class Data {
 			        unitPlantsLevel :Float
 			        unitInsectsLevel:Float
 			        unitAnimalsLevel:Float
+			 * Trading Update
+			        allTimeTerraTokens:Integer
+			        terraTokens:Integer
 		 */
 		TerraformingStates(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			oxygenLevel   = JSON_Data.getFloatValue(object, "unitOxygenLevel"  , debugLabel);
-			heatLevel     = JSON_Data.getFloatValue(object, "unitHeatLevel"    , debugLabel);
-			pressureLevel = JSON_Data.getFloatValue(object, "unitPressureLevel", debugLabel);
-			//biomassLevel  = JSON_Data.getFloatValue(object, "unitBiomassLevel" , debugLabel);
-			plantsLevel   = JSON_Data.getFloatValue(object, "unitPlantsLevel"  , debugLabel);
-			insectsLevel  = JSON_Data.getFloatValue(object, "unitInsectsLevel" , debugLabel);
-			animalsLevel  = JSON_Data.getFloatValue(object, "unitAnimalsLevel" , debugLabel);
+			oxygenLevel        = JSON_Data.getFloatValue  (object, "unitOxygenLevel"    , debugLabel);
+			heatLevel          = JSON_Data.getFloatValue  (object, "unitHeatLevel"      , debugLabel);
+			pressureLevel      = JSON_Data.getFloatValue  (object, "unitPressureLevel"  , debugLabel);
+		//	biomassLevel       = JSON_Data.getFloatValue  (object, "unitBiomassLevel"   , debugLabel);
+			plantsLevel        = JSON_Data.getFloatValue  (object, "unitPlantsLevel"    , debugLabel);
+			insectsLevel       = JSON_Data.getFloatValue  (object, "unitInsectsLevel"   , debugLabel);
+			animalsLevel       = JSON_Data.getFloatValue  (object, "unitAnimalsLevel"   , debugLabel);
+			terraTokens        = JSON_Data.getIntegerValue(object, "terraTokens"        , debugLabel);
+			allTimeTerraTokens = JSON_Data.getIntegerValue(object, "allTimeTerraTokens" , debugLabel);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		TerraformingStates(double oxygenLevel, double heatLevel, double pressureLevel,
-				double plantsLevel, double insectsLevel, double animalsLevel) {
+				double plantsLevel, double insectsLevel, double animalsLevel,
+				long terraTokens, long allTimeTerraTokens) {
 			super(false);
 			this.oxygenLevel = oxygenLevel;
 			this.heatLevel = heatLevel;
@@ -532,16 +543,20 @@ class Data {
 			this.plantsLevel = plantsLevel;
 			this.insectsLevel = insectsLevel;
 			this.animalsLevel = animalsLevel;
+			this.terraTokens = terraTokens;
+			this.allTimeTerraTokens = allTimeTerraTokens;
 		}
 
 		@Override String toJsonStrs() {
 			return toJsonStr(
-					toFloatValueStr("unitOxygenLevel"  , oxygenLevel  , "%1.1f"),
-					toFloatValueStr("unitHeatLevel"    , heatLevel    , "%1.1f"),
-					toFloatValueStr("unitPressureLevel", pressureLevel, "%1.1f"),
-					toFloatValueStr("unitPlantsLevel"  , plantsLevel  , "%1.1f"),
-					toFloatValueStr("unitInsectsLevel" , insectsLevel , "%1.1f"),
-					toFloatValueStr("unitAnimalsLevel" , animalsLevel , "%1.1f")
+					toFloatValueStr  ("unitOxygenLevel"   , oxygenLevel  , "%1.1f"),
+					toFloatValueStr  ("unitHeatLevel"     , heatLevel    , "%1.1f"),
+					toFloatValueStr  ("unitPressureLevel" , pressureLevel, "%1.1f"),
+					toFloatValueStr  ("unitPlantsLevel"   , plantsLevel  , "%1.1f"),
+					toFloatValueStr  ("unitInsectsLevel"  , insectsLevel , "%1.1f"),
+					toFloatValueStr  ("unitAnimalsLevel"  , animalsLevel , "%1.1f"),
+					toIntegerValueStr("terraTokens"       , terraTokens       ),
+					toIntegerValueStr("allTimeTerraTokens", allTimeTerraTokens)
 					);
 		}
 
@@ -630,6 +645,14 @@ class Data {
 			if (value < 2000) return formatValue("%1.2f Gt", value);
 			value/=1000;
 			return formatValue("%1.2f Tt", value);
+		}
+
+		static String formatTerraTokens(long value) {
+			if (value < 2000) return formatValue("%d T", value);
+			value/=1000;
+			if (value < 2000) return formatValue("%d kT", value);
+			value/=1000;
+			return formatValue("%d Mio.T", value);
 		}
 	}
 
@@ -838,17 +861,17 @@ class Data {
 		
 		@Override String toJsonStrs() {
 			return toJsonStr(
-					toLongValueStr  ("id"    , id          ),
-					toStringValueStr("gId"   , objectTypeID),
-					toLongValueStr  ("liId"  , listId      ),
-					toStringValueStr("liGrps", productID   ),
-					toStringValueStr("pos"   , positionStr ),
-					toStringValueStr("rot"   , rotationStr ),
-					toLongValueStr  ("wear"  , _wear       ),
-					toStringValueStr("pnls"  , mods        ),
-					toStringValueStr("color" , colorStr    ),
-					toStringValueStr("text"  , text        ),
-					toLongValueStr  ("grwth" , growth      )
+					toIntegerValueStr("id"    , id          ),
+					toStringValueStr ("gId"   , objectTypeID),
+					toIntegerValueStr("liId"  , listId      ),
+					toStringValueStr ("liGrps", productID   ),
+					toStringValueStr ("pos"   , positionStr ),
+					toStringValueStr ("rot"   , rotationStr ),
+					toIntegerValueStr("wear"  , _wear       ),
+					toStringValueStr ("pnls"  , mods        ),
+					toStringValueStr ("color" , colorStr    ),
+					toStringValueStr ("text"  , text        ),
+					toIntegerValueStr("grwth" , growth      )
 					);
 		}
 
@@ -1007,9 +1030,9 @@ class Data {
 
 		@Override String toJsonStrs() {
 			return toJsonStr(
-					toLongValueStr  ("id"   , id      ),
-					toStringValueStr("woIds", woIdsStr),
-					toLongValueStr  ("size" , size    )
+					toIntegerValueStr("id"   , id      ),
+					toStringValueStr ("woIds", woIdsStr),
+					toIntegerValueStr("size" , size    )
 					);
 		}
 
@@ -1117,9 +1140,9 @@ class Data {
 
 		@Override String toJsonStrs() {
 			return toJsonStr(
-					toLongValueStr("craftedObjects"   , craftedObjects   ),
-					toLongValueStr("totalSaveFileLoad", totalSaveFileLoad),
-					toLongValueStr("totalSaveFileTime", totalSaveFileTime)
+					toIntegerValueStr("craftedObjects"   , craftedObjects   ),
+					toIntegerValueStr("totalSaveFileLoad", totalSaveFileLoad),
+					toIntegerValueStr("totalSaveFileTime", totalSaveFileTime)
 					);
 		}
 	}
@@ -1267,11 +1290,11 @@ class Data {
 		}
 		@Override String toJsonStrs() {
 			return toJsonStr(
-					toStringValueStr("layerId"        , layerId        ),
-					toStringValueStr("colorBase"      , colorBaseStr   ),
-					toStringValueStr("colorCustom"    , colorCustomStr ),
-					toLongValueStr  ("colorBaseLerp"  , colorBaseLerp  ),
-					toLongValueStr  ("colorCustomLerp", colorCustomLerp)
+					toStringValueStr ("layerId"        , layerId        ),
+					toStringValueStr ("colorBase"      , colorBaseStr   ),
+					toStringValueStr ("colorCustom"    , colorCustomStr ),
+					toIntegerValueStr("colorBaseLerp"  , colorBaseLerp  ),
+					toIntegerValueStr("colorCustomLerp", colorCustomLerp)
 					);
 		}
 	}
@@ -1279,7 +1302,7 @@ class Data {
 	static String toFloatValueStr(String field, double value, String format) {
 		return String.format(Locale.ENGLISH, "\"%s\":"+format, field, value);
 	}
-	static String toLongValueStr(String field, long value) {
+	static String toIntegerValueStr(String field, long value) {
 		return String.format("\"%s\":%d", field, value);
 	}
 	static String toBoolValueStr(String field, boolean value) {
