@@ -56,7 +56,7 @@ class Data {
 			l.someObjectsWereMarkedForRemoval();
 	}
 
-	final Vector<TerraformingStates> terraformingStates;
+	final Vector<AchievedValues> achievedValues;
 	final Vector<PlayerStates> playerStates;
 	final Vector<WorldObject> worldObjects;
 	final Vector<ObjectList> objectLists;
@@ -68,9 +68,9 @@ class Data {
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
 
-	Vector<Vector<String>> toJsonStrs(TerraformingStates modifiedTerraformingStates) {
+	Vector<Vector<String>> toJsonStrs(AchievedValues modifiedAchievedValues) {
 		Vector<Vector<String>> blocks = new Vector<>();
-		blocks.add(modifiedTerraformingStates==null ? Reversable.toJsonStrs(/* 0 */ terraformingStates) : Reversable.toJsonStrs(modifiedTerraformingStates));
+		blocks.add(modifiedAchievedValues==null ? Reversable.toJsonStrs(/* 0 */ achievedValues) : Reversable.toJsonStrs(modifiedAchievedValues));
 		blocks.add(Reversable.toJsonStrs(/* 1 */ playerStates      ));
 		blocks.add(Reversable.toJsonStrs(/* 2 */ worldObjects      ));
 		blocks.add(Reversable.toJsonStrs(/* 3 */ objectLists       ));
@@ -89,15 +89,15 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ terraformingStates = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), TerraformingStates::new, "TerraformingStates"                 ); blockIndex++;
-		/* 1 */ playerStates       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates      ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
-		/* 2 */ worldObjects       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject       ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList        ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
-		/* 4 */ generalData1       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1      ::new, "GeneralData1"                       ); blockIndex++;
-		/* 5 */ messages           = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message           ::new, "Messages"                           ); blockIndex++;
-		/* 6 */ storyEvents        = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), StoryEvent        ::new, "StoryEvents"                        ); blockIndex++;
-		/* 7 */ generalData2       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2      ::new, "GeneralData2"                       ); blockIndex++;
-		/* 8 */ layers             = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer             ::new, "Layers"                             ); blockIndex++;
+		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), AchievedValues::new, "AchievedValues"                     ); blockIndex++;
+		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
+		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                       ); blockIndex++;
+		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Message       ::new, "Messages"                           ); blockIndex++;
+		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                        ); blockIndex++;
+		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                       ); blockIndex++;
+		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray( dataVec.get(blockIndex), Layer         ::new, "Layers"                             ); blockIndex++;
 		
 		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
@@ -476,8 +476,8 @@ class Data {
 			return new AffineTransform(D33, D13, D31, D11, 0, 0);
 		}
 	}
-	static class TerraformingStates extends Reversable {
-		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(TerraformingStates.class)
+	static class AchievedValues extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(AchievedValues.class)
 				.add("unitOxygenLevel"    , Value.Type.Float)
 				.add("unitHeatLevel"      , Value.Type.Float)
 				.add("unitPressureLevel"  , Value.Type.Float)
@@ -516,7 +516,7 @@ class Data {
 			        allTimeTerraTokens:Integer
 			        terraTokens:Integer
 		 */
-		TerraformingStates(Value<NV, V> value, String debugLabel) throws TraverseException {
+		AchievedValues(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
@@ -533,7 +533,7 @@ class Data {
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
-		TerraformingStates(double oxygenLevel, double heatLevel, double pressureLevel,
+		AchievedValues(double oxygenLevel, double heatLevel, double pressureLevel,
 				double plantsLevel, double insectsLevel, double animalsLevel,
 				long terraTokens, long allTimeTerraTokens) {
 			super(false);

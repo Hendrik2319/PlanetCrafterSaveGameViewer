@@ -37,7 +37,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.TerraformingStates;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.AchievedValues;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
@@ -390,7 +390,7 @@ class GUI {
 		}
 	}
 
-	static class TerraformingStatesDialog extends StandardDialog {
+	static class AchievedValuesDialog extends StandardDialog {
 		private static final long serialVersionUID = -580668583006732866L;
 		
 		private final JButton btnOk;
@@ -404,24 +404,24 @@ class GUI {
 		private final JTextField terraformLevel;
 		private final LongTextField terraTokens;
 		private final LongTextField allTimeTerraTokens;
-		private Data.TerraformingStates results;
+		private Data.AchievedValues results;
 
-		private TerraformingStatesDialog(Window parent, String title, Vector<Data.TerraformingStates> terraformingStates) {
+		private AchievedValuesDialog(Window parent, String title, Vector<Data.AchievedValues> terraformingStates) {
 			super(parent, title);
 			results = null;
 			
-			oxygenLevel        = new DoubleTextField(0.0, Data.TerraformingStates::formatOxygenLevel);
-			heatLevel          = new DoubleTextField(0.0, Data.TerraformingStates::formatHeatLevel);
-			pressureLevel      = new DoubleTextField(0.0, Data.TerraformingStates::formatPressureLevel);
+			oxygenLevel        = new DoubleTextField(0.0, Data.AchievedValues::formatOxygenLevel);
+			heatLevel          = new DoubleTextField(0.0, Data.AchievedValues::formatHeatLevel);
+			pressureLevel      = new DoubleTextField(0.0, Data.AchievedValues::formatPressureLevel);
 			biomassLevel       = DoubleTextField.createFormattedValueOutput("");
-			plantsLevel        = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			insectsLevel       = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
-			animalsLevel       = new DoubleTextField(0.0, Data.TerraformingStates::formatBiomassLevel);
+			plantsLevel        = new DoubleTextField(0.0, Data.AchievedValues::formatBiomassLevel);
+			insectsLevel       = new DoubleTextField(0.0, Data.AchievedValues::formatBiomassLevel);
+			animalsLevel       = new DoubleTextField(0.0, Data.AchievedValues::formatBiomassLevel);
 			terraformLevel     = DoubleTextField.createFormattedValueOutput("");
-			terraTokens        = new LongTextField  (0L , Data.TerraformingStates::formatTerraTokens);
-			allTimeTerraTokens = new LongTextField  (0L , Data.TerraformingStates::formatTerraTokens);
+			terraTokens        = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
+			allTimeTerraTokens = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
 			
-			final Data.TerraformingStates initialValues;
+			final Data.AchievedValues initialValues;
 			if (!terraformingStates.isEmpty()) {
 				initialValues = terraformingStates.firstElement();
 				oxygenLevel       .setValue(initialValues.oxygenLevel       );
@@ -532,7 +532,7 @@ class GUI {
 		}
 
 		private void createResult() {
-			results = !areAllValuesOk() ? null : new Data.TerraformingStates(
+			results = !areAllValuesOk() ? null : new Data.AchievedValues(
 					oxygenLevel       .value,
 					heatLevel         .value,
 					pressureLevel     .value,
@@ -556,7 +556,7 @@ class GUI {
 						plantsLevel  .value+
 						insectsLevel .value+
 						animalsLevel .value;
-				terraformLevel.setText(Data.TerraformingStates.formatTerraformation(val));
+				terraformLevel.setText(Data.AchievedValues.formatTerraformation(val));
 			}
 			
 			if (plantsLevel  .isOK() &&
@@ -566,7 +566,7 @@ class GUI {
 						plantsLevel  .value+
 						insectsLevel .value+
 						animalsLevel .value;
-				biomassLevel.setText(Data.TerraformingStates.formatBiomassLevel(val));
+				biomassLevel.setText(Data.AchievedValues.formatBiomassLevel(val));
 			}
 		}
 
@@ -661,8 +661,8 @@ class GUI {
 			
 		}
 
-		static TerraformingStates show(Window parent, String title, Vector<TerraformingStates> terraformingStates) {
-			TerraformingStatesDialog dlg = new TerraformingStatesDialog(parent, title, terraformingStates);
+		static AchievedValues show(Window parent, String title, Vector<AchievedValues> terraformingStates) {
+			AchievedValuesDialog dlg = new AchievedValuesDialog(parent, title, terraformingStates);
 			dlg.showDialog();
 			return dlg.results;
 		}

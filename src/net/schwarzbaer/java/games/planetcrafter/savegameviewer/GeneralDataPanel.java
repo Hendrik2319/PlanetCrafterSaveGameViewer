@@ -56,7 +56,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		
 		
-		terraformingStatesPanels = createPanels(data.terraformingStates, value -> new TerraformingStatesPanel(value, achievements));
+		terraformingStatesPanels = createPanels(data.achievedValues, value -> new TerraformingStatesPanel(value, achievements));
 		generalData1Panels = createPanels(data.generalData1, GeneralData1Panel::new);
 		generalData2Panels = createPanels(data.generalData2, GeneralData2Panel::new);
 		playerStatesPanels = createPanels(data.playerStates, PlayerStatesPanel::new);
@@ -456,20 +456,20 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final Row terraformRow;
 		private final Row stagesRow;
 		
-		TerraformingStatesPanel(Data.TerraformingStates data, Achievements achievements) {
+		TerraformingStatesPanel(Data.AchievedValues data, Achievements achievements) {
 			super(new GridBagLayout());
 			
 			double terraformLevel = data.getTerraformLevel();
 			double biomassLevel   = data.getBiomassLevel();
-			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.TerraformingStates::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
-			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.TerraformingStates::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
-			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.TerraformingStates::formatPressureLevel , PhysicalValue.Pressure::formatRate);
-			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , Data.TerraformingStates::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
-			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Plants  ::formatRate);
-			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
-			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.TerraformingStates::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
-			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.TerraformingStates::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
-			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.TerraformingStates::formatTerraformation, null, true);
+			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.AchievedValues::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
+			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.AchievedValues::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
+			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.AchievedValues::formatPressureLevel , PhysicalValue.Pressure::formatRate);
+			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , Data.AchievedValues::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
+			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Plants  ::formatRate);
+			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
+			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
+			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.AchievedValues::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
+			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.AchievedValues::formatTerraformation, null, true);
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;

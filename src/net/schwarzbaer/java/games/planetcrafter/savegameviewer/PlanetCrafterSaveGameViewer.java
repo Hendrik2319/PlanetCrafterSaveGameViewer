@@ -365,16 +365,16 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void writeReducedFile(File file, Data data) {
 		if (file==null) return;
 		
-		Data.TerraformingStates modifiedTerraformingStates;
+		Data.AchievedValues modifiedAchievedValues;
 		String msg = "Do you want to change Terraforming States?";
 		String dlgTitle = "Modified Terraforming States";
 		int result = JOptionPane.showConfirmDialog(mainWindow, msg, dlgTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (JOptionPane.YES_OPTION == result) {
-			modifiedTerraformingStates = GUI.TerraformingStatesDialog.show(mainWindow, "Modify Terraforming States", data.terraformingStates);
-			if (modifiedTerraformingStates==null)
+			modifiedAchievedValues = GUI.AchievedValuesDialog.show(mainWindow, "Modify Achieved Values", data.achievedValues);
+			if (modifiedAchievedValues==null)
 				return;
 		} else if (JOptionPane.NO_OPTION == result)
-			modifiedTerraformingStates = null;
+			modifiedAchievedValues = null;
 		else
 			return;
 		
@@ -382,7 +382,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		ProgressDialog.runWithProgressDialog(mainWindow, title, 400, pd->{
 			
 			showIndeterminateTask(pd, "Create JSON Code");
-			Vector<Vector<String>> jsonStrs = data.toJsonStrs(modifiedTerraformingStates);
+			Vector<Vector<String>> jsonStrs = data.toJsonStrs(modifiedAchievedValues);
 			if (Thread.currentThread().isInterrupted()) { System.out.println("File Writing Aborted"); return; }
 			
 			writeContent(pd, file, jsonStrs);

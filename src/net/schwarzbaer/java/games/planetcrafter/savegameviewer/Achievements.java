@@ -58,13 +58,13 @@ class Achievements implements ObjectTypesChangeListener {
 
 		Function<Double, String> getFormatter() {
 			switch (this) {
-			case Oxygen  : return Data.TerraformingStates::formatOxygenLevel  ;
-			case Heat    : return Data.TerraformingStates::formatHeatLevel    ;
-			case Pressure: return Data.TerraformingStates::formatPressureLevel;
+			case Oxygen  : return Data.AchievedValues::formatOxygenLevel  ;
+			case Heat    : return Data.AchievedValues::formatHeatLevel    ;
+			case Pressure: return Data.AchievedValues::formatPressureLevel;
 			case Biomass: case Plants: case Insects: case Animals:
-				return Data.TerraformingStates::formatBiomassLevel;
+				return Data.AchievedValues::formatBiomassLevel;
 			case Terraformation: case Stages:
-				return Data.TerraformingStates::formatTerraformation;
+				return Data.AchievedValues::formatTerraformation;
 			}
 			return null;
 		}
@@ -475,7 +475,7 @@ class Achievements implements ObjectTypesChangeListener {
 						
 					case TI_Equiv:
 						if (value instanceof Double)
-							valueStr = Data.TerraformingStates.formatTerraformation((Double) value);
+							valueStr = Data.AchievedValues.formatTerraformation((Double) value);
 						break;
 					}
 				
