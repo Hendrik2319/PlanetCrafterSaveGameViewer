@@ -89,7 +89,7 @@ Animals
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
 3.5E7|Frog Afae Eggs
-6.7E7|Frog Displayer
+6.7E7|{FrogDisplayer1}
 1.65E8|Generic Frog Eggs
 6.0E8|Frog Amedo Eggs
 
@@ -124,7 +124,7 @@ Terraformation
 1.22E11|{Mutagen3}
 1.6E11|{CircuitBoard1}
 1.75E11|{PulsarQuartz}
-4.25E11|Amphibians Farm
+4.25E11|{AmphibiansFarm1}
 4.25E11|Mutagen T4
 4.5E11|Frog Huli Eggs
 

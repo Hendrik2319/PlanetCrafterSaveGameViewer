@@ -34,6 +34,15 @@ label = Aluminium
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: AmphibiansFarm1
+label = Amphibians Farm
+heat = 175.0
+pressure = 75.0
+plants = 75.0
+animals = 825.0
+energy = -155.0
+occurrences = WorldObject,Achievement
+
 ObjectType: Aquarium1
 label = Aquarium T1
 animals = 4.0
@@ -658,6 +667,11 @@ occurrences = WorldObject,Achievement
 ObjectType: Foundation
 label = Foundation
 occurrences = WorldObject
+<finished>
+
+ObjectType: FrogDisplayer1
+label = Frog Displayer
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: FusionEnergyCell
@@ -1312,6 +1326,11 @@ occurrences = WorldObject,Achievement
 ObjectType: Titanium
 label = Titanium
 occurrences = WorldObject,ObjectList
+<finished>
+
+ObjectType: TradePlatform1
+energy = -425.0
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Tree0Seed
