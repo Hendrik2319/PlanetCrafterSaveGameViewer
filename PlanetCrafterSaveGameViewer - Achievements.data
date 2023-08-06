@@ -23,7 +23,6 @@ Heat
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
 7.5E8|{EnergyGenerator6}
-1.0E9|{Mutagen3}
 
 Pressure
 70.0|{OxygenTank2}
@@ -49,10 +48,11 @@ Biomass
 4.5E7|{TreeSpreader0}
 8.3E9|{Heater5}
 1.77E10|{RocketInsects1}
-2.9E10|{Drill4}
-3.9E10|{Fish1Eggs}
-4.5E10|{Fish3Eggs}
-6.5E10|{Aquarium2}
+2.3E10|{Drill4}
+3.0E10|{Fish1Eggs}
+3.5E10|{Fish3Eggs}
+4.2E10|{Aquarium2}
+8.0E10|Frog Strabo Eggs
 
 Plants
 8.0E7|{Beehive1}
@@ -79,6 +79,7 @@ Insects
 5.0E7|{Mutagen2}
 2.25E8|{Beehive2}
 9.25E8|{ButterflyFarm2}
+1.2E10|Frog Trajuu Eggs
 
 Animals
 50000.0|{Fish5Eggs}
@@ -87,6 +88,10 @@ Animals
 5500000.0|{FishFarm1}
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
+3.5E7|Frog Afae Eggs
+6.7E7|Frog Displayer
+1.65E8|Generic Frog Eggs
+6.0E8|Frog Amedo Eggs
 
 Terraformation
 300.0|{Backpack2}
@@ -112,12 +117,16 @@ Terraformation
 7.0E9|{WaterFilter}
 2.5E10|{Teleporter1}
 3.2E10|{TreeSpreader2}
-5.35E10|{Rod-osmium}
-6.6E10|{FusionEnergyCell}
-7.8E10|{DroneStation1}
-1.4E11|{Aquarium1}
+3.9E10|{Rod-osmium}
+4.5E10|{FusionEnergyCell}
+6.25E10|{DroneStation1}
+1.2E11|{Aquarium1}
+1.22E11|{Mutagen3}
 1.6E11|{CircuitBoard1}
 1.75E11|{PulsarQuartz}
+4.25E11|Amphibians Farm
+4.25E11|Mutagen T4
+4.5E11|Frog Huli Eggs
 
 Stages
 0.0|Barren
@@ -131,6 +140,7 @@ Stages
 2.0E9|Trees
 8.0E9|Insects
 3.2E10|Breathable Atmosphere
-1.4E11|Fish
-8.0E14|Amphibians (Dummy)
+1.2E11|Fish
+4.25E11|Amphibians
+1.0E15|Mammals (Dummy)
 

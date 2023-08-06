@@ -211,7 +211,8 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer: case expectsMultiplierFor: case occurrences: case amount: case showMarker:
+			case finished: case id: case label: case isBoosterRocketFor: case isProducer:
+			case expectsMultiplierFor: case occurrences: case amount: case showMarker: case effectOnTerraforming:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
 			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
@@ -237,6 +238,7 @@ class ObjectTypesPanel extends JScrollPane {
 			amount               ("N"             , Integer      .class,  30, null),
 			id                   ("ID"            , String       .class, 130, null),
 			label                ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
+			effectOnTerraforming ("Terraf."       , Boolean      .class,  50, null),
 			heat                 ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
 			pressure             ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
 			oxygen               ("Oxygen"        , Double       .class,  80, ObjectTypeValue.Oxygen  ),
@@ -360,6 +362,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case finished: return row.finished;
 			case id      : return row.id;
 			case label   : return row.label;
+			case effectOnTerraforming: return row.hasEffectOnTerraforming();
 			case heat    : return row.heat;
 			case pressure: return row.pressure;
 			case oxygen  : return row.oxygen;
@@ -392,7 +395,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (row==null) return false;
 			if (columnID==ColumnID.showMarker || columnID==ColumnID.mapShape) return panel.main.mapShapes.hasShapes(row);
 			if (row.finished) return columnID==ColumnID.finished;
-			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences;
+			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences && columnID!=ColumnID.effectOnTerraforming;
 		}
 
 		@Override
@@ -405,6 +408,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case amount     : break;
 			case id         : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
+			case effectOnTerraforming: break;
 			case heat    : row.heat     = (Double)aValue; break;
 			case pressure: row.pressure = (Double)aValue; break;
 			case oxygen  : row.oxygen   = (Double)aValue; break;

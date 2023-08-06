@@ -320,17 +320,20 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		}
 
 		boolean isActive() {
+			return hasEffectOnTerraforming() || energy  !=null;
+		}
+	
+		boolean hasEffectOnTerraforming()
+		{
 			return
 					oxygen  !=null ||
 					heat    !=null ||
 					pressure!=null ||
 					plants  !=null ||
 					insects !=null ||
-					animals !=null ||
-					energy  !=null
-					;
+					animals !=null;
 		}
-	
+
 		void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
 			if (oxygen  !=null) {
 				if (expectsMultiplierFor == PhysicalValue.Oxygen)
