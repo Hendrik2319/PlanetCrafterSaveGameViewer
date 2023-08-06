@@ -38,9 +38,10 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ToolbarIcons;
 import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.FileChooser;
+import net.schwarzbaer.java.lib.gui.GeneralIcons;
+import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.ProgressDialog;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.StandardMainWindow;
@@ -239,20 +240,21 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		MyToolBar() {
 			this.setFloatable(false);
-			add(createButton  ("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame        ));
-			add(createButton  ("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame      ));
-			add(createCheckBox("Reload Automatically"  , autoReloader.isActive(), true , autoReloader::setActive, ActionCommand.ReloadSaveGameAutoSwitch));
-			add(createButton  ("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
+			add(createButton  ("Open SaveGame"         , GrayCommandIcons.IconGroup.Folder, true , ActionCommand.OpenSaveGame        ));
+			add(createButton  ("Reload SaveGame"       , GrayCommandIcons.IconGroup.Reload, false, ActionCommand.ReloadSaveGame      ));
+			add(createCheckBox("Reload Automatically"  , autoReloader.isActive()          , true , autoReloader::setActive, ActionCommand.ReloadSaveGameAutoSwitch));
+			add(createButton  ("Write Reduced SaveGame", GrayCommandIcons.IconGroup.Save  , false, ActionCommand.WriteReducedSaveGame));
 			addSeparator();
-			add(createButton  ("Configure Achievements", null                   , true , ActionCommand.ConfigureAchievements));
-			add(createButton  ("MapShapes Editor"      , null                   , true , ActionCommand.ShowMapShapesEditor  ));
+			add(createButton  ("Configure Achievements", null                             , true , ActionCommand.ConfigureAchievements));
+			addSeparator();
+			add(createButton  ("MapShapes Editor"      , null                             , true , ActionCommand.ShowMapShapesEditor  ));
 		}
 		
 		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
 			return GUI.createCheckBox(title, isChecked, isEnabled, valueChanged, disabler, ac);
 		}
-		JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionCommand ac) {
-			return GUI.createButton(title, icon, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
+		JButton createButton(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionCommand ac) {
+			return GUI.createButton(title, icons, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
 		}
 	}
 
@@ -262,9 +264,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 
 		MyMenuBar() {
 			JMenu filesMenu = add(new JMenu("Files"));
-			filesMenu.add(createMenuItem("Open SaveGame"         , GUI.ToolbarIcons.Open  , true , ActionCommand.OpenSaveGame));
-			filesMenu.add(createMenuItem("Reload SaveGame"       , GUI.ToolbarIcons.Reload, false, ActionCommand.ReloadSaveGame));
-			filesMenu.add(createMenuItem("Write Reduced SaveGame", GUI.ToolbarIcons.Save  , false, ActionCommand.WriteReducedSaveGame));
+			filesMenu.add(createMenuItem("Open SaveGame"         , GrayCommandIcons.IconGroup.Folder, true , ActionCommand.OpenSaveGame));
+			filesMenu.add(createMenuItem("Reload SaveGame"       , GrayCommandIcons.IconGroup.Reload, false, ActionCommand.ReloadSaveGame));
+			filesMenu.add(createMenuItem("Write Reduced SaveGame", GrayCommandIcons.IconGroup.Save  , false, ActionCommand.WriteReducedSaveGame));
 			filesMenu.addSeparator();
 			filesMenu.add(GUI.createMenuItem("Quit", e->System.exit(0)));
 			
@@ -272,8 +274,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			achievementsMenu.add(createMenuItem("Configure Achievements", null, true, ActionCommand.ConfigureAchievements));
 		}
 		
-		JMenuItem createMenuItem(String title, ToolbarIcons icon, boolean isEnabled, ActionCommand ac) {
-			return GUI.createMenuItem(title, icon, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac);
+		JMenuItem createMenuItem(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionCommand ac) {
+			return GUI.createMenuItem(title, icons, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac);
 		}
 	}
 

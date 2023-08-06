@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -40,8 +39,8 @@ import javax.swing.table.TableCellRenderer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.Disabler;
+import net.schwarzbaer.java.lib.gui.GeneralIcons;
 import net.schwarzbaer.java.lib.gui.HSColorChooser;
-import net.schwarzbaer.java.lib.gui.IconSource;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
@@ -52,12 +51,6 @@ class GUI {
 	static final Color COLOR_Removal_ByUser = new Color(0xFF7F7F);
 	static final Color COLOR_Removal_Partially = new Color(0xFFD5D5);
 	static final Color COLOR_Removal_Fully     = new Color(0xFF7F7F);
-	
-	enum ToolbarIcons {
-		Open, Save, Reload;
-		Icon getIcon() { return ToolbarIconsIS.getCachedIcon(this); }
-		private static IconSource.CachedIcons<ToolbarIcons> ToolbarIconsIS = IconSource.createCachedIcons(16, 16, "/images/Toolbar.png", values());
-	}
 
 	enum ActionCommand {
 		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor
@@ -66,14 +59,14 @@ class GUI {
 	private static <Type extends AbstractButton> Type setAbstractButton(
 			Type comp,
 			String title,
-			ToolbarIcons icon,
+			GeneralIcons.IconGroup icons,
 			Boolean isChecked,
 			boolean isEnabled,
 			ActionListener al,
 			Disabler<ActionCommand> disabler, ActionCommand ac
 		) {
 		if (title    !=null) comp.setText(title);
-		if (icon     !=null) comp.setIcon(icon.getIcon());
+		if (icons    !=null) { comp.setIcon(icons.getEnabledIcon()); comp.setDisabledIcon(icons.getDisabledIcon());}
 		if (isChecked!=null) comp.setSelected(isChecked);
 		if (al!=null) {
 			comp.addActionListener(al);
@@ -91,20 +84,20 @@ class GUI {
 		return setAbstractButton(comp, title, null, isChecked, isEnabled, e->valueChanged.accept(comp.isSelected()), disabler, ac);
 	}
 
-	static JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
-		return setAbstractButton(new JButton(), title, icon, null, isEnabled, al, disabler, ac);
+	static JButton createButton(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
+		return setAbstractButton(new JButton(), title, icons, null, isEnabled, al, disabler, ac);
 	}
 	
-	static JButton createButton(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al) {
-		return setAbstractButton(new JButton(), title, icon, null, isEnabled, al, null, null);
+	static JButton createButton(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionListener al) {
+		return setAbstractButton(new JButton(), title, icons, null, isEnabled, al, null, null);
 	}
 	
 	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
 		return setAbstractButton(new JButton(), title, null, null, isEnabled, al, null, null);
 	}
 	
-	static JMenuItem createMenuItem(String title, ToolbarIcons icon, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
-		return setAbstractButton(new JMenuItem(), title, icon, null, isEnabled, al, disabler, ac);
+	static JMenuItem createMenuItem(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
+		return setAbstractButton(new JMenuItem(), title, icons, null, isEnabled, al, disabler, ac);
 	}
 
 	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {

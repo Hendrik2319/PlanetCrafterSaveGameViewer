@@ -47,6 +47,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
+import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas.ViewState;
 import net.schwarzbaer.java.lib.image.linegeometry.Form;
 import net.schwarzbaer.java.lib.image.linegeometry.LinesIO;
@@ -306,12 +307,12 @@ class MapShapes
 			cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
 			cmbbxMapShapes = new JComboBox<>();
 			
-			JButton btnNewShape = GUI.createButton("New Shape", false, e->{
+			JButton btnNewShape = GUI.createButton("New Shape", GrayCommandIcons.IconGroup.Add, false, e->{
 				if (selectedObjectType==null) { System.err.println("ERROR: Can't create new shape, because no ObjectType is selected."); return; }
 				createNewShape(selectedObjectType);
 				this.mapShapes.writeToFile();
 			});
-			JButton btnDeleteShape = GUI.createButton("Delete Shape", false, e->{
+			JButton btnDeleteShape = GUI.createButton("Delete Shape", GrayCommandIcons.IconGroup.Delete, false, e->{
 				if (selectedShape     ==null) { System.err.println("ERROR: Can't delete shape, because no shape is selected."); return; }
 				if (selectedObjectType==null) { System.err.println("ERROR: Can't delete shape, because no ObjectType is selected."); return; }
 				boolean wasDeleted = deleteShape(selectedObjectType, selectedShape);
@@ -328,7 +329,7 @@ class MapShapes
 					this.mapShapes.writeToFile();
 				}
 			});
-			JButton btnSaveAllShapes = GUI.createButton("Save all shapes data in file", GUI.ToolbarIcons.Save, true, e->{
+			JButton btnSaveAllShapes = GUI.createButton("Save all shapes data in file", GrayCommandIcons.IconGroup.Save, true, e->{
 				this.mapShapes.writeToFile();
 			});
 			
