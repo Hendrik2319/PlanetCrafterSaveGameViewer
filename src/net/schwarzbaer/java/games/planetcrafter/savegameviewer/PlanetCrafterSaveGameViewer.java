@@ -113,7 +113,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		mainWindow.startGUI(contentPane);
 		//mainWindow.startGUI(contentPane, new MyMenuBar());
-		mainWindow.setIconImagesFromResource("/icons/icon_%d_blue.png", 24,32,48,64,96);
+		mainWindow.setIconImagesFromResource("/icons/icon_%d_green.png", 16,24,32,48,64,96);
 		
 		settings.registerAppWindow(mainWindow);
 		
