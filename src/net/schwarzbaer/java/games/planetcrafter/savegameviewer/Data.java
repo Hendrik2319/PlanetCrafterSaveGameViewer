@@ -974,12 +974,25 @@ class Data {
 					Vector<Map.Entry<String, Integer>> content = list.getContentResume();
 					for (Map.Entry<String, Integer> entry : content)
 						out.add(2, null, "%dx %s", entry.getValue(), entry.getKey());
+					generateOutput(out, 1, "Demand", list.demandItems);
+					generateOutput(out, 1, "Supply", list.supplyItems);
 				}
 			}
 			
 			return out.generateOutput();
 		}
 		
+		
+		private static void generateOutput(ValueListOutput out, int indentLevel, String label, ObjectType[] items)
+		{
+			if (items!=null && items.length>0)
+			{
+				out.add(indentLevel, label);
+				for (ObjectType item : items)
+					out.add(indentLevel+1, null, "%s", item.getName());
+			}
+		}
+
 		static ObjectType[] getObjectTypes(WorldObject[] worldObjs) {
 			ObjectType[] ots = new ObjectType[worldObjs==null ? 0 : worldObjs.length];
 			for (int i=0; i<ots.length; i++) {
