@@ -171,7 +171,7 @@ class MapShapes
 			}
 			
 		} catch (IOException ex) {
-			System.err.printf("IOException while writing ObjectTypes: %s%n", ex.getMessage());
+			System.err.printf("IOException while writing MapShapes: %s%n", ex.getMessage());
 			//ex.printStackTrace();
 		}
 		

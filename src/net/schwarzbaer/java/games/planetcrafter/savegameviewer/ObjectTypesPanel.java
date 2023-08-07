@@ -20,6 +20,7 @@ import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClass;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
@@ -211,7 +212,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case isBoosterRocketFor: case isProducer:
+			case finished: case id: case label: case class_: case isBoosterRocketFor: case isProducer:
 			case expectsMultiplierFor: case occurrences: case amount: case showMarker: case effectOnTerraforming:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
@@ -233,27 +234,28 @@ class ObjectTypesPanel extends JScrollPane {
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			finished             ("finished"      , Boolean      .class,  50, ObjectTypeValue.Finished),
-			occurrences          ("Occ."          , String       .class,  50, null),
-			amount               ("N"             , Integer      .class,  30, null),
-			id                   ("ID"            , String       .class, 130, null),
-			label                ("Label"         , String       .class, 260, ObjectTypeValue.Label   ),
-			effectOnTerraforming ("Terraf."       , Boolean      .class,  50, null),
-			heat                 ("Heat"          , Double       .class,  80, ObjectTypeValue.Heat    ),
-			pressure             ("Pressure"      , Double       .class,  80, ObjectTypeValue.Pressure),
-			oxygen               ("Oxygen"        , Double       .class,  80, ObjectTypeValue.Oxygen  ),
-			plants               ("Plants"        , Double       .class,  80, ObjectTypeValue.Plants  ),
-			insects              ("Insects"       , Double       .class,  80, ObjectTypeValue.Insects ),
-			animals              ("Animals"       , Double       .class,  80, ObjectTypeValue.Animals ),
-			energy               ("Energy"        , Double       .class,  80, ObjectTypeValue.Energy  ),
-			expectsMultiplierFor ("Multi Expected", PhysicalValue.class,  90, ObjectTypeValue.ExpectsMultiplierFor),
-			oxygenMultiplier     ("Oxy. Multi"    , Double       .class,  90, ObjectTypeValue.OxygenMultiplier),
-			insectsMultiplier    ("Insects Multi" , Double       .class,  90, ObjectTypeValue.InsectsMultiplier),
-			animalsMultiplier    ("Animals Multi" , Double       .class,  90, ObjectTypeValue.AnimalsMultiplier),
-			isBoosterRocketFor   ("Booster Rocket", PhysicalValue.class,  90, ObjectTypeValue.BoosterRocket),
-			isProducer           ("Is Producer?"  , Boolean      .class,  90, ObjectTypeValue.IsProducer),
-			showMarker           ("Show Marker?"  , Boolean      .class,  90, null),
-			mapShape             ("MapShape"      , MapShape     .class,  90, null),
+			finished             ("finished"      , Boolean        .class,  50, ObjectTypeValue.Finished),
+			occurrences          ("Occ."          , String         .class,  50, null),
+			amount               ("N"             , Integer        .class,  30, null),
+			id                   ("ID"            , String         .class, 130, null),
+			label                ("Label"         , String         .class, 260, ObjectTypeValue.Label   ),
+			class_               ("Class"         , ObjectTypeClass.class, 130, ObjectTypeValue.Class_  ),
+			effectOnTerraforming ("Terraf."       , Boolean        .class,  50, null),
+			heat                 ("Heat"          , Double         .class,  80, ObjectTypeValue.Heat    ),
+			pressure             ("Pressure"      , Double         .class,  80, ObjectTypeValue.Pressure),
+			oxygen               ("Oxygen"        , Double         .class,  80, ObjectTypeValue.Oxygen  ),
+			plants               ("Plants"        , Double         .class,  80, ObjectTypeValue.Plants  ),
+			insects              ("Insects"       , Double         .class,  80, ObjectTypeValue.Insects ),
+			animals              ("Animals"       , Double         .class,  80, ObjectTypeValue.Animals ),
+			energy               ("Energy"        , Double         .class,  80, ObjectTypeValue.Energy  ),
+			expectsMultiplierFor ("Multi Expected", PhysicalValue  .class,  90, ObjectTypeValue.ExpectsMultiplierFor),
+			oxygenMultiplier     ("Oxy. Multi"    , Double         .class,  90, ObjectTypeValue.OxygenMultiplier),
+			insectsMultiplier    ("Insects Multi" , Double         .class,  90, ObjectTypeValue.InsectsMultiplier),
+			animalsMultiplier    ("Animals Multi" , Double         .class,  90, ObjectTypeValue.AnimalsMultiplier),
+			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, ObjectTypeValue.BoosterRocket),
+			isProducer           ("Is Producer?"  , Boolean        .class,  90, ObjectTypeValue.IsProducer),
+			showMarker           ("Show Marker?"  , Boolean        .class,  90, null),
+			mapShape             ("MapShape"      , MapShape       .class,  90, null),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
@@ -329,6 +331,7 @@ class ObjectTypesPanel extends JScrollPane {
 			table.setDefaultRenderer(Boolean.class, tcr);
 			table.setDefaultRenderer(PhysicalValue.class, tcr);
 			table.setDefaultRenderer(MapShape.class, tcr);
+			table.setDefaultRenderer(ObjectTypeClass.class, tcr);
 			
 			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<MapShape>((rowM, columnM) -> {
 				ObjectType row = getRow(rowM);
@@ -341,10 +344,16 @@ class ObjectTypesPanel extends JScrollPane {
 			});
 			mapShapesCellEditor.setRenderer(shape -> shape instanceof MapShape ? ((MapShape)shape).label : "-- none --" );
 			
-			Vector<PhysicalValue> values = new Vector<>(Arrays.asList(PhysicalValue.values()));
-			values.insertElementAt(null, 0);
-			table.setDefaultEditor(PhysicalValue.class, new Tables.ComboboxCellEditor<PhysicalValue>(values));
-			table.setDefaultEditor(MapShape.class, mapShapesCellEditor);
+			table.setDefaultEditor(PhysicalValue  .class, new Tables.ComboboxCellEditor<>(getVector(PhysicalValue  .values(), true)));
+			table.setDefaultEditor(ObjectTypeClass.class, new Tables.ComboboxCellEditor<>(getVector(ObjectTypeClass.values(), true)));
+			table.setDefaultEditor(MapShape       .class, mapShapesCellEditor);
+		}
+		
+		private <ValueType> Vector<ValueType> getVector(ValueType[] values, boolean addNull)
+		{
+			Vector<ValueType> vector = new Vector<>(Arrays.asList(values));
+			if (addNull) vector.insertElementAt(null, 0);
+			return vector;
 		}
 
 		@Override public int getRowCount() { return objTypeIDs.size(); }
@@ -362,6 +371,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case finished: return row.finished;
 			case id      : return row.id;
 			case label   : return row.label;
+			case class_  : return row.class_;
 			case effectOnTerraforming: return row.hasEffectOnTerraforming();
 			case heat    : return row.heat;
 			case pressure: return row.pressure;
@@ -408,6 +418,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case amount     : break;
 			case id         : break;
 			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
+			case class_  : row.class_   = (ObjectTypeClass)aValue; break;
 			case effectOnTerraforming: break;
 			case heat    : row.heat     = (Double)aValue; break;
 			case pressure: row.pressure = (Double)aValue; break;

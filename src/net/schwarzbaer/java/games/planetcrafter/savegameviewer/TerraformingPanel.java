@@ -108,7 +108,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			break;
 			
 			
-		case BoosterRocket: case Finished: case IsProducer: break;
+		case BoosterRocket: case Finished: case IsProducer: case Class_: break;
 		}
 	}
 	

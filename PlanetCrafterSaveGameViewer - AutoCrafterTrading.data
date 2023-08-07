@@ -1,0 +1,170 @@
+ObjectType: Algae1Seed
+Minable
+
+ObjectType: Alloy
+Minable
+
+ObjectType: Aluminium
+Minable
+
+ObjectType: astrofood2
+TerraTokens = 7
+Recipe = honey
+Recipe = Vegetable2Growable
+
+ObjectType: Bacteria1
+TerraTokens = 6
+Recipe = Algae1Seed
+Recipe = Algae1Seed
+Recipe = Algae1Seed
+Recipe = WaterBottle1
+Recipe = WaterBottle1
+Recipe = WaterBottle1
+
+ObjectType: Bioplastic1
+Recipe = Vegetable3Growable
+Recipe = Vegetable3Growable
+Recipe = Silicon
+Recipe = WaterBottle1
+
+ObjectType: CircuitBoard1
+TerraTokens = 25
+Recipe = Silicon
+Recipe = Iron
+Recipe = Aluminium
+Recipe = NitrogenCapsule1
+Recipe = Bioplastic1
+Recipe = Zeolite
+
+ObjectType: Cobalt
+Minable
+
+ObjectType: Drone1
+Recipe = RocketReactor
+Recipe = CircuitBoard1
+Recipe = Iron
+
+ObjectType: Fertilizer1
+Recipe = Algae1Seed
+Recipe = Algae1Seed
+Recipe = Algae1Seed
+Recipe = Sulfur
+Recipe = Vegetable0Growable
+Recipe = Vegetable0Growable
+
+ObjectType: Fertilizer2
+Recipe = Fertilizer1
+Recipe = Algae1Seed
+Recipe = Vegetable1Growable
+Recipe = MethanCapsule1
+Recipe = MethanCapsule1
+
+ObjectType: FusionEnergyCell
+Recipe = PulsarQuartz
+Recipe = PulsarQuartz
+Recipe = PulsarQuartz
+Recipe = Osmium
+Recipe = Alloy
+Recipe = Osmium
+
+ObjectType: honey
+Minable
+
+ObjectType: Iridium
+Minable
+
+ObjectType: Iron
+Minable
+
+ObjectType: LarvaeBase1
+Minable
+Recipe = Mutagen3
+Recipe = Phytoplankton2
+Recipe = Fertilizer2
+
+ObjectType: Magnesium
+Minable
+
+ObjectType: MethanCapsule1
+Minable
+
+ObjectType: Mutagen1
+Recipe = Bacteria1
+Recipe = MethanCapsule1
+Recipe = Sulfur
+
+ObjectType: Mutagen2
+Recipe = Mutagen1
+Recipe = LarvaeBase1
+Recipe = honey
+
+ObjectType: Mutagen3
+Recipe = Bacteria1
+Recipe = NitrogenCapsule1
+Recipe = Sulfur
+
+ObjectType: Mutagen4
+Recipe = Mutagen3
+Recipe = Mutagen1
+
+ObjectType: NitrogenCapsule1
+Minable
+
+ObjectType: Osmium
+Minable
+
+ObjectType: Phytoplankton2
+Minable
+
+ObjectType: PulsarQuartz
+
+ObjectType: RedPowder1
+Recipe = Sulfur
+Recipe = Sulfur
+Recipe = Iridium
+
+ObjectType: RocketReactor
+TerraTokens = 13
+Recipe = Rod-iridium
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Alloy
+
+ObjectType: Rod-iridium
+
+ObjectType: Rod-osmium
+Recipe = Osmium
+Recipe = Osmium
+
+ObjectType: Rod-uranium
+
+ObjectType: Silicon
+Minable
+
+ObjectType: Sulfur
+Minable
+
+ObjectType: Titanium
+Minable
+
+ObjectType: Uranim
+Minable
+
+ObjectType: Vegetable0Growable
+Minable
+
+ObjectType: Vegetable1Growable
+Minable
+
+ObjectType: Vegetable2Growable
+Minable
+
+ObjectType: Vegetable3Growable
+Minable
+
+ObjectType: WaterBottle1
+Minable
+
+ObjectType: Zeolite
+Minable
+

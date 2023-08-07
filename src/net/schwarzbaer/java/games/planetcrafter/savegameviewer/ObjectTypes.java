@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
@@ -22,7 +23,35 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
 
 	enum ObjectTypeValue {
-		Finished, Label, Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy, ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier, BoosterRocket, IsProducer
+		Finished, Label, Class_,
+		Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy,
+		ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier,
+		BoosterRocket, IsProducer
+	}
+	
+	enum ObjectTypeClassClass { Resource, Structure, Equipment, Rocket }
+	enum ObjectTypeClass {
+		Resource_Craftable    ( "Resource, craftable"     , ObjectTypeClassClass.Resource  ),
+		Resource_Minable      ( "Resource, minable"       , ObjectTypeClassClass.Resource  ),
+		Resource_Minable_Cheap( "Resource, minable, cheap", ObjectTypeClassClass.Resource  ),
+		Resource_Food         ( "Resource, Food"          , ObjectTypeClassClass.Resource  ),
+		Resource_SeedEgg      ( "Resource, Seed/Egg"      , ObjectTypeClassClass.Resource  ),
+		Structure_Furniture   ( "Structure, Furniture"    , ObjectTypeClassClass.Structure ),
+		Structure_Storage     ( "Structure, Storage"      , ObjectTypeClassClass.Structure ),
+		Structure_Building    ( "Structure, Building"     , ObjectTypeClassClass.Structure ),
+		Structure_Machine     ( "Structure, Machine"      , ObjectTypeClassClass.Structure ),
+		Equipment             ( "Equipment"               , ObjectTypeClassClass.Equipment ),
+		Rocket                ( "Rocket"                  , ObjectTypeClassClass.Rocket    ),
+		;
+		private final String label;
+		final ObjectTypeClassClass class_;
+		ObjectTypeClass(String label, ObjectTypeClassClass class_) { this.label = label; this.class_ = class_; }
+		@Override public String toString() { return label; }
+		
+		static ObjectTypeClass valueOf_checked(String str) {
+			try { return valueOf(str); }
+			catch (Exception e) { return null; }
+		}
 	}
 
 	enum PhysicalValue {
@@ -82,6 +111,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if (line.isEmpty()) continue;
 				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) put(valueStr, currentOT = new ObjectType(valueStr, null));
 				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label    = valueStr;
+				if ( (valueStr=getValue(line,"class = "               ))!=null ) currentOT.class_   = ObjectTypeClass.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"oxygen = "              ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
@@ -122,6 +152,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				ObjectType ot = entry.getValue();
 				                                    out.printf("ObjectType: "           +"%s%n", ot.id       );
 				if ( ot.label               !=null) out.printf("label = "               +"%s%n", ot.label    );
+				if ( ot.class_              !=null) out.printf("class = "               +"%s%n", ot.class_.name());
 				if ( ot.heat                !=null) out.printf("heat = "                +"%s%n", ot.heat     );
 				if ( ot.pressure            !=null) out.printf("pressure = "            +"%s%n", ot.pressure );
 				if ( ot.oxygen              !=null) out.printf("oxygen = "              +"%s%n", ot.oxygen   );
@@ -260,10 +291,24 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		return null;
 	}
 
+	Vector<ObjectType> collectTypes(Predicate<ObjectType> predicate)
+	{
+		if (predicate==null) throw new IllegalArgumentException();
+		
+		Vector<ObjectType> vector = new Vector<>();
+		forEach((id,ot) -> {
+			if (predicate.test(ot))
+				vector.add(ot);
+		});
+		
+		return vector;
+	}
+
 	static class ObjectType {
 		final String id;
 		boolean finished;
 		String label;
+		ObjectTypeClass class_;
 		Double heat;
 		Double pressure;
 		Double oxygen;
@@ -284,6 +329,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			this.id = id;
 			finished = false;
 			label    = null;
+			class_   = null;
 			heat     = null;
 			pressure = null;
 			oxygen   = null;

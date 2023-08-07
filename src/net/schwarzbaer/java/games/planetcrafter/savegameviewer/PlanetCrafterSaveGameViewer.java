@@ -55,9 +55,10 @@ import net.schwarzbaer.java.lib.system.Settings;
 
 public class PlanetCrafterSaveGameViewer implements ActionListener {
 
-	private static final String FILE_OBJECT_TYPES = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
-	        static final String FILE_ACHIEVEMENTS = "PlanetCrafterSaveGameViewer - Achievements.data";
-	private static final String FILE_MAPSHAPES    = "PlanetCrafterSaveGameViewer - MapShapes.data";
+	private static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
+	        static final String FILE_ACHIEVEMENTS        = "PlanetCrafterSaveGameViewer - Achievements.data";
+	private static final String FILE_MAPSHAPES           = "PlanetCrafterSaveGameViewer - MapShapes.data";
+	private static final String FILE_AUTOCRAFTER_TRADING = "PlanetCrafterSaveGameViewer - AutoCrafterTrading.data";
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -85,13 +86,18 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private final AutoReloader autoReloader;
 	        final MapShapes.Editor mapShapesEditor;
 	        final MapShapes mapShapes;
+	private final AutoCrafterTrading autoCrafterTrading;
 
 	PlanetCrafterSaveGameViewer() {
+		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
+		
 		openFile = null;
 		loadedData = null;
 		objectTypes = new ObjectTypes(new File(FILE_OBJECT_TYPES));
 		achievements = null;
 		generalDataPanel = null;
+		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
+		
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
 		disabler = new Disabler<>();
@@ -99,7 +105,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		autoReloader = new AutoReloader();
 		
-		mainWindow = new StandardMainWindow("Planet Crafter - SaveGame Viewer");
 		dataTabPane = new JTabbedPane();
 		
 		JPanel contentPane = new JPanel(new BorderLayout());
@@ -108,7 +113,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		mainWindow.startGUI(contentPane);
 		//mainWindow.startGUI(contentPane, new MyMenuBar());
-		//mainWindow.setIconImagesFromResource("/icons/icon_", "24.png", "32.png", "48.png", "64.png", "96.png");
 		mainWindow.setIconImagesFromResource("/icons/icon_%d_blue.png", 24,32,48,64,96);
 		
 		settings.registerAppWindow(mainWindow);
@@ -283,6 +287,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
 		objectTypes.readFromFile();
+		autoCrafterTrading.readFromFile();
 		achievements = Achievements.readFromFile();
 		achievements.setObjectTypesData(objectTypes);
 		achievements.sortAchievements();
@@ -443,6 +448,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
 		objectTypesPanel.addObjectTypesChangeListener(achievements);
 		objectTypesPanel.addObjectTypesChangeListener(mapShapesEditor);
+		objectTypesPanel.addObjectTypesChangeListener(autoCrafterTrading);
 		
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Map", mapPanel);
@@ -451,6 +457,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
 		dataTabPane.addTab("Supply -> Demand", new SupplyDemandPanel(data));
 		dataTabPane.addTab("Object Types", objectTypesPanel);
+		dataTabPane.addTab("AutoCrafter Trading", autoCrafterTrading.createNewPanel());
 		
 		mapShapesEditor.updateAfterNewObjectTypes();
 		
