@@ -3,6 +3,12 @@ Minable
 
 ObjectType: Alloy
 Minable
+Recipe = Cobalt
+Recipe = Iron
+Recipe = Magnesium
+Recipe = Silicon
+Recipe = Titanium
+Recipe = Aluminium
 
 ObjectType: Aluminium
 Minable
@@ -43,6 +49,11 @@ ObjectType: Drone1
 Recipe = RocketReactor
 Recipe = CircuitBoard1
 Recipe = Iron
+
+ObjectType: FabricBlue
+TerraTokens = 8
+Recipe = Silk
+Recipe = Silk
 
 ObjectType: Fertilizer1
 Recipe = Algae1Seed
@@ -113,10 +124,21 @@ Minable
 ObjectType: Osmium
 Minable
 
+ObjectType: OxygenCapsule1
+Minable
+Recipe = Cobalt
+Recipe = Cobalt
+
 ObjectType: Phytoplankton2
 Minable
 
 ObjectType: PulsarQuartz
+TerraTokens = 25
+Recipe = Osmium
+Recipe = Zeolite
+Recipe = Iridium
+Recipe = Uranim
+Recipe = MethanCapsule1
 
 ObjectType: RedPowder1
 Recipe = Sulfur
@@ -130,15 +152,58 @@ Recipe = Uranim
 Recipe = Uranim
 Recipe = Alloy
 
+ObjectType: Rod-alloy
+TerraTokens = 6
+Recipe = Alloy
+Recipe = Alloy
+Recipe = Alloy
+Recipe = Alloy
+Recipe = Aluminium
+Recipe = Alloy
+Recipe = Alloy
+Recipe = Alloy
+Recipe = Alloy
+
 ObjectType: Rod-iridium
+TerraTokens = 6
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
+Recipe = Iridium
 
 ObjectType: Rod-osmium
+TerraTokens = 6
+Recipe = Osmium
+Recipe = Osmium
+Recipe = Osmium
+Recipe = Osmium
+Recipe = Osmium
+Recipe = Osmium
+Recipe = Osmium
 Recipe = Osmium
 Recipe = Osmium
 
 ObjectType: Rod-uranium
+TerraTokens = 8
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
+Recipe = Uranim
 
 ObjectType: Silicon
+Minable
+
+ObjectType: Silk
 Minable
 
 ObjectType: Sulfur
@@ -164,6 +229,7 @@ Minable
 
 ObjectType: WaterBottle1
 Minable
+Recipe = ice
 
 ObjectType: Zeolite
 Minable

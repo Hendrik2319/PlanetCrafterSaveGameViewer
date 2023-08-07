@@ -3,7 +3,6 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Window;
 import java.io.BufferedReader;
@@ -47,7 +46,6 @@ import javax.swing.tree.TreeNode;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClassClass;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
@@ -108,11 +106,22 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event)
 	{
-		if (event.eventType == ObjectTypesChangeEvent.EventType.ValueChanged && event.changedValue == ObjectTypeValue.Label)
-		{
-			if (panel!=null)
-				panel.tableModel.updateContent();
-		}
+		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged && event.changedValue!=null)
+			switch (event.changedValue)
+			{
+				case Label:
+					if (panel!=null)
+						panel.tableModel.updateContent();
+					break;
+					
+				case Class_:
+					if (panel!=null)
+						panel.tableModel.fireTableColumnUpdate(AutoCrafterTradingTableModel.ColumnID.Class);
+					break;
+					
+				default:
+					break;
+			}
 	}
 
 	void readFromFile()
@@ -356,7 +365,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 						if (newIndex>=0) list.setSelectedIndex(newIndex);
 					}
 				}));
-				add(btnDublicate = GUI.createButton("Dublicate", GrayCommandIcons.IconGroup.Delete, true, e->{
+				add(btnDublicate = GUI.createButton("Dublicate", GrayCommandIcons.IconGroup.Add, true, e->{
 					if (selectedValue!=null)
 					{
 						int newIndex = listModel.add(selectedValue.ot);
@@ -478,6 +487,8 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 		private final JTable table;
 		private final AutoCrafterTradingTableModel tableModel;
 		private final TableToolBar tableToolBar;
+		private final JTree tree;
+		private final TreeToolBar treeToolBar;
 		private AutoCrafterTradingItem selectedItem;
 		
 		AutoCrafterTradingPanel() {
@@ -502,15 +513,16 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 			tablePanel.add(tableScrollPane, BorderLayout.CENTER);
 			tablePanel.add(tableToolBar = new TableToolBar(), BorderLayout.PAGE_START);
 			
-			JTree tree = new JTree(new DefaultTreeModel(null));
+			tree = new JTree(new DefaultTreeModel(null));
 			tree.setCellRenderer(new AutoCrafterTradingTreeCellRenderer());
 			JScrollPane treeScrollPane = new JScrollPane(tree);
 			
-			tablePanel    .setPreferredSize(new Dimension(100,100));
-			treeScrollPane.setPreferredSize(new Dimension(100,100));
+			JPanel treePanel = new JPanel(new BorderLayout());
+			treePanel.add(treeScrollPane, BorderLayout.CENTER);
+			treePanel.add(treeToolBar = new TreeToolBar(), BorderLayout.PAGE_START);
 			
 			setTopComponent(tablePanel);
-			setBottomComponent(treeScrollPane);
+			setBottomComponent(treePanel);
 			
 			table.getSelectionModel().addListSelectionListener(ev -> {
 				int rowV = table.getSelectedRow();
@@ -518,14 +530,44 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 				selectedItem = tableModel.getRow(rowM);
 				tableToolBar.updateToolBar();
 				
-				DefaultTreeModel treeModel;
-				if (selectedItem == null)
-					treeModel = new DefaultTreeModel(null);
-				else
-					treeModel = new DefaultTreeModel(new AutoCrafterTradingTreeNode(null, selectedItem, AutoCrafterTrading.this::getItem), true);
-				
-				tree.setModel(treeModel);
+				updateTree();
 			});
+			
+			tableToolBar.updateToolBar();
+			treeToolBar.updateToolBar();
+		}
+
+		private void updateTree()
+		{
+			DefaultTreeModel treeModel;
+			if (selectedItem == null)
+				treeModel = new DefaultTreeModel(null);
+			else
+				treeModel = new DefaultTreeModel(new AutoCrafterTradingTreeNode(null, selectedItem, AutoCrafterTrading.this::getItem), true);
+			
+			tree.setModel(treeModel);
+			treeToolBar.updateToolBar();
+		}
+		
+		private class TreeToolBar extends JToolBar
+		{
+			private static final long serialVersionUID = -5861349005132127931L;
+			
+			private final JButton btnExpandAll;
+
+			TreeToolBar()
+			{
+				setFloatable(false);
+				add(btnExpandAll = GUI.createButton("Expand all nodes", true, e->{
+					for (int i=0; i<tree.getRowCount(); i++)
+						tree.expandRow(i);
+				}));
+			}
+			
+			public void updateToolBar()
+			{
+				btnExpandAll.setEnabled(tree.getModel().getRoot()!=null);
+			}
 		}
 		
 		private class TableToolBar extends JToolBar
@@ -536,6 +578,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 		
 			TableToolBar()
 			{
+				setFloatable(false);
 				add(btnNewRow = GUI.createButton("New Row", GrayCommandIcons.IconGroup.Add, true, e->addNewRow()));
 				add(btnSetRecipe = GUI.createButton("Set Recipe", true, e->editRecipe()));
 				addSeparator();
@@ -562,6 +605,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 				if (wasChanged)
 				{
 					tableModel.fireTableColumnUpdate(AutoCrafterTradingTableModel.ColumnID.Recipe);
+					updateTree();
 					writeToFile();
 				}
 			}
@@ -663,10 +707,10 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 	{
 		private enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<AutoCrafterTradingItem>
 		{
-			// Column Widths: [93, 116, 90, 57, 776] in ModelOrder
-			Resource  ("Resource"   , String                     .class, 100, row->row.objectType.getName()),
-			Class     ("Class"      , ObjectTypes.ObjectTypeClass.class, 180, row->row.objectType.class_   ),
-			Price     ("Price"      , Long                       .class,  90, row->row.terraTokens         , Data.AchievedValues::formatTerraTokens),
+			// Column Widths: [159, 167, 42, 70, 700] in ModelOrder
+			Resource  ("Resource"   , String                     .class, 170, row->row.objectType.getName()),
+			Class     ("Class"      , ObjectTypes.ObjectTypeClass.class, 170, row->row.objectType.class_   ),
+			Price     ("Price"      , Long                       .class,  50, row->row.terraTokens         , Data.AchievedValues::formatTerraTokens),
 			IsMinable ("Is Minable?", Boolean                    .class,  70, row->row.isMinable           ),
 			Recipe    ("Recipe"     , String                     .class, 700, row->toString(row.recipe)    ),
 			;
@@ -806,7 +850,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 		
 		AutoCrafterTradingTreeNode(AutoCrafterTradingTreeNode parent, AutoCrafterTradingItem item, Function<ObjectType,AutoCrafterTradingItem> getItem)
 		{
-			super(parent, true);
+			super(parent, !item.isMinable && !item.recipe.isEmpty());
 			this.getItem = getItem;
 			this.item = Objects.requireNonNull(item);
 		}
@@ -837,12 +881,25 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 				{
 					for (ObjectType resource : item.recipe)
 					{
-						AutoCrafterTradingItem childItem = getItem.apply(resource);
-						if (childItem==null) childItem = new AutoCrafterTradingItem.DummyItem(resource, "undefined");
+						AutoCrafterTradingItem childItem;
+						if (isInParent(resource))
+							childItem = new AutoCrafterTradingItem.DummyItem(resource, "loop");
+						else
+							childItem = getItem.apply(resource);
+						
+						if (childItem==null)
+							childItem = new AutoCrafterTradingItem.DummyItem(resource, "undefined");
 						children.add(new AutoCrafterTradingTreeNode(this, childItem, getItem));
 					}
 				}
 			}
+		}
+
+		private boolean isInParent(ObjectType ot)
+		{
+			if (item.objectType==ot) return true;
+			if (parent!=null) return parent.isInParent(ot);
+			return false;
 		}
 	}
 
