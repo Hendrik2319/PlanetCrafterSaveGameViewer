@@ -45,9 +45,9 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Objec
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
+import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
-import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas.ViewState;
 import net.schwarzbaer.java.lib.image.linegeometry.Form;
 import net.schwarzbaer.java.lib.image.linegeometry.LinesIO;
@@ -275,13 +275,11 @@ class MapShapes
 		private final ObjectTypes objectTypes;
 		private final MapShapes mapShapes;
 		private final JPanel leftPanel;
-		private final ShapeButtonsPanel shapeButtonsPanel;
 		private JComponent lineEditorOptionsPanel;
-		private final JComboBox<ObjectType> cmbbxObjectTypes;
-		private final JComboBox<MapShape> cmbbxMapShapes;
 		private ObjectType selectedObjectType;
 		private Vector<MapShape> selectedShapes;
 		private MapShape selectedShape;
+		private final MapShapesEditorOptionsPanel mapShapesEditorOptionsPanel;
 		
 		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes)
 		{
@@ -289,6 +287,7 @@ class MapShapes
 			this.objectTypes = objectTypes;
 			this.mapShapes = Objects.requireNonNull(mapShapes);
 			selectedObjectType = null;
+			selectedShapes = null;
 			selectedShape = null;
 			
 			leftPanel = new JPanel(new BorderLayout(3,3));
@@ -296,57 +295,9 @@ class MapShapes
 			lineEditor = new LineEditor(new Rectangle2D.Double(-5,-5,10,10), new LineEditorContext(), new LineEditorBackground());
 			lineEditorOptionsPanel = lineEditor.getInitialOptionsPanel();
 			
-			Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
-					obj -> obj==null ? "" : ((ObjectType)obj).getName()
-			);
-			cmbbxObjectTypesRenderer.setBackgroundColorizer(obj -> {
-				if (obj instanceof ObjectType && Editor.this.mapShapes.hasShapes((ObjectType) obj))
-					return BGCOLOR_OBJECTTYPE_WITH_SHAPES;
-				return null;
-			});
+			mapShapesEditorOptionsPanel = new MapShapesEditorOptionsPanel();
 			
-			cmbbxObjectTypes = new JComboBox<>(this.objectTypes.getListSortedByName());
-			cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
-			cmbbxMapShapes = new JComboBox<>();
-			
-			shapeButtonsPanel = new ShapeButtonsPanel();
-			
-			cmbbxObjectTypes.addActionListener(e->{
-				int index = cmbbxObjectTypes.getSelectedIndex();
-				selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
-				//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
-				shapeButtonsPanel.updateButtons();
-				selectedShapes = selectedObjectType==null ? null : this.mapShapes.getShapes(selectedObjectType);
-				updateCmbbxMapShapes();
-			});
-			cmbbxMapShapes.addActionListener(e->{
-				int index = cmbbxMapShapes.getSelectedIndex();
-				selectedShape = index<0 ? null : cmbbxMapShapes.getItemAt(index);
-				//System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
-				shapeButtonsPanel.updateButtons();
-				updateLineEditor();
-			});
-			
-			JPanel leftUpperPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints c = new GridBagConstraints();
-			c.fill = GridBagConstraints.BOTH;
-			
-			c.weightx = 0; c.gridwidth = 1;
-			leftUpperPanel.add(new JLabel("Object Type :  "), c);
-			c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
-			leftUpperPanel.add(cmbbxObjectTypes, c);
-			
-			c.weightx = 0; c.gridwidth = 1;
-			leftUpperPanel.add(new JLabel("Map Shapes :  "), c);
-			c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
-			leftUpperPanel.add(cmbbxMapShapes, c);
-			
-			c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
-			leftUpperPanel.add(shapeButtonsPanel, c);
-			
-			//leftUpperPanel.setPreferredSize(new Dimension(100,100));
-			
-			leftPanel.add(leftUpperPanel,BorderLayout.NORTH);
+			leftPanel.add(mapShapesEditorOptionsPanel,BorderLayout.NORTH);
 			leftPanel.add(lineEditorOptionsPanel,BorderLayout.CENTER);
 			
 			JPanel editorViewPanel = new JPanel(new BorderLayout(3,3));
@@ -361,7 +312,7 @@ class MapShapes
 			
 			createGUI(
 				contentPane,
-				GUI.createButton("Fit view to content", true, e->lineEditor.fitViewToContent()),
+				GUI.createButton("Fit view to content", true, e->lineEditor.fitViewToContent(LineEditorBackground.createMinViewSize())),
 				GUI.createButton("Save all shapes data in file", GrayCommandIcons.IconGroup.Save, true, e->this.mapShapes.writeToFile()),
 				GUI.createButton("Close", true, e->closeDialog())
 			);
@@ -381,6 +332,90 @@ class MapShapes
 			lineEditor.init();
 		}
 		
+		private class MapShapesEditorOptionsPanel extends JPanel
+		{
+			private static final long serialVersionUID = 6491378825455249752L;
+			
+			private final JComboBox<ObjectType> cmbbxObjectTypes;
+			private final JComboBox<MapShape> cmbbxMapShapes;
+			private final ShapeButtonsPanel shapeButtonsPanel;
+			
+			MapShapesEditorOptionsPanel()
+			{
+				super(new GridBagLayout());
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				
+				Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
+						obj -> obj==null ? "" : ((ObjectType)obj).getName()
+				);
+				cmbbxObjectTypesRenderer.setBackgroundColorizer(obj -> {
+					if (obj instanceof ObjectType && Editor.this.mapShapes.hasShapes((ObjectType) obj))
+						return BGCOLOR_OBJECTTYPE_WITH_SHAPES;
+					return null;
+				});
+				
+				cmbbxObjectTypes = new JComboBox<>(objectTypes.getListSortedByName());
+				cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
+				cmbbxMapShapes = new JComboBox<>();
+				
+				shapeButtonsPanel = new ShapeButtonsPanel(this);
+				
+				cmbbxObjectTypes.addActionListener(e->{
+					int index = cmbbxObjectTypes.getSelectedIndex();
+					selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
+					//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
+					shapeButtonsPanel.updateButtons();
+					selectedShapes = selectedObjectType==null ? null : mapShapes.getShapes(selectedObjectType);
+					updateCmbbxMapShapes(null);
+				});
+				cmbbxMapShapes.addActionListener(e->{
+					int index = cmbbxMapShapes.getSelectedIndex();
+					selectedShape = index<0 ? null : cmbbxMapShapes.getItemAt(index);
+					//System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
+					shapeButtonsPanel.updateButtons();
+					updateLineEditor();
+				});
+				
+				c.weightx = 0; c.gridwidth = 1;
+				add(new JLabel("Object Type :  "), c);
+				c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
+				add(cmbbxObjectTypes, c);
+				
+				c.weightx = 0; c.gridwidth = 1;
+				add(new JLabel("Map Shapes :  "), c);
+				c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
+				add(cmbbxMapShapes, c);
+				
+				c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
+				add(shapeButtonsPanel, c);
+				
+			}
+
+			private void updateCmbbxMapShapes(MapShape newSelectedShape)
+			{
+				Vector<MapShape> displayedShapes = selectedShapes==null ? new Vector<>() : selectedShapes;
+				cmbbxMapShapes.setModel(new DefaultComboBoxModel<>(displayedShapes));
+				cmbbxMapShapes.setSelectedItem(newSelectedShape);
+			}
+
+			void repaintMapShapesCmbbx()
+			{
+				cmbbxMapShapes.repaint();
+			}
+
+			void setSelectedObjectType(ObjectType objectType)
+			{
+				cmbbxObjectTypes.setSelectedItem(objectType);
+			}
+
+			void setObjectTypes(Vector<ObjectType> list, ObjectType selectedObjectType)
+			{
+				cmbbxObjectTypes.setModel(new DefaultComboBoxModel<>(list));
+				cmbbxObjectTypes.setSelectedItem(selectedObjectType);
+			}
+		}
+		
 		private class ShapeButtonsPanel extends JPanel
 		{
 			private static final long serialVersionUID = 6371619802931430284L;
@@ -389,7 +424,7 @@ class MapShapes
 			private final JButton btnDeleteShape;
 			private final JButton btnChangeShapeName;
 
-			ShapeButtonsPanel()
+			ShapeButtonsPanel(MapShapesEditorOptionsPanel mainOptionsPanel)
 			{
 				super(new GridLayout(0,1));
 				
@@ -411,7 +446,7 @@ class MapShapes
 					if (newName!=null)
 					{
 						selectedShape.label = newName;
-						cmbbxMapShapes.repaint();
+						mainOptionsPanel.repaintMapShapesCmbbx();
 						mapShapes.writeToFile();
 					}
 				});
@@ -496,7 +531,7 @@ class MapShapes
 			}
 		}
 		
-		private class LineEditorBackground implements EditorViewFeature
+		private static class LineEditorBackground implements EditorViewFeature
 		{
 			private static final Color COLOR_LINE = new Color(0x70FF00);
 			private static final Color COLOR_TEXT = new Color(0x70FF00);
@@ -524,6 +559,11 @@ class MapShapes
 				g2.setStroke(origStroke);
 			}
 			
+			static Rectangle2D.Double createMinViewSize()
+			{
+				return new Rectangle2D.Double( -2.2, -2.2, 4.4, 4.4 );
+			}
+
 			private void drawLine(Graphics2D g2, ViewState viewState, double x1, double y1, double x2, double y2)
 			{
 				int x1_scr = viewState.convertPos_AngleToScreen_LongX(x1);
@@ -596,13 +636,6 @@ class MapShapes
 				lineEditor.setGuideLines(selectedShape.guideLines);
 			}
 		}
-
-		private void updateCmbbxMapShapes()
-		{
-			Vector<MapShape> displayedShapes = selectedShapes==null ? new Vector<>() : selectedShapes;
-			cmbbxMapShapes.setModel(new DefaultComboBoxModel<>(displayedShapes));
-			cmbbxMapShapes.setSelectedItem(null);
-		}
 	
 		private String askForShapeName(String oldName, Vector<MapShape> selectedShapes)
 		{
@@ -645,8 +678,7 @@ class MapShapes
 			if (removed)
 			{
 				selectedShapes = otd.shapes;
-				updateCmbbxMapShapes();
-				cmbbxMapShapes.setSelectedItem(null);
+				mapShapesEditorOptionsPanel.updateCmbbxMapShapes(null);
 			}
 			
 			return removed;
@@ -668,21 +700,19 @@ class MapShapes
 			otd.shapes.add(newShape);
 			
 			selectedShapes = otd.shapes;
-			updateCmbbxMapShapes();
-			cmbbxMapShapes.setSelectedItem(newShape);
+			mapShapesEditorOptionsPanel.updateCmbbxMapShapes(newShape);
 		}
 
 		public void showDialog(ObjectType objectType)
 		{
-			cmbbxObjectTypes.setSelectedItem(objectType);
+			mapShapesEditorOptionsPanel.setSelectedObjectType(objectType);
 			showDialog(Position.PARENT_CENTER);
 		}
 
 		public void updateAfterNewObjectTypes()
 		{
 			Vector<ObjectType> list = objectTypes.getListSortedByName();
-			cmbbxObjectTypes.setModel(new DefaultComboBoxModel<>(list));
-			cmbbxObjectTypes.setSelectedItem(selectedObjectType);
+			mapShapesEditorOptionsPanel.setObjectTypes(list,selectedObjectType);
 		}
 
 		@Override
