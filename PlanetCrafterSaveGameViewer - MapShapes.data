@@ -21,3 +21,17 @@ GuideLine.Vertical=0.1
 GuideLine.Vertical=1.0
 GuideLine.Vertical=1.1
 
+ObjectType: Foundation
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
+GuideLine.Horizontal=3.0
+GuideLine.Horizontal=-3.0
+GuideLine.Vertical=3.0
+GuideLine.Vertical=-3.0
+GuideLine.Horizontal=2.95
+GuideLine.Horizontal=-2.95
+GuideLine.Vertical=2.95
+GuideLine.Vertical=-2.95
+

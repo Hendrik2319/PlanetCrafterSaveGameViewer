@@ -2,7 +2,6 @@ ObjectType: Algae1Seed
 Minable
 
 ObjectType: Alloy
-Minable
 Recipe = Cobalt
 Recipe = Iron
 Recipe = Magnesium

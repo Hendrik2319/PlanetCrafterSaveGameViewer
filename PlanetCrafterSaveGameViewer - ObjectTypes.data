@@ -7,7 +7,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Algae1Seed
 label = Algae
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: AlgaeGenerator1
@@ -31,7 +31,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Alloy
 label = Super Alloy
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Aluminium
@@ -82,7 +82,7 @@ occurrences = WorldObject
 ObjectType: astrofood2
 label = High Quality Food
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: AutoCrafter1
@@ -201,7 +201,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Bioplastic1
 label = Bioplastic Nugget
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: BlueprintT1
@@ -402,7 +402,7 @@ occurrences = WorldObject
 ObjectType: CircuitBoard1
 label = Circuit Board
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Cobalt
@@ -642,7 +642,7 @@ occurrences = WorldObject
 ObjectType: FabricBlue
 label = Fabric
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Farm1
@@ -1310,7 +1310,7 @@ occurrences = WorldObject
 ObjectType: Rod-alloy
 label = Super Alloy Rod
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Rod-iridium
@@ -1681,7 +1681,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Vegetable0Growable
 label = Eggplant
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable0Seed
@@ -1693,7 +1693,7 @@ occurrences = WorldObject
 ObjectType: Vegetable1Growable
 label = Squash
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable1Seed
@@ -1705,7 +1705,7 @@ occurrences = WorldObject
 ObjectType: Vegetable2Growable
 label = Beans
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable2Seed
@@ -1717,7 +1717,7 @@ occurrences = WorldObject
 ObjectType: Vegetable3Growable
 label = Mushroom
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable3Seed

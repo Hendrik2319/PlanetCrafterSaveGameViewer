@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Stroke;
 import java.awt.Window;
 import java.awt.font.FontRenderContext;
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -280,6 +280,7 @@ class MapShapes
 		private Vector<MapShape> selectedShapes;
 		private MapShape selectedShape;
 		private final MapShapesEditorOptionsPanel mapShapesEditorOptionsPanel;
+		private final EditorClipboard editorClipboard;
 		
 		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes)
 		{
@@ -289,6 +290,7 @@ class MapShapes
 			selectedObjectType = null;
 			selectedShapes = null;
 			selectedShape = null;
+			editorClipboard = new EditorClipboard();
 			
 			leftPanel = new JPanel(new BorderLayout(3,3));
 			
@@ -365,16 +367,16 @@ class MapShapes
 					int index = cmbbxObjectTypes.getSelectedIndex();
 					selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
 					//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
-					shapeButtonsPanel.updateButtons();
 					selectedShapes = selectedObjectType==null ? null : mapShapes.getShapes(selectedObjectType);
 					updateCmbbxMapShapes(null);
+					shapeButtonsPanel.updateButtons();
 				});
 				cmbbxMapShapes.addActionListener(e->{
 					int index = cmbbxMapShapes.getSelectedIndex();
 					selectedShape = index<0 ? null : cmbbxMapShapes.getItemAt(index);
 					//System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
-					shapeButtonsPanel.updateButtons();
 					updateLineEditor();
+					shapeButtonsPanel.updateButtons();
 				});
 				
 				c.weightx = 0; c.gridwidth = 1;
@@ -392,16 +394,21 @@ class MapShapes
 				
 			}
 
+			void repaintMapShapesCmbbx()
+			{
+				cmbbxMapShapes.repaint();
+			}
+
 			private void updateCmbbxMapShapes(MapShape newSelectedShape)
 			{
 				Vector<MapShape> displayedShapes = selectedShapes==null ? new Vector<>() : selectedShapes;
 				cmbbxMapShapes.setModel(new DefaultComboBoxModel<>(displayedShapes));
-				cmbbxMapShapes.setSelectedItem(newSelectedShape);
+				setSelectedShape(newSelectedShape);
 			}
 
-			void repaintMapShapesCmbbx()
+			void setSelectedShape(MapShape newSelectedShape)
 			{
-				cmbbxMapShapes.repaint();
+				cmbbxMapShapes.setSelectedItem(newSelectedShape);
 			}
 
 			void setSelectedObjectType(ObjectType objectType)
@@ -412,7 +419,7 @@ class MapShapes
 			void setObjectTypes(Vector<ObjectType> list, ObjectType selectedObjectType)
 			{
 				cmbbxObjectTypes.setModel(new DefaultComboBoxModel<>(list));
-				cmbbxObjectTypes.setSelectedItem(selectedObjectType);
+				setSelectedObjectType(selectedObjectType);
 			}
 		}
 		
@@ -423,15 +430,23 @@ class MapShapes
 			private final JButton btnNewShape;
 			private final JButton btnDeleteShape;
 			private final JButton btnChangeShapeName;
+			private final JButton btnCopyForms;
+			private final JButton btnPasteForms;
+			private final JButton btnCopyGuideLines;
+			private final JButton btnPasteGuideLines;
+			private final MapShapesEditorOptionsPanel mainOptionsPanel;
 
 			ShapeButtonsPanel(MapShapesEditorOptionsPanel mainOptionsPanel)
 			{
-				super(new GridLayout(0,1));
+				super(new GridBagLayout());
+				this.mainOptionsPanel = mainOptionsPanel;
+				GridBagConstraints c;
 				
 				btnNewShape = GUI.createButton("New Shape", GrayCommandIcons.IconGroup.Add, false, e->{
 					if (selectedObjectType==null) { System.err.println("ERROR: Can't create new shape, because no ObjectType is selected."); return; }
 					createNewShape(selectedObjectType);
 					mapShapes.writeToFile();
+					updateButtons();
 				});
 				btnDeleteShape = GUI.createButton("Delete Shape", GrayCommandIcons.IconGroup.Delete, false, e->{
 					if (selectedShape     ==null) { System.err.println("ERROR: Can't delete shape, because no shape is selected."); return; }
@@ -439,6 +454,7 @@ class MapShapes
 					boolean wasDeleted = deleteShape(selectedObjectType, selectedShape);
 					if (wasDeleted)
 						mapShapes.writeToFile();
+					updateButtons();
 				});
 				btnChangeShapeName = GUI.createButton("Change Shape Name", false, e->{
 					if (selectedShape==null) { System.err.println("ERROR: Can't change shape name, because no shape is selected."); return; }
@@ -446,22 +462,193 @@ class MapShapes
 					if (newName!=null)
 					{
 						selectedShape.label = newName;
-						mainOptionsPanel.repaintMapShapesCmbbx();
+						this.mainOptionsPanel.repaintMapShapesCmbbx();
 						mapShapes.writeToFile();
 					}
 				});
 				
-				add(btnNewShape);
-				add(btnDeleteShape);
-				add(btnChangeShapeName);
+				btnCopyForms = GUI.createButton("Copy Forms", GrayCommandIcons.IconGroup.Copy, false, e->{
+					if (selectedShape!=null)
+					{
+						editorClipboard.set(EditorClipboard.copy(selectedShape.forms));
+						updateButtons();
+					}
+				});
+				btnCopyGuideLines = GUI.createButton("Copy GuideLines", GrayCommandIcons.IconGroup.Copy, false, e->{
+					if (selectedShape!=null)
+					{
+						editorClipboard.set(EditorClipboard.copy(selectedShape.guideLines));
+						updateButtons();
+					}
+				});
+				
+				btnPasteForms      = GUI.createButton("Paste Forms"     , GrayCommandIcons.IconGroup.Paste, false, e->{
+					pasteSomething(
+							"Forms", "forms",
+							(clearFirst, shape) -> {
+								if (clearFirst) shape.forms.clear();
+								shape.forms.addAll(editorClipboard.getForms());
+							},
+							shape -> shape.forms.isEmpty()
+					);
+				});
+				btnPasteGuideLines = GUI.createButton("Paste GuideLines", GrayCommandIcons.IconGroup.Paste, false, e->{
+					pasteSomething(
+							"GuideLines", "guide lines",
+							(clearFirst, shape) -> {
+								if (clearFirst)
+									shape.guideLines.replace(editorClipboard.getGuideLines());
+								else
+									shape.guideLines.add    (editorClipboard.getGuideLines());
+							},
+							shape -> shape.guideLines.isEmpty()
+					);
+				});
+				
+				JPanel firstRow = new JPanel(new GridBagLayout());
+				c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				c.weightx = 1;
+				firstRow.add(btnNewShape,c);
+				firstRow.add(btnDeleteShape,c);
+				firstRow.add(btnChangeShapeName,c);
+				
+				c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				c.weightx = 1;
+				
+				c.gridwidth = GridBagConstraints.REMAINDER;
+				add(firstRow,c);
+				
+				c.gridwidth = 1;
+				add(btnCopyForms,c);
+				c.gridwidth = GridBagConstraints.REMAINDER;
+				add(btnPasteForms,c);
+				
+				c.gridwidth = 1;
+				add(btnCopyGuideLines,c);
+				c.gridwidth = GridBagConstraints.REMAINDER;
+				add(btnPasteGuideLines,c);
 			}
 
-			public void updateButtons()
+			void updateButtons()
 			{
 				btnNewShape       .setEnabled(selectedObjectType!=null);
 				btnChangeShapeName.setEnabled(selectedShape!=null);
 				btnDeleteShape    .setEnabled(selectedShape!=null);
+				btnCopyForms      .setEnabled(selectedShape!=null && !selectedShape.forms     .isEmpty());
+				btnCopyGuideLines .setEnabled(selectedShape!=null && !selectedShape.guideLines.isEmpty());
+				btnPasteForms     .setEnabled(selectedObjectType!=null && editorClipboard.hasForms());
+				btnPasteGuideLines.setEnabled(selectedObjectType!=null && editorClipboard.hasGuideLines());
 			}
+			
+			private interface PasteAction
+			{
+				void pasteIntoShape(boolean clearFirst, MapShape shape);
+			}
+
+			private enum ItemsIntoExistingShapeOption
+			{
+				NewShape("Create a new shape"),
+				Replace("Replace existing %s in selected shape"),
+				Add("Add %s to selected shape"),
+				;
+				private final String formatStr;
+				ItemsIntoExistingShapeOption(String formatStr) { this.formatStr = formatStr; }
+				@Override public String toString() { return formatStr; }
+				
+				record Option(ItemsIntoExistingShapeOption value, String label) {
+					@Override public String toString() { return label; }
+				}
+				
+				static Option[] buildArray(String itemLabelInText) {
+					return Arrays.stream(values())
+							.map(opt -> new Option(opt, String.format(opt.formatStr, itemLabelInText)))
+							.toArray(Option[]::new);
+				}
+				
+				Option getFrom(Option[] arr) {
+					for (Option opt : arr)
+						if (opt.value==this)
+							return opt;
+					return null;
+				}
+			}
+
+			private void pasteSomething(String itemLabelInTitle, String itemLabelInText, PasteAction pasteAction, Function<MapShape,Boolean> isEmpty)
+			{
+				if (selectedObjectType==null) return;
+				
+				MapShape targetShape = selectedShape;
+				boolean clearFirst = false;
+				
+				if (selectedShape==null)
+				{
+					String title = "Create New Shape";
+					String[] message = new String[] {
+							"No shape is selected.",
+							String.format( "A new shape will be created for ObjectType \"%s\".", selectedObjectType.getName() ),
+							"Do you want to proceed?"
+					};
+					if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE))
+						return;
+					
+					targetShape = createNewShape(selectedObjectType);
+				}
+				else if (!isEmpty.apply(selectedShape))
+				{
+					String title = "Existing "+itemLabelInTitle;
+					String[] message = new String[] {
+							String.format("There are %s in selected shape \"%s\".", itemLabelInText, selectedShape.label),
+							"What do you want to do?"
+					};
+					
+					ItemsIntoExistingShapeOption.Option[] options = ItemsIntoExistingShapeOption.buildArray(itemLabelInText);
+					Object result = JOptionPane.showInputDialog(
+							this, message, title,
+							JOptionPane.QUESTION_MESSAGE, null,
+							options, ItemsIntoExistingShapeOption.NewShape.getFrom(options)
+					);
+					
+					if (result instanceof ItemsIntoExistingShapeOption.Option) // && result!=null
+					{
+						ItemsIntoExistingShapeOption decision = ((ItemsIntoExistingShapeOption.Option) result).value;
+						switch (decision)
+						{
+							case NewShape:
+								targetShape = createNewShape(selectedObjectType);
+								break;
+								
+							case Replace:
+								clearFirst = true;
+								break;
+								
+							case Add:
+								break;
+						}
+					}
+				}
+				pasteAction.pasteIntoShape(clearFirst,targetShape);
+				mainOptionsPanel.setSelectedShape(targetShape); // to update list of forms
+			}
+		}
+		
+		private static class EditorClipboard
+		{
+			private Vector<Form>      copiedForms             = null;
+			private GuideLinesStorage copiedGuideLinesStorage = null;
+
+			boolean hasForms     () { return copiedForms             != null && !copiedForms            .isEmpty(); }
+			boolean hasGuideLines() { return copiedGuideLinesStorage != null && !copiedGuideLinesStorage.isEmpty(); }
+			
+			Vector<Form>      getForms     () { return copiedForms             == null ? null : copy(copiedForms            ); }
+			GuideLinesStorage getGuideLines() { return copiedGuideLinesStorage == null ? null : copy(copiedGuideLinesStorage); }
+			
+			void set(Vector<Form>      copiedForms)             { this.copiedForms             = copiedForms            ; }
+			void set(GuideLinesStorage copiedGuideLinesStorage) { this.copiedGuideLinesStorage = copiedGuideLinesStorage; }
+			
+			static Vector<Form>      copy(Vector<Form>      forms) { return LineEditor.copy(forms); }
+			static GuideLinesStorage copy(GuideLinesStorage gls  ) { return new GuideLinesStorage(gls); }
 		}
 		
 		private class LineEditorContext implements LineEditor.Context
@@ -684,7 +871,7 @@ class MapShapes
 			return removed;
 		}
 
-		private void createNewShape(ObjectType objectType)
+		private MapShape createNewShape(ObjectType objectType)
 		{
 			if (objectType==null) throw new IllegalArgumentException();
 			
@@ -701,6 +888,8 @@ class MapShapes
 			
 			selectedShapes = otd.shapes;
 			mapShapesEditorOptionsPanel.updateCmbbxMapShapes(newShape);
+			
+			return newShape;
 		}
 
 		public void showDialog(ObjectType objectType)

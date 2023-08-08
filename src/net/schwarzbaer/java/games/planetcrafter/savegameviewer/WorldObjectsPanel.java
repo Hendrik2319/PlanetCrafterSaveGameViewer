@@ -223,6 +223,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			color       ("Color"       , Data.Color.class,  50),
 			mods        ("Mods"        , String    .class,  90),
 			_wear       ("[wear]"      , Long      .class,  50),
+			_set        ("[set]"       , Long      .class,  50),
 			;
 			private final Tables.SimplifiedColumnConfig cfg;
 			ColumnID(String name, Class<?> colClass, int width) {
@@ -265,6 +266,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
 			switch (columnID) {
 			case _wear        : return row._wear;
+			case _set         : return row._set;
 			case color        : return row.color;
 			case growth       : return row.growth;
 			case has_position : return row.position!=null && !row.position.isZero();

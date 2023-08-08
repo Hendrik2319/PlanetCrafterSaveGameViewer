@@ -773,7 +773,8 @@ class Data {
 				.add("pnls"  , Value.Type.String )
 				.add("color" , Value.Type.String )
 				.add("text"  , Value.Type.String )
-				.add("grwth" , Value.Type.Integer);
+				.add("grwth" , Value.Type.Integer)
+				.add("set"   , Value.Type.Integer);
 		
 		final long     id;
 		final String   objectTypeID;
@@ -789,6 +790,7 @@ class Data {
 		final Color    color;
 		final String   text;
 		final long     growth;
+		final Long     _set;
 		
 		final ObjectType objectType;
 		final ObjectType product; // result of producers like Incubators and DNA Manipulators
@@ -832,6 +834,7 @@ class Data {
 			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			_set         = JSON_Data.getIntegerValue(object, "set"   , true, false, debugLabel);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 			
@@ -875,7 +878,8 @@ class Data {
 						"pnls"  +":"+"\"%s\""+", "+  // Str
 						"color" +":"+"\"%s\""+", "+  // Str
 						"text"  +":"+"\"%s\""+", "+  // Str
-						"grwth" +":"+  "%d"  +       // Int
+						"grwth" +":"+  "%d"  +", "+  // Int
+						"set"   +":"+  "%d"  +       // Int
 						" }, special vars: %s%n", 
 						id          ,
 						objectTypeID,
@@ -888,6 +892,7 @@ class Data {
 						colorStr    ,
 						text        ,
 						growth      ,
+						_set        ,
 						String.join(", ", vars)
 						);
 			}
@@ -905,7 +910,8 @@ class Data {
 					toStringValueStr ("pnls"  , mods        ),
 					toStringValueStr ("color" , colorStr    ),
 					toStringValueStr ("text"  , text        ),
-					toIntegerValueStr("grwth" , growth      )
+					toIntegerValueStr("grwth" , growth      ),
+					toIntegerValueStr("set"   , _set        )
 					);
 		}
 
