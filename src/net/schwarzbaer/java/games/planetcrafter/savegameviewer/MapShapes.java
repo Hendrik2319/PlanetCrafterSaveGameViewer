@@ -270,17 +270,19 @@ class MapShapes
 	{
 		private static final Color BGCOLOR_OBJECTTYPE_WITH_SHAPES = new Color(0xFFEB91);
 		private static final long serialVersionUID = 3284148312241943876L;
-		private final JPanel leftPanel;
+		
 		private final LineEditor lineEditor;
-		private JComponent valuePanel;
+		private final ObjectTypes objectTypes;
+		private final MapShapes mapShapes;
+		private final JPanel leftPanel;
+		private final ShapeButtonsPanel shapeButtonsPanel;
+		private JComponent lineEditorOptionsPanel;
 		private final JComboBox<ObjectType> cmbbxObjectTypes;
 		private final JComboBox<MapShape> cmbbxMapShapes;
-		private final MapShapes mapShapes;
 		private ObjectType selectedObjectType;
 		private Vector<MapShape> selectedShapes;
 		private MapShape selectedShape;
-		private final ObjectTypes objectTypes;
-	
+		
 		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes)
 		{
 			super(parent, title, ModalityType.MODELESS, true);
@@ -292,7 +294,7 @@ class MapShapes
 			leftPanel = new JPanel(new BorderLayout(3,3));
 			
 			lineEditor = new LineEditor(new Rectangle2D.Double(-5,-5,10,10), new LineEditorContext(), new LineEditorBackground());
-			valuePanel = lineEditor.getInitialOptionsPanel();
+			lineEditorOptionsPanel = lineEditor.getInitialOptionsPanel();
 			
 			Tables.NonStringRenderer<ObjectType> cmbbxObjectTypesRenderer = new Tables.NonStringRenderer<>(
 					obj -> obj==null ? "" : ((ObjectType)obj).getName()
@@ -307,37 +309,13 @@ class MapShapes
 			cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
 			cmbbxMapShapes = new JComboBox<>();
 			
-			JButton btnNewShape = GUI.createButton("New Shape", GrayCommandIcons.IconGroup.Add, false, e->{
-				if (selectedObjectType==null) { System.err.println("ERROR: Can't create new shape, because no ObjectType is selected."); return; }
-				createNewShape(selectedObjectType);
-				this.mapShapes.writeToFile();
-			});
-			JButton btnDeleteShape = GUI.createButton("Delete Shape", GrayCommandIcons.IconGroup.Delete, false, e->{
-				if (selectedShape     ==null) { System.err.println("ERROR: Can't delete shape, because no shape is selected."); return; }
-				if (selectedObjectType==null) { System.err.println("ERROR: Can't delete shape, because no ObjectType is selected."); return; }
-				boolean wasDeleted = deleteShape(selectedObjectType, selectedShape);
-				if (wasDeleted)
-					this.mapShapes.writeToFile();
-			});
-			JButton btnChangeShapeName = GUI.createButton("Change Shape Name", false, e->{
-				if (selectedShape==null) { System.err.println("ERROR: Can't change shape name, because no shape is selected."); return; }
-				String newName = askForShapeName(selectedShape.label, selectedShapes);
-				if (newName!=null)
-				{
-					selectedShape.label = newName;
-					cmbbxMapShapes.repaint();
-					this.mapShapes.writeToFile();
-				}
-			});
-			JButton btnSaveAllShapes = GUI.createButton("Save all shapes data in file", GrayCommandIcons.IconGroup.Save, true, e->{
-				this.mapShapes.writeToFile();
-			});
+			shapeButtonsPanel = new ShapeButtonsPanel();
 			
 			cmbbxObjectTypes.addActionListener(e->{
 				int index = cmbbxObjectTypes.getSelectedIndex();
 				selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
 				//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
-				btnNewShape.setEnabled(selectedObjectType!=null);
+				shapeButtonsPanel.updateButtons();
 				selectedShapes = selectedObjectType==null ? null : this.mapShapes.getShapes(selectedObjectType);
 				updateCmbbxMapShapes();
 			});
@@ -345,16 +323,9 @@ class MapShapes
 				int index = cmbbxMapShapes.getSelectedIndex();
 				selectedShape = index<0 ? null : cmbbxMapShapes.getItemAt(index);
 				//System.out.printf("Shape selected: %s%n", selectedShape==null ? "-- none --" : selectedShape.label);
-				btnChangeShapeName.setEnabled(selectedShape!=null);
-				btnDeleteShape    .setEnabled(selectedShape!=null);
+				shapeButtonsPanel.updateButtons();
 				updateLineEditor();
 			});
-			
-			JPanel panelShapeButtons = new JPanel(new GridLayout(0,1));
-			panelShapeButtons.add(btnNewShape);
-			panelShapeButtons.add(btnDeleteShape);
-			panelShapeButtons.add(btnChangeShapeName);
-			//panelShapeButtons.add(btnSaveAllShapes);
 			
 			JPanel leftUpperPanel = new JPanel(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -371,12 +342,12 @@ class MapShapes
 			leftUpperPanel.add(cmbbxMapShapes, c);
 			
 			c.weightx = 1; c.gridwidth = GridBagConstraints.REMAINDER;
-			leftUpperPanel.add(panelShapeButtons, c);
+			leftUpperPanel.add(shapeButtonsPanel, c);
 			
 			//leftUpperPanel.setPreferredSize(new Dimension(100,100));
 			
 			leftPanel.add(leftUpperPanel,BorderLayout.NORTH);
-			leftPanel.add(valuePanel,BorderLayout.CENTER);
+			leftPanel.add(lineEditorOptionsPanel,BorderLayout.CENTER);
 			
 			JPanel editorViewPanel = new JPanel(new BorderLayout(3,3));
 			editorViewPanel.setBorder(BorderFactory.createTitledBorder("Shape"));
@@ -390,8 +361,8 @@ class MapShapes
 			
 			createGUI(
 				contentPane,
-				GUI.createButton("Fit view to content", true, e->{ lineEditor.fitViewToContent(); }),
-				btnSaveAllShapes,
+				GUI.createButton("Fit view to content", true, e->lineEditor.fitViewToContent()),
+				GUI.createButton("Save all shapes data in file", GrayCommandIcons.IconGroup.Save, true, e->this.mapShapes.writeToFile()),
 				GUI.createButton("Close", true, e->closeDialog())
 			);
 
@@ -410,13 +381,61 @@ class MapShapes
 			lineEditor.init();
 		}
 		
+		private class ShapeButtonsPanel extends JPanel
+		{
+			private static final long serialVersionUID = 6371619802931430284L;
+			
+			private final JButton btnNewShape;
+			private final JButton btnDeleteShape;
+			private final JButton btnChangeShapeName;
+
+			ShapeButtonsPanel()
+			{
+				super(new GridLayout(0,1));
+				
+				btnNewShape = GUI.createButton("New Shape", GrayCommandIcons.IconGroup.Add, false, e->{
+					if (selectedObjectType==null) { System.err.println("ERROR: Can't create new shape, because no ObjectType is selected."); return; }
+					createNewShape(selectedObjectType);
+					mapShapes.writeToFile();
+				});
+				btnDeleteShape = GUI.createButton("Delete Shape", GrayCommandIcons.IconGroup.Delete, false, e->{
+					if (selectedShape     ==null) { System.err.println("ERROR: Can't delete shape, because no shape is selected."); return; }
+					if (selectedObjectType==null) { System.err.println("ERROR: Can't delete shape, because no ObjectType is selected."); return; }
+					boolean wasDeleted = deleteShape(selectedObjectType, selectedShape);
+					if (wasDeleted)
+						mapShapes.writeToFile();
+				});
+				btnChangeShapeName = GUI.createButton("Change Shape Name", false, e->{
+					if (selectedShape==null) { System.err.println("ERROR: Can't change shape name, because no shape is selected."); return; }
+					String newName = askForShapeName(selectedShape.label, selectedShapes);
+					if (newName!=null)
+					{
+						selectedShape.label = newName;
+						cmbbxMapShapes.repaint();
+						mapShapes.writeToFile();
+					}
+				});
+				
+				add(btnNewShape);
+				add(btnDeleteShape);
+				add(btnChangeShapeName);
+			}
+
+			public void updateButtons()
+			{
+				btnNewShape       .setEnabled(selectedObjectType!=null);
+				btnChangeShapeName.setEnabled(selectedShape!=null);
+				btnDeleteShape    .setEnabled(selectedShape!=null);
+			}
+		}
+		
 		private class LineEditorContext implements LineEditor.Context
 		{
 			@Override public void switchOptionsPanel(JComponent panel)
 			{
-				if (valuePanel!=null) leftPanel.remove(valuePanel);
-				valuePanel = panel;
-				if (valuePanel!=null) leftPanel.add(valuePanel,BorderLayout.CENTER);
+				if (lineEditorOptionsPanel!=null) leftPanel.remove(lineEditorOptionsPanel);
+				lineEditorOptionsPanel = panel;
+				if (lineEditorOptionsPanel!=null) leftPanel.add(lineEditorOptionsPanel,BorderLayout.CENTER);
 				leftPanel.revalidate();
 				leftPanel.repaint();
 			}
