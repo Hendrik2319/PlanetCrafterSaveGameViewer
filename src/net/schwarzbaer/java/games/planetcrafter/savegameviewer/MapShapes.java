@@ -662,32 +662,7 @@ class MapShapes
 				leftPanel.repaint();
 			}
 			
-			@Override public void replaceForms(Form[] forms)
-			{
-				boolean isNewShape = false;
-				if (selectedShape==null)
-				{
-					if (selectedObjectType==null)
-					{
-						System.err.println("ERROR: New forms were created, but not ObjectType was selected.");
-						return;
-					}
-					createNewShape(selectedObjectType);
-					isNewShape = true;
-				}
-				if (selectedShape!=null)
-				{
-					selectedShape.forms.clear();
-					selectedShape.forms.addAll(Arrays.asList(forms));
-					//Editor.this.mapShapes.writeToFile();
-					if (isNewShape)
-						updateLineEditor();
-				}
-				else
-					throw new IllegalStateException();
-			}
-			
-			@Override public boolean canCreateNewForm()
+			@Override public boolean canModifyFormsList()
 			{
 				return selectedObjectType!=null;
 			}
@@ -712,9 +687,36 @@ class MapShapes
 					case Added:
 					case Removed:
 					case Changed:
+						Form[] newFormsList = e.newFormsList();
+						if (newFormsList!=null) replaceForms(newFormsList);
 						Editor.this.mapShapes.writeToFile();
 						break;
 				}
+			}
+			
+			private void replaceForms(Form[] forms)
+			{
+				boolean isNewShape = false;
+				if (selectedShape==null)
+				{
+					if (selectedObjectType==null)
+					{
+						System.err.println("ERROR: New forms were created, but not ObjectType was selected.");
+						return;
+					}
+					createNewShape(selectedObjectType);
+					isNewShape = true;
+				}
+				if (selectedShape!=null)
+				{
+					selectedShape.forms.clear();
+					selectedShape.forms.addAll(Arrays.asList(forms));
+					//Editor.this.mapShapes.writeToFile();
+					if (isNewShape)
+						updateLineEditor();
+				}
+				else
+					throw new IllegalStateException();
 			}
 		}
 		
