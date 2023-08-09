@@ -29,7 +29,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		BoosterRocket, IsProducer
 	}
 	
-	enum ObjectTypeClassClass { Resource, Structure, Equipment, Rocket }
+	enum ObjectTypeClassClass { Resource, Structure, Equipment, Special }
 	enum ObjectTypeClass {
 		Resource_Craftable    ( "Resource, craftable"     , ObjectTypeClassClass.Resource  ),
 		Resource_Minable      ( "Resource, minable"       , ObjectTypeClassClass.Resource  ),
@@ -41,7 +41,10 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Structure_Building    ( "Structure, Building"     , ObjectTypeClassClass.Structure ),
 		Structure_Machine     ( "Structure, Machine"      , ObjectTypeClassClass.Structure ),
 		Equipment             ( "Equipment"               , ObjectTypeClassClass.Equipment ),
-		Rocket                ( "Rocket"                  , ObjectTypeClassClass.Rocket    ),
+		Special_Rocket        ( "Special, Rocket"         , ObjectTypeClassClass.Special   ),
+		Special_Hidden        ( "Special, hidden"         , ObjectTypeClassClass.Special   ),
+		Special_Wreckage      ( "Special, Wreckage"       , ObjectTypeClassClass.Special   ),
+		Special_Quest         ( "Special, Quest Item"     , ObjectTypeClassClass.Special   ),
 		;
 		private final String label;
 		final ObjectTypeClassClass class_;

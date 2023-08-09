@@ -1232,71 +1232,71 @@ occurrences = WorldObject
 
 ObjectType: RocketBiomass1
 label = Plants Rocket
-class = Rocket
+class = Special_Rocket
 isBoosterRocketFor = Plants
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketDrones1
 label = Drones Visualisation Rocket
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
-class = Rocket
+class = Special_Rocket
 isBoosterRocketFor = Heat
 occurrences = WorldObject
 <finished>
 
 ObjectType: RocketInformations1
 label = Map Information Rocket
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketInsects1
 label = Insect Spreader Rocket
-class = Rocket
+class = Special_Rocket
 isBoosterRocketFor = Insects
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketMap1
 label = GPS Satellite T1
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap2
 label = GPS Satellite T2
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap3
 label = GPS Satellite T3
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap4
 label = GPS Satellite T4
-class = Rocket
+class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
-class = Rocket
+class = Special_Rocket
 isBoosterRocketFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketPressure1
 label = Magnetic Field Protection Rocket (Pressure, Iridium)
-class = Rocket
+class = Special_Rocket
 isBoosterRocketFor = Pressure
 occurrences = WorldObject
 <finished>
@@ -1508,25 +1508,31 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
+class = Special_Hidden
 <finished>
 
 ObjectType: SpaceMultiplierHeat
+class = Special_Hidden
 occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierInsects
+class = Special_Hidden
 occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierOxygen
+class = Special_Hidden
 occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierPlants
+class = Special_Hidden
 occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierPressure
+class = Special_Hidden
 occurrences = WorldObject
 <finished>
 
@@ -1686,7 +1692,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Vegetable0Seed
 label = Eggplant Seeds
-class = Resource_Minable
+class = Resource_SeedEgg
 occurrences = WorldObject
 <finished>
 
@@ -1698,7 +1704,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Vegetable1Seed
 label = Squash Seeds
-class = Resource_Minable
+class = Resource_SeedEgg
 occurrences = WorldObject
 <finished>
 
@@ -1722,7 +1728,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Vegetable3Seed
 label = Mushroom Seed
-class = Resource_Minable
+class = Resource_SeedEgg
 occurrences = WorldObject
 <finished>
 
@@ -1768,6 +1774,7 @@ occurrences = Achievement
 
 ObjectType: WardenKey
 label = Warden's Key
+class = Special_Quest
 occurrences = WorldObject
 <finished>
 
@@ -1809,11 +1816,13 @@ isProducer
 
 ObjectType: wreckpilar
 label = Wreck Pilar (Iron)
+class = Special_Wreckage
 occurrences = WorldObject
 <finished>
 
 ObjectType: WreckServer
 label = Wreck Server (Circuit Board)
+class = Special_Wreckage
 occurrences = WorldObject
 <finished>
 
