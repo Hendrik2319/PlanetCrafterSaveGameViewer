@@ -65,6 +65,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05    = Color.YELLOW;
 	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10    = Color.RED;
 	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX   = new Color(0x00BFFF);
+	static final Color COLOR_MAPSHAPE_BASE = new Color(0xD0D0D0);
 
 
 
@@ -754,48 +755,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					g2.drawRect(screenX0-1, screenY0-1, screenX1-screenX0+1, screenY1-screenY0+1);
 				}
 				
-				
-				double originX_scr = viewState.convertPos_AngleToScreen_LongXf(0);
-				double originY_scr = viewState.convertPos_AngleToScreen_LatYf (0);
-				
-				AffineTransform origTransform = g2.getTransform();
-				HashMap<String,MapShape> shapeCache = new HashMap<>(); 
-				for (WorldObject wo : mapModel.displayableObjects)
-				{
-					MapShape cachedShape = shapeCache.get(wo.objectType.id);
-					if (cachedShape==null)
-					{
-						cachedShape = mapShapes.getSelectedShape(wo.objectType);
-						if (cachedShape!=null)
-							shapeCache.put(wo.objectType.id, cachedShape);
-						else
-							cachedShape = new MapShape("dummy");
-					}
-					Vector<Form> forms = cachedShape.getForms();
-					if (!forms.isEmpty())
-					{
-						double woX_scr = viewState.convertPos_AngleToScreen_LongXf(wo.position.getMapX());
-						double woY_scr = viewState.convertPos_AngleToScreen_LatYf (wo.position.getMapY());
-						/*
-						// Without Rotation
-						AffineTransform transform = new AffineTransform(origTransform);
-						transform.translate(
-								woX_scr-originX_scr,
-								woY_scr-originY_scr
-						);
-						*/
-						// With Rotation
-						AffineTransform transform = new AffineTransform(origTransform);
-						transform.translate( woX_scr, woY_scr );
-						transform.concatenate(wo.rotation.computeMapTransform());
-						transform.translate( -originX_scr, -originY_scr );
-						
-						g2.setTransform(transform);
-						g2.setColor(COLOR_WORLDOBJECT_CONTOUR);
-						LineEditor.drawForms(g2, forms, viewState);
-					}
-				}
-				g2.setTransform(origTransform);
+				drawShapes(g2);
 				
 				HashMap<String,Boolean> showMarkerCache = new HashMap<>();
 				for (WorldObject wo : mapModel.displayableObjects)
@@ -824,6 +784,50 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				
 				g2.setClip(prevClip);
 			}
+		}
+
+		private void drawShapes(Graphics2D g2)
+		{
+			double originX_scr = viewState.convertPos_AngleToScreen_LongXf(0);
+			double originY_scr = viewState.convertPos_AngleToScreen_LatYf (0);
+			
+			AffineTransform origTransform = g2.getTransform();
+			HashMap<String,MapShape> shapeCache = new HashMap<>(); 
+			for (WorldObject wo : mapModel.displayableObjects)
+			{
+				MapShape cachedShape = shapeCache.get(wo.objectType.id);
+				if (cachedShape==null)
+				{
+					cachedShape = mapShapes.getSelectedShape(wo.objectType);
+					if (cachedShape == null)
+						cachedShape = new MapShape("dummy");
+					shapeCache.put(wo.objectType.id, cachedShape);
+				}
+				Vector<Form> forms = cachedShape.getForms();
+				if (!forms.isEmpty())
+				{
+					double woX_scr = viewState.convertPos_AngleToScreen_LongXf(wo.position.getMapX());
+					double woY_scr = viewState.convertPos_AngleToScreen_LatYf (wo.position.getMapY());
+					/*
+					// Without Rotation
+					AffineTransform transform = new AffineTransform(origTransform);
+					transform.translate(
+							woX_scr-originX_scr,
+							woY_scr-originY_scr
+					);
+					*/
+					// With Rotation
+					AffineTransform transform = new AffineTransform(origTransform);
+					transform.translate( woX_scr, woY_scr );
+					transform.concatenate(wo.rotation.computeMapTransform());
+					transform.translate( -originX_scr, -originY_scr );
+					
+					g2.setTransform(transform);
+					g2.setColor(COLOR_MAPSHAPE_BASE);
+					LineEditor.drawForms(g2, forms, viewState);
+				}
+			}
+			g2.setTransform(origTransform);
 		}
 
 		private boolean isShowMarker(HashMap<String, Boolean> cache, WorldObject wo)

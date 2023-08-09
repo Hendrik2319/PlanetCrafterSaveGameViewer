@@ -240,6 +240,8 @@ class ObjectTypesPanel extends JScrollPane {
 			id                   ("ID"            , String         .class, 130, null),
 			label                ("Label"         , String         .class, 260, ObjectTypeValue.Label   ),
 			class_               ("Class"         , ObjectTypeClass.class, 130, ObjectTypeValue.Class_  ),
+			showMarker           ("Show Marker?"  , Boolean        .class,  90, null),
+			mapShape             ("MapShape"      , MapShape       .class,  90, null),
 			effectOnTerraforming ("Terraf."       , Boolean        .class,  50, null),
 			heat                 ("Heat"          , Double         .class,  80, ObjectTypeValue.Heat    ),
 			pressure             ("Pressure"      , Double         .class,  80, ObjectTypeValue.Pressure),
@@ -254,8 +256,6 @@ class ObjectTypesPanel extends JScrollPane {
 			animalsMultiplier    ("Animals Multi" , Double         .class,  90, ObjectTypeValue.AnimalsMultiplier),
 			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, ObjectTypeValue.BoosterRocket),
 			isProducer           ("Is Producer?"  , Boolean        .class,  90, ObjectTypeValue.IsProducer),
-			showMarker           ("Show Marker?"  , Boolean        .class,  90, null),
-			mapShape             ("MapShape"      , MapShape       .class,  90, null),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final ObjectTypeValue objectTypeValue;
