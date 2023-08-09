@@ -434,7 +434,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue; break;
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
 			case showMarker          : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue); break;
-			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); break;
+			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); fireTableCellUpdate(rowIndex, ColumnID.showMarker); break;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}

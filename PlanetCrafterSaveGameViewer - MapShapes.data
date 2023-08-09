@@ -1,4 +1,5 @@
 ObjectType: Container1
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-1.0;0.45;-1.0;-0.45;-0.95;-0.5;0.95;-0.5;1.0;-0.45;1.0;0.45;0.95;0.5;-0.95;0.5;-1.0;0.45
@@ -19,6 +20,7 @@ GuideLine.Vertical=-0.05
 GuideLine.Vertical=-0.85
 
 ObjectType: Container2
+hideMarker
 MapShape: Shape001
 selectedShape
 Arc=-1.0;0.5;0.1;1.5707963267948966;3.141592653589793
@@ -42,6 +44,7 @@ GuideLine.Vertical=1.0
 GuideLine.Vertical=1.1
 
 ObjectType: Farm1
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-3.0;2.3;-3.0;-3.7;3.0;-3.7;3.0;2.3;-3.0;2.3
@@ -76,6 +79,7 @@ GuideLine.Vertical=2.95
 GuideLine.Vertical=-2.95
 
 ObjectType: LaunchPlatform
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-4.0;-3.0;2.0;-3.0;2.0;3.0;-4.0;3.0
@@ -99,6 +103,7 @@ GuideLine.Vertical=-10.0
 GuideLine.Vertical=-13.0
 
 ObjectType: OreExtractor1
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
@@ -114,6 +119,7 @@ GuideLine.Horizontal=-1.5
 GuideLine.Horizontal=1.5
 
 ObjectType: OreExtractor2
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
@@ -152,6 +158,18 @@ GuideLine.Horizontal=3.0
 GuideLine.Vertical=-3.0
 GuideLine.Vertical=3.0
 
+ObjectType: Pod4x
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=15.0;4.0;-1.0;4.0;-1.0;-12.0;15.0;-12.0;15.0;4.0
+Line=8.248122215270996;-10.143239974975586;19.26315689086914;-2.8357067108154297
+GuideLine.Vertical=-1.0
+GuideLine.Vertical=15.0
+GuideLine.Horizontal=4.0
+GuideLine.Horizontal=-12.0
+GuideLine.Horizontal=0.0
+
 ObjectType: Teleporter1
 hideMarker
 MapShape: Shape001
@@ -166,6 +184,7 @@ GuideLine.Horizontal=0.0
 GuideLine.Vertical=2.0
 
 ObjectType: TradePlatform1
+hideMarker
 MapShape: Shape001
 selectedShape
 PolyLine=-10.2;6.050000000745058;-10.2;-5.949999999254942;7.8;-5.949999999254942;7.8;6.050000000745058;-10.2;6.050000000745058

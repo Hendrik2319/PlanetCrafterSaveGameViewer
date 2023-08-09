@@ -759,19 +759,19 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				
 				HashMap<String,Boolean> showMarkerCache = new HashMap<>();
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo) && isShowMarker(showMarkerCache,wo)) {
+					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo) && shouldShowMarker(showMarkerCache,wo)) {
 						Color fill = wo.isMarkedForRemoval() ? COLOR_WORLDOBJECT_FILL_REMOVAL : COLOR_WORLDOBJECT_FILL;
 						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, fill);
 					}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && wo!=extraShownObject && mapModel.isHighlighted(wo) && isShowMarker(showMarkerCache,wo))
+					if (wo!=hoveredObject && wo!=extraShownObject && mapModel.isHighlighted(wo))
 						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, mapModel.getHighlightColor(wo));
 				
-				if (extraShownObject!=null && hoveredObject!=extraShownObject && isShowMarker(showMarkerCache,extraShownObject))
+				if (extraShownObject!=null && extraShownObject!=hoveredObject)
 					drawWorldObject(g2, clip, extraShownObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN);
 				
-				if (hoveredObject!=null && isShowMarker(showMarkerCache,hoveredObject))
+				if (hoveredObject!=null)
 					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
 				
 				if (mapModel.playerPosition!=null)
@@ -830,7 +830,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			g2.setTransform(origTransform);
 		}
 
-		private boolean isShowMarker(HashMap<String, Boolean> cache, WorldObject wo)
+		private boolean shouldShowMarker(HashMap<String, Boolean> cache, WorldObject wo)
 		{
 			if (wo==null) return false;
 			Boolean result = cache.get(wo.objectType.id);

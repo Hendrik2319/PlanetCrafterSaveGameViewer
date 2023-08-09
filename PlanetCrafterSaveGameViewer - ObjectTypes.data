@@ -1568,9 +1568,11 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: TradePlatform1
+label = Space Trading Rocket
 class = Structure_Building
 energy = -425.0
 occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: Tree0Seed
 label = Tree Seed "Iterra" (125%, ???)

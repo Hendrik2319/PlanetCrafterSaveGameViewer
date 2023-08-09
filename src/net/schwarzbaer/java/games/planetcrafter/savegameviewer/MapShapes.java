@@ -228,6 +228,7 @@ class MapShapes
 		if (otd==null) return;
 		
 		otd.selectedShape = shape;
+		otd.hideMarker = shape!=null;
 		
 		writeToFile();
 	}
