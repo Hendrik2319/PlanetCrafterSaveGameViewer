@@ -90,6 +90,12 @@ GuideLine.Horizontal=11.0
 GuideLine.Vertical=-3.0
 GuideLine.Vertical=3.0
 
+ObjectType: ButterflyFarm2
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;3.0;0.0;6.283185307179586
+
 ObjectType: Container1
 hideMarker
 MapShape: Shape001
@@ -143,6 +149,21 @@ Arc=0.0;0.0;0.8;-1.0471975511965983;4.1887902047863905
 PolyLine=-0.4;-0.9;-0.4;-0.45;0.4;-0.45;0.4;-0.9;-0.4;-0.9
 GuideLine.Vertical=-0.4
 GuideLine.Vertical=0.4
+
+ObjectType: Drone1
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.4;3.525989428085432;5.898788532683947
+Arc=0.0;0.0;0.4;2.757195879094154;3.525989428085432
+Arc=0.0;0.0;0.4;0.384396774495639;2.757195879094154
+Arc=0.0;0.0;0.4;5.898788532683947;6.667582081675225
+PolyLine=-0.14999999999999988;0.3708099243547832;-0.15;0.5;-0.1;0.55;0.1;0.55;0.15;0.5;0.15;0.37080992435478316
+PolyLine=-0.14999999999999988;-0.3708099243547832;-0.15;-0.5;-0.1;-0.55;0.1;-0.55;0.15;-0.5;0.15;-0.37080992435478316
+GuideLine.Horizontal=-0.15
+GuideLine.Horizontal=0.15
+GuideLine.Vertical=0.55
+GuideLine.Vertical=-0.55
 
 ObjectType: Farm1
 hideMarker

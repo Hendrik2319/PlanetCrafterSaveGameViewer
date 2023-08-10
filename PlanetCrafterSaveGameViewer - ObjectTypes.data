@@ -1856,6 +1856,6 @@ occurrences = WorldObject
 ObjectType: Zeolite
 label = Zeolite
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
