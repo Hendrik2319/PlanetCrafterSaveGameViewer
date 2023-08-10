@@ -204,6 +204,11 @@ class = Resource_Craftable
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: BlueprintContainer3
+label = Bluepriint "Locker Storage T2"
+occurrences = WorldObject
+<finished>
+
 ObjectType: BlueprintT1
 label = Blueprint Chip
 class = Resource_Minable
@@ -425,9 +430,15 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Container2
-label = Locker Storage
+label = Locker Storage T1
 class = Structure_Storage
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Container3
+label = Locker Storage T2
+class = Structure_Storage
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: CookCake1
@@ -783,10 +794,24 @@ class = Structure_Building
 occurrences = WorldObject
 <finished>
 
+ObjectType: Frog1Eggs
+label = Generic Frog Eggs 100%
+class = Resource_SeedEgg
+animalsMultiplier = 1.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: FrogDisplayer1
 label = Frog Displayer
 class = Structure_Storage
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: FrogGoldEggs
+label = Golden Frog Eggs 600%
+class = Resource_SeedEgg
+animalsMultiplier = 6.0
+occurrences = WorldObject
 <finished>
 
 ObjectType: FusionEnergyCell
@@ -930,7 +955,7 @@ occurrences = Blueprint
 ObjectType: HudCompass
 label = Microchip - Compass
 class = Equipment
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: ice
@@ -1094,7 +1119,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Mutagen4
 label = Mutagen T4
 class = Resource_Craftable
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: NitrogenCapsule1
@@ -1129,7 +1154,7 @@ class = Structure_Machine
 heat = 202.0
 pressure = 135.0
 energy = -289.0
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
@@ -1472,7 +1497,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Silicon
 label = Silicon
 class = Resource_Minable_Cheap
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Silk

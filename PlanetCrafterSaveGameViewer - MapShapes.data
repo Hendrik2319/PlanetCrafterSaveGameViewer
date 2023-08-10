@@ -1,3 +1,24 @@
+ObjectType: Biolab
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;-11.0;1.0;3.141592653589793;4.71238898038469
+Arc=14.0;-11.0;1.0;-1.5707963267948966;0.0
+Arc=0.0;3.0;1.0;1.5707963267948966;3.141592653589793
+Arc=14.0;3.0;1.0;0.0;1.5707963267948966
+Line=-1.8369701987210297E-16;-12.0;14.0;-12.0
+Line=-1.0;-11.0;-1.0;3.0
+Line=15.0;-11.0;15.0;3.0
+Line=6.123233995736766E-17;4.0;14.0;4.0
+GuideLine.Vertical=-1.0
+GuideLine.Vertical=0.0
+GuideLine.Vertical=14.0
+GuideLine.Vertical=15.0
+GuideLine.Horizontal=-12.0
+GuideLine.Horizontal=-11.0
+GuideLine.Horizontal=3.0
+GuideLine.Horizontal=4.0
+
 ObjectType: Container1
 hideMarker
 MapShape: Shape001
@@ -162,13 +183,22 @@ ObjectType: Pod4x
 hideMarker
 MapShape: Shape001
 selectedShape
-PolyLine=15.0;4.0;-1.0;4.0;-1.0;-12.0;15.0;-12.0;15.0;4.0
-Line=8.248122215270996;-10.143239974975586;19.26315689086914;-2.8357067108154297
+Arc=0.0;-11.0;1.0;3.141592653589793;4.71238898038469
+Arc=14.0;-11.0;1.0;-1.5707963267948966;0.0
+Arc=0.0;3.0;1.0;1.5707963267948966;3.141592653589793
+Arc=14.0;3.0;1.0;0.0;1.5707963267948966
+Line=-1.8369701987210297E-16;-12.0;14.0;-12.0
+Line=-1.0;-11.0;-1.0;3.0
+Line=15.0;-11.0;15.0;3.0
+Line=6.123233995736766E-17;4.0;14.0;4.0
 GuideLine.Vertical=-1.0
+GuideLine.Vertical=0.0
+GuideLine.Vertical=14.0
 GuideLine.Vertical=15.0
-GuideLine.Horizontal=4.0
 GuideLine.Horizontal=-12.0
-GuideLine.Horizontal=0.0
+GuideLine.Horizontal=-11.0
+GuideLine.Horizontal=3.0
+GuideLine.Horizontal=4.0
 
 ObjectType: Teleporter1
 hideMarker
@@ -196,14 +226,17 @@ Arc=-2.2;-2.0;3.0;-1.5707963267948966;0.0
 Arc=-2.2;2.0;3.0;0.0;1.5707963267948966
 Arc=-6.2;2.0;3.0;1.5707963267948966;3.141592653589793
 GuideLine.Vertical=-10.2
+GuideLine.Vertical=-6.2
+GuideLine.Vertical=-4.2
+GuideLine.Vertical=-2.2
+GuideLine.Vertical=1.8
 GuideLine.Vertical=7.8
 GuideLine.Horizontal=-6.0
-GuideLine.Horizontal=6.0
-GuideLine.Horizontal=0.0
-GuideLine.Vertical=1.8
-GuideLine.Vertical=-4.2
 GuideLine.Horizontal=-2.0
+GuideLine.Horizontal=0.0
 GuideLine.Horizontal=2.0
-GuideLine.Vertical=-2.2
-GuideLine.Vertical=-6.2
+GuideLine.Horizontal=6.0
+GuideLine.Horizontal=-1.5
+GuideLine.Horizontal=1.5
+GuideLine.Horizontal=4.0
 
