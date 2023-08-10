@@ -19,6 +19,17 @@ GuideLine.Horizontal=-11.0
 GuideLine.Horizontal=3.0
 GuideLine.Horizontal=4.0
 
+ObjectType: ButterflyDome1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-3.1068992614746094;-1.8395519256591797;0.4205799102783203;2.315990447998047;3.94805908203125;-1.8395519256591797
+GuideLine.Horizontal=4.0
+GuideLine.Horizontal=12.0
+GuideLine.Horizontal=-4.0
+GuideLine.Horizontal=-12.0
+GuideLine.Horizontal=-20.0
+
 ObjectType: Container1
 hideMarker
 MapShape: Shape001

@@ -37,7 +37,7 @@ occurrences = WorldObject,Product,ObjectList
 ObjectType: Aluminium
 label = Aluminium
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: AmphibiansFarm1
