@@ -685,77 +685,77 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Fish10Eggs
-label = Fish Tiloo Eggs (400% | P.C, M.T2, F)
+label = Fish Tiloo Eggs (400% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 4.0
 occurrences = WorldObject
 <finished>
 
 ObjectType: Fish11Eggs
-label = Golden Fish Eggs (500% | P.C, M.T3, F)
+label = Golden Fish Eggs (500% | P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 5.0
 occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Fish1Eggs
-label = Fish Provios Eggs (100% | P.A, M.T3, F)
+label = Fish Provios Eggs (100% | P.A, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.0
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Fish2Eggs
-label = Fish Vilnus Eggs (150% | P.A, M.T3, F)
+label = Fish Vilnus Eggs (150% | P.A, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
 occurrences = WorldObject
 <finished>
 
 ObjectType: Fish3Eggs
-label = Fish Gerrero Eggs (150% | P.B, M.T3, F)
+label = Fish Gerrero Eggs (150% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Fish4Eggs
-label = Fish Khrom Eggs (200% | P.B, M.T3, F)
+label = Fish Khrom Eggs (200% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.0
 occurrences = WorldObject
 <finished>
 
 ObjectType: Fish5Eggs
-label = Fish Ulani Eggs (250% | P.C, M.T3, F)
+label = Fish Ulani Eggs (250% | P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.5
 occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Fish6Eggs
-label = Fish Aelera Eggs (300% | P.C, M.T2, F)
+label = Fish Aelera Eggs (300% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
 occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Fish7Eggs
-label = Fish Tegede Eggs (300% | P.A, M.T3, F)
+label = Fish Tegede Eggs (300% | P.A, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
 occurrences = WorldObject
 <finished>
 
 ObjectType: Fish8Eggs
-label = Fish Ecaru Eggs (325% | P.B, M.T3, F)
+label = Fish Ecaru Eggs (325% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.25
 occurrences = WorldObject
 <finished>
 
 ObjectType: Fish9Eggs
-label = Fish Buyu Eggs (350% | P.C, M.T3, F)
+label = Fish Buyu Eggs (350% | P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
 occurrences = WorldObject,Product
@@ -795,9 +795,51 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Frog1Eggs
-label = Generic Frog Eggs 100%
+label = Generic Frog Eggs (100% | P.C, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Frog2Eggs
+label = Frog Huli Eggs (150% | GFE, M4)
+class = Resource_SeedEgg
+animalsMultiplier = 1.5
+occurrences = WorldObject,Product
+<finished>
+
+ObjectType: Frog3Eggs
+label = Frog Felicianna Eggs (200% | GFE, M4)
+class = Resource_SeedEgg
+animalsMultiplier = 2.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Frog4Eggs
+label = Frog Strabo Eggs (200% | GFE, M4, F1)
+class = Resource_SeedEgg
+animalsMultiplier = 2.0
+occurrences = WorldObject,Product
+<finished>
+
+ObjectType: Frog5Eggs
+label = Frog Trajuu Eggs (300% | GFE, M4, F1)
+class = Resource_SeedEgg
+animalsMultiplier = 3.0
+occurrences = WorldObject,Product
+<finished>
+
+ObjectType: Frog6Eggs
+label = Frog Aiolus Eggs (250% | GFE, M4, F1))
+class = Resource_SeedEgg
+animalsMultiplier = 2.5
+occurrences = WorldObject,Product
+<finished>
+
+ObjectType: Frog7Eggs
+label = Frog Afae Eggs (350% | GFE, M3, F2)
+class = Resource_SeedEgg
+animalsMultiplier = 3.5
 occurrences = WorldObject
 <finished>
 
@@ -808,11 +850,10 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: FrogGoldEggs
-label = Golden Frog Eggs 600%
+label = Golden Frog Eggs (600% | GFE, M3, F2)
 class = Resource_SeedEgg
 animalsMultiplier = 6.0
 occurrences = WorldObject
-<finished>
 
 ObjectType: FusionEnergyCell
 label = Fusion Energy Cell
@@ -987,7 +1028,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Iron
 label = Iron
 class = Resource_Minable_Cheap
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Jetpack2
