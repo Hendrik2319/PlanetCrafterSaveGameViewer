@@ -276,7 +276,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			case mods         : return row.mods;
 			case objectTypeID : return row.objectTypeID;
 			case position     : return row.position;
-			case product      : return row.product!=null ? row.product.getName() : row.productID.isEmpty() ? "" : String.format("{%s}", row.productID);
+			case product      : return getProductsStr(row);
 			case rotation     : return row.rotation;
 			case text         : return row.text;
 			case Name         : return row.getName();
@@ -295,6 +295,14 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 				//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
 				return row.container.getShortDesc();
 			}
+			return null;
+		}
+
+		private String getProductsStr(WorldObject row)
+		{
+			if (row.products   !=null &&  row.products   .length>0 ) return ObjectTypes.ObjectType.toString(row.products);
+			if (row.productIDs !=null &&  row.productIDs .length>0 ) return Data.toString(row.productIDs);
+			if (row.productsStr!=null && !row.productsStr.isEmpty()) return String.format("{ %s }", row.productsStr);
 			return null;
 		}
 

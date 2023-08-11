@@ -204,6 +204,9 @@ class = Resource_Craftable
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: BlueprintBedDoubleColored
+occurrences = Product
+
 ObjectType: BlueprintContainer3
 label = Bluepriint "Locker Storage T2"
 occurrences = WorldObject
@@ -495,6 +498,9 @@ label = Flour
 class = Resource_Craftable
 occurrences = WorldObject
 <finished>
+
+ObjectType: CookingStation1
+occurrences = WorldObject,Blueprint
 
 ObjectType: CookWheatGrowable
 label = Wheat
@@ -1588,6 +1594,9 @@ label = Silk Worm
 class = Resource_Craftable
 occurrences = WorldObject,Product
 <finished>
+
+ObjectType: SmartFabric
+occurrences = WorldObject,Blueprint
 
 ObjectType: Sofa
 label = Sofa

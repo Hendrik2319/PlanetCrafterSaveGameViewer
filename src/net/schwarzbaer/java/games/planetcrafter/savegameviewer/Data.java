@@ -288,6 +288,11 @@ class Data {
 		return parseCommaSeparatedArray(str, debugLabel, "ObjectType", ObjectType[]::new, objectTypeID->getOrCreateObjectType.getOrCreate(objectTypeID, occurrence));
 	}
 
+	static String toString(String[] strs)
+	{
+		return strs==null ? "<null>" : strs.length==0 ? "[]" : String.format("[ %s ]", String.join(", ", strs));
+	}
+
 	static class ParseException extends Exception {
 		private static final long serialVersionUID = 7894187588880980010L;
 
@@ -779,7 +784,7 @@ class Data {
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
-		final String   productID;
+		final String   productsStr;
 		final Coord3   position;
 		final String   positionStr;
 		final Rotation rotation;
@@ -793,7 +798,8 @@ class Data {
 		final Long     _set;
 		
 		final ObjectType objectType;
-		final ObjectType product; // result of producers like Incubators and DNA Manipulators
+		final String[]   productIDs;
+		final ObjectType[] products;
 		
 		boolean        nonUniqueID; // is <id> unique over all WorldObjects
 		ObjectList     list; // list associated with listId
@@ -826,7 +832,7 @@ class Data {
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
-			productID    = JSON_Data.getStringValue (object, "liGrps", debugLabel);
+			productsStr  = JSON_Data.getStringValue (object, "liGrps", debugLabel);
 			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
 			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
 			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
@@ -842,8 +848,14 @@ class Data {
 			rotation     = new Rotation(rotationStr, debugLabel+".rot");
 			color        = colorStr.isEmpty() ? null : new Color(colorStr, debugLabel+".color");
 			
-			objectType   =                              getOrCreateObjectType.getOrCreate(objectTypeID, Occurrence.WorldObject);
-			product      = productID.isEmpty() ? null : getOrCreateObjectType.getOrCreate(productID   , Occurrence.Product    );
+			objectType   = getOrCreateObjectType.getOrCreate(objectTypeID, Occurrence.WorldObject);
+			
+			productIDs = productsStr.isEmpty() ? new String[0] : parseStringArray(productsStr, debugLabel+".liGrps");
+			products   = new ObjectType[productIDs.length];
+			for (int i=0; i<productIDs.length; i++)
+				products[i] = productIDs[i].isEmpty()
+					? null
+					: getOrCreateObjectType.getOrCreate(productIDs[i], Occurrence.Product);
 			
 			list          = null;
 			container     = null;
@@ -884,7 +896,7 @@ class Data {
 						id          ,
 						objectTypeID,
 						listId      ,
-						productID   ,
+						productsStr ,
 						positionStr ,
 						rotationStr ,
 						_wear       ,
@@ -903,7 +915,7 @@ class Data {
 					toIntegerValueStr("id"    , id          ),
 					toStringValueStr ("gId"   , objectTypeID),
 					toIntegerValueStr("liId"  , listId      ),
-					toStringValueStr ("liGrps", productID   ),
+					toStringValueStr ("liGrps", productsStr ),
 					toStringValueStr ("pos"   , positionStr ),
 					toStringValueStr ("rot"   , rotationStr ),
 					toIntegerValueStr("wear"  , _wear       ),
@@ -966,10 +978,12 @@ class Data {
 				objectType.addActiveOutputTo(out, 1, objectTypes);
 			}
 			
-			if (product!=null)
-				out.add(0, "Product", "%s", product.getName());
-			else if (!productID.isEmpty())
-				out.add(0, "Product", "{%s}", productID);
+			if (products!=null && products.length>0)
+				generateOutput(out, 0, "Products", products);
+			else if (productIDs!=null && productIDs.length>0)
+				out.add(0, "Products", "%s", Data.toString(productIDs));
+			else if (productsStr!=null && !productsStr.isEmpty())
+				out.add(0, "Products", "{ %s }", productsStr);
 			
 			if (listId>0) {
 				out.add(0, "Is a Container");
@@ -995,7 +1009,7 @@ class Data {
 			{
 				out.add(indentLevel, label);
 				for (ObjectType item : items)
-					out.add(indentLevel+1, null, "%s", item.getName());
+					out.add(indentLevel+1, item.getName());
 			}
 		}
 

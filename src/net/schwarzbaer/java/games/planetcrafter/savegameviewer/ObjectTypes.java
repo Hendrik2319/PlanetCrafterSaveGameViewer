@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -319,10 +320,10 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double insects;
 		Double animals;
 		Double energy;
-		PhysicalValue expectsMultiplierFor; // TODO: -> MultiplierType expectsMultiplier 
-		Double oxygenMultiplier;  // 
-		Double insectsMultiplier; // -> MultiplierType multiplierType / Double multiplierValue
-		Double animalsMultiplier; // 
+		PhysicalValue expectsMultiplierFor; 
+		Double oxygenMultiplier; 
+		Double insectsMultiplier;
+		Double animalsMultiplier; 
 		PhysicalValue isBoosterRocketFor; 
 		boolean isProducer;
 		final EnumSet<Occurrence> occurrences;
@@ -408,6 +409,11 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				out.add(indentLevel, label, "%s", "<multiplier expected>");
 			else
 				out.add(indentLevel, label, "%s", formatRate.apply(rate));
+		}
+		
+		static String toString(ObjectType[] objectTypes)
+		{
+			return Data.toString( Arrays.stream(objectTypes).map(ot -> ot==null ? null : ot.getName()).toArray(String[]::new) );
 		}
 	}
 }
