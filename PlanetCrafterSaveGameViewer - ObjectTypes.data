@@ -209,6 +209,12 @@ label = Bluepriint "Locker Storage T2"
 occurrences = WorldObject
 <finished>
 
+ObjectType: BlueprintCookingStation
+occurrences = WorldObject
+
+ObjectType: BlueprintSmartFabric
+occurrences = WorldObject
+
 ObjectType: BlueprintT1
 label = Blueprint Chip
 class = Resource_Minable
@@ -294,6 +300,13 @@ label = Butterfly Golden Larva (1500%)
 class = Resource_SeedEgg
 insectsMultiplier = 15.0
 occurrences = WorldObject
+<finished>
+
+ObjectType: Butterfly19Larvae
+label = Butterfly Faleria Eggs (1400%)
+class = Resource_SeedEgg
+insectsMultiplier = 14.0
+occurrences = Product
 <finished>
 
 ObjectType: Butterfly1Larvae
@@ -698,6 +711,13 @@ animalsMultiplier = 5.0
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: Fish12Eggs
+label = Fish Velkia Eggs (500%)
+class = Resource_SeedEgg
+animalsMultiplier = 5.0
+occurrences = Product
+<finished>
+
 ObjectType: Fish1Eggs
 label = Fish Provios Eggs (100% | P.A, M3, F1)
 class = Resource_SeedEgg
@@ -794,6 +814,13 @@ class = Structure_Building
 occurrences = WorldObject
 <finished>
 
+ObjectType: Frog10Eggs
+label = Frog Kenjoss Eggs (500%)
+class = Resource_SeedEgg
+animalsMultiplier = 5.0
+occurrences = WorldObject,Product
+<finished>
+
 ObjectType: Frog1Eggs
 label = Generic Frog Eggs (100% | P.C, M4, F1)
 class = Resource_SeedEgg
@@ -854,6 +881,7 @@ label = Golden Frog Eggs (600% | GFE, M3, F2)
 class = Resource_SeedEgg
 animalsMultiplier = 6.0
 occurrences = WorldObject
+<finished>
 
 ObjectType: FusionEnergyCell
 label = Fusion Energy Cell
@@ -1645,6 +1673,13 @@ label = Tree Seed "Iterra" (125%, ???)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
 occurrences = WorldObject
+<finished>
+
+ObjectType: Tree10Seed
+label = Tree Seed Rosea (600%)
+class = Resource_SeedEgg
+oxygenMultiplier = 6.0
+occurrences = Product
 <finished>
 
 ObjectType: Tree1Seed
