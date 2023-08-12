@@ -321,7 +321,7 @@ ObjectType: Butterfly19Larvae
 label = Butterfly Faleria Eggs (1400%)
 class = Resource_SeedEgg
 insectsMultiplier = 14.0
-occurrences = Product
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Butterfly1Larvae

@@ -1,6 +1,5 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,7 +11,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
@@ -31,7 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
@@ -285,6 +282,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private static class MapModel {
 		
 		final Data.Coord3 playerPosition;
+		final Data.Rotation playerOrientation;
 		final Vector<WorldObject> displayableObjects;
 		final MinMax minmax;
 		final Rectangle2D.Double range;
@@ -306,11 +304,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			MinMax minmax = null;
 			
 			if (data.playerStates.isPositioned()) {
-				playerPosition = data.playerStates.position;
-				if (minmax==null)
-					minmax = new MinMax(data.playerStates.position);
-			} else
+				playerPosition    = data.playerStates.position;
+				playerOrientation = data.playerStates.rotation;
+				minmax = new MinMax(playerPosition);
+			} else {
 				playerPosition = null;
+				playerOrientation = null;
+			}
 			
 			for (WorldObject wo : data.worldObjects) {
 				if (!wo.isInstalled()) continue;
@@ -775,7 +775,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
 				
 				if (mapModel.playerPosition!=null)
-					drawPlayerPosition(g2, clip, mapModel.playerPosition, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
+					drawPlayerPosition(g2, clip, mapModel.playerPosition, mapModel.playerOrientation, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
 				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
@@ -838,24 +838,31 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			return result;
 		}
 
-		private void drawPlayerPosition(Graphics2D g2, Rectangle clip, Coord3 pos, Color contourColor, Color fillColor) {
-			int screenX = viewState.convertPos_AngleToScreen_LongX(pos.getMapX());
-			int screenY = viewState.convertPos_AngleToScreen_LatY (pos.getMapY());
-			if (!clip.contains(screenX, screenY)) return;
+		private void drawPlayerPosition(Graphics2D g2, Rectangle clip, Data.Coord3 position, Data.Rotation orientation, Color contourColor, Color fillColor) {
+			double posX_scr = viewState.convertPos_AngleToScreen_LongXf(position.getMapX());
+			double posY_scr = viewState.convertPos_AngleToScreen_LatYf (position.getMapY());
+			if (!clip.contains(posX_scr, posY_scr)) return;
 			
-			Stroke prevStroke = g2.getStroke();
+			AffineTransform origTransform = g2.getTransform();
+			AffineTransform transform = new AffineTransform(origTransform);
+			transform.translate( posX_scr, posY_scr );
+			transform.concatenate(orientation.computeMapTransform());
 			
-			g2.setStroke(new BasicStroke(3,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+			g2.setTransform(transform);
+			
 			g2.setColor(contourColor);
-			g2.drawLine(screenX-4, screenY-4, screenX+4, screenY+4);
-			g2.drawLine(screenX+4, screenY-4, screenX-4, screenY+4);
+			g2.drawLine( 10,-8, 0,0 );
+			g2.drawLine(-15, 0, 0,0 );
+			g2.drawLine( 10,-8, 0,0 );
+			g2.drawLine( 10, 8, 0,0 );
 			
-			g2.setStroke(new BasicStroke(1.4f,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
 			g2.setColor(fillColor);
-			g2.drawLine(screenX-4, screenY-4, screenX+4, screenY+4);
-			g2.drawLine(screenX+4, screenY-4, screenX-4, screenY+4);
+			g2.drawLine( 10,-8,   5, 0 );
+			g2.drawLine( 10, 8,   5, 0 );
+			g2.drawLine( 10,-8, -15, 0 );
+			g2.drawLine( 10, 8, -15, 0 );
 			
-			g2.setStroke(prevStroke);
+			g2.setTransform(origTransform);
 		}
 
 		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
