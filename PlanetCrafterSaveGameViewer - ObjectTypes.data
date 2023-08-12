@@ -218,6 +218,9 @@ occurrences = WorldObject
 ObjectType: BlueprintCookingStation
 occurrences = WorldObject
 
+ObjectType: BlueprintDrone2
+occurrences = WorldObject,Product
+
 ObjectType: BlueprintPod9xC
 occurrences = Product
 
@@ -225,7 +228,7 @@ ObjectType: BlueprintSmartFabric
 occurrences = WorldObject
 
 ObjectType: BlueprintSofaColored
-occurrences = Product
+occurrences = WorldObject,Product
 
 ObjectType: BlueprintT1
 label = Blueprint Chip
@@ -509,7 +512,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: CookingStation1
+label = Cooking Station
+class = Structure_Machine
 occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: CookWheatGrowable
 label = Wheat
@@ -603,6 +609,12 @@ ObjectType: Drone1
 label = Drone T1
 class = Resource_Craftable
 occurrences = WorldObject
+<finished>
+
+ObjectType: Drone2
+label = Drone T2
+class = Resource_Craftable
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: DroneStation1
@@ -1252,7 +1264,7 @@ isProducer
 ObjectType: Osmium
 label = Osmium
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: OutsideLamp1
@@ -1625,6 +1637,9 @@ label = Sofa Angle
 class = Structure_Furniture
 occurrences = WorldObject
 <finished>
+
+ObjectType: SofaColored
+occurrences = Blueprint
 
 ObjectType: SpaceMultiplierBiomass
 class = Special_Hidden

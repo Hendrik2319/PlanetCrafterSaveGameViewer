@@ -1,3 +1,23 @@
+ObjectType: AmphibiansFarm1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=1.9;-1.9000000000000001;1.9;1.8;-1.9;1.8;-1.9;-1.9000000000000001;1.9;-1.9000000000000001
+PolyLine=-1.5;1.65;1.5;1.65;1.75;1.4;1.75;-1.5;1.5;-1.75;-1.5;-1.75;-1.75;-1.5;-1.75;1.4;-1.5;1.65
+Arc=0.0;0.0;0.3;0.0;6.283185307179586
+GuideLine.Vertical=-1.9
+GuideLine.Vertical=-1.75
+GuideLine.Vertical=1.75
+GuideLine.Vertical=1.9
+GuideLine.Horizontal=-1.9
+GuideLine.Horizontal=-1.75
+GuideLine.Horizontal=-1.5
+GuideLine.Horizontal=1.4
+GuideLine.Horizontal=1.65
+GuideLine.Horizontal=1.8
+GuideLine.Vertical=-1.5
+GuideLine.Vertical=1.5
+
 ObjectType: Aquarium2
 hideMarker
 MapShape: Shape001
@@ -96,6 +116,19 @@ MapShape: Shape001
 selectedShape
 Arc=0.0;0.0;3.0;0.0;6.283185307179586
 
+ObjectType: ComAntenna
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;-9.6;10.0;1.0471975511965976;2.0943951023931953
+Arc=0.0;-7.6000000000000005;10.0;1.0471975511965976;2.0943951023931953
+Line=-4.999999999999998;-0.9397459621556128;-4.999999999999998;1.0602540378443874
+Line=5.000000000000001;-0.9397459621556146;5.000000000000001;1.0602540378443857
+Arc=0.0;0.0;1.0;0.0;6.283185307179586
+Line=0.0;0.0;0.0;-2.0
+PolyLine=-2.5;0.08;0.0;-2.0;2.5;0.08
+PolyLine=-2.5;2.08;0.0;-2.0;2.5;2.08
+
 ObjectType: Container1
 hideMarker
 MapShape: Shape001
@@ -150,6 +183,29 @@ PolyLine=-0.4;-0.9;-0.4;-0.45;0.4;-0.45;0.4;-0.9;-0.4;-0.9
 GuideLine.Vertical=-0.4
 GuideLine.Vertical=0.4
 
+ObjectType: Drill2
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.3;0.3;-0.3;3.5;0.3;3.5;0.3;0.3
+PolyLine=0.3;0.3;3.5;0.3;3.5;-0.3;0.3;-0.3
+PolyLine=0.3;-0.3;0.3;-3.5;-0.3;-3.5;-0.3;-0.3
+PolyLine=-0.3;-0.3;-3.5;-0.3;-3.5;0.3;-0.3;0.3
+PolyLine=-1.5;1.1;1.5;1.1;1.5;-1.1;-1.5;-1.1;-1.5;1.1
+PolyLine=-0.5;1.1;-0.45;4.5;-0.15;4.5;0.0;7.0;0.15;4.5;0.45;4.5;0.5;1.1
+
+ObjectType: Drill3
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;3.5;0.0;6.283185307179586
+PolyLine=-0.75;0.43;-0.75;10.0;0.75;10.0;0.75;0.43
+PolyLine=0.7473909236273084;0.4345190528383291;9.035254037844387;-4.350480947161669;8.285254037844387;-5.649519052838327;-0.002609076372691199;-0.8645190528383289
+PolyLine=0.002609076372691199;-0.8645190528383289;-8.285254037844387;-5.649519052838327;-9.035254037844387;-4.350480947161669;-0.7473909236273084;0.4345190528383291
+GuideLine.Horizontal=0.43
+GuideLine.Vertical=-0.75
+GuideLine.Vertical=0.75
+
 ObjectType: Drone1
 hideMarker
 MapShape: Shape001
@@ -164,6 +220,61 @@ GuideLine.Horizontal=-0.15
 GuideLine.Horizontal=0.15
 GuideLine.Vertical=0.55
 GuideLine.Vertical=-0.55
+
+ObjectType: Drone2
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.4;3.525989428085432;5.898788532683947
+Arc=0.0;0.0;0.4;2.757195879094154;3.525989428085432
+Arc=0.0;0.0;0.4;0.384396774495639;2.757195879094154
+Arc=0.0;0.0;0.4;5.898788532683947;6.667582081675225
+PolyLine=-0.14999999999999988;0.3708099243547832;-0.15;0.5;-0.1;0.55;0.1;0.55;0.15;0.5;0.15;0.37080992435478316
+PolyLine=-0.14999999999999988;-0.3708099243547832;-0.15;-0.5;-0.1;-0.55;0.1;-0.55;0.15;-0.5;0.15;-0.37080992435478316
+
+ObjectType: EnergyGenerator2
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.2071959339806526;0.0;6.283185307179586
+PolyLine=-0.5;-1.8;0.5;-1.8;0.5;-0.3;-0.5;-0.3;-0.5;-1.8
+Line=-0.35;-1.5;0.35;-1.5
+Line=-0.35;-1.2;0.35;-1.2
+Line=-0.35;-0.9;0.35;-0.9
+Line=-0.35;-0.6;0.35;-0.6
+Line=0.25;-1.65;0.25;-0.45
+Line=0.0;-1.65;0.0;-0.45
+Line=-0.25;-1.65;-0.25;-0.45
+PolyLine=-0.5;1.8;0.5;1.8;0.5;0.3;-0.5;0.3;-0.5;1.8
+Line=-0.35;1.5;0.35;1.5
+Line=-0.35;1.2;0.35;1.2
+Line=-0.35;0.9;0.35;0.9
+Line=-0.35;0.6;0.35;0.6
+Line=0.25;1.65;0.25;0.45
+Line=0.0;1.65;0.0;0.45
+Line=-0.25;1.65;-0.25;0.45
+
+ObjectType: EnergyGenerator3
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.2071959339806526;1.5707963267948966;7.853981633974483
+PolyLine=1.8;-0.5;1.8;0.5;0.3;0.5;0.3;-0.5;1.8;-0.5
+Line=1.5;-0.35;1.5;0.35
+Line=1.2;-0.35;1.2;0.35
+Line=0.9;-0.35;0.9;0.35
+Line=0.6;-0.35;0.6;0.35
+Line=1.65;0.25;0.45;0.25
+Line=1.65;0.0;0.45;0.0
+Line=1.65;-0.25;0.45;-0.25
+PolyLine=-1.8;-0.5;-1.8;0.5;-0.3;0.5;-0.3;-0.5;-1.8;-0.5
+Line=-1.5;-0.35;-1.5;0.35
+Line=-1.2;-0.35;-1.2;0.35
+Line=-0.9;-0.35;-0.9;0.35
+Line=-0.6;-0.35;-0.6;0.35
+Line=-1.65;0.25;-0.45;0.25
+Line=-1.65;0.0;-0.45;0.0
+Line=-1.65;-0.25;-0.45;-0.25
 
 ObjectType: EnergyGenerator6
 hideMarker
@@ -215,6 +326,28 @@ GuideLine.Horizontal=2.95
 GuideLine.Horizontal=-2.95
 GuideLine.Vertical=2.95
 GuideLine.Vertical=-2.95
+
+ObjectType: Heater3
+MapShape: Shape001
+Arc=0.65;0.65;0.65;-1.5707963267948966;3.141592653589793
+Arc=-0.65;0.65;0.65;0.0;4.71238898038469
+Arc=-0.65;-0.65;0.65;1.5707963267948966;6.283185307179586
+Arc=0.65;-0.65;0.65;3.141592653589793;7.853981633974483
+Arc=0.0;0.0;0.65;0.0;6.283185307179586
+Arc=0.0;1.2;0.15;0.0;3.141592653589793
+Arc=1.2;0.0;0.15;-1.5707963267948966;1.5707963267948966
+Arc=0.0;-1.2;0.15;-3.141592653589793;0.0
+Arc=0.08999347686767578;0.1724768877029419;0.5357334017753601;0.0;3.141592653589793
+GuideLine.Horizontal=0.15
+GuideLine.Horizontal=-0.15
+GuideLine.Vertical=0.15
+GuideLine.Vertical=-0.15
+GuideLine.Horizontal=-1.2
+GuideLine.Horizontal=1.2
+GuideLine.Vertical=1.2
+GuideLine.Vertical=-1.2
+GuideLine.Horizontal=0.0
+GuideLine.Vertical=0.0
 
 ObjectType: LaunchPlatform
 hideMarker
