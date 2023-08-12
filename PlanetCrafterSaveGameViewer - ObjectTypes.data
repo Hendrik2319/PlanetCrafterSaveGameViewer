@@ -141,6 +141,9 @@ class = Structure_Furniture
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: BedDoubleColored
+occurrences = Blueprint
+
 ObjectType: BedSimple
 label = Bed
 class = Structure_Furniture
@@ -215,8 +218,14 @@ occurrences = WorldObject
 ObjectType: BlueprintCookingStation
 occurrences = WorldObject
 
+ObjectType: BlueprintPod9xC
+occurrences = Product
+
 ObjectType: BlueprintSmartFabric
 occurrences = WorldObject
+
+ObjectType: BlueprintSofaColored
+occurrences = Product
 
 ObjectType: BlueprintT1
 label = Blueprint Chip
@@ -472,7 +481,7 @@ occurrences = WorldObject
 ObjectType: CookCocoaGrowable
 label = Cocoa
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: CookCocoaSeed
@@ -505,7 +514,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: CookWheatGrowable
 label = Wheat
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: CookWheatSeed
@@ -672,7 +681,7 @@ occurrences = WorldObject
 ObjectType: FabricBlue
 label = Fabric
 class = Resource_Craftable
-occurrences = WorldObject,Achievement,ObjectList
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Farm1
@@ -874,6 +883,13 @@ label = Frog Afae Eggs (350% | GFE, M3, F2)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
 occurrences = WorldObject
+<finished>
+
+ObjectType: Frog9Eggs
+label = Frog Amedo Eggs (400% | GFE, M4, F2)
+class = Resource_SeedEgg
+animalsMultiplier = 4.0
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: FrogDisplayer1
@@ -1117,7 +1133,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: MethanCapsule1
 label = Methane Cartridge
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: MultiBuild
@@ -1314,7 +1330,7 @@ occurrences = Blueprint
 ObjectType: PulsarQuartz
 label = Pulsar Quartz
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: RecyclingMachine
