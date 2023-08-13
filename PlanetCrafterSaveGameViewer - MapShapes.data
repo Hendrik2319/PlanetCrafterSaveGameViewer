@@ -216,6 +216,16 @@ PolyLine=-0.4;-0.9;-0.4;-0.45;0.4;-0.45;0.4;-0.9;-0.4;-0.9
 GuideLine.Vertical=-0.4
 GuideLine.Vertical=0.4
 
+ObjectType: Destructor1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.5;0.5;0.5;0.5;0.5;-0.5;-0.5;-0.5;-0.5;0.5
+Arc=-0.6311347639048496;-0.3142958767592584;0.15727446016547658;0.584848616679175;5.698336690500411
+PolyLine=-0.5;0.4;-0.6;0.4;-0.6;0.05;-0.5;0.05
+PolyLine=-0.45;0.5;-0.45;0.6;0.45;0.6;0.45;0.5
+GuideLine.Vertical=-0.5
+
 ObjectType: Drill2
 hideMarker
 MapShape: Shape001
@@ -378,6 +388,25 @@ GuideLine.Vertical=2.4
 GuideLine.Vertical=-2.4
 GuideLine.Vertical=-2.8
 
+ObjectType: FishFarm1
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;1.45;0.0;6.283185307179586
+Arc=0.0;0.0;0.8;3.525989428085432;5.898788532683947
+Arc=0.0;0.0;0.8;-5.898788532683947;-3.525989428085432
+Arc=-0.8;0.0;0.3;0.0;6.283185307179586
+Arc=0.8;0.0;0.3;0.0;6.283185307179586
+Line=-0.8;-0.3;0.8;-0.3
+Line=0.0;-0.3;0.0;0.3
+Line=-0.8;0.3;0.8;0.3
+GuideLine.Horizontal=-0.3
+GuideLine.Horizontal=0.3
+GuideLine.Vertical=-0.8
+GuideLine.Vertical=0.8
+GuideLine.Horizontal=0.0
+GuideLine.Vertical=0.0
+
 ObjectType: Foundation
 hideMarker
 MapShape: Shape001
@@ -391,6 +420,36 @@ GuideLine.Horizontal=2.95
 GuideLine.Horizontal=-2.95
 GuideLine.Vertical=2.95
 GuideLine.Vertical=-2.95
+
+ObjectType: FrogDisplayer1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
+ObjectType: GoldenEffigie2
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
+ObjectType: GoldenEffigie3
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
+ObjectType: GoldenEffigie5
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
+ObjectType: GoldenEffigie6
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
 
 ObjectType: Heater3
 hideMarker
@@ -430,6 +489,46 @@ GuideLine.Vertical=1.2
 GuideLine.Vertical=-1.2
 GuideLine.Horizontal=0.0
 GuideLine.Vertical=0.0
+
+ObjectType: Heater4
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;1.5;0.0;6.283185307179586
+Arc=0.0;0.0;2.5;7.713520219264627;7.994443048684339
+Arc=0.0;0.0;2.5;6.423646721889442;7.713520219264627
+Arc=2.3;2.3;1.1;-1.6745110266044771;3.242491527470334
+Arc=0.0;3.0;0.35;0.0;3.141592653589793
+Line=-0.35;3.0;-0.34999999999999964;2.4753787588973126
+Line=0.35;3.0;0.35000000000000114;2.4753787588973126
+Arc=0.0;0.0;2.5;6.14272389246973;6.423646721889442
+Arc=0.0;0.0;2.5;4.852850395094546;6.14272389246973
+Arc=2.3;-2.3;1.1;-3.2453073533993737;1.6716952006754373
+Arc=3.0;0.0;0.35;-1.5707963267948966;1.5707963267948966
+Line=3.0;0.35;2.4753787588973126;0.34999999999999964
+Line=3.0;-0.35;2.4753787588973126;-0.35000000000000114
+Arc=0.0;0.0;2.5;-7.994443048684339;-7.713520219264627
+Arc=0.0;0.0;2.5;3.282054068299649;4.571927565674834
+Arc=-2.3;-2.3;1.1;-4.816103680194271;0.10089887388054075
+Arc=0.0;-3.0;0.35;-3.141592653589793;0.0
+Line=0.35;-3.0;0.34999999999999964;-2.4753787588973126
+Line=-0.35;-3.0;-0.35000000000000114;-2.4753787588973126
+Arc=0.0;0.0;2.5;3.001131238879937;3.282054068299649
+Arc=0.0;0.0;2.5;1.7112577415047525;3.001131238879937
+Arc=-2.3;2.3;1.1;-6.386900006989167;-1.4698974529143558
+Arc=-3.0;0.0;0.35;-4.71238898038469;-1.5707963267948966
+Line=-3.0;-0.35;-2.4753787588973126;-0.34999999999999964
+Line=-3.0;0.35;-2.4753787588973126;0.35000000000000114
+GuideLine.Horizontal=0.0
+GuideLine.Vertical=0.0
+GuideLine.Horizontal=-0.35
+GuideLine.Horizontal=0.35
+GuideLine.Vertical=-0.35
+GuideLine.Vertical=0.35
+GuideLine.Horizontal=-3.0
+GuideLine.Horizontal=3.0
+GuideLine.Vertical=-3.0
+GuideLine.Vertical=3.0
 
 ObjectType: LaunchPlatform
 hideMarker
@@ -672,3 +771,12 @@ GuideLine.Horizontal=-1.5
 GuideLine.Horizontal=1.5
 GuideLine.Vertical=13.8
 
+ObjectType: WaterCollector2
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;1.5;0.0;6.283185307179586
+Arc=0.0;0.0;0.6;0.0;6.283185307179586
+GuideLine.Horizontal=-0.2
+GuideLine.Horizontal=0.2
+GuideLine.Vertical=0.9
