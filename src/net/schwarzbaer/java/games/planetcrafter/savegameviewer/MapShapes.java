@@ -57,11 +57,13 @@ import net.schwarzbaer.java.tools.lineeditor.LineEditor.GuideLinesStorage;
 
 class MapShapes
 {
+	private final Window mainWindow;
 	private final File datafile;
 	private final HashMap<String,ObjectTypeData> data;
 	
-	public MapShapes(File datafile)
+	public MapShapes(Window mainWindow, File datafile)
 	{
+		this.mainWindow = mainWindow;
 		this.datafile = datafile;
 		data = new HashMap<>();
 	}
@@ -146,25 +148,48 @@ class MapShapes
 	void writeToFile() {
 		System.out.printf("Write MapShapes to file \"%s\" ...%n", datafile.getAbsolutePath());
 		
+		Vector<String> errors = new Vector<>();
+		
 		try (PrintWriter out = new PrintWriter(datafile, StandardCharsets.UTF_8)) {
 			
 			Vector<Entry<String, ObjectTypeData>> vector = new Vector<>(data.entrySet());
 			vector.sort(Comparator.comparing(Entry<String, ObjectTypeData>::getKey,Data.caseIgnoringComparator));
 			
-			for (Entry<String, ObjectTypeData> entry : vector) {
+			for (int otdIndex=0; otdIndex<vector.size(); otdIndex++)
+			{
+				Entry<String, ObjectTypeData> entry = vector.get(otdIndex);
 				ObjectTypeData otd = entry.getValue();
+				if (otd==null) {
+					errors.add(String.format("Entry[%d].ObjectTypeData is null", otdIndex));
+					continue;
+				}
 				if (otd.isEmpty()) continue;
 				
 				out.printf("ObjectType: %s%n", entry.getKey());
 				if (otd.hideMarker) out.printf("hideMarker%n");
 				
-				for (MapShape shape : otd.shapes)
+				Vector<MapShape> shapes = otd.shapes;
+				for (int shapeIndex=0; shapeIndex<shapes.size(); shapeIndex++)
 				{
-					out.printf("MapShape: %s%n", shape.label);
-					if (shape==otd.selectedShape) out.printf("selectedShape%n");
-					
-					LinesIO.writeForms(out,shape.getForms());
-					shape.guideLines.writeToFile(out);
+					MapShape shape = shapes.get(shapeIndex);
+					if (shape==null)
+						errors.add(String.format("Entry[%d].ObjectTypeData.Shape[%d] is null", otdIndex, shapeIndex));
+					else
+					{
+						out.printf("MapShape: %s%n", shape.label);
+						if (shape==otd.selectedShape) out.printf("selectedShape%n");
+						
+						int otdIndex_ = otdIndex;
+						int shapeIndex_ = shapeIndex;
+						LinesIO.writeForms(out,shape.getForms(), err->{
+							errors.add(String.format("Entry[%d].ObjectTypeData.Shape[%d].Forms -> %s", otdIndex_, shapeIndex_, err));
+						});
+						
+						if (shape.guideLines==null)
+							errors.add(String.format("Entry[%d].ObjectTypeData.Shape[%d].GuideLines is null", otdIndex, shapeIndex));
+						else
+							shape.guideLines.writeToFile(out);
+					}
 				}
 				
 				out.println();
@@ -176,13 +201,23 @@ class MapShapes
 		}
 		
 		System.out.printf("Done%n");
+		
+		if (!errors.isEmpty())
+		{
+			errors.insertElementAt("Following errors occured during writing MapShapes to file:", 0);
+			JOptionPane.showMessageDialog(mainWindow, errors.toArray(String[]::new), "Error", JOptionPane.ERROR_MESSAGE);;
+		}
+	}
+
+	public ObjectTypeData getOTD(ObjectType objectType)
+	{
+		if (objectType==null) return null;
+		return data.get(objectType.id);
 	}
 
 	public boolean hasShapes(ObjectType objectType)
 	{
-		if (objectType==null) return false;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return false;
 		
 		return !otd.shapes.isEmpty();
@@ -190,9 +225,7 @@ class MapShapes
 	
 	public Vector<MapShape> getShapes(ObjectType objectType)
 	{
-		if (objectType==null) return null;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return null;
 		
 		return otd.shapes;
@@ -200,9 +233,7 @@ class MapShapes
 
 	public void setShowMarker(ObjectType objectType, boolean showMarker)
 	{
-		if (objectType==null) return;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return;
 		
 		otd.hideMarker = !showMarker;
@@ -212,9 +243,7 @@ class MapShapes
 
 	public boolean shouldShowMarker(ObjectType objectType)
 	{
-		if (objectType==null) return true;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return true;
 		
 		return !otd.hideMarker;
@@ -222,9 +251,7 @@ class MapShapes
 
 	public void setSelectedShape(ObjectType objectType, MapShape shape)
 	{
-		if (objectType==null) return;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return;
 		
 		otd.selectedShape = shape;
@@ -235,9 +262,7 @@ class MapShapes
 
 	public MapShape getSelectedShape(ObjectType objectType)
 	{
-		if (objectType==null) return null;
-		
-		ObjectTypeData otd = data.get(objectType.id);
+		ObjectTypeData otd = getOTD(objectType);
 		if (otd==null) return null;
 		
 		return otd.selectedShape;
@@ -368,8 +393,17 @@ class MapShapes
 					int index = cmbbxObjectTypes.getSelectedIndex();
 					selectedObjectType = index<0 ? null : cmbbxObjectTypes.getItemAt(index);
 					//System.out.printf("ObjectType selected: %s%n", selectedObjectType==null ? "-- none --" : selectedObjectType.getName());
-					selectedShapes = selectedObjectType==null ? null : mapShapes.getShapes(selectedObjectType);
-					updateCmbbxMapShapes(null);
+					ObjectTypeData otd = mapShapes.getOTD(selectedObjectType);
+					selectedShapes = otd==null ? null : otd.shapes;
+					updateCmbbxMapShapes(
+						otd==null
+							? null
+							: otd.selectedShape!=null
+								? otd.selectedShape
+								: otd.shapes.isEmpty()
+									? null :
+									otd.shapes.firstElement()
+					);
 					shapeButtonsPanel.updateButtons();
 				});
 				cmbbxMapShapes.addActionListener(e->{

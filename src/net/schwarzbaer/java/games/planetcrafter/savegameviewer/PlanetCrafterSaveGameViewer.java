@@ -117,7 +117,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		settings.registerAppWindow(mainWindow);
 		
-		mapShapes = new MapShapes(new File(FILE_MAPSHAPES));
+		mapShapes = new MapShapes(mainWindow, new File(FILE_MAPSHAPES));
 		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes);
 		
 		updateWindowTitle();
