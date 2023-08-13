@@ -1719,7 +1719,7 @@ ObjectType: Tree10Seed
 label = Tree Seed Rosea (600%)
 class = Resource_SeedEgg
 oxygenMultiplier = 6.0
-occurrences = Product
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Tree1Seed
