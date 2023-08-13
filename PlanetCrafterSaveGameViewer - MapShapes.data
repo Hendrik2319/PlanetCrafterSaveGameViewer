@@ -557,6 +557,14 @@ GuideLine.Horizontal=3.0
 GuideLine.Vertical=-3.0
 GuideLine.Vertical=3.0
 
+ObjectType: InsideLamp1
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.2;0.0;6.283185307179586
+Line=-0.13;-0.13;0.13;0.13
+Line=-0.13;0.13;0.13;-0.13
+
 ObjectType: LaunchPlatform
 hideMarker
 MapShape: Shape001
@@ -797,6 +805,18 @@ GuideLine.Horizontal=6.0
 GuideLine.Horizontal=-1.5
 GuideLine.Horizontal=1.5
 GuideLine.Vertical=13.8
+
+ObjectType: VegetableGrower1
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.65;0.0;6.283185307179586
+
+ObjectType: VegetableGrower2
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;0.65;0.0;6.283185307179586
 
 ObjectType: WaterCollector2
 hideMarker
