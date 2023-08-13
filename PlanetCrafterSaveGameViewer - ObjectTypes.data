@@ -742,7 +742,7 @@ ObjectType: Fish12Eggs
 label = Fish Velkia Eggs (500%)
 class = Resource_SeedEgg
 animalsMultiplier = 5.0
-occurrences = Product
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Fish1Eggs
@@ -1084,7 +1084,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: Iridium
 label = Iridium
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Iron
@@ -1698,7 +1698,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Titanium
 label = Titanium
 class = Resource_Minable_Cheap
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: TradePlatform1
@@ -1824,7 +1824,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Uranim
 label = Uranium
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Vegetable0Growable
