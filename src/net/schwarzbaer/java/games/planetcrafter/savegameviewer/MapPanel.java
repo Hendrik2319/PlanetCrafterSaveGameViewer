@@ -527,7 +527,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedObject==null) return;
-				main.mapShapesEditor.showDialog(clickedObject.objectType);
+				main.showMapShapesEditor(clickedObject.objectType);
 			}));
 			JMenuItem miMarkForRemoval = add(GUI.createMenuItem("Mark hovered object for removal", e->{
 				if (clickedObject==null || !clickedObject.canMarkedByUser()) return;

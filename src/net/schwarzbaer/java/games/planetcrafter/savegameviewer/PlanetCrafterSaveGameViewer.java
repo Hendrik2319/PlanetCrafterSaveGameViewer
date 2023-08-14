@@ -38,6 +38,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.FileChooser;
 import net.schwarzbaer.java.lib.gui.GeneralIcons;
@@ -75,17 +76,19 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
 
 	private final StandardMainWindow mainWindow;
+	private final Disabler<ActionCommand> disabler;
 	private final FileChooser jsonFileChooser;
 	private final JTabbedPane dataTabPane;
+	private       GeneralDataPanel generalDataPanel;
+	private       ObjectTypesPanel objectTypesPanel;
+	private final AutoReloader autoReloader;
+	private final MapShapes.Editor mapShapesEditor;
+	
 	private       File openFile;
 	private       Data loadedData;
+	        final MapShapes mapShapes;
 	private final ObjectTypes objectTypes;
 	private       Achievements achievements;
-	private       GeneralDataPanel generalDataPanel;
-	private final Disabler<ActionCommand> disabler;
-	private final AutoReloader autoReloader;
-	        final MapShapes.Editor mapShapesEditor;
-	        final MapShapes mapShapes;
 	private final AutoCrafterTrading autoCrafterTrading;
 
 	PlanetCrafterSaveGameViewer() {
@@ -96,6 +99,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		objectTypes = new ObjectTypes(new File(FILE_OBJECT_TYPES));
 		achievements = null;
 		generalDataPanel = null;
+		objectTypesPanel = null;
 		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
 		
 		jsonFileChooser = new FileChooser("JSON File", "json");
@@ -118,7 +122,17 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		settings.registerAppWindow(mainWindow);
 		
 		mapShapes = new MapShapes(mainWindow, new File(FILE_MAPSHAPES));
-		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes);
+		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes, event -> {
+			switch (event.type())
+			{
+				case HasGotFirstShape:
+				case RemovedSelectedShape:
+				case ChangedShapeName:
+					if (objectTypesPanel!=null)
+						objectTypesPanel.notifyMapShapesEvent(event);
+					break;
+			}
+		});
 		
 		updateWindowTitle();
 		updateGuiAccess();
@@ -405,6 +419,11 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		return objectTypes;
 	}
 
+	void showMapShapesEditor(ObjectType objectType)
+	{
+		mapShapesEditor.showDialog(objectType);
+	}
+
 	private static void showIndeterminateTask(ProgressDialog pd, String taskTitle) {
 		SwingUtilities.invokeLater(()->{
 			pd.setTaskTitle(taskTitle);
@@ -441,7 +460,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				amounts.put( wo.objectTypeID, n+1 );
 			}
 		
-		ObjectTypesPanel objectTypesPanel = new ObjectTypesPanel(this, objectTypes, amounts);
+		objectTypesPanel = new ObjectTypesPanel(this, objectTypes, amounts);
 		objectTypesPanel.addObjectTypesChangeListener(e -> objectTypes.writeToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);

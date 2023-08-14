@@ -54,6 +54,34 @@ class ObjectTypesPanel extends JScrollPane {
 		setViewportView(table);
 	}
 	
+	void notifyMapShapesEvent(MapShapes.Editor.EditorEvent event)
+	{
+		if (event==null) throw new IllegalArgumentException();
+		
+		int rowIndex = tableModel.getRowIndex(event.objectType());
+		switch (event.type())
+		{
+			case HasGotFirstShape:
+				if (rowIndex >= 0)
+					tableModel.fireTableCellUpdate(rowIndex, ObjectTypesTableModel.ColumnID.showMarker);
+				break;
+				
+			case RemovedSelectedShape:
+				if (rowIndex >= 0)
+				{
+					tableModel.fireTableCellUpdate(rowIndex, ObjectTypesTableModel.ColumnID.mapShape);
+					tableModel.fireTableCellUpdate(rowIndex, ObjectTypesTableModel.ColumnID.showMarker);
+				}
+				break;
+				
+			case ChangedShapeName:
+				MapShape selectedShape = main.mapShapes.getSelectedShape(event.objectType());
+				if (selectedShape==event.shape() && selectedShape!=null && rowIndex >= 0)
+					tableModel.fireTableCellUpdate(rowIndex, ObjectTypesTableModel.ColumnID.mapShape);
+				break;
+		}
+	}
+
 	static class ObjectTypesChangeEvent {
 		
 		enum EventType { ValueChanged, NewTypeAdded }
@@ -106,7 +134,7 @@ class ObjectTypesPanel extends JScrollPane {
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedRow==null) return;
-				main.mapShapesEditor.showDialog(clickedRow);
+				main.showMapShapesEditor(clickedRow);
 			}));
 			
 			add(GUI.createMenuItem("Create New Object Type", e->{
@@ -364,6 +392,11 @@ class ObjectTypesPanel extends JScrollPane {
 			return objectTypes.get(objTypeIDs.get(rowIndex), null);
 		}
 		
+		int getRowIndex(ObjectType objectType)
+		{
+			return objectType==null ? -1 : objTypeIDs.indexOf(objectType.id);
+		}
+
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {
 			ObjectType row = getRow(rowIndex);

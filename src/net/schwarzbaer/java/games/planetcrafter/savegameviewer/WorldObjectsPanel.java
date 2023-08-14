@@ -52,7 +52,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedRow==null) return;
-				main.mapShapesEditor.showDialog(clickedRow.objectType);
+				main.showMapShapesEditor(clickedRow.objectType);
 			}));
 			
 			addSeparator();

@@ -297,6 +297,18 @@ class MapShapes
 		private static final Color BGCOLOR_OBJECTTYPE_WITH_SHAPES = new Color(0xFFEB91);
 		private static final long serialVersionUID = 3284148312241943876L;
 		
+		enum EventType{ HasGotFirstShape, RemovedSelectedShape, ChangedShapeName }
+		
+		record EditorEvent(EventType type, ObjectType objectType, MapShape shape)
+		{
+			private EditorEvent(EventType type, ObjectType objectType) { this(type, objectType, null); }
+		}
+		
+		interface EditorListener
+		{
+			void notifyEvent(EditorEvent event);
+		}
+		
 		private final LineEditor lineEditor;
 		private final ObjectTypes objectTypes;
 		private final MapShapes mapShapes;
@@ -307,11 +319,13 @@ class MapShapes
 		private MapShape selectedShape;
 		private final MapShapesEditorOptionsPanel mapShapesEditorOptionsPanel;
 		private final EditorClipboard editorClipboard;
+		private final EditorListener listener;
 		
-		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes)
+		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes, EditorListener listener)
 		{
 			super(parent, title, ModalityType.MODELESS, true);
 			this.objectTypes = objectTypes;
+			this.listener = listener;
 			this.mapShapes = Objects.requireNonNull(mapShapes);
 			selectedObjectType = null;
 			selectedShapes = null;
@@ -499,6 +513,7 @@ class MapShapes
 						selectedShape.label = newName;
 						this.mainOptionsPanel.repaintMapShapesCmbbx();
 						mapShapes.writeToFile();
+						listener.notifyEvent(new EditorEvent(EventType.ChangedShapeName, selectedObjectType, selectedShape));
 					}
 				});
 				
@@ -895,14 +910,17 @@ class MapShapes
 			if (JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION)
 				return false;
 			
-			if (otd.selectedShape == shape)
-				otd.selectedShape = null;
-			
 			boolean removed = otd.shapes.remove(shape);
 			if (removed)
 			{
 				selectedShapes = otd.shapes;
 				mapShapesEditorOptionsPanel.updateCmbbxMapShapes(null);
+				
+				if (otd.selectedShape == shape)
+				{
+					otd.selectedShape = null;
+					listener.notifyEvent(new EditorEvent(EventType.RemovedSelectedShape, objectType));
+				}
 			}
 			
 			return removed;
@@ -915,7 +933,8 @@ class MapShapes
 			ObjectTypeData otd = mapShapes.data.get(objectType.id);
 			if (otd==null) mapShapes.data.put(objectType.id, otd = new ObjectTypeData());
 			
-			int index = otd.shapes.size()+1;
+			int oldSize = otd.shapes.size();
+			int index = oldSize+1;
 			String name = String.format("Shape%03d", index);
 			while (!isUniqueName(name, otd.shapes))
 				name = String.format("Shape%03d", ++index);
@@ -925,6 +944,9 @@ class MapShapes
 			
 			selectedShapes = otd.shapes;
 			mapShapesEditorOptionsPanel.updateCmbbxMapShapes(newShape);
+			
+			if (oldSize==0)
+				listener.notifyEvent(new EditorEvent(EventType.HasGotFirstShape, objectType));
 			
 			return newShape;
 		}
