@@ -913,6 +913,27 @@ GuideLine.Horizontal=-11.0
 GuideLine.Horizontal=3.0
 GuideLine.Horizontal=4.0
 
+ObjectType: Pod9xC
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=11.5;10.0;1.0;0.0;1.5707963267948966
+Arc=-10.5;10.0;1.0;1.5707963267948966;3.141592653589793
+Arc=-10.5;-12.0;1.0;3.141592653589793;4.71238898038469
+Arc=11.5;-12.0;1.0;-1.5707963267948966;0.0
+Line=12.5;-12.0;12.5;10.0
+Line=11.5;11.0;-10.5;11.0
+Line=-11.5;10.0;-11.5;-12.0
+Line=-10.5;-13.0;11.5;-13.0
+GuideLine.Horizontal=11.0
+GuideLine.Horizontal=-13.0
+GuideLine.Vertical=-11.5
+GuideLine.Vertical=12.5
+GuideLine.Horizontal=10.0
+GuideLine.Horizontal=-12.0
+GuideLine.Vertical=-10.5
+GuideLine.Vertical=11.5
+
 ObjectType: ScreenEnergy
 hideMarker
 MapShape: Shape001
