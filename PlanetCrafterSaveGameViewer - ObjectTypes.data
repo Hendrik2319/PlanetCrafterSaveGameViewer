@@ -142,7 +142,10 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: BedDoubleColored
+label = Customizable Bed
+class = Structure_Furniture
 occurrences = Blueprint
+<finished>
 
 ObjectType: BedSimple
 label = Bed
@@ -208,27 +211,46 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: BlueprintBedDoubleColored
+label = Bluepriint "Customizable Bed"
+class = Special_Blueprint
 occurrences = Product
+<finished>
 
 ObjectType: BlueprintContainer3
 label = Bluepriint "Locker Storage T2"
+class = Special_Blueprint
 occurrences = WorldObject
 <finished>
 
 ObjectType: BlueprintCookingStation
+label = Bluepriint "Cooking Station"
+class = Special_Blueprint
 occurrences = WorldObject
+<finished>
 
 ObjectType: BlueprintDrone2
+label = Bluepriint "Drone T2"
+class = Special_Blueprint
 occurrences = WorldObject,Product
+<finished>
 
 ObjectType: BlueprintPod9xC
-occurrences = Product
+label = Bluepriint "3x3 Living Compartment"
+class = Special_Blueprint
+occurrences = WorldObject,Product
+<finished>
 
 ObjectType: BlueprintSmartFabric
+label = Bluepriint "Smart Fabric"
+class = Special_Blueprint
 occurrences = WorldObject
+<finished>
 
 ObjectType: BlueprintSofaColored
+label = Bluepriint "Customizable Sofa"
+class = Special_Blueprint
 occurrences = WorldObject,Product
+<finished>
 
 ObjectType: BlueprintT1
 label = Blueprint Chip
@@ -1333,6 +1355,12 @@ class = Structure_Building
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: Pod9xC
+label = 3x3 Living Compartment
+class = Structure_Building
+occurrences = Blueprint
+<finished>
+
 ObjectType: podAngle
 label = Living Compartment Corner
 class = Structure_Building
@@ -1624,7 +1652,10 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: SmartFabric
+label = Smart Fabric
+class = Resource_Craftable
 occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: Sofa
 label = Sofa
@@ -1639,7 +1670,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: SofaColored
+label = Customizable Sofa
+class = Structure_Furniture
 occurrences = Blueprint
+<finished>
 
 ObjectType: SpaceMultiplierBiomass
 class = Special_Hidden

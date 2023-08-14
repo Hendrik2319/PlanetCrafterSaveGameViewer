@@ -46,6 +46,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Special_Hidden        ( "Special, hidden"         , ObjectTypeClassClass.Special   ),
 		Special_Wreckage      ( "Special, Wreckage"       , ObjectTypeClassClass.Special   ),
 		Special_Quest         ( "Special, Quest Item"     , ObjectTypeClassClass.Special   ),
+		Special_Blueprint     ( "Special, Blueprint"      , ObjectTypeClassClass.Special   ),
 		;
 		private final String label;
 		final ObjectTypeClassClass class_;
