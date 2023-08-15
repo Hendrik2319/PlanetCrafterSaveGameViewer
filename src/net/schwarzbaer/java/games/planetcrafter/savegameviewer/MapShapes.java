@@ -725,7 +725,8 @@ class MapShapes
 					case Added:
 					case Changed:
 					case Removed:
-						Editor.this.mapShapes.writeToFile();
+						mapShapes.writeToFile();
+						mapShapesEditorOptionsPanel.shapeButtonsPanel.updateButtons();
 						break;
 				}
 			}
@@ -739,7 +740,8 @@ class MapShapes
 					case Changed:
 						Form[] newFormsList = e.newFormsList();
 						if (newFormsList!=null) replaceForms(newFormsList);
-						Editor.this.mapShapes.writeToFile();
+						mapShapes.writeToFile();
+						mapShapesEditorOptionsPanel.shapeButtonsPanel.updateButtons();
 						break;
 				}
 			}
