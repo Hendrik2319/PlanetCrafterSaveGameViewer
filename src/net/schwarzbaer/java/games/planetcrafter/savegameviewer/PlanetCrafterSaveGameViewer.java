@@ -609,18 +609,13 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 					if (Thread.currentThread().isInterrupted()) break;
 					
 					glueChar = null;
-					JSON_Data.Value<NV,V> result = JSON_Parser.<NV,V>parse_withParseException(content, null, str -> {
+					boolean detected = detectGlueChar(knownGlueChars);
+					JSON_Data.Value<NV,V> result = detected ? null : JSON_Parser.parse_withParseException(content, null, str -> {
 						//if (str.length()>40) System.out.printf("Remaining Text: \"%s...\"%n", str.substring(0, 40));
 						//else                 System.out.printf("Remaining Text: \"%s\"%n", str);
 						content = str.trim();
-						if (!content.isEmpty()) {
-							char ch = content.charAt(0);
-							//System.out.printf("GlueChar: \"%s\"%n", ch);
-							if (knownGlueChars.contains((Character)ch)) {
-								content = content.substring(1);
-								glueChar = ch;
-							}
-						}
+						if (!content.isEmpty())
+							detectGlueChar(knownGlueChars);
 					});
 					consumeValue.accept(result,glueChar);
 				}
@@ -630,6 +625,17 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				//ex.printStackTrace();
 				return;
 			}
+		}
+
+		private boolean detectGlueChar(Vector<Character> knownGlueChars) {
+			char ch = content.charAt(0);
+			//System.out.printf("GlueChar: \"%s\"%n", ch);
+			if (knownGlueChars.contains((Character)ch)) {
+				content = content.substring(1).trim();
+				glueChar = ch;
+				return true;
+			}
+			return false;
 		}
 	}
 	
