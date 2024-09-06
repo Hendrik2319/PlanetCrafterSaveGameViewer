@@ -523,6 +523,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				ClipboardTools.copyToClipBoard(msg);
 			}));
 			
+//			addSeparator();
+//			
+//			JMenuItem miMeasureDistanceFrom = add(GUI.createMenuItem("Measure Distance From", e->{
+//				if (clickedObject==null) return;
+//				String coordsStr = clickedObject.rotation==null ? "<null>" : clickedObject.rotation.toString();
+//				String msg = String.format("Rotation of \"%s\": %s", clickedObject.getName(), coordsStr);
+//				System.out.println(msg);
+//				ClipboardTools.copyToClipBoard(msg);
+//			}));
+			
 			addSeparator();
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
