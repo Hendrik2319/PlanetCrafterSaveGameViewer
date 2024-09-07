@@ -282,18 +282,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			case Name         : return row.getName();
 			case twinID       : return data.mapObjectLists.containsKey(row.id);
 			case NonUniqueID  : return row.nonUniqueID;
-			case container:
-				if (row.containerList==null)
-					return null;
-				if (row.container==null) {
-					if (row.containerList.id==1)
-						return "Player Inventory";
-					if (row.containerList.id==2)
-						return "Player Equipment";
-					return String.format("<UnknownContainer> [List:%d]", row.containerList.id);
-				}
-				//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
-				return row.container.getShortDesc();
+			case container    : return row.getContainerLabel();
 			}
 			return null;
 		}

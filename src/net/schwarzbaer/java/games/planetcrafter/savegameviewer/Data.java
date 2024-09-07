@@ -1143,6 +1143,24 @@ class Data {
 			out.add(indentLevel, "Position");
 			position.addTo(out,indentLevel+1);
 		}
+
+		public String getContainerLabel() {
+			if (containerList==null)
+				return null;
+			if (container==null) {
+				if (containerList.id > 0xFFFFFFFFL)
+					return String.format("<UnknownContainer> [List:%d]", containerList.id);
+				switch ((int) containerList.id) {
+					case 1: return "Player Inventory (old)";
+					case 2: return "Player Equipment (old)";
+					case 3: return "Player Inventory";
+					case 4: return "Player Equipment";
+					default: return String.format("<UnknownContainer> [List:%d]", containerList.id);
+				}
+			}
+			//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
+			return container.getShortDesc();
+		}
 	}
 
 	static class ObjectList extends Reversable {
