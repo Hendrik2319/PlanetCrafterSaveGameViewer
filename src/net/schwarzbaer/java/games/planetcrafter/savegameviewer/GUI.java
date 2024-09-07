@@ -395,10 +395,12 @@ class GUI {
 		private final JTextField terraformLevel;
 		private final LongTextField terraTokens;
 		private final LongTextField allTimeTerraTokens;
-		private Data.AchievedValues results;
+		private       Data.AchievedValues results;
+		private final Data.AchievedValues initialValues;
 
 		private AchievedValuesDialog(Window parent, String title, Data.AchievedValues initialValues) {
 			super(parent, title);
+			this.initialValues = initialValues;
 			results = null;
 			
 			oxygenLevel        = new DoubleTextField(0.0, Data.AchievedValues::formatOxygenLevel);
@@ -412,15 +414,15 @@ class GUI {
 			terraTokens        = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
 			allTimeTerraTokens = new LongTextField  (0L , Data.AchievedValues::formatTerraTokens);
 			
-			if (initialValues!=null) {
-				oxygenLevel       .setValue(initialValues.oxygenLevel       );
-				heatLevel         .setValue(initialValues.heatLevel         );
-				pressureLevel     .setValue(initialValues.pressureLevel     );
-				plantsLevel       .setValue(initialValues.plantsLevel       );
-				insectsLevel      .setValue(initialValues.insectsLevel      );
-				animalsLevel      .setValue(initialValues.animalsLevel      );
-				terraTokens       .setValue(initialValues.terraTokens       );
-				allTimeTerraTokens.setValue(initialValues.allTimeTerraTokens);
+			if (this.initialValues!=null) {
+				oxygenLevel       .setValue(this.initialValues.oxygenLevel       );
+				heatLevel         .setValue(this.initialValues.heatLevel         );
+				pressureLevel     .setValue(this.initialValues.pressureLevel     );
+				plantsLevel       .setValue(this.initialValues.plantsLevel       );
+				insectsLevel      .setValue(this.initialValues.insectsLevel      );
+				animalsLevel      .setValue(this.initialValues.animalsLevel      );
+				terraTokens       .setValue(this.initialValues.terraTokens       );
+				allTimeTerraTokens.setValue(this.initialValues.allTimeTerraTokens);
 			}
 			
 			JPanel contentPane = new JPanel(new GridBagLayout());
@@ -429,16 +431,16 @@ class GUI {
 			c.gridwidth = 1;
 			
 			int gridy = 0;
-			addRow(contentPane, c, gridy++, "Oxygen Level"         , oxygenLevel       , initialValues==null ? null : initialValues.oxygenLevel  , 0.0);
-			addRow(contentPane, c, gridy++, "Heat Level"           , heatLevel         , initialValues==null ? null : initialValues.heatLevel    , 0.0);
-			addRow(contentPane, c, gridy++, "Pressure Level"       , pressureLevel     , initialValues==null ? null : initialValues.pressureLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Oxygen Level"         , oxygenLevel       , this.initialValues==null ? null : this.initialValues.oxygenLevel  , 0.0);
+			addRow(contentPane, c, gridy++, "Heat Level"           , heatLevel         , this.initialValues==null ? null : this.initialValues.heatLevel    , 0.0);
+			addRow(contentPane, c, gridy++, "Pressure Level"       , pressureLevel     , this.initialValues==null ? null : this.initialValues.pressureLevel, 0.0);
 			addRow(contentPane, c, gridy++, "Biomass Level"        , biomassLevel      );
-			addRow(contentPane, c, gridy++, "Plants Level"         , plantsLevel       , initialValues==null ? null : initialValues.plantsLevel , 0.0);
-			addRow(contentPane, c, gridy++, "Insects Level"        , insectsLevel      , initialValues==null ? null : initialValues.insectsLevel, 0.0);
-			addRow(contentPane, c, gridy++, "Animals Level"        , animalsLevel      , initialValues==null ? null : initialValues.animalsLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Plants Level"         , plantsLevel       , this.initialValues==null ? null : this.initialValues.plantsLevel , 0.0);
+			addRow(contentPane, c, gridy++, "Insects Level"        , insectsLevel      , this.initialValues==null ? null : this.initialValues.insectsLevel, 0.0);
+			addRow(contentPane, c, gridy++, "Animals Level"        , animalsLevel      , this.initialValues==null ? null : this.initialValues.animalsLevel, 0.0);
 			addRow(contentPane, c, gridy++, "Terraformation Level" , terraformLevel    );
-			addRow(contentPane, c, gridy++, "Terra Tokens"         , terraTokens       , initialValues==null ? null : initialValues.terraTokens       , 0L);
-			addRow(contentPane, c, gridy++, "All Time Terra Tokens", allTimeTerraTokens, initialValues==null ? null : initialValues.allTimeTerraTokens, 0L);
+			addRow(contentPane, c, gridy++, "Terra Tokens"         , terraTokens       , this.initialValues==null ? null : this.initialValues.terraTokens       , 0L);
+			addRow(contentPane, c, gridy++, "All Time Terra Tokens", allTimeTerraTokens, this.initialValues==null ? null : this.initialValues.allTimeTerraTokens, 0L);
 			
 			c.weightx = 1;
 			c.weighty = 1;
@@ -459,15 +461,15 @@ class GUI {
 						allTimeTerraTokens.setValue(0L);
 						updateGUI();
 					}),
-					initialValues==null ? null : createButton("Reset All", true, e->{
-						oxygenLevel       .setValue(initialValues.oxygenLevel       );
-						heatLevel         .setValue(initialValues.heatLevel         );
-						pressureLevel     .setValue(initialValues.pressureLevel     );
-						plantsLevel       .setValue(initialValues.plantsLevel       );
-						insectsLevel      .setValue(initialValues.insectsLevel      );
-						animalsLevel      .setValue(initialValues.animalsLevel      );
-						terraTokens       .setValue(initialValues.terraTokens       );
-						allTimeTerraTokens.setValue(initialValues.allTimeTerraTokens);
+					this.initialValues==null ? null : createButton("Reset All", true, e->{
+						oxygenLevel       .setValue(this.initialValues.oxygenLevel       );
+						heatLevel         .setValue(this.initialValues.heatLevel         );
+						pressureLevel     .setValue(this.initialValues.pressureLevel     );
+						plantsLevel       .setValue(this.initialValues.plantsLevel       );
+						insectsLevel      .setValue(this.initialValues.insectsLevel      );
+						animalsLevel      .setValue(this.initialValues.animalsLevel      );
+						terraTokens       .setValue(this.initialValues.terraTokens       );
+						allTimeTerraTokens.setValue(this.initialValues.allTimeTerraTokens);
 						updateGUI();
 					}),
 					btnOk = createButton("Ok", true, e->{
@@ -528,7 +530,8 @@ class GUI {
 					insectsLevel      .value,
 					animalsLevel      .value,
 					terraTokens       .value,
-					allTimeTerraTokens.value
+					allTimeTerraTokens.value,
+					initialValues
 					);
 		}
 		

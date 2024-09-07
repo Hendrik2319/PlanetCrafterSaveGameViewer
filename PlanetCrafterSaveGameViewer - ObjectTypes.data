@@ -108,7 +108,7 @@ occurrences = Achievement
 ObjectType: Backpack3
 label = Backpack T3
 class = Equipment
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Backpack4
@@ -589,6 +589,7 @@ label = Drill T1
 class = Structure_Machine
 pressure = 0.2
 energy = -0.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Drill1
@@ -1188,6 +1189,9 @@ class = Equipment
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: MultiToolLight
+occurrences = WorldObject
+
 ObjectType: MultiToolLight1
 label = Microchip - Torch T1
 class = Equipment
@@ -1208,7 +1212,7 @@ occurrences = Blueprint
 ObjectType: MultiToolMineSpeed2
 label = Microchip - Mining Speed  T2
 class = Equipment
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed3
@@ -1316,7 +1320,7 @@ occurrences = WorldObject,Achievement
 ObjectType: OxygenTank3
 label = Oxygen Tank T3
 class = Equipment
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank4
@@ -1651,6 +1655,9 @@ class = Resource_Craftable
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: Skin-01
+occurrences = WorldObject
+
 ObjectType: SmartFabric
 label = Smart Fabric
 class = Resource_Craftable
@@ -1937,7 +1944,7 @@ class = Structure_Machine
 oxygen = 1.2
 energy = -1.25
 expectsMultiplierFor = Oxygen
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VegetubeOutside1

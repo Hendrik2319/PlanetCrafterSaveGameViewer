@@ -89,15 +89,31 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues"                     ); blockIndex++;
-		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates", getOrCreateObjectType); blockIndex++;
-		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects", getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists" , getOrCreateObjectType); blockIndex++;
-		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                       ); blockIndex++;
-		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                           ); blockIndex++;
-		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                        ); blockIndex++;
-		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                       ); blockIndex++;
-		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                             ); blockIndex++;
+		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues", getOrCreateObjectType); blockIndex++;
+		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates"  , getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects"  , getOrCreateObjectType); blockIndex++;
+		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists"   , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                         ); blockIndex++;
+		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                             ); blockIndex++;
+		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                          ); blockIndex++;
+		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                         ); blockIndex++;
+		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                               ); blockIndex++;
+		
+		for (;blockIndex < dataVec.size(); blockIndex++)
+		{
+			Vector<Value<NV, V>> arr = dataVec.get(blockIndex);
+			if (arr==null    ) throw new IllegalStateException("Block %d is null.".formatted(blockIndex));
+			if (arr.isEmpty()) throw new IllegalStateException("Block %d is an empty array.".formatted(blockIndex));
+			if (arr.size()>1) {
+				System.err.printf("Block %d contains more values (=%d) than expected (=1).%n", blockIndex, arr.size());
+				continue;
+			}
+			Value<NV, V> value = arr.get(0);
+			if (value!=null) {
+				System.err.printf("Block %d contains value.%n", blockIndex);
+				continue;
+			}
+		}
 		
 		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
@@ -525,7 +541,10 @@ class Data {
 				.add("unitInsectsLevel"   , Value.Type.Float)
 				.add("unitAnimalsLevel"   , Value.Type.Float)
 				.add("terraTokens"        , Value.Type.Integer)
-				.add("allTimeTerraTokens" , Value.Type.Integer);
+				.add("allTimeTerraTokens" , Value.Type.Integer)
+				.add("unlockedGroups"        , Value.Type.String )
+				.add("openedInstanceSeed"    , Value.Type.Integer)
+				.add("openedInstanceTimeLeft", Value.Type.Integer);
 		
 		final double oxygenLevel;
 		final double heatLevel;
@@ -536,6 +555,13 @@ class Data {
 		final double animalsLevel;
 		final long terraTokens;
 		final long allTimeTerraTokens;
+
+		final Long openedInstanceSeed;
+		final Long openedInstanceTimeLeft;
+		final String[] unlockedGroups;
+		final ObjectType[] unlockedObjectTypes;
+		
+		private final String unlockedGroupsStr;
 		
 		/*
 			Block[0]: 1 entries
@@ -554,8 +580,12 @@ class Data {
 			 * Trading Update
 			        allTimeTerraTokens:Integer
 			        terraTokens:Integer
+			 * V 1.0
+			        openedInstanceSeed:Integer
+			        openedInstanceTimeLeft:Integer
+			        unlockedGroups:String
 		 */
-		AchievedValues(Value<NV, V> value, String debugLabel) throws TraverseException {
+		AchievedValues(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
@@ -569,12 +599,30 @@ class Data {
 			terraTokens        = JSON_Data.getIntegerValue(object, "terraTokens"        , debugLabel);
 			allTimeTerraTokens = JSON_Data.getIntegerValue(object, "allTimeTerraTokens" , debugLabel);
 			
+			unlockedGroupsStr      = JSON_Data.getStringValue (object, "unlockedGroups"        , true, false, debugLabel);
+			openedInstanceSeed     = JSON_Data.getIntegerValue(object, "openedInstanceSeed"    , true, false, debugLabel);
+			openedInstanceTimeLeft = JSON_Data.getIntegerValue(object, "openedInstanceTimeLeft", true, false, debugLabel);
+			
+			if (unlockedGroupsStr!=null)
+			{
+				unlockedGroups = parseStringArray(unlockedGroupsStr, debugLabel+".unlockedGroups");
+				unlockedObjectTypes = new ObjectType[unlockedGroups.length];
+				for (int i=0; i<unlockedGroups.length; i++)
+					unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], Occurrence.Blueprint );
+			}
+			else
+			{
+				unlockedGroups = null;
+				unlockedObjectTypes = null; 
+			}
+			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		AchievedValues(double oxygenLevel, double heatLevel, double pressureLevel,
 				double plantsLevel, double insectsLevel, double animalsLevel,
-				long terraTokens, long allTimeTerraTokens) {
+				long terraTokens, long allTimeTerraTokens,
+				AchievedValues remainingValues) {
 			super(false);
 			this.oxygenLevel = oxygenLevel;
 			this.heatLevel = heatLevel;
@@ -584,19 +632,32 @@ class Data {
 			this.animalsLevel = animalsLevel;
 			this.terraTokens = terraTokens;
 			this.allTimeTerraTokens = allTimeTerraTokens;
+			
+			this.openedInstanceSeed     = remainingValues==null ? null : remainingValues.openedInstanceSeed    ;
+			this.openedInstanceTimeLeft = remainingValues==null ? null : remainingValues.openedInstanceTimeLeft;
+			this.unlockedGroupsStr      = remainingValues==null ? null : remainingValues.unlockedGroupsStr     ;
+			this.unlockedGroups         = remainingValues==null ? null : copyOf(remainingValues.unlockedGroups     );
+			this.unlockedObjectTypes    = remainingValues==null ? null : copyOf(remainingValues.unlockedObjectTypes);
+		}
+		
+		private static <Val> Val[] copyOf(Val[] arr) {
+			return arr==null ? null : Arrays.copyOf(arr, arr.length);
 		}
 
 		@Override String toJsonStrs() {
-			return toJsonStr(
+			return toJsonStr( removeNulls(
 					toFloatValueStr  ("unitOxygenLevel"   , oxygenLevel  , "%1.1f"),
 					toFloatValueStr  ("unitHeatLevel"     , heatLevel    , "%1.1f"),
 					toFloatValueStr  ("unitPressureLevel" , pressureLevel, "%1.1f"),
 					toFloatValueStr  ("unitPlantsLevel"   , plantsLevel  , "%1.1f"),
 					toFloatValueStr  ("unitInsectsLevel"  , insectsLevel , "%1.1f"),
 					toFloatValueStr  ("unitAnimalsLevel"  , animalsLevel , "%1.1f"),
-					toIntegerValueStr("terraTokens"       , terraTokens       ),
-					toIntegerValueStr("allTimeTerraTokens", allTimeTerraTokens)
-					);
+					toIntegerValueStr("terraTokens"       , terraTokens           ),
+					toIntegerValueStr("allTimeTerraTokens", allTimeTerraTokens    ),
+					toStringValueStr ("unlockedGroups"        , unlockedGroupsStr     , true),
+					toIntegerValueStr("openedInstanceSeed"    , openedInstanceSeed    , true),
+					toIntegerValueStr("openedInstanceTimeLeft", openedInstanceTimeLeft, true)
+			) );
 		}
 
 		double getTerraformLevel() {
@@ -697,6 +758,13 @@ class Data {
 
 	static class PlayerStates extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(PlayerStates.class)
+				// V 1.0 values
+				.add("id"         , Value.Type.Integer)
+				.add("name"       , Value.Type.String )
+				.add("inventoryId", Value.Type.Integer)
+				.add("equipmentId", Value.Type.Integer)
+				.add("host"       , Value.Type.Bool   )
+				// old values
 				.add("playerGaugeHealth", Value.Type.Float)
 				.add("playerGaugeOxygen", Value.Type.Float)
 				.add("playerGaugeThirst", Value.Type.Float)
@@ -705,6 +773,14 @@ class Data {
 				.add("unlockedGroups"   , Value.Type.String);
 				
 		
+		// V 1.0 values
+		final Long id;
+		final String name;
+		final Long inventoryId;
+		final Long equipmentId;
+		final Boolean isHost;
+		
+		// old values
 		final double health;
 		final double oxygen;
 		final double thirst;
@@ -715,6 +791,7 @@ class Data {
 		private final String positionStr;
 		private final String rotationStr;
 		private final String unlockedGroupsStr;
+
 		/*
 			Block[1]: 1 entries
 			-> Format: [2 blocks]
@@ -732,33 +809,59 @@ class Data {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			// "id"         :76561198016584395
+			// "name"       :"SchwarzBaer"
+			// "inventoryId":3
+			// "equipmentId":4
+			
+			id          = JSON_Data.getIntegerValue(object, "id"         , true, false, debugLabel);
+			name        = JSON_Data.getStringValue (object, "name"       , true, false, debugLabel);
+			inventoryId = JSON_Data.getIntegerValue(object, "inventoryId", true, false, debugLabel);
+			equipmentId = JSON_Data.getIntegerValue(object, "equipmentId", true, false, debugLabel);
+			isHost      = JSON_Data.getBoolValue   (object, "host"       , true, false, debugLabel);
+			
 			health            = JSON_Data.getFloatValue (object, "playerGaugeHealth", debugLabel);
 			oxygen            = JSON_Data.getFloatValue (object, "playerGaugeOxygen", debugLabel);
 			thirst            = JSON_Data.getFloatValue (object, "playerGaugeThirst", debugLabel);
 			positionStr       = JSON_Data.getStringValue(object, "playerPosition"   , debugLabel);
 			rotationStr       = JSON_Data.getStringValue(object, "playerRotation"   , debugLabel);
-			unlockedGroupsStr = JSON_Data.getStringValue(object, "unlockedGroups"   , debugLabel);
+			unlockedGroupsStr = JSON_Data.getStringValue(object, "unlockedGroups"   , true, false, debugLabel);
 			
 			position = new Coord3  (positionStr, debugLabel+".playerPosition");
 			rotation = new Rotation(rotationStr, debugLabel+".playerRotation");
-			unlockedGroups = parseStringArray(unlockedGroupsStr, debugLabel+".unlockedGroups");
 			
-			unlockedObjectTypes = new ObjectType[unlockedGroups.length];
-			for (int i=0; i<unlockedGroups.length; i++)
-				unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], Occurrence.Blueprint );
+			if (unlockedGroupsStr!=null)
+			{
+				unlockedGroups = parseStringArray(unlockedGroupsStr, debugLabel+".unlockedGroups");
+				unlockedObjectTypes = new ObjectType[unlockedGroups.length];
+				for (int i=0; i<unlockedGroups.length; i++)
+					unlockedObjectTypes[i] = getOrCreateObjectType.getOrCreate( unlockedGroups[i], Occurrence.Blueprint );
+			}
+			else
+			{
+				unlockedGroups = null;
+				unlockedObjectTypes = null; 
+			}
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 		
 		@Override String toJsonStrs() {
-			return toJsonStr(
+			return toJsonStr( removeNulls(
+					toIntegerValueStr("id"         , id         , true),
+					toStringValueStr ("name"       , name       , true),
+					toIntegerValueStr("inventoryId", inventoryId, true),
+					toIntegerValueStr("equipmentId", equipmentId, true),
+					
 					toStringValueStr("playerPosition"   , positionStr      ),
 					toStringValueStr("playerRotation"   , rotationStr      ),
-					toStringValueStr("unlockedGroups"   , unlockedGroupsStr),
+					toStringValueStr("unlockedGroups"   , unlockedGroupsStr, true),
 					toFloatValueStr ("playerGaugeOxygen", oxygen, "%1.1f"  ),
 					toFloatValueStr ("playerGaugeThirst", thirst, "%1.6f"  ),
-					toFloatValueStr ("playerGaugeHealth", health, "%1.6f"  )
-					);
+					toFloatValueStr ("playerGaugeHealth", health, "%1.6f"  ),
+					
+					toBoolValueStr   ("host", isHost, true)
+			) );
 		}
 
 		boolean isPositioned() {
@@ -1295,7 +1398,28 @@ class Data {
 			    Block "ParseResult.<Base>" [2]
 			        hasPlayedIntro:Bool
 			        mode:String
+			   * V 1.0
+			        dyingConsequencesLabel:String
+			        freeCraft:Bool
+			        gameStartLocation:String
+			        modifierGaugeDrain:Float
+			        modifierMeteoOccurence:Float
+			        modifierMultiplayerTerraformationFactor:Float
+			        modifierPowerConsumption:Float
+			        modifierTerraformationPace:Float
+			        planetId:String
+			        randomizeMineables:Bool
+			        saveDisplayName:String
+			        startLocationLabel:String
+			        unlockedAutocrafter:Bool
+			        unlockedDrones:Bool
+			        unlockedEverything:Bool
+			        unlockedOreExtrators:Bool
+			        unlockedSpaceTrading:Bool
+			        unlockedTeleporters:Bool
+			        worldSeed:Integer
 		 */
+		// TODO: new values
 		GeneralData2(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
 			
@@ -1366,20 +1490,22 @@ class Data {
 		}
 	}
 	
-	static String toFloatValueStr(String field, double value, String format) {
-		return String.format(Locale.ENGLISH, "\"%s\":"+format, field, value);
-	}
-	static String toIntegerValueStr(String field, long value) {
-		return String.format("\"%s\":%d", field, value);
-	}
-	static String toBoolValueStr(String field, boolean value) {
-		return String.format("\"%s\":%s", field, value);
-	}
-	static String toStringValueStr(String field, String value) {
-		return String.format("\"%s\":\"%s\"", field, value);
-	}
+	static String toFloatValueStr  (String field, double  value, String format) { return toFloatValueStr  (field, value, format, false); }
+	static String toIntegerValueStr(String field, long    value               ) { return toIntegerValueStr(field, value,         false); }
+	static String toBoolValueStr   (String field, boolean value               ) { return toBoolValueStr   (field, value,         false); }
+	static String toStringValueStr (String field, String  value               ) { return toStringValueStr (field, value,         false); }
+	
+	static String toFloatValueStr  (String field, Double  value, String format, boolean canBeUnSet) { return canBeUnSet && value==null ? null : String.format(Locale.ENGLISH, "\"%s\":"+format, field, value); }
+	static String toIntegerValueStr(String field, Long    value,                boolean canBeUnSet) { return canBeUnSet && value==null ? null : String.format(                "\"%s\":%d"     , field, value); }
+	static String toBoolValueStr   (String field, Boolean value,                boolean canBeUnSet) { return canBeUnSet && value==null ? null : String.format(                "\"%s\":%s"     , field, value); }
+	static String toStringValueStr (String field, String  value,                boolean canBeUnSet) { return canBeUnSet && value==null ? null : String.format(                "\"%s\":\"%s\"" , field, value); }
+	
 	static String toJsonStr(String...strings) {
 		return String.format("{%s}", String.join(",", strings));
+	}
+	static String[] removeNulls(String...strings) {
+		if (strings==null) return null;
+		return Arrays.stream(strings).filter(str->str!=null).toArray(String[]::new);
 	}
 
 /*

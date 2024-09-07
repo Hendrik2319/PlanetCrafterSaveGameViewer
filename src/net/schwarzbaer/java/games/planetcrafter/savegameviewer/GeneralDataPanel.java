@@ -682,10 +682,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 	private static class PlayerStatesPanel extends JPanel {
 		private static final long serialVersionUID = 6272012218012618784L;
-		private JTextArea textArea;
-		private Iterable<String> unlockedObjectTypes;
+		
+		private final JTextArea textArea;
+		private final Iterable<String> unlockedObjectTypes;
 
-		PlayerStatesPanel(Data.PlayerStates data, Data.AchievedValues achievedValues) {
+		PlayerStatesPanel(Data.PlayerStates playerStates, Data.AchievedValues achievedValues) {
 			super(new BorderLayout());
 			
 			
@@ -710,27 +711,31 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Health: "), c);
-			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.health)), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", playerStates.health)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Thirst: "), c);
-			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", data.thirst)), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format(Locale.ENGLISH, "%1.2f %%", playerStates.thirst)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Oxygen: "), c);
-			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.oxygen)), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", playerStates.oxygen)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Position: "), c);
-			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.position)), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", playerStates.position)), c);
 			
 			c.gridy++;
 			c.weightx = 0; c.gridx = 0; playerStatesPanel.add(new JLabel("Rotation: "), c);
-			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", data.rotation)), c);
+			c.weightx = 1; c.gridx = 1; playerStatesPanel.add(GUI.createOutputTextField(String.format("%s", playerStates.rotation)), c);
 			
 			
 			
-			unlockedObjectTypes = ()->Arrays.stream(data.unlockedObjectTypes).map(ObjectType::getName).sorted().iterator();
+			ObjectType[] uotArr = null;
+			if (uotArr == null) uotArr = achievedValues.unlockedObjectTypes;
+			if (uotArr == null) uotArr = playerStates  .unlockedObjectTypes;
+			final ObjectType[] uotArr_ = uotArr;
+			unlockedObjectTypes = uotArr_==null ? new Vector<>() : ()->Arrays.stream(uotArr_).map(ObjectType::getName).sorted().iterator();
 			
 			//Vector<String> unlockedObjectTypes = new Vector<>(Arrays.asList(data.unlockedGroups));
 			//unlockedObjectTypes.sort(Data.caseIgnoringComparator);
