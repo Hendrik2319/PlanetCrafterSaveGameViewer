@@ -626,7 +626,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				if (value < 24) return formatValue("in %d:%02d:%02d h", hour, min, sec);
 				value/=24;
 				
-				if (value <  10) return formatValue("in %1.0f:%02d:%02d d", Math.floor(value), hour, min);
+				if (value <  10) return formatValue("in %1.0f d %02d:%02d h", Math.floor(value), hour, min);
 				if (value < 100) return formatValue("in %1.2f d", value);
 				if (value < 365) return formatValue("in %1.1f d", value);
 				value/=365;

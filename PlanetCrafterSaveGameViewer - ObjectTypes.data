@@ -114,6 +114,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Backpack4
 label = Backpack T4
 class = Equipment
+occurrences = WorldObject
 <finished>
 
 ObjectType: Backpack5
@@ -267,7 +268,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: BootsSpeed2
 label = Agility Boots T2
 class = Equipment
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed3
@@ -1116,6 +1117,12 @@ class = Resource_Minable_Cheap
 occurrences = WorldObject,Product,ObjectList
 <finished>
 
+ObjectType: Jetpack1
+label = Jetpack T1
+class = Equipment
+occurrences = WorldObject
+<finished>
+
 ObjectType: Jetpack2
 label = Jetpack T2
 class = Equipment
@@ -1190,7 +1197,10 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolLight
+label = MicroChip - Torch T1
+class = Equipment
 occurrences = WorldObject
+<finished>
 
 ObjectType: MultiToolLight1
 label = Microchip - Torch T1
@@ -1656,7 +1666,14 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Skin-01
+label = Raumanzug Comto
 occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-06
+label = Raumanzug Cipto
+occurrences = WorldObject
+<finished>
 
 ObjectType: SmartFabric
 label = Smart Fabric

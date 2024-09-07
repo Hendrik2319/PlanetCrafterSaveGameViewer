@@ -9,7 +9,7 @@ Oxygen
 420000.0|{FlowerPot1}
 6.3E7|{Heater4}
 6.0E9|{TreeSpreader1}
-1.55E11|{WaterLifeCollector1}
+1.22E11|{WaterLifeCollector1}
 
 Heat
 500.0|{Vegetube2}
@@ -23,6 +23,7 @@ Heat
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
 7.5E8|{EnergyGenerator6}
+1.85E9|MaschinenOptimierer St2
 
 Pressure
 70.0|{OxygenTank2}
@@ -102,9 +103,15 @@ Terraformation
 50000.0|{Container2}
 175000.0|{CraftStation2}
 345000.0|{LaunchPlatform}
+500000.0|MicroChip Pin Recipe St1 (@500kTi?)
+680000.0|Foundation - Corner
 875000.0|{WaterCollector1}
 5000000.0|{Backpack5}
+1.1E7|Fahrzeugstation
+1.75E7|Fahrzeug-Bestand
 5.0E7|{WaterCollector2}
+6.0E7|Foundation - Ramp
+7.0E7|MachineOptimizer
 2.0E8|{ScreenBiomass}
 5.5E8|{ScreenRockets}
 6.5E8|{RocketOxygen1}
@@ -119,14 +126,21 @@ Terraformation
 3.2E10|{TreeSpreader2}
 3.9E10|{Rod-osmium}
 4.5E10|{FusionEnergyCell}
-6.25E10|{DroneStation1}
+5.35E10|{DroneStation1}
+8.65E10|Exoskeleton T4
 1.2E11|{Aquarium1}
 1.22E11|{Mutagen3}
 1.6E11|{CircuitBoard1}
 1.75E11|{PulsarQuartz}
+2.5E11|Portalgenerator
+3.5E11|Backpack St 6
 4.25E11|{AmphibiansFarm1}
 4.25E11|{Mutagen4}
 4.5E11|Frog Huli Eggs
+1.25E12|Futterspender für Tiere
+1.25E12|Tierheim
+2.25E12|Tierfutter T2
+5.0E12|Extraktionsplattform
 
 Stages
 0.0|Barren
