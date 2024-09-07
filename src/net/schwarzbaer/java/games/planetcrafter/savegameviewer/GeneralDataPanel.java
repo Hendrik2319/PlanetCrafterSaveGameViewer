@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -59,22 +60,28 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		c.weightx = 1;
 		c.weighty = 1;
 		c.gridwidth = 1;
-		
 		c.gridheight = 1;
-		c.gridwidth = 2;
-		c.gridx = 0; c.gridy = 0; upperPanel.add(terraformingStatesPanel = new TerraformingStatesPanel(data.achievedValues, achievements), c);
+		c.gridy = 0;
+		c.gridx = -1;
+		
+		c.gridx++; upperPanel.add(terraformingStatesPanel = new TerraformingStatesPanel(data.achievedValues, achievements), c);
+		c.gridx++; upperPanel.add(playerStatesPanel = new PlayerStatesPanel(data.playerStates, data.achievedValues), c);
+		c.gridx++; upperPanel.add(energyPanel = new EnergyPanel(data), c);
+		
+		
+		JPanel gameDataPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		
+		c.weightx = 1;
+		c.weighty = 1;
 		c.gridwidth = 1;
-		c.gridx = 0; c.gridy = 1; upperPanel.add(new GeneralData1Panel(data.generalData1), c);
-		c.gridx = 1; c.gridy = 1; upperPanel.add(new GeneralData2Panel(data.generalData2), c);
+		c.gridheight = 1;
+		c.gridx = 0;
+		c.gridy = -1;
 		
-		c.gridheight = 2;
-		c.gridx = 2;
-		c.gridy = 0; upperPanel.add(playerStatesPanel = new PlayerStatesPanel(data.playerStates, data.achievedValues), c);
-		
-		c.gridheight = 2;
-		c.gridx = 3;
-		c.gridy = 0; upperPanel.add(energyPanel = new EnergyPanel(data), c);
-		
+		c.gridy++; gameDataPanel.add(new GeneralData1Panel(data.generalData1), c);
+		c.gridy++; gameDataPanel.add(new GeneralData2Panel(data.generalData2), c);
 		
 		
 		JPanel lowerPanel = new JPanel(new GridBagLayout());
@@ -87,6 +94,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		c.gridheight = 1;
 		c.gridy = 0;
 		c.gridx = -1;
+		
+		c.gridx++;
+		lowerPanel.add(gameDataPanel, c);
 		
 		c.gridx++;
 		lowerPanel.add(
@@ -762,7 +772,24 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 	}
 
-	private static class GeneralData1Panel extends JPanel {
+	private static class GeneralDataValuesPanel extends JPanel {
+		private static final long serialVersionUID = -9084397318415882019L;
+		
+		protected GeneralDataValuesPanel(LayoutManager layout) { super(layout); }
+		
+		protected static void addLine (JPanel panel, GridBagConstraints c, String label, String  value               ) { addLine_(panel, c, label, value==null ? "" : String.format(                "\"%s\"", value)); }
+		protected static void addLine (JPanel panel, GridBagConstraints c, String label, Long    value               ) { addLine_(panel, c, label, value==null ? "" : String.format(                  "%s"  , value)); }
+		protected static void addLine (JPanel panel, GridBagConstraints c, String label, Double  value, String format) { addLine_(panel, c, label, value==null ? "" : String.format(Locale.ENGLISH, format  , value)); }
+		protected static void addLine (JPanel panel, GridBagConstraints c, String label, Boolean value               ) { addLine_(panel, c, label, value==null ? "" : String.format(                  "%s"  , value)); }
+		
+		private   static void addLine_(JPanel panel, GridBagConstraints c, String label, String valueStr) {
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; panel.add(new JLabel(label+": "), c);
+			c.weightx = 1; c.gridx = 1; panel.add(GUI.createOutputTextField(valueStr), c);
+		}
+	}
+
+	private static class GeneralData1Panel extends GeneralDataValuesPanel {
 		private static final long serialVersionUID = 6272012218012618784L;
 
 		GeneralData1Panel(Data.GeneralData1 data) {
@@ -777,17 +804,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridheight = 1;
 			c.gridy = -1;
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Crafted Objects: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.craftedObjects)), c);
-			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Load: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.totalSaveFileLoad)), c);
-			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Total SaveFile Time: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.totalSaveFileTime)), c);
+			addLine(this, c, "Crafted Objects"    , data.craftedObjects   );
+			addLine(this, c, "Total SaveFile Load", data.totalSaveFileLoad);
+			addLine(this, c, "Total SaveFile Time", data.totalSaveFileTime);
 			
 			c.gridy++;
 			c.weighty = 1;
@@ -798,7 +817,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 	}
 
-	private static class GeneralData2Panel extends JPanel {
+	private static class GeneralData2Panel extends GeneralDataValuesPanel {
 		private static final long serialVersionUID = 6272012218012618784L;
 
 		GeneralData2Panel(Data.GeneralData2 data) {
@@ -813,13 +832,39 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.gridheight = 1;
 			c.gridy = -1;
 			
-			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Has Played Intro: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.hasPlayedIntro)), c);
+			addLine(this, c, "Save DisplayName"        , data.saveDisplayName       );
+			addLine(this, c, "Mode"                    , data.mode                  );
+			addLine(this, c, "Planet ID"               , data.planetId              );
+			addLine(this, c, "WorldSeed"               , data.worldSeed             );
+			addLine(this, c, "Start Location Label"    , data.startLocationLabel    );
+			addLine(this, c, "Game Start Location"     , data.gameStartLocation     );
+			addLine(this, c, "Free Craft"              , data.freeCraft             );
+			addLine(this, c, "Randomize Mineables"     , data.randomizeMineables    );
+			addLine(this, c, "Dying Consequences Label", data.dyingConsequencesLabel);
+			addLine(this, c, "Has Played Intro"        , data.hasPlayedIntro        );
 			
 			c.gridy++;
-			c.weightx = 0; c.gridx = 0; add(new JLabel("Mode: "), c);
-			c.weightx = 1; c.gridx = 1; add(GUI.createOutputTextField(String.format("%s", data.mode)), c);
+			c.weightx = 0; c.gridx = 0; c.gridwidth = 2;
+			add(new JLabel(" [ Unlocked ]"), c);
+			c.gridwidth = 1;
+			
+			addLine(this, c, "Space Trading", data.unlockedSpaceTrading);
+			addLine(this, c, "Ore Extrators", data.unlockedOreExtrators);
+			addLine(this, c, "Teleporters"  , data.unlockedTeleporters );
+			addLine(this, c, "Drones"       , data.unlockedDrones      );
+			addLine(this, c, "Autocrafter"  , data.unlockedAutocrafter );
+			addLine(this, c, "Everything"   , data.unlockedEverything  );
+			
+			c.gridy++;
+			c.weightx = 0; c.gridx = 0; c.gridwidth = 2;
+			add(new JLabel(" [ Modifier ]"), c);
+			c.gridwidth = 1;
+			
+			addLine(this, c, "Terraformation Pace"              , data.modifierTerraformationPace             , "%1.3f");
+			addLine(this, c, "Power Consumption"                , data.modifierPowerConsumption               , "%1.3f");
+			addLine(this, c, "Gauge Drain"                      , data.modifierGaugeDrain                     , "%1.3f");
+			addLine(this, c, "Meteo Occurence"                  , data.modifierMeteoOccurence                 , "%1.3f");
+			addLine(this, c, "Multiplayer Terraformation Factor", data.modifierMultiplayerTerraformationFactor, "%1.3f");
 			
 			c.gridy++;
 			c.weighty = 1;

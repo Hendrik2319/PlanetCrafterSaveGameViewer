@@ -646,12 +646,12 @@ class Data {
 
 		@Override String toJsonStrs() {
 			return toJsonStr( removeNulls(
-					toFloatValueStr  ("unitOxygenLevel"   , oxygenLevel  , "%1.1f"),
-					toFloatValueStr  ("unitHeatLevel"     , heatLevel    , "%1.1f"),
-					toFloatValueStr  ("unitPressureLevel" , pressureLevel, "%1.1f"),
-					toFloatValueStr  ("unitPlantsLevel"   , plantsLevel  , "%1.1f"),
-					toFloatValueStr  ("unitInsectsLevel"  , insectsLevel , "%1.1f"),
-					toFloatValueStr  ("unitAnimalsLevel"  , animalsLevel , "%1.1f"),
+					toFloatValueStr  ("unitOxygenLevel"   , oxygenLevel  , "%1.8f"),
+					toFloatValueStr  ("unitHeatLevel"     , heatLevel    , "%1.8f"),
+					toFloatValueStr  ("unitPressureLevel" , pressureLevel, "%1.8f"),
+					toFloatValueStr  ("unitPlantsLevel"   , plantsLevel  , "%1.8f"),
+					toFloatValueStr  ("unitInsectsLevel"  , insectsLevel , "%1.8f"),
+					toFloatValueStr  ("unitAnimalsLevel"  , animalsLevel , "%1.8f"),
 					toIntegerValueStr("terraTokens"       , terraTokens           ),
 					toIntegerValueStr("allTimeTerraTokens", allTimeTerraTokens    ),
 					toStringValueStr ("unlockedGroups"        , unlockedGroupsStr     , true),
@@ -1014,7 +1014,7 @@ class Data {
 		}
 		
 		@Override String toJsonStrs() {
-			return toJsonStr(
+			return toJsonStr( removeNulls(
 					toIntegerValueStr("id"    , id          ),
 					toStringValueStr ("gId"   , objectTypeID),
 					toIntegerValueStr("liId"  , listId      ),
@@ -1026,8 +1026,8 @@ class Data {
 					toStringValueStr ("color" , colorStr    ),
 					toStringValueStr ("text"  , text        ),
 					toIntegerValueStr("grwth" , growth      ),
-					toIntegerValueStr("set"   , _set        )
-					);
+					toIntegerValueStr("set"   , _set        , true)
+			) );
 		}
 
 		@Override
@@ -1199,11 +1199,14 @@ class Data {
 		}
 
 		@Override String toJsonStrs() {
-			return toJsonStr(
+			return toJsonStr( removeNulls(
 					toIntegerValueStr("id"   , id      ),
 					toStringValueStr ("woIds", woIdsStr),
-					toIntegerValueStr("size" , size    )
-					);
+					toIntegerValueStr("size" , size    ),
+					toStringValueStr ("demandGrps", demandItemsStr, true),
+					toStringValueStr ("supplyGrps", supplyItemsStr, true),
+					toIntegerValueStr("priority"  , dronePrio     , true)
+			) );
 		}
 
 		@Override
@@ -1384,11 +1387,55 @@ class Data {
 
 	static class GeneralData2 extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(GeneralData2.class)
+				// old values
 				.add("hasPlayedIntro", Value.Type.Bool  )
-				.add("mode"          , Value.Type.String);
+				.add("mode"          , Value.Type.String)
+				// V 1.0
+		        .add("dyingConsequencesLabel"    , Value.Type.String )
+		        .add("freeCraft"                 , Value.Type.Bool   )
+		        .add("gameStartLocation"         , Value.Type.String )
+		        .add("modifierGaugeDrain"        , Value.Type.Float  )
+		        .add("modifierMeteoOccurence"    , Value.Type.Float  )
+		        .add("modifierMultiplayerTerraformationFactor", Value.Type.Float)
+		        .add("modifierPowerConsumption"  , Value.Type.Float  )
+		        .add("modifierTerraformationPace", Value.Type.Float  )
+		        .add("planetId"                  , Value.Type.String )
+		        .add("randomizeMineables"        , Value.Type.Bool   )
+		        .add("saveDisplayName"           , Value.Type.String )
+		        .add("startLocationLabel"        , Value.Type.String )
+		        .add("unlockedAutocrafter"       , Value.Type.Bool   )
+		        .add("unlockedDrones"            , Value.Type.Bool   )
+		        .add("unlockedEverything"        , Value.Type.Bool   )
+		        .add("unlockedOreExtrators"      , Value.Type.Bool   )
+		        .add("unlockedSpaceTrading"      , Value.Type.Bool   )
+		        .add("unlockedTeleporters"       , Value.Type.Bool   )
+		        .add("worldSeed"                 , Value.Type.Integer)
+				;
 		
+		// old values
 		final boolean hasPlayedIntro;
-		final String mode;
+		final String  mode;
+		
+		// V 1.0
+        final String  dyingConsequencesLabel;
+        final Boolean freeCraft             ;
+        final String  gameStartLocation     ;
+        final Double  modifierGaugeDrain    ;
+        final Double  modifierMeteoOccurence;
+        final Double  modifierMultiplayerTerraformationFactor;
+        final Double  modifierPowerConsumption  ;
+        final Double  modifierTerraformationPace;
+        final String  planetId                  ;
+        final Boolean randomizeMineables        ;
+        final String  saveDisplayName           ;
+        final String  startLocationLabel        ;
+        final Boolean unlockedAutocrafter       ;
+        final Boolean unlockedDrones            ;
+        final Boolean unlockedEverything        ;
+        final Boolean unlockedOreExtrators      ;
+        final Boolean unlockedSpaceTrading      ;
+        final Boolean unlockedTeleporters       ;
+        final Long    worldSeed                 ;
 
 		/*
 			Block[7]: 1 entries
@@ -1419,22 +1466,82 @@ class Data {
 			        unlockedTeleporters:Bool
 			        worldSeed:Integer
 		 */
-		// TODO: new values
 		GeneralData2(Value<NV, V> value, String debugLabel) throws TraverseException {
 			super(false);
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			hasPlayedIntro = JSON_Data.getBoolValue  (object, "hasPlayedIntro", debugLabel);
 			mode           = JSON_Data.getStringValue(object, "mode"          , debugLabel);
+			dyingConsequencesLabel     = JSON_Data.getStringValue (object, "dyingConsequencesLabel"    , true, false, debugLabel);
+			freeCraft                  = JSON_Data.getBoolValue   (object, "freeCraft"                 , true, false, debugLabel);
+			gameStartLocation          = JSON_Data.getStringValue (object, "gameStartLocation"         , true, false, debugLabel);
+			modifierGaugeDrain         = JSON_Data.getFloatValue  (object, "modifierGaugeDrain"        , true, false, debugLabel);
+			modifierMeteoOccurence     = JSON_Data.getFloatValue  (object, "modifierMeteoOccurence"    , true, false, debugLabel);
+			modifierMultiplayerTerraformationFactor = JSON_Data.getFloatValue(object, "modifierMultiplayerTerraformationFactor", true, false, debugLabel);
+			modifierPowerConsumption   = JSON_Data.getFloatValue  (object, "modifierPowerConsumption"  , true, false, debugLabel);
+			modifierTerraformationPace = JSON_Data.getFloatValue  (object, "modifierTerraformationPace", true, false, debugLabel);
+			planetId                   = JSON_Data.getStringValue (object, "planetId"                  , true, false, debugLabel);
+			randomizeMineables         = JSON_Data.getBoolValue   (object, "randomizeMineables"        , true, false, debugLabel);
+			saveDisplayName            = JSON_Data.getStringValue (object, "saveDisplayName"           , true, false, debugLabel);
+			startLocationLabel         = JSON_Data.getStringValue (object, "startLocationLabel"        , true, false, debugLabel);
+			unlockedAutocrafter        = JSON_Data.getBoolValue   (object, "unlockedAutocrafter"       , true, false, debugLabel);
+			unlockedDrones             = JSON_Data.getBoolValue   (object, "unlockedDrones"            , true, false, debugLabel);
+			unlockedEverything         = JSON_Data.getBoolValue   (object, "unlockedEverything"        , true, false, debugLabel);
+			unlockedOreExtrators       = JSON_Data.getBoolValue   (object, "unlockedOreExtrators"      , true, false, debugLabel);
+			unlockedSpaceTrading       = JSON_Data.getBoolValue   (object, "unlockedSpaceTrading"      , true, false, debugLabel);
+			unlockedTeleporters        = JSON_Data.getBoolValue   (object, "unlockedTeleporters"       , true, false, debugLabel);
+			worldSeed                  = JSON_Data.getIntegerValue(object, "worldSeed"                 , true, false, debugLabel);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 		}
 
 		@Override String toJsonStrs() {
-			return toJsonStr(
-					toStringValueStr("mode"          , mode          ),
-					toBoolValueStr  ("hasPlayedIntro", hasPlayedIntro)
-					);
+			return toJsonStr( removeNulls(
+					toStringValueStr ("saveDisplayName"     , saveDisplayName     , true),
+					toStringValueStr ("planetId"            , planetId            , true),
+					toBoolValueStr   ("unlockedSpaceTrading", unlockedSpaceTrading, true),
+					toBoolValueStr   ("unlockedOreExtrators", unlockedOreExtrators, true),
+					toBoolValueStr   ("unlockedTeleporters" , unlockedTeleporters , true),
+					toBoolValueStr   ("unlockedDrones"      , unlockedDrones      , true),
+					toBoolValueStr   ("unlockedAutocrafter" , unlockedAutocrafter , true),
+					toBoolValueStr   ("unlockedEverything"  , unlockedEverything  , true),
+					toBoolValueStr   ("freeCraft"           , freeCraft           , true),
+					toBoolValueStr   ("randomizeMineables"  , randomizeMineables  , true),
+					toFloatValueStr  ("modifierTerraformationPace"             , modifierTerraformationPace             , "%1.3f", true), // :1.0,
+					toFloatValueStr  ("modifierPowerConsumption"               , modifierPowerConsumption               , "%1.3f", true), // :1.0,
+					toFloatValueStr  ("modifierGaugeDrain"                     , modifierGaugeDrain                     , "%1.3f", true), // :1.0,
+					toFloatValueStr  ("modifierMeteoOccurence"                 , modifierMeteoOccurence                 , "%1.3f", true), // :1.0,
+					toFloatValueStr  ("modifierMultiplayerTerraformationFactor", modifierMultiplayerTerraformationFactor, "%1.3f", true), // :0.5,
+					toStringValueStr ("mode"                  , mode                        ),
+					toStringValueStr ("dyingConsequencesLabel", dyingConsequencesLabel, true),
+					toStringValueStr ("startLocationLabel"    , startLocationLabel    , true),
+					toIntegerValueStr("worldSeed"             , worldSeed             , true),
+					toBoolValueStr   ("hasPlayedIntro"        , hasPlayedIntro              ),
+					toStringValueStr ("gameStartLocation"     , gameStartLocation     , true)
+			) );
+			/*
+				"saveDisplayName":"NeuStart",
+				"planetId":"Prime",
+				"unlockedSpaceTrading":false,
+				"unlockedOreExtrators":false,
+				"unlockedTeleporters":false,
+				"unlockedDrones":false,
+				"unlockedAutocrafter":false,
+				"unlockedEverything":false,
+				"freeCraft":false,
+				"randomizeMineables":false,
+				"modifierTerraformationPace":1.0,
+				"modifierPowerConsumption":1.0,
+				"modifierGaugeDrain":1.0,
+				"modifierMeteoOccurence":1.0,
+				"modifierMultiplayerTerraformationFactor":0.5,
+				"mode":"Standard",
+				"dyingConsequencesLabel":"DropSomeItems",
+				"startLocationLabel":"Standard",
+				"worldSeed":1837713506,
+				"hasPlayedIntro":true,
+				"gameStartLocation":"Standard"
+			 */
 		}
 	}
 
