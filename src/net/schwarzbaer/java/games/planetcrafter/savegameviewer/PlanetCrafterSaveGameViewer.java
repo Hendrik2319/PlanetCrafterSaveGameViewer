@@ -475,8 +475,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		dataTabPane.addTab("World Objects", new WorldObjectsPanel(this,data,mapPanel));
 		dataTabPane.addTab("Object Lists", new ObjectListsPanel(data,mapPanel));
 		dataTabPane.addTab("Supply -> Demand", new SupplyDemandPanel(data));
-		dataTabPane.addTab("Object Types", objectTypesPanel);
-		dataTabPane.addTab("AutoCrafter Trading", autoCrafterTrading.createNewPanel());
+		dataTabPane.addTab("[ Object Types ]", objectTypesPanel);
+		dataTabPane.addTab("[ AutoCrafter Trading ]", autoCrafterTrading.createNewPanel());
 		
 		mapShapesEditor.updateAfterNewObjectTypes();
 		
