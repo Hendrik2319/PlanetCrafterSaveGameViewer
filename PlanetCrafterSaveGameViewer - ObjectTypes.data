@@ -598,7 +598,7 @@ class = Structure_Machine
 heat = 0.1
 pressure = 1.5
 energy = -5.0
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Drill2
@@ -1218,7 +1218,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: MultiToolMineSpeed3
 label = Microchip - Mining Speed  T3
 class = Equipment
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed4
@@ -1953,7 +1953,7 @@ class = Structure_Machine
 oxygen = 13.0
 energy = -7.25
 expectsMultiplierFor = Oxygen
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: WardenKey

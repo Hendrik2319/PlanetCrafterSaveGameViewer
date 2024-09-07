@@ -434,7 +434,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
 			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
 			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.AchievedValues::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
-			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.AchievedValues::formatTerraformation, null, true);
+			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.AchievedValues::formatTerraformation, null, true, d -> getStageRatioStr(achievements, d));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -463,6 +463,14 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			c.weightx = 1;
 			c.gridwidth = 3;
 			add(new JLabel(), c);
+		}
+
+		private static String getStageRatioStr(Achievements achievements, Double terraformLevel)
+		{
+			if (terraformLevel==null) return "--";
+			Double achievementRatio = achievements.getAchievementRatio(terraformLevel, AchievementList.Stages);
+			if (achievementRatio==null) return "--";
+			return String.format(Locale.ENGLISH, "%1.2f %%", achievementRatio*100);
 		}
 
 		void updateAfterAchievementsChange() {
@@ -513,7 +521,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private final JTextField fieldLevel;
 			private final JTextField fieldRate;
 			private final JTextField fieldAchievement;
-			private final boolean achievementFieldOnly;
+			private final boolean oneLine;
 			
 			private final Achievements achievements;
 			private final double level;
@@ -522,18 +530,19 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private double rate;
 
 			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
-				this(level, achievements, achievementList, formatLevel, formatRate, false);
+				this(level, achievements, achievementList, formatLevel, formatRate, false, null);
 			}
-			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean achievementFieldOnly) {
+			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean oneLine, Function<Double,String> formatLevel2) {
 				this.achievements = achievements;
 				this.achievementList = achievementList;
 				this.level = level;
 				this.rate = 0;
 				this.formatLevel = formatLevel;
 				this.formatRate = formatRate;
-				this.achievementFieldOnly = achievementFieldOnly;
-				fieldLevel       = achievementFieldOnly ? null : GUI.createOutputTextField(formatLevel.apply(level),10,JTextField.RIGHT);
-				fieldRate        = achievementFieldOnly ? null : GUI.createOutputTextField("--",20,JTextField.RIGHT);
+				this.oneLine = oneLine;
+				if (formatLevel2==null) formatLevel2 = this.formatLevel;
+				fieldLevel       = this.oneLine && formatLevel2==null ? null : GUI.createOutputTextField(formatLevel2.apply(this.level),10,JTextField.RIGHT);
+				fieldRate        = this.oneLine                       ? null : GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				fieldAchievement = GUI.createOutputTextField("--",20,JTextField.RIGHT);
 				updateAchievementField();
 			}
@@ -647,7 +656,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 
 			void setRate(double rate) {
 				this.rate = rate;
-				if (fieldRate!=null) {
+				if (fieldRate!=null && formatRate!=null) {
 					double rate2Level = Math.log10(rate/level);
 					if (Double.isFinite(rate2Level))
 						fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
@@ -671,11 +680,8 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				
 				c.weightx = 0; c.gridy = gridy  ; c.gridx = 0; panel.add(new JLabel(label+": "), c);
 				
-				if (achievementFieldOnly) {
-					c.gridwidth = 2;
-					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldAchievement, c);
-					
-				} else {
+				if (!oneLine)
+				{
 					c.weightx = 0; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel, c);
 					c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldRate , c);
 					c.weightx = 1; c.gridy = gridy+1; c.gridx = 1; c.gridwidth = 2; panel.add(fieldAchievement, c);
@@ -685,6 +691,17 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 					//fieldLevel.setFont(fieldLevel.getFont().deriveFont(Font.BOLD));
 					fieldRate.setForeground(Color.GRAY);
 					//fieldRate.setFont(fieldRate.getFont().deriveFont(Font.PLAIN));
+				}
+				else if (fieldLevel != null)
+				{
+					c.weightx = 0; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldLevel      , c);
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 2; panel.add(fieldAchievement, c);
+				}
+				else
+				{
+					c.gridwidth = 2;
+					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldAchievement, c);
+					
 				}
 			}
 		}

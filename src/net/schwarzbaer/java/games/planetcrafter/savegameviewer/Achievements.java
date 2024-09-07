@@ -174,6 +174,30 @@ class Achievements implements ObjectTypesChangeListener {
 		return achievements.get(listType);
 	}
 
+	Double getStageRatio(double terraformLevel)
+	{
+		return getAchievementRatio(terraformLevel, AchievementList.Stages);
+	}
+
+	Double getAchievementRatio(double level, AchievementList listType)
+	{
+		Vector<Achievement> list = getAchievementsList(AchievementList.Stages);
+		// pre: list is sorted by level, with level==null at end of list 
+		if (list!=null)
+		{
+			double lastAchievementLevel = 0;
+			for (Achievement a : list) {
+				if (a.level==null)
+					return null;
+				double achievementLevel = a.level.doubleValue();
+				if (achievementLevel>level)
+					return (level-lastAchievementLevel) / (achievementLevel-lastAchievementLevel);
+				lastAchievementLevel = achievementLevel;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		switch (event.eventType) {
