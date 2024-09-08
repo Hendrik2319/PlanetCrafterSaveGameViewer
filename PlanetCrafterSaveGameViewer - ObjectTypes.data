@@ -673,7 +673,7 @@ ObjectType: EnergyGenerator4
 label = Nuclear Reactor T1
 class = Structure_Machine
 energy = 86.5
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EnergyGenerator5
@@ -940,6 +940,9 @@ class = Resource_SeedEgg
 animalsMultiplier = 6.0
 occurrences = WorldObject
 <finished>
+
+ObjectType: FuseOxygen1
+occurrences = WorldObject
 
 ObjectType: FusionEnergyCell
 label = Fusion Energy Cell
@@ -1356,6 +1359,9 @@ label = Phytoplankton C
 class = Resource_Minable
 occurrences = WorldObject,ObjectList
 <finished>
+
+ObjectType: PinChip2
+occurrences = Blueprint
 
 ObjectType: pod
 label = Living Compartment
@@ -1972,6 +1978,18 @@ energy = -7.25
 expectsMultiplierFor = Oxygen
 occurrences = WorldObject,Achievement
 <finished>
+
+ObjectType: VehicleCrafter1
+occurrences = WorldObject
+
+ObjectType: VehicleEquipmentSize2
+occurrences = Blueprint
+
+ObjectType: VehicleOxygen1
+occurrences = Blueprint
+
+ObjectType: VehicleTruck
+occurrences = WorldObject
 
 ObjectType: WardenKey
 label = Warden's Key

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -424,17 +425,18 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			super(new GridBagLayout());
 			setBorder(BorderFactory.createTitledBorder("Terraforming"));
 			
+			Color bgColor = getBackground();
 			double terraformLevel = data.getTerraformLevel();
 			double biomassLevel   = data.getBiomassLevel();
-			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , Data.AchievedValues::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
-			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , Data.AchievedValues::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
-			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , Data.AchievedValues::formatPressureLevel , PhysicalValue.Pressure::formatRate);
-			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , Data.AchievedValues::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
-			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Plants  ::formatRate);
-			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
-			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
-			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, Data.AchievedValues::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
-			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , Data.AchievedValues::formatTerraformation, null, true, d -> getStageRatioStr(achievements, d));
+			oxygenRow    = new Row(data.oxygenLevel  , achievements, AchievementList.Oxygen        , bgColor, Data.AchievedValues::formatOxygenLevel   , PhysicalValue.Oxygen  ::formatRate);
+			heatRow      = new Row(data.heatLevel    , achievements, AchievementList.Heat          , bgColor, Data.AchievedValues::formatHeatLevel     , PhysicalValue.Heat    ::formatRate);
+			pressureRow  = new Row(data.pressureLevel, achievements, AchievementList.Pressure      , bgColor, Data.AchievedValues::formatPressureLevel , PhysicalValue.Pressure::formatRate);
+			biomassRow   = new Row(biomassLevel      , achievements, AchievementList.Biomass       , bgColor, Data.AchievedValues::formatBiomassLevel  , val->String.format(Locale.ENGLISH, "%1.2f g/s", val));
+			plantsRow    = new Row(data.plantsLevel  , achievements, AchievementList.Plants        , bgColor, Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Plants  ::formatRate);
+			insectsRow   = new Row(data.insectsLevel , achievements, AchievementList.Insects       , bgColor, Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Insects ::formatRate);
+			animalsRow   = new Row(data.animalsLevel , achievements, AchievementList.Animals       , bgColor, Data.AchievedValues::formatBiomassLevel  , PhysicalValue.Animals ::formatRate);
+			terraformRow = new Row(terraformLevel    , achievements, AchievementList.Terraformation, bgColor, Data.AchievedValues::formatTerraformation, val->String.format(Locale.ENGLISH, "%1.2f Ti/s", val));
+			stagesRow    = new Row(terraformLevel    , achievements, AchievementList.Stages        , bgColor, Data.AchievedValues::formatTerraformation, null, true, d -> getStageRatioStr(achievements, d));
 			
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.BOTH;
@@ -514,13 +516,74 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			Row.testDurationFormater();
 		}
 		
+		private static class AchievementTextField extends JTextField {
+			private static final long serialVersionUID = 4367674243165558871L;
+			
+			private final int markerColor;
+			private Double ratio;
+
+			AchievementTextField(String text, int size, Color panelBgColor)
+			{
+				super(text, size);
+				setOpaque(false);
+				ratio = null;
+				
+				if (compareBrightness(panelBgColor, getForeground()) > 0)
+					markerColor = 0xFFFFFF;
+				else
+					markerColor = 0;
+			}
+			
+			private static int compareBrightness(Color c1,Color c2) { return getRGBSum(c1)-getRGBSum(c2); }
+			private static int getRGBSum(Color c) { return c.getRed()+c.getGreen()+c.getBlue(); }
+
+			void setText(String text, Double ratio) {
+				this.ratio = ratio;
+				super.setText(text);
+			}
+
+			@Override
+			protected void paintComponent(Graphics g)
+			{
+				drawMarker(g);
+				super.paintComponent(g);
+			}
+
+			private void drawMarker(Graphics g)
+			{
+				if (ratio==null) return;
+				
+				int width  = getWidth();
+				int height = getHeight();
+				
+				int markerPos = (int)Math.round( width * Math.min(Math.max(0, ratio), 1) );
+				int markerWidth = 200;
+				
+				float f = 0.1f;
+				float f1_min = 1/(1+f*markerWidth);
+				
+				for (int i=0; i<=markerWidth; i++) {
+					int iPos = markerPos-i;
+					if (iPos <  0    ) continue;
+					if (iPos >= width) continue;
+					
+					float f1 = 1/(1+f*i);
+					f1 = (f1-f1_min)/(1-f1_min);
+					int opaqueness = Math.round(0xFF * f1) << 24;
+					
+					g.setColor(new Color(markerColor | opaqueness, true));
+					g.fillRect(iPos,2, 1,height-4);
+				}
+			}
+		}
+		
 		private static class Row {
 			
 			private final Function<Double, String> formatLevel;
 			private final Function<Double, String> formatRate;
 			private final JTextField fieldLevel;
 			private final JTextField fieldRate;
-			private final JTextField fieldAchievement;
+			private final AchievementTextField fieldAchievement;
 			private final boolean oneLine;
 			
 			private final Achievements achievements;
@@ -529,10 +592,10 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			
 			private double rate;
 
-			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
-				this(level, achievements, achievementList, formatLevel, formatRate, false, null);
+			Row(double level, Achievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+				this(level, achievements, achievementList, panelBgColor, formatLevel, formatRate, false, null);
 			}
-			Row(double level, Achievements achievements, AchievementList achievementList, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean oneLine, Function<Double,String> formatLevel2) {
+			Row(double level, Achievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean oneLine, Function<Double,String> formatLevel2) {
 				this.achievements = achievements;
 				this.achievementList = achievementList;
 				this.level = level;
@@ -543,14 +606,23 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				if (formatLevel2==null) formatLevel2 = this.formatLevel;
 				fieldLevel       = this.oneLine && formatLevel2==null ? null : GUI.createOutputTextField(formatLevel2.apply(this.level),10,JTextField.RIGHT);
 				fieldRate        = this.oneLine                       ? null : GUI.createOutputTextField("--",20,JTextField.RIGHT);
-				fieldAchievement = GUI.createOutputTextField("--",20,JTextField.RIGHT);
+				fieldAchievement = createAchievementTextField("--",20,JTextField.RIGHT, panelBgColor);
 				updateAchievementField();
+			}
+
+			private AchievementTextField createAchievementTextField(String text, int size, int horizontalAlignment, Color panelBgColor)
+			{
+				AchievementTextField comp = new AchievementTextField(text,size,panelBgColor);
+				comp.setEditable(false);
+				comp.setHorizontalAlignment(horizontalAlignment);
+				return comp;
 			}
 
 			void updateAchievementField() {
 				Achievements.Achievement achievement = achievements.getNextAchievement(level,achievementList);
+				Double achievementRatio = achievements.getAchievementRatio(level, achievementList);
 				String achievementText = getAchievementText(achievement);
-				fieldAchievement.setText(achievementText);
+				fieldAchievement.setText(achievementText, achievementRatio);
 			}
 
 			private String getAchievementText(Achievements.Achievement achievement) {
