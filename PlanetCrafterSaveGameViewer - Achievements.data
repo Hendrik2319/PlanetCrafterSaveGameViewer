@@ -50,10 +50,13 @@ Biomass
 8.3E9|{Heater5}
 1.77E10|{RocketInsects1}
 2.3E10|{Drill4}
-3.0E10|{Fish1Eggs}
+3.0E10|Fish Kooni/Provios Eggs (100% | P.A, M3, F1)
 3.5E10|{Fish3Eggs}
 4.2E10|{Aquarium2}
+5.2E10|Genetischer Synthesizer
+7.0E10|Tiere Streurakete
 8.0E10|Frog Strabo Eggs
+8.5E10|Tierfutter T1
 
 Plants
 8.0E7|{Beehive1}
@@ -78,21 +81,26 @@ Insects
 1500000.0|{Farm1}
 2500000.0|{ButterflyDisplayer1}
 5.0E7|{Mutagen2}
-2.25E8|{Beehive2}
+6.425E7|Ökosystem
+1.45E8|{Beehive2}
+8.0E8|Genetischer Extraktor
 9.25E8|{ButterflyFarm2}
-1.2E10|Frog Trajuu Eggs
+1.2E10|{Frog5Eggs}
 
 Animals
 50000.0|{Fish5Eggs}
 250000.0|{Fish6Eggs}
 2500000.0|{FishDisplayer1}
 5500000.0|{FishFarm1}
+6700000.0|Fahrzeug-Logistik
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
-3.5E7|Frog Afae Eggs
+3.5E7|{Frog7Eggs}
 6.7E7|{FrogDisplayer1}
-1.65E8|Generic Frog Eggs
-6.0E8|Frog Amedo Eggs
+9.2E7|Seltene Larve
+1.65E8|{Frog1Eggs}
+6.0E8|{Frog9Eggs}
+1.0E9|Jetpack T4
 
 Terraformation
 300.0|{Backpack2}
@@ -136,7 +144,7 @@ Terraformation
 3.5E11|Backpack St 6
 4.25E11|{AmphibiansFarm1}
 4.25E11|{Mutagen4}
-4.5E11|Frog Huli Eggs
+4.5E11|{Frog2Eggs}
 1.25E12|Futterspender für Tiere
 1.25E12|Tierheim
 2.25E12|Tierfutter T2
