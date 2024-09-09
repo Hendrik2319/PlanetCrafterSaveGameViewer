@@ -27,7 +27,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Finished, Label, Class_,
 		Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy,
 		ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier,
-		BoosterRocket, IsProducer
+		BoosterRocket, BoosterMultiplier, IsProducer
 	}
 	
 	enum ObjectTypeClassClass { Resource, Structure, Equipment, Special }
@@ -92,6 +92,8 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 
 	static final String EnergyRateUnit = "kW";
+	static final double DEFAULT_BOOSTER_MULTIPLIER = 10;
+	
 	private final File datafile;
 
 	ObjectTypes(File datafile)
@@ -125,15 +127,17 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( (valueStr=getValue(line,"animals = "             ))!=null ) currentOT.animals  = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"energy = "              ))!=null ) currentOT.energy   = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"expectsMultiplierFor = "))!=null ) currentOT.expectsMultiplierFor = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier     = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier    = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier    = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor   = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"boosterMultiplier = "   ))!=null ) currentOT.boosterMultiplier    = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
 				if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
 				if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
 				
 			}
+			forEach( (id,ot) -> setDefaultValues(ot) );
 			
 		} catch (FileNotFoundException ex) {
 			//ex.printStackTrace();
@@ -143,6 +147,12 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		}
 		
 		System.out.printf("Done%n");
+	}
+
+	private void setDefaultValues(ObjectType ot)
+	{
+		if (ot.isBoosterRocketFor!=null && ot.boosterMultiplier==null)
+			ot.boosterMultiplier = DEFAULT_BOOSTER_MULTIPLIER;
 	}
 
 	void writeToFile() {
@@ -170,6 +180,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( ot.insectsMultiplier   !=null) out.printf("insectsMultiplier = "   +"%s%n", ot.insectsMultiplier);
 				if ( ot.animalsMultiplier   !=null) out.printf("animalsMultiplier = "   +"%s%n", ot.animalsMultiplier);
 				if ( ot.isBoosterRocketFor  !=null) out.printf("isBoosterRocketFor = "  +"%s%n", ot.isBoosterRocketFor.name());
+				if ( ot.boosterMultiplier   !=null) out.printf("boosterMultiplier = "   +"%s%n", ot.boosterMultiplier);
 				if (!ot.occurrences.isEmpty()     ) out.printf("occurrences = "         +"%s%n", Occurrence.toDataStr(ot.occurrences));
 				if ( ot.isProducer                ) out.printf("isProducer"             +  "%n");
 				if ( ot.finished                  ) out.printf("<finished>"             +  "%n");
@@ -326,6 +337,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double insectsMultiplier;
 		Double animalsMultiplier; 
 		PhysicalValue isBoosterRocketFor; 
+		Double boosterMultiplier; 
 		boolean isProducer;
 		final EnumSet<Occurrence> occurrences;
 		

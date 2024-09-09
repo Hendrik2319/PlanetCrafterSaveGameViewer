@@ -876,14 +876,14 @@ ObjectType: Frog1Eggs
 label = Generic Frog Eggs (100% | P.C, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.0
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Frog2Eggs
 label = Frog Huli Eggs (150% | GFE, M4)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
-occurrences = WorldObject,Product
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Frog3Eggs
@@ -904,7 +904,7 @@ ObjectType: Frog5Eggs
 label = Frog Trajuu Eggs (300% | GFE, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
-occurrences = WorldObject,Product
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Frog6Eggs
@@ -918,14 +918,14 @@ ObjectType: Frog7Eggs
 label = Frog Afae Eggs (350% | GFE, M3, F2)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Frog9Eggs
 label = Frog Amedo Eggs (400% | GFE, M4, F2)
 class = Resource_SeedEgg
 animalsMultiplier = 4.0
-occurrences = WorldObject,Product
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: FrogDisplayer1
@@ -942,6 +942,9 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: FuseOxygen1
+occurrences = WorldObject
+
+ObjectType: FuseProduction1
 occurrences = WorldObject
 
 ObjectType: FusionEnergyCell
@@ -1137,6 +1140,9 @@ label = Jetpack T3
 class = Equipment
 occurrences = WorldObject,Blueprint
 <finished>
+
+ObjectType: Keycard1
+occurrences = WorldObject
 
 ObjectType: Ladder
 label = Indoor Ladder
@@ -1387,6 +1393,18 @@ class = Structure_Building
 occurrences = Blueprint
 <finished>
 
+ObjectType: ProceduralInstanceGenerator
+occurrences = WorldObject
+
+ObjectType: ProceduralWreckContainer1
+occurrences = WorldObject
+
+ObjectType: ProceduralWreckContainer2
+occurrences = WorldObject
+
+ObjectType: ProceduralWreckSafe
+occurrences = WorldObject
+
 ObjectType: PulsarQuartz
 label = Pulsar Quartz
 class = Resource_Craftable
@@ -1410,6 +1428,7 @@ ObjectType: RocketBiomass1
 label = Plants Rocket
 class = Special_Rocket
 isBoosterRocketFor = Plants
+boosterMultiplier = 10.0
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1423,6 +1442,7 @@ ObjectType: RocketHeat1
 label = Asteroids Attraction Rocket (Heat, Uranium)
 class = Special_Rocket
 isBoosterRocketFor = Heat
+boosterMultiplier = 10.0
 occurrences = WorldObject
 <finished>
 
@@ -1436,6 +1456,7 @@ ObjectType: RocketInsects1
 label = Insect Spreader Rocket
 class = Special_Rocket
 isBoosterRocketFor = Insects
+boosterMultiplier = 10.0
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1467,6 +1488,7 @@ ObjectType: RocketOxygen1
 label = Seeds Spreader Rocket
 class = Special_Rocket
 isBoosterRocketFor = Oxygen
+boosterMultiplier = 10.0
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1474,6 +1496,7 @@ ObjectType: RocketPressure1
 label = Magnetic Field Protection Rocket (Pressure, Iridium)
 class = Special_Rocket
 isBoosterRocketFor = Pressure
+boosterMultiplier = 10.0
 occurrences = WorldObject
 <finished>
 
@@ -1626,7 +1649,7 @@ oxygen = 161.0
 plants = 9.2
 energy = -28.8
 expectsMultiplierFor = Oxygen
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: SeedSpreader2
@@ -1758,6 +1781,15 @@ class = Structure_Machine
 energy = -276.0
 occurrences = WorldObject,Achievement
 <finished>
+
+ObjectType: TerraTokens100
+occurrences = WorldObject
+
+ObjectType: TerraTokens500
+occurrences = WorldObject
+
+ObjectType: TerraTokens5000
+occurrences = WorldObject
 
 ObjectType: Titanium
 label = Titanium
@@ -1982,8 +2014,17 @@ occurrences = WorldObject,Achievement
 ObjectType: VehicleCrafter1
 occurrences = WorldObject
 
+ObjectType: VehicleEquipmentSize1
+occurrences = WorldObject
+
 ObjectType: VehicleEquipmentSize2
 occurrences = Blueprint
+
+ObjectType: VehicleInventorySize1
+occurrences = WorldObject
+
+ObjectType: VehicleLights1
+occurrences = WorldObject
 
 ObjectType: VehicleOxygen1
 occurrences = Blueprint
@@ -2032,6 +2073,12 @@ energy = -105.5
 occurrences = WorldObject,Achievement
 isProducer
 <finished>
+
+ObjectType: WreckEntryLocked1
+occurrences = WorldObject
+
+ObjectType: WreckFusionGenerator
+occurrences = WorldObject
 
 ObjectType: wreckpilar
 label = Wreck Pilar (Iron)

@@ -226,8 +226,8 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null)
 				return SwingConstants.LEFT;
 			
-			if (columnID == ObjectTypesTableModel.ColumnID.amount)
-				return SwingConstants.CENTER;
+			if (columnID.horizontalAlignement != null)
+				return columnID.horizontalAlignement;
 			
 			if (Number.class.isAssignableFrom( columnID.cfg.columnClass) )
 				return SwingConstants.RIGHT;
@@ -254,6 +254,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case mapShape: return ((MapShape)value).label;
+			case boosterMultiplier: return value instanceof Double multi ? String.format(Locale.ENGLISH, "%1.1f %%", multi*100) : ""; 
 			}
 			return null;
 		}
@@ -261,35 +262,38 @@ class ObjectTypesPanel extends JScrollPane {
 	
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
-		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			finished             ("finished"      , Boolean        .class,  50, ObjectTypeValue.Finished),
-			occurrences          ("Occ."          , String         .class,  50, null),
-			amount               ("N"             , Integer        .class,  30, null),
-			id                   ("ID"            , String         .class, 130, null),
-			label                ("Label"         , String         .class, 260, ObjectTypeValue.Label   ),
-			class_               ("Class"         , ObjectTypeClass.class, 130, ObjectTypeValue.Class_  ),
-			showMarker           ("Show Marker?"  , Boolean        .class,  90, null),
-			mapShape             ("MapShape"      , MapShape       .class,  90, null),
-			effectOnTerraforming ("Terraf."       , Boolean        .class,  50, null),
-			heat                 ("Heat"          , Double         .class,  80, ObjectTypeValue.Heat    ),
-			pressure             ("Pressure"      , Double         .class,  80, ObjectTypeValue.Pressure),
-			oxygen               ("Oxygen"        , Double         .class,  80, ObjectTypeValue.Oxygen  ),
-			plants               ("Plants"        , Double         .class,  80, ObjectTypeValue.Plants  ),
-			insects              ("Insects"       , Double         .class,  80, ObjectTypeValue.Insects ),
-			animals              ("Animals"       , Double         .class,  80, ObjectTypeValue.Animals ),
-			energy               ("Energy"        , Double         .class,  80, ObjectTypeValue.Energy  ),
-			expectsMultiplierFor ("Multi Expected", PhysicalValue  .class,  90, ObjectTypeValue.ExpectsMultiplierFor),
-			oxygenMultiplier     ("Oxy. Multi"    , Double         .class,  90, ObjectTypeValue.OxygenMultiplier),
-			insectsMultiplier    ("Insects Multi" , Double         .class,  90, ObjectTypeValue.InsectsMultiplier),
-			animalsMultiplier    ("Animals Multi" , Double         .class,  90, ObjectTypeValue.AnimalsMultiplier),
-			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, ObjectTypeValue.BoosterRocket),
-			isProducer           ("Is Producer?"  , Boolean        .class,  90, ObjectTypeValue.IsProducer),
+		enum ColumnID implements Tables.SimplifiedColumnIDInterface, SwingConstants {
+			finished             ("finished"      , Boolean        .class,  50,   null, ObjectTypeValue.Finished),
+			occurrences          ("Occ."          , String         .class,  50,   null, null),
+			amount               ("N"             , Integer        .class,  30, CENTER, null),
+			id                   ("ID"            , String         .class, 130,   null, null),
+			label                ("Label"         , String         .class, 260,   null, ObjectTypeValue.Label   ),
+			class_               ("Class"         , ObjectTypeClass.class, 130,   null, ObjectTypeValue.Class_  ),
+			showMarker           ("Show Marker?"  , Boolean        .class,  90,   null, null),
+			mapShape             ("MapShape"      , MapShape       .class,  90,   null, null),
+			effectOnTerraforming ("Terraf."       , Boolean        .class,  50,   null, null),
+			heat                 ("Heat"          , Double         .class,  80,   null, ObjectTypeValue.Heat    ),
+			pressure             ("Pressure"      , Double         .class,  80,   null, ObjectTypeValue.Pressure),
+			oxygen               ("Oxygen"        , Double         .class,  80,   null, ObjectTypeValue.Oxygen  ),
+			plants               ("Plants"        , Double         .class,  80,   null, ObjectTypeValue.Plants  ),
+			insects              ("Insects"       , Double         .class,  80,   null, ObjectTypeValue.Insects ),
+			animals              ("Animals"       , Double         .class,  80,   null, ObjectTypeValue.Animals ),
+			energy               ("Energy"        , Double         .class,  80,   null, ObjectTypeValue.Energy  ),
+			expectsMultiplierFor ("Multi Expected", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.ExpectsMultiplierFor),
+			oxygenMultiplier     ("Oxy. Multi"    , Double         .class,  90,   null, ObjectTypeValue.OxygenMultiplier),
+			insectsMultiplier    ("Insects Multi" , Double         .class,  90,   null, ObjectTypeValue.InsectsMultiplier),
+			animalsMultiplier    ("Animals Multi" , Double         .class,  90,   null, ObjectTypeValue.AnimalsMultiplier),
+			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.BoosterRocket),
+			boosterMultiplier    ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.BoosterMultiplier),
+			isProducer           ("Is Producer?"  , Boolean        .class,  90,   null, ObjectTypeValue.IsProducer),
 			;
 			private final SimplifiedColumnConfig cfg;
+			private final Integer horizontalAlignement;
 			private final ObjectTypeValue objectTypeValue;
-			ColumnID(String name, Class<?> colClass, int width, ObjectTypeValue objectTypeValue) {
-				this.objectTypeValue = objectTypeValue;
+			ColumnID(String name, Class<?> colClass, int width, Integer horizontalAlignement, ObjectTypeValue objectTypeValue) {
 				cfg = new SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
+				this.horizontalAlignement = horizontalAlignement;
+				this.objectTypeValue = objectTypeValue;
 			}
 			@Override public SimplifiedColumnConfig getColumnConfig() {
 				return cfg;
@@ -353,13 +357,7 @@ class ObjectTypesPanel extends JScrollPane {
 		void setDefaultCellEditorsAndRenderers() {
 			
 			ObjectTypesTableCellRenderer tcr = new ObjectTypesTableCellRenderer(this);
-			table.setDefaultRenderer(String.class, tcr);
-			table.setDefaultRenderer(Double.class, tcr);
-			table.setDefaultRenderer(Integer.class, tcr);
-			table.setDefaultRenderer(Boolean.class, tcr);
-			table.setDefaultRenderer(PhysicalValue.class, tcr);
-			table.setDefaultRenderer(MapShape.class, tcr);
-			table.setDefaultRenderer(ObjectTypeClass.class, tcr);
+			setDefaultRenderers( clazz -> tcr );
 			
 			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<MapShape>((rowM, columnM) -> {
 				ObjectType row = getRow(rowM);
@@ -418,6 +416,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case insectsMultiplier   : return row.insectsMultiplier;
 			case animalsMultiplier   : return row.animalsMultiplier;
 			case isBoosterRocketFor  : return row.isBoosterRocketFor;
+			case boosterMultiplier   : return row.boosterMultiplier;
 			case isProducer  : return row.isProducer;
 			case occurrences : return toString(row.occurrences);
 			case amount      : return amounts.get(row.id);
@@ -464,7 +463,14 @@ class ObjectTypesPanel extends JScrollPane {
 			case oxygenMultiplier    : row.oxygenMultiplier     = (Double)aValue; break;
 			case insectsMultiplier   : row.insectsMultiplier    = (Double)aValue; break;
 			case animalsMultiplier   : row.animalsMultiplier    = (Double)aValue; break;
-			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue; break;
+			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue;
+				if (row.isBoosterRocketFor!=null && row.boosterMultiplier==null) {
+					row.boosterMultiplier = ObjectTypes.DEFAULT_BOOSTER_MULTIPLIER;
+					fireValueChangedEvent(row.id, ColumnID.boosterMultiplier.objectTypeValue);
+					fireTableCellUpdate(rowIndex, ColumnID.boosterMultiplier);
+				}
+				break;
+			case boosterMultiplier   : row.boosterMultiplier    = (Double)aValue; break;
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
 			case showMarker          : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue); break;
 			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); fireTableCellUpdate(rowIndex, ColumnID.showMarker); break;

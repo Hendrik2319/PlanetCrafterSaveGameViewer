@@ -108,7 +108,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			break;
 			
 			
-		case BoosterRocket: case Finished: case IsProducer: case Class_: break;
+		case BoosterRocket: case BoosterMultiplier: case Finished: case IsProducer: case Class_: break;
 		}
 	}
 	
@@ -191,6 +191,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
 			double totalSum = 0.0;
 			int numberOfBoosterRockets = 0;
+			double boosterMultiplier = 0;
 			
 			for (WorldObject wo : data.worldObjects) {
 				if (wo == null) continue;
@@ -214,17 +215,18 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 				
 				if (wo.objectType.isBoosterRocketFor==physicalValue) {
+					if (wo.objectType.boosterMultiplier!=null)
+						boosterMultiplier += wo.objectType.boosterMultiplier;
 					numberOfBoosterRockets++;
 				}
 			}
-			double boosterMultiplier = 1;
-			if (0 < numberOfBoosterRockets)
-				boosterMultiplier = 10*numberOfBoosterRockets;
 			
+			if (boosterMultiplier==0) boosterMultiplier = 1;
 			double totalSumFinal = totalSum*boosterMultiplier;
 			
+			String strBoosterRockets = numberOfBoosterRockets == 0 ? "---" : String.format(Locale.ENGLISH, "%d Ro. (= %1.1f %%)", numberOfBoosterRockets, boosterMultiplier*100);
 			fieldProductionRate     .setText(physicalValue.formatRate(totalSum));
-			fieldBoosterRockets     .setText(Integer.toString(numberOfBoosterRockets));
+			fieldBoosterRockets     .setText(strBoosterRockets);
 			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumFinal));
 			tableModel.setData(tableContent.values());
 			
