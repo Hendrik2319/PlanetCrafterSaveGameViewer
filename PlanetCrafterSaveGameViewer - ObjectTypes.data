@@ -865,6 +865,12 @@ class = Structure_Building
 occurrences = WorldObject
 <finished>
 
+ObjectType: FoundationSlope
+label = Foundation - Rampe
+class = Structure_Building
+occurrences = WorldObject
+<finished>
+
 ObjectType: Frog10Eggs
 label = Frog Kenjoss Eggs (500%)
 class = Resource_SeedEgg
@@ -942,7 +948,9 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: FuseOxygen1
+label = Sauerstoffmultiplikator-Sicherung 500%
 occurrences = WorldObject
+<finished>
 
 ObjectType: FuseProduction1
 occurrences = WorldObject
@@ -1132,7 +1140,7 @@ occurrences = WorldObject
 ObjectType: Jetpack2
 label = Jetpack T2
 class = Equipment
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Jetpack3
@@ -1180,6 +1188,10 @@ label = Magnesium
 class = Resource_Minable_Cheap
 occurrences = WorldObject,ObjectList
 <finished>
+
+ObjectType: MapChip
+class = Equipment
+occurrences = Blueprint
 
 ObjectType: MethanCapsule1
 label = Methane Cartridge
@@ -1367,6 +1379,7 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: PinChip2
+class = Equipment
 occurrences = Blueprint
 
 ObjectType: pod
@@ -1428,7 +1441,7 @@ ObjectType: RocketBiomass1
 label = Plants Rocket
 class = Special_Rocket
 isBoosterRocketFor = Plants
-boosterMultiplier = 10.0
+boosterMultiplier = 12.5
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1696,13 +1709,19 @@ occurrences = WorldObject,Product
 
 ObjectType: Skin-01
 label = Raumanzug Comto
+class = Equipment
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-06
 label = Raumanzug Cipto
+class = Equipment
 occurrences = WorldObject
 <finished>
+
+ObjectType: SkinDisplayer
+class = Structure_Storage
+occurrences = Blueprint
 
 ObjectType: SmartFabric
 label = Smart Fabric
@@ -2012,25 +2031,51 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VehicleCrafter1
-occurrences = WorldObject
+label = Fahrzeugstation
+class = Structure_Building
+occurrences = WorldObject,Achievement
+<finished>
 
 ObjectType: VehicleEquipmentSize1
+label = Fahrzeug-Ausstattungserhöhung (Equip) T1
+class = Equipment
 occurrences = WorldObject
+<finished>
 
 ObjectType: VehicleEquipmentSize2
+label = Fahrzeug-Ausstattungserhöhung (Equip) T2
+class = Equipment
 occurrences = Blueprint
+<finished>
 
 ObjectType: VehicleInventorySize1
+label = Fahrzeug-Bestandserhöhung (Inv) T1
+class = Equipment
 occurrences = WorldObject
+<finished>
+
+ObjectType: VehicleInventorySize2
+occurrences = Blueprint
 
 ObjectType: VehicleLights1
+label = Fahrzeug-Leuchten T1
+class = Equipment
 occurrences = WorldObject
+<finished>
 
 ObjectType: VehicleOxygen1
+label = Fahrzeug - Unbegrenzter Sauerstoff
+class = Equipment
+occurrences = Blueprint
+<finished>
+
+ObjectType: VehicleSpeed2
 occurrences = Blueprint
 
 ObjectType: VehicleTruck
+label = Fahrzeug - Rover
 occurrences = WorldObject
+<finished>
 
 ObjectType: WardenKey
 label = Warden's Key
