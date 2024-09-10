@@ -1,6 +1,6 @@
 ObjectType: AirFilter1
 label = Air Filter
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -95,31 +95,31 @@ isProducer
 
 ObjectType: Backpack1
 label = Backpack T1
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Backpack2
 label = Backpack T2
-class = Equipment
+class = Equipment_Player
 occurrences = Achievement
 <finished>
 
 ObjectType: Backpack3
 label = Backpack T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Backpack4
 label = Backpack T4
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Backpack5
 label = Backpack T5
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -261,19 +261,19 @@ occurrences = WorldObject
 
 ObjectType: BootsSpeed1
 label = Agility Boots T1
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed2
 label = Agility Boots T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed3
 label = Agility Boots T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
@@ -692,19 +692,19 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EquipmentIncrease1
 label = Exoskeleton T1
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: EquipmentIncrease2
 label = Exoskeleton T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EquipmentIncrease3
 label = Exoskeleton T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -949,10 +949,12 @@ occurrences = WorldObject
 
 ObjectType: FuseOxygen1
 label = Sauerstoffmultiplikator-Sicherung 500%
+class = Equipment_Machine
 occurrences = WorldObject
 <finished>
 
 ObjectType: FuseProduction1
+class = Equipment_Machine
 occurrences = WorldObject
 
 ObjectType: FusionEnergyCell
@@ -1089,13 +1091,13 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: HudChipCleanConstruction
 label = Microchip - Construction Menu Filter
-class = Equipment
+class = Equipment_Player
 occurrences = Blueprint
 <finished>
 
 ObjectType: HudCompass
 label = Microchip - Compass
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
@@ -1133,19 +1135,19 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: Jetpack1
 label = Jetpack T1
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Jetpack2
 label = Jetpack T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Jetpack3
 label = Jetpack T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
@@ -1190,7 +1192,7 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MapChip
-class = Equipment
+class = Equipment_Player
 occurrences = Blueprint
 
 ObjectType: MethanCapsule1
@@ -1201,60 +1203,60 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: MultiBuild
 label = Microchip - Construction
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiDeconstruct
 label = Microchip - Deconstruction
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolDeconstruct2
 label = Microchip - Deconstruction T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolLight
 label = MicroChip - Torch T1
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolLight1
 label = Microchip - Torch T1
-class = Equipment
+class = Equipment_Player
 <finished>
 
 ObjectType: MultiToolLight2
 label = Microchip - Torch T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed1
 label = Microchip - Mining Speed  T1
-class = Equipment
+class = Equipment_Player
 occurrences = Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed2
 label = Microchip - Mining Speed  T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed3
 label = Microchip - Mining Speed  T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed4
 label = Microchip - Mining Speed  T4
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
@@ -1339,24 +1341,24 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: OxygenTank1
 label = Oxygen Tank T1
-class = Equipment
+class = Equipment_Player
 <finished>
 
 ObjectType: OxygenTank2
 label = Oxygen Tank T2
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank3
 label = Oxygen Tank T3
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank4
 label = Oxygen Tank T4
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
@@ -1379,7 +1381,7 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: PinChip2
-class = Equipment
+class = Equipment_Player
 occurrences = Blueprint
 
 ObjectType: pod
@@ -1410,12 +1412,15 @@ ObjectType: ProceduralInstanceGenerator
 occurrences = WorldObject
 
 ObjectType: ProceduralWreckContainer1
+class = Structure_Storage
 occurrences = WorldObject
 
 ObjectType: ProceduralWreckContainer2
+class = Structure_Storage
 occurrences = WorldObject
 
 ObjectType: ProceduralWreckSafe
+class = Structure_Storage
 occurrences = WorldObject
 
 ObjectType: PulsarQuartz
@@ -1709,13 +1714,13 @@ occurrences = WorldObject,Product
 
 ObjectType: Skin-01
 label = Raumanzug Comto
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-06
 label = Raumanzug Cipto
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
@@ -1802,12 +1807,15 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: TerraTokens100
+class = Special_Money
 occurrences = WorldObject
 
 ObjectType: TerraTokens500
+class = Special_Money
 occurrences = WorldObject
 
 ObjectType: TerraTokens5000
+class = Special_Money
 occurrences = WorldObject
 
 ObjectType: Titanium
@@ -2038,42 +2046,49 @@ occurrences = WorldObject,Achievement
 
 ObjectType: VehicleEquipmentSize1
 label = Fahrzeug-Ausstattungserhöhung (Equip) T1
-class = Equipment
+class = Equipment_Vehicle
 occurrences = WorldObject
 <finished>
 
 ObjectType: VehicleEquipmentSize2
 label = Fahrzeug-Ausstattungserhöhung (Equip) T2
-class = Equipment
+class = Equipment_Vehicle
 occurrences = Blueprint
 <finished>
 
 ObjectType: VehicleInventorySize1
 label = Fahrzeug-Bestandserhöhung (Inv) T1
-class = Equipment
+class = Equipment_Vehicle
 occurrences = WorldObject
 <finished>
 
 ObjectType: VehicleInventorySize2
+label = Fahrzeug-Bestandserhöhung (Inv) T2
+class = Equipment_Vehicle
 occurrences = Blueprint
+<finished>
 
 ObjectType: VehicleLights1
 label = Fahrzeug-Leuchten T1
-class = Equipment
+class = Equipment_Vehicle
 occurrences = WorldObject
 <finished>
 
 ObjectType: VehicleOxygen1
 label = Fahrzeug - Unbegrenzter Sauerstoff
-class = Equipment
+class = Equipment_Vehicle
 occurrences = Blueprint
 <finished>
 
 ObjectType: VehicleSpeed2
+label = Fahrzeug-Geschwindigkeitserhöhung T2 (+200%)
+class = Equipment_Vehicle
 occurrences = Blueprint
+<finished>
 
 ObjectType: VehicleTruck
 label = Fahrzeug - Rover
+class = Vehicle
 occurrences = WorldObject
 <finished>
 
@@ -2107,7 +2122,7 @@ isProducer
 
 ObjectType: WaterFilter
 label = Water Filter
-class = Equipment
+class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -2120,9 +2135,11 @@ isProducer
 <finished>
 
 ObjectType: WreckEntryLocked1
+class = Special_Wreckage
 occurrences = WorldObject
 
 ObjectType: WreckFusionGenerator
+class = Special_Wreckage
 occurrences = WorldObject
 
 ObjectType: wreckpilar
