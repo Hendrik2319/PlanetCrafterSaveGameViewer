@@ -947,11 +947,19 @@ animalsMultiplier = 6.0
 occurrences = WorldObject
 <finished>
 
+ObjectType: FuseHeat1
+class = Equipment_Machine
+occurrences = WorldObject
+
 ObjectType: FuseOxygen1
 label = Sauerstoffmultiplikator-Sicherung 500%
 class = Equipment_Machine
 occurrences = WorldObject
 <finished>
+
+ObjectType: FusePlants1
+class = Equipment_Machine
+occurrences = WorldObject
 
 ObjectType: FuseProduction1
 class = Equipment_Machine
@@ -1290,6 +1298,9 @@ class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
 
+ObjectType: Optimizer1
+occurrences = WorldObject
+
 ObjectType: OreExtractor1
 label = Ore Extractor T1
 class = Structure_Machine
@@ -1380,9 +1391,17 @@ class = Resource_Minable
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: PinChip1
+label = Microchip - Bauplan anheften T1
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
 ObjectType: PinChip2
+label = Microchip - Bauplan anheften T2
 class = Equipment_Player
 occurrences = Blueprint
+<finished>
 
 ObjectType: pod
 label = Living Compartment
@@ -1725,8 +1744,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: SkinDisplayer
+label = Raumanzug-Displayer
 class = Structure_Storage
 occurrences = Blueprint
+<finished>
 
 ObjectType: SmartFabric
 label = Smart Fabric
@@ -1863,7 +1884,7 @@ ObjectType: Tree3Seed
 label = Tree Seed "Cernea" (150%, Nulna300) #1
 class = Resource_SeedEgg
 oxygenMultiplier = 1.5
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Tree4Seed
@@ -2065,7 +2086,7 @@ occurrences = WorldObject
 ObjectType: VehicleInventorySize2
 label = Fahrzeug-Bestandserhöhung (Inv) T2
 class = Equipment_Vehicle
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleLights1
@@ -2074,10 +2095,16 @@ class = Equipment_Vehicle
 occurrences = WorldObject
 <finished>
 
+ObjectType: VehicleLights2
+label = Fahrzeug-Leuchten T2
+class = Equipment_Vehicle
+occurrences = Blueprint
+<finished>
+
 ObjectType: VehicleOxygen1
 label = Fahrzeug - Unbegrenzter Sauerstoff
 class = Equipment_Vehicle
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleSpeed2
@@ -2138,6 +2165,10 @@ ObjectType: WreckEntryLocked1
 class = Special_Wreckage
 occurrences = WorldObject
 
+ObjectType: WreckEntryLocked2
+class = Special_Wreckage
+occurrences = WorldObject
+
 ObjectType: WreckFusionGenerator
 class = Special_Wreckage
 occurrences = WorldObject
@@ -2147,6 +2178,10 @@ label = Wreck Pilar (Iron)
 class = Special_Wreckage
 occurrences = WorldObject
 <finished>
+
+ObjectType: WreckRockExplodable
+class = Special_Wreckage
+occurrences = WorldObject
 
 ObjectType: WreckServer
 label = Wreck Server (Circuit Board)

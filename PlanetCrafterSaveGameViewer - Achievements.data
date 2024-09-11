@@ -111,14 +111,14 @@ Terraformation
 50000.0|{Container2}
 175000.0|{CraftStation2}
 345000.0|{LaunchPlatform}
-500000.0|MicroChip Pin Recipe St1 (@500kTi?)
+500000.0|{PinChip1}
 680000.0|Foundation - Corner
 875000.0|{WaterCollector1}
 5000000.0|{Backpack5}
 1.1E7|{VehicleCrafter1}
 1.75E7|Fahrzeug-Bestand
 5.0E7|{WaterCollector2}
-6.0E7|Foundation - Ramp
+6.0E7|{FoundationSlope}
 7.0E7|MachineOptimizer
 2.0E8|{ScreenBiomass}
 5.5E8|{ScreenRockets}
