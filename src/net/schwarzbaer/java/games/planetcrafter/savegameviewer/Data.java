@@ -27,7 +27,7 @@ class Data {
 	static class NV extends JSON_Data.NamedValueExtra.Dummy {}
 	static class  V extends JSON_Data.ValueExtra.Dummy {}
 	static final Comparator<String> caseIgnoringComparator = Comparator.nullsLast(Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder()));
-	private static final KnownJsonValuesFactory<NV, V> KJV_FACTORY = new KnownJsonValuesFactory<Data.NV, Data.V>("net.schwarzbaer.java.games.planetcrafter.savegameviewer.");
+	private static final KnownJsonValuesFactory<NV, V> KJV_FACTORY = new KnownJsonValuesFactory<>("net.schwarzbaer.java.games.planetcrafter.savegameviewer.");
 
 	static Data parse(Vector<Vector<Value<NV, V>>> jsonStructure, ObjectTypeCreator getOrCreateObjectType) {
 		try {
@@ -1100,6 +1100,20 @@ class Data {
 					objectType.addActiveOutputTo(out, 1);
 				}
 			}
+			
+			TerraformingCalculation.getInstance().foreachWOData(this, (phVal, woData) -> {
+				if (!woData.nearMachineOptimizers.isEmpty())
+				{
+					out.add(0, "Near MachineOptimizers", "%s", phVal);
+					woData.nearMachineOptimizers
+						.stream()
+						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
+						.forEach( nmo -> {
+							WorldObject mo = nmo.mo();
+							if (mo!=null) out.add(1, "%1.2f m".formatted(nmo.distance()), "%s", mo.getShortDesc());
+						} );
+				}
+			});
 			
 			if (products!=null && products.length>0)
 				generateOutput(out, 0, "Products", products);

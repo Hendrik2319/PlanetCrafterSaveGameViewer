@@ -101,6 +101,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		generalDataPanel = null;
 		objectTypesPanel = null;
 		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
+		TerraformingCalculation.getInstance().clearData();
 		
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
@@ -447,11 +448,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void setGUI(Data data) {
 		Data.clearAllRemoveStateListeners();
 		dataTabPane.removeAll();
+		TerraformingCalculation.getInstance().clearData();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(this, data);
 		
-		HashMap<String, Integer> amounts = new HashMap<String,Integer>();
+		HashMap<String, Integer> amounts = new HashMap<>();
 		if (data.worldObjects!=null)
 			for (WorldObject wo : data.worldObjects)
 			{
@@ -573,7 +575,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	}
 
 	private static void scanFileContent(String content) {
-		JSON_Helper.OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<NV,V>();
+		JSON_Helper.OptionalValues<NV, V> optionalValues = new JSON_Helper.OptionalValues<>();
 		ValueContainer<Integer> blockIndex = new ValueContainer<>(0);
 		ValueContainer<Integer> entriesCount = new ValueContainer<>(0);
 		

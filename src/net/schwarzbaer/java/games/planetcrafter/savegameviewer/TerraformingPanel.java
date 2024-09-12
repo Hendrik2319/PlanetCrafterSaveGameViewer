@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -35,6 +36,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Objec
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TerraformingCalculation.TerraformingAspect;
 import net.schwarzbaer.java.lib.gui.Tables;
 
 class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
@@ -53,7 +55,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		
 		TerraformingStatesPanel terraformingStatesPanel = generalDataPanel.getTerraformingStatesPanel();
 		
-		subPanels     = new EnumMap<PhysicalValue,SubPanel>(PhysicalValue.class);
+		subPanels     = new EnumMap<>(PhysicalValue.class);
 		heatPanel     = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Heat    );
 		pressurePanel = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Pressure);
 		oxygenePanel  = addPanel(this, data, terraformingStatesPanel, PhysicalValue.Oxygen  );
@@ -64,7 +66,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	
 	private static SubPanel addPanel(TerraformingPanel main, Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue)
 	{
-		SubPanel subPanel = new SubPanel(data, terraformingStatesPanel, physicalValue);
+		TerraformingAspect aspect = TerraformingCalculation.getInstance().getAspect(physicalValue);
+		SubPanel subPanel = new SubPanel(data, terraformingStatesPanel, physicalValue, aspect);
 		main.add(subPanel);
 		main.subPanels.put(physicalValue, subPanel);
 		return subPanel;
@@ -124,14 +127,16 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 
 		private final Data data;
 		private final PhysicalValue physicalValue;
+		private final TerraformingAspect terraformingAspect;
 		
 		private final TerraformingStatesPanel terraformingStatesPanel;
 
-		SubPanel(Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue) {
+		SubPanel(Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue, TerraformingAspect terraformingAspect) {
 			super(new BorderLayout(3,3));
 			this.data = data;
 			this.terraformingStatesPanel = terraformingStatesPanel;
 			this.physicalValue = physicalValue;
+			this.terraformingAspect = terraformingAspect;
 			
 			JPanel resumePanel = new JPanel(new GridBagLayout());
 			GridBagConstraints c = new GridBagConstraints();
@@ -189,16 +194,11 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 		}
 		
 		private static record ActiveMachineOptimizer (
+			WorldObject wo,
 			Coord3 position,
 			double range,
 			double fuseMulti
-		) {
-			boolean isInRange(Coord3 woPos) {
-				if (position==null) return false;
-				if (woPos   ==null) return false;
-				return position.getDistanceXYZ_m(woPos) <= range;
-			}
-		}
+		) {}
 
 		void updateContent()
 		{
@@ -206,6 +206,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			double totalSum = 0.0;
 			int numberOfBoosterRockets = 0;
 			double boosterMultiplier = 0;
+			terraformingAspect.clearData();
 			
 			Vector<ActiveMachineOptimizer> activeMOs = determineActiveMOs();
 			
@@ -222,7 +223,9 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 						if (multiplier==null) continue;
 					}
 					
-					Double moMulti = getTotalMultiOfMOsInRange(activeMOs, wo.position);
+					Double moMulti = getTotalMultiOfMOsInRange(activeMOs, wo.position, (amo,dist) -> {
+						terraformingAspect.getOrCreateWOData(wo).addMachineOptimizer(amo.wo,dist);
+					});
 					
 					RowIndex rowIndex = new RowIndex(
 							wo.objectTypeID,
@@ -291,21 +294,25 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				}
 				
 				if (!Double.isNaN(moMulti))
-					activeMOs.add(new ActiveMachineOptimizer(wo.position, ot.moRange, moMulti));
+					activeMOs.add(new ActiveMachineOptimizer(wo, wo.position, ot.moRange, moMulti));
 			}
 			return activeMOs;
 		}
 		
-		private Double getTotalMultiOfMOsInRange(Vector<ActiveMachineOptimizer> activeMOs, Coord3 woPos)
+		private Double getTotalMultiOfMOsInRange(Vector<ActiveMachineOptimizer> activeMOs, Coord3 woPos, BiConsumer<ActiveMachineOptimizer,Double> foundAMO)
 		{
 			if (woPos==null) return null;
 			
 			Double moMulti = null;
 			for (ActiveMachineOptimizer activeMO : activeMOs)
-				if (activeMO.isInRange(woPos)) {
+			{
+				double distance = activeMO.position.getDistanceXYZ_m(woPos);
+				if (distance <= activeMO.range) {
+					foundAMO.accept(activeMO, distance);
 					if (moMulti==null) moMulti = 0.0;
 					moMulti += activeMO.fuseMulti; // values of multiple MOs will be summarized
 				}
+			}
 			
 			return moMulti;
 		}
