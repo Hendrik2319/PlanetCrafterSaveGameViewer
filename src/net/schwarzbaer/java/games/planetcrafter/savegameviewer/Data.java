@@ -1086,10 +1086,19 @@ class Data {
 					container.addShortDescTo(out, 1);
 			}
 			
-			if (objectType!=null && objectType.isActive()) {
-				out.add(0, "Is Active");
-				ObjectType[] objectTypes = list==null ? null : getObjectTypes(list.worldObjs);
-				objectType.addActiveOutputTo(out, 1, objectTypes);
+			if (objectType!=null)
+			{
+				if (objectType.hasEffectOnTerraforming())
+				{
+					out.add(0, "Effect on Terraforming");
+					ObjectType[] objectTypes = list==null ? null : getObjectTypes(list.worldObjs);
+					objectType.addTerraformingOutputTo(out, 1, objectTypes);
+				}
+				if (objectType.isActive())
+				{
+					out.add(0, "Is Active");
+					objectType.addActiveOutputTo(out, 1);
+				}
 			}
 			
 			if (products!=null && products.length>0)

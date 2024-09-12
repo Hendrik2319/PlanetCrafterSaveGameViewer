@@ -419,7 +419,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 					animals !=null;
 		}
 
-		void addActiveOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
+		void addTerraformingOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
 			if (oxygen  !=null) {
 				if (expectsMultiplierFor == PhysicalValue.Oxygen)
 					            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
@@ -438,6 +438,9 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 					            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
 				else            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
 			}
+		}
+
+		void addActiveOutputTo(ValueListOutput out, int indentLevel) {
 			if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectTypes::formatEnergyRate     , energy  , null, false);
 		}
 	
