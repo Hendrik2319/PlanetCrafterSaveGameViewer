@@ -196,7 +196,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			boolean isInRange(Coord3 woPos) {
 				if (position==null) return false;
 				if (woPos   ==null) return false;
-				return position.getDistanceXZ_m(woPos) <= range;
+				return position.getDistanceXYZ_m(woPos) <= range;
 			}
 		}
 

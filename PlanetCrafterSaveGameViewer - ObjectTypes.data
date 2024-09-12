@@ -952,9 +952,12 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: FuseHeat1
+label = Wärmemultiplikator-Sicherung 500%
 class = Equipment_Machine
 occurrences = WorldObject
 isMOFuse = Heat
+moFuseMultiplier = 5.0
+<finished>
 
 ObjectType: FuseOxygen1
 label = Sauerstoffmultiplikator-Sicherung 500%
@@ -962,11 +965,15 @@ class = Equipment_Machine
 occurrences = WorldObject
 isMOFuse = Oxygen
 moFuseMultiplier = 5.0
+<finished>
 
 ObjectType: FusePlants1
+label = Pflanzenmultiplikator-Sicherung 500%
 class = Equipment_Machine
 occurrences = WorldObject
 isMOFuse = Plants
+moFuseMultiplier = 5.0
+<finished>
 
 ObjectType: FuseProduction1
 class = Equipment_Machine
@@ -1208,8 +1215,10 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MapChip
+label = Microchip-Karte
 class = Equipment_Player
 occurrences = Blueprint
+<finished>
 
 ObjectType: MethanCapsule1
 label = Methane Cartridge
@@ -1312,6 +1321,7 @@ class = Structure_Machine
 occurrences = WorldObject,Achievement
 isMachineOptomizer
 moRange = 60.0
+<finished>
 
 ObjectType: OreExtractor1
 label = Ore Extractor T1

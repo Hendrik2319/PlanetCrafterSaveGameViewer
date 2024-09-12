@@ -446,6 +446,11 @@ class Data {
 			Objects.requireNonNull(pos);
 			return Math.sqrt( (x-pos.x)*(x-pos.x) + (z-pos.z)*(z-pos.z) );
 		}
+		
+		double getDistanceXYZ_m(Coord3 pos) {
+			Objects.requireNonNull(pos);
+			return Math.sqrt( (x-pos.x)*(x-pos.x) + (y-pos.y)*(y-pos.y) + (z-pos.z)*(z-pos.z) );
+		}
 	}
 	
 	static class Rotation {
