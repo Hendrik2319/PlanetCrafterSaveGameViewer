@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -440,6 +441,11 @@ class Data {
 		
 		double getMapX() { return z; };
 		double getMapY() { return x; };
+		
+		double getDistanceXZ_m(Coord3 pos) {
+			Objects.requireNonNull(pos);
+			return Math.sqrt( (x-pos.x)*(x-pos.x) + (z-pos.z)*(z-pos.z) );
+		}
 	}
 	
 	static class Rotation {

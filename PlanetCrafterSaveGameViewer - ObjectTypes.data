@@ -853,6 +853,7 @@ isProducer
 <finished>
 
 ObjectType: Flare
+label = Fackel
 occurrences = Blueprint
 
 ObjectType: FlowerPot1
@@ -953,16 +954,19 @@ occurrences = WorldObject
 ObjectType: FuseHeat1
 class = Equipment_Machine
 occurrences = WorldObject
+isMOFuse = Heat
 
 ObjectType: FuseOxygen1
 label = Sauerstoffmultiplikator-Sicherung 500%
 class = Equipment_Machine
 occurrences = WorldObject
-<finished>
+isMOFuse = Oxygen
+moFuseMultiplier = 5.0
 
 ObjectType: FusePlants1
 class = Equipment_Machine
 occurrences = WorldObject
+isMOFuse = Plants
 
 ObjectType: FuseProduction1
 class = Equipment_Machine
@@ -1163,6 +1167,7 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Keycard1
+class = Equipment_Player
 occurrences = WorldObject
 
 ObjectType: Ladder
@@ -1186,7 +1191,7 @@ occurrences = WorldObject
 ObjectType: LarvaeBase3
 label = Rare Larva
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: LaunchPlatform
@@ -1302,7 +1307,11 @@ occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Optimizer1
-occurrences = WorldObject
+label = MaschinenOptimierer T1
+class = Structure_Machine
+occurrences = WorldObject,Achievement
+isMachineOptomizer
+moRange = 60.0
 
 ObjectType: OreExtractor1
 label = Ore Extractor T1
@@ -1431,6 +1440,7 @@ occurrences = Blueprint
 <finished>
 
 ObjectType: ProceduralInstanceGenerator
+class = Special_Wreckage
 occurrences = WorldObject
 
 ObjectType: ProceduralWreckContainer1
@@ -2139,7 +2149,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: WallInside
+label = Innenwand
+class = Structure_Building
 occurrences = Blueprint
+<finished>
 
 ObjectType: WardenKey
 label = Warden's Key

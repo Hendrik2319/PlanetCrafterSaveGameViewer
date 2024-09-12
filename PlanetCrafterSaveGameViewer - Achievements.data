@@ -97,7 +97,7 @@ Animals
 2.2E7|{LarvaeBase1}
 3.5E7|{Frog7Eggs}
 6.7E7|{FrogDisplayer1}
-9.2E7|Seltene Larve
+9.2E7|{LarvaeBase3}
 1.65E8|{Frog1Eggs}
 6.0E8|{Frog9Eggs}
 1.0E9|Jetpack T4
@@ -119,7 +119,7 @@ Terraformation
 1.75E7|Fahrzeug-Bestand
 5.0E7|{WaterCollector2}
 6.0E7|{FoundationSlope}
-7.0E7|MachineOptimizer
+7.0E7|{Optimizer1}
 2.0E8|{ScreenBiomass}
 5.5E8|{ScreenRockets}
 6.5E8|{RocketOxygen1}
