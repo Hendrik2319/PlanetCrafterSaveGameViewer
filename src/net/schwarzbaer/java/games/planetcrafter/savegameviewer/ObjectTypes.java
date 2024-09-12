@@ -27,7 +27,10 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Finished, Label, Class_,
 		Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy,
 		ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier,
-		BoosterRocket, BoosterMultiplier, IsProducer
+		BoosterRocket, BoosterMultiplier,
+		IsMachineOptomizer, MORange, 
+		IsMOFuse, MOFuseMultiplier, 
+		IsProducer,
 	}
 	
 	enum ObjectTypeClassClass { Resource, Structure, Equipment, Special, Vehicle }
@@ -141,6 +144,12 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor   = PhysicalValue.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"boosterMultiplier = "   ))!=null ) currentOT.boosterMultiplier    = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
+				
+				if (        line.equals(     "isMachineOptomizer"     )        ) currentOT.isMachineOptomizer = true;
+				if ( (valueStr=getValue(line,"moRange = "             ))!=null ) currentOT.moRange            = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"isMOFuse = "            ))!=null ) currentOT.isMOFuse           = PhysicalValue.valueOf_checked(valueStr);
+				if ( (valueStr=getValue(line,"moFuseMultiplier = "    ))!=null ) currentOT.moFuseMultiplier   = parseDouble(valueStr);
+				
 				if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
 				if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
 				
@@ -190,6 +199,12 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( ot.isBoosterRocketFor  !=null) out.printf("isBoosterRocketFor = "  +"%s%n", ot.isBoosterRocketFor.name());
 				if ( ot.boosterMultiplier   !=null) out.printf("boosterMultiplier = "   +"%s%n", ot.boosterMultiplier);
 				if (!ot.occurrences.isEmpty()     ) out.printf("occurrences = "         +"%s%n", Occurrence.toDataStr(ot.occurrences));
+				
+				if ( ot.isMachineOptomizer        ) out.printf("isMachineOptomizer"     +  "%n");
+				if ( ot.moRange             !=null) out.printf("moRange = "             +"%s%n", ot.moRange);
+				if ( ot.isMOFuse            !=null) out.printf("isMOFuse = "            +"%s%n", ot.isMOFuse.name());
+				if ( ot.moFuseMultiplier    !=null) out.printf("moFuseMultiplier = "    +"%s%n", ot.moFuseMultiplier);
+				
 				if ( ot.isProducer                ) out.printf("isProducer"             +  "%n");
 				if ( ot.finished                  ) out.printf("<finished>"             +  "%n");
 				
@@ -346,6 +361,10 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double animalsMultiplier; 
 		PhysicalValue isBoosterRocketFor; 
 		Double boosterMultiplier; 
+		boolean isMachineOptomizer; 
+		Double moRange; 
+		PhysicalValue isMOFuse; 
+		Double moFuseMultiplier; 
 		boolean isProducer;
 		final EnumSet<Occurrence> occurrences;
 		

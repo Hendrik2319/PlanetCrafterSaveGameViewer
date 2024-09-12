@@ -240,7 +240,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case class_: case isBoosterRocketFor: case isProducer:
+			case finished: case id: case label: case class_: case isBoosterRocketFor: case isProducer: case isMachineOptomizer: case isMOFuse:
 			case expectsMultiplierFor: case occurrences: case amount: case showMarker: case effectOnTerraforming:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
@@ -254,7 +254,9 @@ class ObjectTypesPanel extends JScrollPane {
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case mapShape: return ((MapShape)value).label;
-			case boosterMultiplier: return value instanceof Double multi ? String.format(Locale.ENGLISH, "%1.1f %%", multi*100) : ""; 
+			case boosterMultiplier: return value instanceof Double multi ? String.format(Locale.ENGLISH, "%1.1f %%", multi*100) : "";
+			case moRange: return String.format(Locale.ENGLISH, "%1.1f m", value);
+			case moFuseMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
 			return null;
 		}
@@ -263,29 +265,33 @@ class ObjectTypesPanel extends JScrollPane {
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface, SwingConstants {
-			finished             ("finished"      , Boolean        .class,  50,   null, ObjectTypeValue.Finished),
-			occurrences          ("Occ."          , String         .class,  50,   null, null),
-			amount               ("N"             , Integer        .class,  30, CENTER, null),
-			id                   ("ID"            , String         .class, 130,   null, null),
-			label                ("Label"         , String         .class, 260,   null, ObjectTypeValue.Label   ),
-			class_               ("Class"         , ObjectTypeClass.class, 130,   null, ObjectTypeValue.Class_  ),
-			showMarker           ("Show Marker?"  , Boolean        .class,  90,   null, null),
-			mapShape             ("MapShape"      , MapShape       .class,  90,   null, null),
-			effectOnTerraforming ("Terraf."       , Boolean        .class,  50,   null, null),
-			heat                 ("Heat"          , Double         .class,  80,   null, ObjectTypeValue.Heat    ),
-			pressure             ("Pressure"      , Double         .class,  80,   null, ObjectTypeValue.Pressure),
-			oxygen               ("Oxygen"        , Double         .class,  80,   null, ObjectTypeValue.Oxygen  ),
-			plants               ("Plants"        , Double         .class,  80,   null, ObjectTypeValue.Plants  ),
-			insects              ("Insects"       , Double         .class,  80,   null, ObjectTypeValue.Insects ),
-			animals              ("Animals"       , Double         .class,  80,   null, ObjectTypeValue.Animals ),
-			energy               ("Energy"        , Double         .class,  80,   null, ObjectTypeValue.Energy  ),
-			expectsMultiplierFor ("Multi Expected", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.ExpectsMultiplierFor),
-			oxygenMultiplier     ("Oxy. Multi"    , Double         .class,  90,   null, ObjectTypeValue.OxygenMultiplier),
-			insectsMultiplier    ("Insects Multi" , Double         .class,  90,   null, ObjectTypeValue.InsectsMultiplier),
-			animalsMultiplier    ("Animals Multi" , Double         .class,  90,   null, ObjectTypeValue.AnimalsMultiplier),
-			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.BoosterRocket),
-			boosterMultiplier    ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.BoosterMultiplier),
-			isProducer           ("Is Producer?"  , Boolean        .class,  90,   null, ObjectTypeValue.IsProducer),
+			finished             ("finished"      , Boolean        .class,  50,   null, ObjectTypeValue.Finished             ),
+			occurrences          ("Occ."          , String         .class,  50,   null, null                                 ),
+			amount               ("N"             , Integer        .class,  30, CENTER, null                                 ),
+			id                   ("ID"            , String         .class, 130,   null, null                                 ),
+			label                ("Label"         , String         .class, 260,   null, ObjectTypeValue.Label                ),
+			class_               ("Class"         , ObjectTypeClass.class, 130,   null, ObjectTypeValue.Class_               ),
+			showMarker           ("Show Marker?"  , Boolean        .class,  90,   null, null                                 ),
+			mapShape             ("MapShape"      , MapShape       .class,  90,   null, null                                 ),
+			effectOnTerraforming ("Terraf."       , Boolean        .class,  50,   null, null                                 ),
+			heat                 ("Heat"          , Double         .class,  80,   null, ObjectTypeValue.Heat                 ),
+			pressure             ("Pressure"      , Double         .class,  80,   null, ObjectTypeValue.Pressure             ),
+			oxygen               ("Oxygen"        , Double         .class,  80,   null, ObjectTypeValue.Oxygen               ),
+			plants               ("Plants"        , Double         .class,  80,   null, ObjectTypeValue.Plants               ),
+			insects              ("Insects"       , Double         .class,  80,   null, ObjectTypeValue.Insects              ),
+			animals              ("Animals"       , Double         .class,  80,   null, ObjectTypeValue.Animals              ),
+			energy               ("Energy"        , Double         .class,  80,   null, ObjectTypeValue.Energy               ),
+			expectsMultiplierFor ("Multi Expected", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.ExpectsMultiplierFor ),
+			oxygenMultiplier     ("Oxy. Multi"    , Double         .class,  90,   null, ObjectTypeValue.OxygenMultiplier     ),
+			insectsMultiplier    ("Insects Multi" , Double         .class,  90,   null, ObjectTypeValue.InsectsMultiplier    ),
+			animalsMultiplier    ("Animals Multi" , Double         .class,  90,   null, ObjectTypeValue.AnimalsMultiplier    ),
+			isBoosterRocketFor   ("Booster Rocket", PhysicalValue  .class,  90, CENTER, ObjectTypeValue.BoosterRocket        ),
+			boosterMultiplier    ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.BoosterMultiplier    ),
+			isMachineOptomizer   ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.IsMachineOptomizer   ),
+			moRange              ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.MORange              ), 
+			isMOFuse             ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.IsMOFuse             ),
+			moFuseMultiplier     ("Booster Multi" , Double         .class,  90,   null, ObjectTypeValue.MOFuseMultiplier     ), 
+			isProducer           ("Is Producer?"  , Boolean        .class,  90,   null, ObjectTypeValue.IsProducer           ),
 			;
 			private final SimplifiedColumnConfig cfg;
 			private final Integer horizontalAlignement;
@@ -411,7 +417,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case insects : return row.insects;
 			case animals : return row.animals;
 			case energy  : return row.energy;
-			case expectsMultiplierFor: return row.expectsMultiplierFor;   
+			case expectsMultiplierFor: return row.expectsMultiplierFor;
 			case oxygenMultiplier    : return row.oxygenMultiplier;
 			case insectsMultiplier   : return row.insectsMultiplier;
 			case animalsMultiplier   : return row.animalsMultiplier;
@@ -422,6 +428,10 @@ class ObjectTypesPanel extends JScrollPane {
 			case amount      : return amounts.get(row.id);
 			case showMarker  : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.shouldShowMarker(row);
 			case mapShape    : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
+			case isMachineOptomizer : return row.isMachineOptomizer;
+			case moRange            : return row.moRange;
+			case isMOFuse           : return row.isMOFuse;
+			case moFuseMultiplier   : return row.moFuseMultiplier;
 			}
 			return null;
 		}
@@ -460,9 +470,9 @@ class ObjectTypesPanel extends JScrollPane {
 			case animals : row.animals  = (Double)aValue; break;
 			case energy  : row.energy   = (Double)aValue; break;
 			case expectsMultiplierFor: row.expectsMultiplierFor = (PhysicalValue)aValue; break;
-			case oxygenMultiplier    : row.oxygenMultiplier     = (Double)aValue; break;
-			case insectsMultiplier   : row.insectsMultiplier    = (Double)aValue; break;
-			case animalsMultiplier   : row.animalsMultiplier    = (Double)aValue; break;
+			case oxygenMultiplier    : row.oxygenMultiplier     = (Double       )aValue; break;
+			case insectsMultiplier   : row.insectsMultiplier    = (Double       )aValue; break;
+			case animalsMultiplier   : row.animalsMultiplier    = (Double       )aValue; break;
 			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue;
 				if (row.isBoosterRocketFor!=null && row.boosterMultiplier==null) {
 					row.boosterMultiplier = ObjectTypes.DEFAULT_BOOSTER_MULTIPLIER;
@@ -470,10 +480,14 @@ class ObjectTypesPanel extends JScrollPane {
 					fireTableCellUpdate(rowIndex, ColumnID.boosterMultiplier);
 				}
 				break;
-			case boosterMultiplier   : row.boosterMultiplier    = (Double)aValue; break;
+			case boosterMultiplier   : row.boosterMultiplier    = (Double )aValue; break;
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
 			case showMarker          : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue); break;
 			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); fireTableCellUpdate(rowIndex, ColumnID.showMarker); break;
+			case isMachineOptomizer : row.isMachineOptomizer = (boolean      )aValue; break;
+			case moRange            : row.moRange            = (Double       )aValue; break;
+			case isMOFuse           : row.isMOFuse           = (PhysicalValue)aValue; break;
+			case moFuseMultiplier   : row.moFuseMultiplier   = (Double       )aValue; break;
 			}
 			fireValueChangedEvent(row.id, columnID.objectTypeValue);
 		}
