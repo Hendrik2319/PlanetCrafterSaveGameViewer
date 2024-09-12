@@ -852,6 +852,9 @@ occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
+ObjectType: Flare
+occurrences = Blueprint
+
 ObjectType: FlowerPot1
 label = Flower Pot
 class = Structure_Storage
@@ -868,7 +871,7 @@ occurrences = WorldObject
 ObjectType: FoundationSlope
 label = Foundation - Rampe
 class = Structure_Building
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Frog10Eggs
@@ -1394,13 +1397,13 @@ occurrences = WorldObject,ObjectList
 ObjectType: PinChip1
 label = Microchip - Bauplan anheften T1
 class = Equipment_Player
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: PinChip2
 label = Microchip - Bauplan anheften T2
 class = Equipment_Player
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: pod
@@ -1737,6 +1740,12 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-05
+label = Raumanzug Scifo
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
 ObjectType: Skin-06
 label = Raumanzug Cipto
 class = Equipment_Player
@@ -1831,6 +1840,10 @@ ObjectType: TerraTokens100
 class = Special_Money
 occurrences = WorldObject
 
+ObjectType: TerraTokens1000
+class = Special_Money
+occurrences = WorldObject
+
 ObjectType: TerraTokens500
 class = Special_Money
 occurrences = WorldObject
@@ -1891,7 +1904,7 @@ ObjectType: Tree4Seed
 label = Tree Seed "Elegea" (175%, Tuska400) #2
 class = Resource_SeedEgg
 oxygenMultiplier = 1.75
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Tree5Seed
@@ -1952,7 +1965,7 @@ oxygen = 1950.0
 plants = 175.0
 energy = -71.0
 expectsMultiplierFor = Oxygen
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: TreeSpreader2
@@ -2089,6 +2102,12 @@ class = Equipment_Vehicle
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: VehicleInventorySize3
+label = Fahrzeug-Bestandserhöhung (Inv) T3
+class = Equipment_Vehicle
+occurrences = Blueprint
+<finished>
+
 ObjectType: VehicleLights1
 label = Fahrzeug-Leuchten T1
 class = Equipment_Vehicle
@@ -2118,6 +2137,9 @@ label = Fahrzeug - Rover
 class = Vehicle
 occurrences = WorldObject
 <finished>
+
+ObjectType: WallInside
+occurrences = Blueprint
 
 ObjectType: WardenKey
 label = Warden's Key
