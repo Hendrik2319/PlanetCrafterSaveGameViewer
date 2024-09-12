@@ -1109,8 +1109,10 @@ class Data {
 						.stream()
 						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
 						.forEach( nmo -> {
-							WorldObject mo = nmo.mo();
-							if (mo!=null) out.add(1, "%1.2f m".formatted(nmo.distance()), "%s", mo.getShortDesc());
+							String distStr = String.format(Locale.ENGLISH, "%1.2f m", nmo.distance());
+							WorldObject wo = nmo.wo();
+							if (wo!=null)
+								out.add(1, distStr, "%s", wo.getShortDesc());
 						} );
 				}
 			});

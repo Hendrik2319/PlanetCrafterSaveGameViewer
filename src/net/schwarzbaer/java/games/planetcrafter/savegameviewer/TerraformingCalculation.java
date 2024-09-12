@@ -85,7 +85,7 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 	}
 	
 	record NearMachineOptimizer (
-		WorldObject mo,
+		WorldObject wo,
 		double distance
 	) {}
 	
@@ -98,9 +98,9 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 			nearMachineOptimizers = new Vector<>();
 		}
 		
-		void addMachineOptimizer(WorldObject mo, double distance)
+		void addMachineOptimizer(WorldObject wo, double distance)
 		{
-			nearMachineOptimizers.add(new NearMachineOptimizer(mo, distance));
+			nearMachineOptimizers.add(new NearMachineOptimizer(wo, distance));
 		}
 		
 	}
