@@ -102,10 +102,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		mapView = new MapView(main.mapShapes, mapModel, overView, textOut);
 		new MapContextMenu(mapView, main);
 		
-		cmbbxColoring = new JComboBox<ColoringType>(ColoringType.values());
+		cmbbxColoring = new JComboBox<>(ColoringType.values());
 		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
 		
-		cmbbxObjLabels = new JComboBox<String>(mapModel.installedObjectLabels);
+		cmbbxObjLabels = new JComboBox<>(mapModel.installedObjectLabels);
 		cmbbxObjLabels.setSelectedItem(null);
 		
 		cmbbxColoring.addActionListener(e->{

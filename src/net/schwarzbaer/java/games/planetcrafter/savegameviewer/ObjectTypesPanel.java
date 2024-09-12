@@ -365,7 +365,7 @@ class ObjectTypesPanel extends JScrollPane {
 			ObjectTypesTableCellRenderer tcr = new ObjectTypesTableCellRenderer(this);
 			setDefaultRenderers( clazz -> tcr );
 			
-			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<MapShape>((rowM, columnM) -> {
+			Tables.ComboboxCellEditor<MapShape> mapShapesCellEditor = new Tables.ComboboxCellEditor<>((rowM, columnM) -> {
 				ObjectType row = getRow(rowM);
 				Vector<MapShape> shapes = panel.main.mapShapes.getShapes(row);
 				if (shapes==null) return new Vector<>();

@@ -101,20 +101,20 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		
 		c.gridx++;
 		lowerPanel.add(
-				new SimpleTablePanel<Data.Message>("Messages", data.messages,
+				new SimpleTablePanel<>("Messages", data.messages,
 					new SimpleTablePanel.Column("ID"      , String .class, 170, row->((Data.Message)row).stringId),
 					new SimpleTablePanel.Column("Is Read?", Boolean.class,  60, row->((Data.Message)row).isRead  )
 				), c);
 		
 		c.gridx++;
 		lowerPanel.add(
-				new SimpleTablePanel<Data.StoryEvent>("StoryEvents", data.storyEvents,
+				new SimpleTablePanel<>("StoryEvents", data.storyEvents,
 					new SimpleTablePanel.Column("ID"      , String .class, 230, row->((Data.StoryEvent)row).stringId)
 				), c);
 		
 		c.gridx++;
 		lowerPanel.add(
-			new SimpleTablePanel<Data.Layer>("Layers", data.layers,
+			new SimpleTablePanel<>("Layers", data.layers,
 				new SimpleTablePanel.Column("ID"              , String    .class, 180, row->((Data.Layer)row).layerId        ),
 				new SimpleTablePanel.Column("Color Base      ", Data.Color.class,  90, row->((Data.Layer)row).colorBase      ),
 				new SimpleTablePanel.Column("Color Custom    ", Data.Color.class,  90, row->((Data.Layer)row).colorCustom    ),
@@ -969,7 +969,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final JTable table;
 
 		SimpleTablePanel(String title, Vector<ValueType> data, Column... columns) {
-			SimpleTableModel<ValueType> tableModel = new SimpleTableModel<ValueType>(data,columns);
+			SimpleTableModel<ValueType> tableModel = new SimpleTableModel<>(data,columns);
 			table = new JTable(tableModel);
 			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));

@@ -555,7 +555,7 @@ class Achievements implements ObjectTypesChangeListener {
 				table.setDefaultRenderer(String.class, tcr);
 				table.setDefaultRenderer(ObjectType.class, tcr);
 				
-				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<ObjectType>(()->{
+				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->{
 					Vector<ObjectType> sorted = new Vector<>(main.objectTypes.values());
 					sorted.sort(Comparator.<ObjectType,String>comparing(ot->{
 						if (ot.label!=null && !ot.label.isBlank())
