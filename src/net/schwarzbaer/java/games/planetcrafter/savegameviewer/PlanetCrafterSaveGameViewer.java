@@ -20,14 +20,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -43,6 +47,7 @@ import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.FileChooser;
 import net.schwarzbaer.java.lib.gui.GeneralIcons;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
+import net.schwarzbaer.java.lib.gui.IconSource;
 import net.schwarzbaer.java.lib.gui.ProgressDialog;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.StandardMainWindow;
@@ -55,6 +60,10 @@ import net.schwarzbaer.java.lib.system.DateTimeFormatter;
 import net.schwarzbaer.java.lib.system.Settings;
 
 public class PlanetCrafterSaveGameViewer implements ActionListener {
+	
+	private static IconSource.CachedIcons<FlagIcons> FlagIconsIS = IconSource.createCachedIcons(25, 18, "/icons/Flags.png", FlagIcons.values());
+	public enum FlagIcons { DE,GB; public Icon getIcon() { return FlagIconsIS.getCachedIcon(this); } }
+	enum LabelLanguage { EN, DE }
 
 	private static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	        static final String FILE_ACHIEVEMENTS        = "PlanetCrafterSaveGameViewer - Achievements.data";
@@ -74,6 +83,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	
 	static final AppSettings settings = new AppSettings();
 	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
+	static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 
 	private final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
@@ -159,6 +169,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				
 			case ConfigureAchievements:
 			case ShowMapShapesEditor:
+			case SetLabelLanguageDE:
+			case SetLabelLanguageEN:
 				break;
 			}
 			return null;
@@ -209,10 +221,20 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case ShowMapShapesEditor:
 				mapShapesEditor.showDialog();
 				break;
+				
+			case SetLabelLanguageDE: setLabelLanguage(LabelLanguage.DE); break;
+			case SetLabelLanguageEN: setLabelLanguage(LabelLanguage.EN); break;
 		}
 		
 	}
 	
+	private void setLabelLanguage(LabelLanguage lang)
+	{
+		currentLabelLanguage = lang;
+		setGUI(loadedData);
+		// TODO Auto-generated method stub
+	}
+
 	private class AutoReloader {
 		private static final Color COLOR_BUTTON_BG_RELOAD = new Color(0xB7FF00);
 		private final FileChangeObserver fileChangeObserver;
@@ -267,6 +289,11 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			add(createButton  ("Configure Achievements", null                             , true , ActionCommand.ConfigureAchievements));
 			addSeparator();
 			add(createButton  ("MapShapes Editor"      , null                             , true , ActionCommand.ShowMapShapesEditor  ));
+			addSeparator();
+			add(new JLabel("Language of Labels:"));
+			ButtonGroup bgLanguage = new ButtonGroup();
+			add(createRadioButton("EN", currentLabelLanguage == LabelLanguage.EN, bgLanguage, true, ActionCommand.SetLabelLanguageEN));
+			add(createRadioButton("DE", currentLabelLanguage == LabelLanguage.DE, bgLanguage, true, ActionCommand.SetLabelLanguageDE));
 		}
 		
 		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
@@ -274,6 +301,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		}
 		JButton createButton(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionCommand ac) {
 			return GUI.createButton(title, icons, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
+		}
+		JRadioButton createRadioButton(String title, boolean isChecked, ButtonGroup bg, boolean isEnabled, ActionCommand ac) {
+			return GUI.createRadioButton(title, isChecked, bg, isEnabled, PlanetCrafterSaveGameViewer.this, disabler, ac); 
 		}
 	}
 
@@ -737,7 +767,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			MapShapesEditor_WindowY,
 			MapShapesEditor_WindowWidth,
 			MapShapesEditor_WindowHeight,
-			MapShapesEditor_SplitPaneDivider
+			MapShapesEditor_SplitPaneDivider,
+			LabelLanguage
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

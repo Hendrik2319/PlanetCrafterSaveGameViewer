@@ -24,11 +24,14 @@ import java.util.function.Supplier;
 
 import javax.swing.AbstractButton;
 import javax.swing.AbstractCellEditor;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -53,7 +56,7 @@ class GUI {
 	static final Color COLOR_Removal_Fully     = new Color(0xFF7F7F);
 
 	enum ActionCommand {
-		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor
+		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor, SetLabelLanguageDE, SetLabelLanguageEN
 	}
 	
 	private static <Type extends AbstractButton> Type setAbstractButton(
@@ -65,9 +68,26 @@ class GUI {
 			ActionListener al,
 			Disabler<ActionCommand> disabler, ActionCommand ac
 		) {
-		if (title    !=null) comp.setText(title);
-		if (icons    !=null) { comp.setIcon(icons.getEnabledIcon()); comp.setDisabledIcon(icons.getDisabledIcon());}
-		if (isChecked!=null) comp.setSelected(isChecked);
+		Icon enabledIcon  = icons !=null ? icons.getEnabledIcon () : null;
+		Icon disabledIcon = icons !=null ? icons.getDisabledIcon() : null;
+		return setAbstractButton(comp, title, enabledIcon, disabledIcon, isChecked, isEnabled, al, disabler, ac);
+	}
+
+	private static <Type extends AbstractButton> Type setAbstractButton(
+			Type comp,
+			String title,
+			Icon enabledIcon,
+			Icon disabledIcon,
+			Boolean isChecked,
+			boolean isEnabled,
+			ActionListener al,
+			Disabler<ActionCommand> disabler,
+			ActionCommand ac
+		) {
+		if (title       !=null) comp.setText(title);
+		if (enabledIcon !=null) comp.setIcon(enabledIcon);
+		if (disabledIcon!=null) comp.setDisabledIcon(disabledIcon);
+		if (isChecked   !=null) comp.setSelected(isChecked);
 		if (al!=null) {
 			comp.addActionListener(al);
 			if (ac!=null) {
@@ -76,6 +96,11 @@ class GUI {
 			}
 		}
 		comp.setEnabled(isEnabled);
+		return comp;
+	}
+	
+	private static <Type extends AbstractButton> Type addToButtonGroup(ButtonGroup bg, Type comp) {
+		if (bg!=null) bg.add(comp);
 		return comp;
 	}
 	
@@ -94,6 +119,10 @@ class GUI {
 	
 	static JButton createButton(String title, boolean isEnabled, ActionListener al) {
 		return setAbstractButton(new JButton(), title, null, null, isEnabled, al, null, null);
+	}
+	
+	static JRadioButton createRadioButton(String title, boolean isChecked, ButtonGroup bg, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
+		return addToButtonGroup(bg, setAbstractButton(new JRadioButton(), title, null, null, isChecked, isEnabled, al, disabler, ac));
 	}
 	
 	static JMenuItem createMenuItem(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionListener al, Disabler<ActionCommand> disabler, ActionCommand ac) {
