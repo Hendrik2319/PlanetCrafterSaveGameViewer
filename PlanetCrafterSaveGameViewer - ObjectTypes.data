@@ -33,6 +33,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Alloy
 label_en = Super Alloy
+label_de = Superlegierung
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
@@ -137,8 +138,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: BalzarQuartz
+label_de = Blazar-Quarz
 class = Resource_Minable
 occurrences = WorldObject
+<finished>
 
 ObjectType: Beacon
 label_en = Beacon
@@ -723,6 +726,12 @@ class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: EquipmentIncrease4
+label_en = Exoskeleton T4
+class = Equipment_Player
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: EscapePod
 label_en = Landing Pod
 class = Structure_Building
@@ -1003,6 +1012,7 @@ moFuseMultiplier = 5.0
 <finished>
 
 ObjectType: FuseProduction1
+label_de = Produktionsmultiplikator-Sicherung (0,25)
 class = Equipment_Machine
 occurrences = WorldObject
 
@@ -1081,6 +1091,7 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: GoldenEffigie7
+label_en = Golden Effigie "Probe?"
 class = Structure_Furniture
 occurrences = WorldObject
 
@@ -1255,13 +1266,18 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MagnetarQuartz
+label_en = Magnetar Quartz
+label_de = Magnetar-Quarz
 class = Resource_Minable
 occurrences = WorldObject
+<finished>
 
 ObjectType: MapChip
+label_en = Microchip - Map
 label_de = Microchip-Karte
 class = Equipment_Player
 occurrences = Blueprint
+<finished>
 
 ObjectType: MethanCapsule1
 label_en = Methane Cartridge
@@ -1534,8 +1550,11 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: QuasarQuartz
+label_en = Quasar Quartz
+label_de = Quasar-Quarz
 class = Resource_Minable
 occurrences = WorldObject
+<finished>
 
 ObjectType: RecyclingMachine
 label_en = Recycling Machine
@@ -1641,12 +1660,14 @@ occurrences = WorldObject
 
 ObjectType: Rod-alloy
 label_en = Super Alloy Rod
+label_de = Superlegierungs-Stab
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Rod-iridium
 label_en = Iridium Rod
+label_de = Iridium-Stab
 class = Resource_Craftable
 occurrences = WorldObject
 <finished>
@@ -1659,6 +1680,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Rod-uranium
 label_en = Uranium Rod
+label_de = Uran-Stab
 class = Resource_Craftable
 occurrences = WorldObject
 <finished>
@@ -1881,6 +1903,8 @@ occurrences = Blueprint
 <finished>
 
 ObjectType: SolarQuartz
+label_en = Solar Quartz
+label_de = Sonnen-Quarz
 class = Resource_Minable
 occurrences = WorldObject
 
@@ -1942,28 +1966,28 @@ occurrences = WorldObject,Achievement
 
 ObjectType: TerraTokens100
 label_en = TerraTokens 100
-label_de = TerraToken 100
+label_de = Terra-Token 100
 class = Special_Money
 occurrences = WorldObject
 <finished>
 
 ObjectType: TerraTokens1000
 label_en = TerraTokens 1000
-label_de = TerraToken 1000
+label_de = Terra-Token 1000
 class = Special_Money
 occurrences = WorldObject
 <finished>
 
 ObjectType: TerraTokens500
 label_en = TerraTokens 500
-label_de = TerraToken 500
+label_de = Terra-Token 500
 class = Special_Money
 occurrences = WorldObject
 <finished>
 
 ObjectType: TerraTokens5000
 label_en = TerraTokens 5000
-label_de = TerraToken 5000
+label_de = Terra-Token 5000
 class = Special_Money
 occurrences = WorldObject
 <finished>
@@ -1997,8 +2021,11 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Tree13Seed
+label_de = Ruberu-Baumsamen (1200%)
 class = Resource_SeedEgg
+oxygenMultiplier = 12.0
 occurrences = WorldObject
+<finished>
 
 ObjectType: Tree1Seed
 label_en = Tree Seed "Linifolia" (125%, Shanga150) #0
@@ -2039,7 +2066,7 @@ ObjectType: Tree6Seed
 label_en = Tree Seed "Aemora" (400%, Volnus500) #4
 class = Resource_SeedEgg
 oxygenMultiplier = 4.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Tree7Seed
@@ -2344,7 +2371,7 @@ occurrences = WorldObject
 
 ObjectType: Zeolite
 label_en = Zeolite
-label_de = Zeolite
+label_de = Zeolith
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
