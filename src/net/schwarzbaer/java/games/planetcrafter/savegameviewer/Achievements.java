@@ -175,14 +175,9 @@ class Achievements implements ObjectTypesChangeListener {
 		return achievements.get(listType);
 	}
 
-	Double getStageRatio(double terraformLevel)
-	{
-		return getAchievementRatio(terraformLevel, AchievementList.Stages);
-	}
-
 	Double getAchievementRatio(double level, AchievementList listType)
 	{
-		Vector<Achievement> list = getAchievementsList(AchievementList.Stages);
+		Vector<Achievement> list = getAchievementsList(listType);
 		// pre: list is sorted by level, with level==null at end of list 
 		if (list!=null)
 		{

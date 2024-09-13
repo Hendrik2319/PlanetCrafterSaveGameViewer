@@ -773,7 +773,6 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 				{
 					c.gridwidth = 2;
 					c.weightx = 1; c.gridy = gridy  ; c.gridx = 1; panel.add(fieldAchievement, c);
-					
 				}
 			}
 		}
