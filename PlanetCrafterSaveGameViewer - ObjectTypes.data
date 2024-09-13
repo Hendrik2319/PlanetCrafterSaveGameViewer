@@ -129,6 +129,9 @@ class = Resource_Craftable
 occurrences = WorldObject
 <finished>
 
+ObjectType: BalzarQuartz
+occurrences = WorldObject
+
 ObjectType: Beacon
 label = Beacon
 class = Structure_Machine
@@ -714,6 +717,10 @@ class = Structure_Building
 occurrences = WorldObject
 <finished>
 
+ObjectType: Explosive
+label = Explosiv
+occurrences = WorldObject,Blueprint
+
 ObjectType: FabricBlue
 label = Fabric
 class = Resource_Craftable
@@ -854,7 +861,7 @@ isProducer
 
 ObjectType: Flare
 label = Fackel
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 
 ObjectType: FlowerPot1
 label = Flower Pot
@@ -1053,6 +1060,9 @@ class = Structure_Furniture
 occurrences = WorldObject
 <finished>
 
+ObjectType: GoldenEffigie7
+occurrences = WorldObject
+
 ObjectType: GrassSpreader1
 label = Grass Spreader T1
 class = Structure_Machine
@@ -1214,6 +1224,10 @@ class = Resource_Minable_Cheap
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: MagnetarQuartz
+class = Resource_Minable
+occurrences = WorldObject
+
 ObjectType: MapChip
 label = Microchip-Karte
 class = Equipment_Player
@@ -1244,6 +1258,12 @@ class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: MultiToolDeconstruct3
+label = Microchip - Deconstruction T3
+class = Equipment_Player
+occurrences = WorldObject,Blueprint
+<finished>
+
 ObjectType: MultiToolLight
 label = MicroChip - Torch T1
 class = Equipment_Player
@@ -1257,6 +1277,12 @@ class = Equipment_Player
 
 ObjectType: MultiToolLight2
 label = Microchip - Torch T2
+class = Equipment_Player
+occurrences = WorldObject,Blueprint
+<finished>
+
+ObjectType: MultiToolLight3
+label = Microchip - Torch T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
@@ -1425,6 +1451,12 @@ class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: PinChip3
+label = Microchip - Bauplan anheften T3
+class = Equipment_Player
+occurrences = Blueprint
+<finished>
+
 ObjectType: pod
 label = Living Compartment
 class = Structure_Building
@@ -1470,6 +1502,9 @@ label = Pulsar Quartz
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
+
+ObjectType: QuasarQuartz
+occurrences = WorldObject
 
 ObjectType: RecyclingMachine
 label = Recycling Machine
@@ -1565,6 +1600,9 @@ label = Rocket Engine
 class = Resource_Craftable
 occurrences = WorldObject
 <finished>
+
+ObjectType: RockExplodable
+occurrences = WorldObject
 
 ObjectType: Rod-alloy
 label = Super Alloy Rod
@@ -1760,6 +1798,9 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-02
+occurrences = WorldObject
+
 ObjectType: Skin-05
 label = Raumanzug Scifo
 class = Equipment_Player
@@ -1801,6 +1842,9 @@ label = Customizable Sofa
 class = Structure_Furniture
 occurrences = Blueprint
 <finished>
+
+ObjectType: SolarQuartz
+occurrences = WorldObject
 
 ObjectType: SpaceMultiplierBiomass
 class = Special_Hidden
@@ -1857,20 +1901,28 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: TerraTokens100
+label = TerraTokens 100
 class = Special_Money
 occurrences = WorldObject
+<finished>
 
 ObjectType: TerraTokens1000
+label = TerraTokens 1000
 class = Special_Money
 occurrences = WorldObject
+<finished>
 
 ObjectType: TerraTokens500
+label = TerraTokens 500
 class = Special_Money
 occurrences = WorldObject
+<finished>
 
 ObjectType: TerraTokens5000
+label = TerraTokens 5000
 class = Special_Money
 occurrences = WorldObject
+<finished>
 
 ObjectType: Titanium
 label = Titanium
@@ -1898,6 +1950,9 @@ class = Resource_SeedEgg
 oxygenMultiplier = 6.0
 occurrences = WorldObject,Product
 <finished>
+
+ObjectType: Tree13Seed
+occurrences = WorldObject
 
 ObjectType: Tree1Seed
 label = Tree Seed "Linifolia" (125%, Shanga150) #0
@@ -2125,7 +2180,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: VehicleInventorySize3
 label = Fahrzeug-Bestandserhöhung (Inv) T3
 class = Equipment_Vehicle
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleLights1
@@ -2137,7 +2192,7 @@ occurrences = WorldObject
 ObjectType: VehicleLights2
 label = Fahrzeug-Leuchten T2
 class = Equipment_Vehicle
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleOxygen1
@@ -2150,6 +2205,12 @@ ObjectType: VehicleSpeed2
 label = Fahrzeug-Geschwindigkeitserhöhung T2 (+200%)
 class = Equipment_Vehicle
 occurrences = Blueprint
+<finished>
+
+ObjectType: VehicleSpeed3
+label = Fahrzeug-Geschwindigkeitserhöhung T3 (+300%)
+class = Equipment_Vehicle
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleTruck
