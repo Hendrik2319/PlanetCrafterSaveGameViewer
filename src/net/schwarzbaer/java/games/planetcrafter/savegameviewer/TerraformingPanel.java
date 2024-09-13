@@ -438,7 +438,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				Name      ("Name"      , String .class, 130),
 				BaseSum   ("Base Sum"  , Double .class, 100),
 				Multiplier("Multi"     , Double .class,  50),
-				MOMulti   ("Mo-Multi"  , Double .class,  55),
+				MOMulti   ("MO Multi"  , Double .class,  55),
 				FinalSum  ("Final Sum" , Double .class, 100),
 				Energy    ("Energy"    , Double .class,  80),
 				Efficiency("Efficiency", Double .class, 110),
