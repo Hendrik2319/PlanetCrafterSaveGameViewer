@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
@@ -115,29 +116,50 @@ class ObjectTypesPanel extends JScrollPane {
 	private class TableContextMenu extends ContextMenu {
 		private static final long serialVersionUID = -2507135643891209882L;
 		private ObjectType clickedRow;
-		@SuppressWarnings("unused")
 		private int clickedRowIndex;
 
 		TableContextMenu() {
 			clickedRow = null;
 			clickedRowIndex = -1;
 			
-			JMenuItem miCopyID2Clipboard = add(GUI.createMenuItem("Copy ID to Clipboard", e->{
+			JMenuItem miCopyID2Clipboard = add(GUI.createMenuItem("###", e->{
 				if (clickedRow==null) return;
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.id);
 			}));
 			
-			JMenuItem miCopyLabelEn2Clipboard = add(GUI.createMenuItem("Copy Label (En) to Clipboard", e->{
+			JMenuItem miCopyLabelEn2Clipboard = add(GUI.createMenuItem("###", e->{
 				if (clickedRow==null) return;
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label_en);
 			}));
 			
-			JMenuItem miCopyLabelDe2Clipboard = add(GUI.createMenuItem("Copy Label (De) to Clipboard", e->{
+			JMenuItem miCopyLabelDe2Clipboard = add(GUI.createMenuItem("###", e->{
 				if (clickedRow==null) return;
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label_de);
 			}));
 			
-			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
+			JMenuItem miCopyLabelEn2LabelDe = add(GUI.createMenuItem("###", e->{
+				if (clickedRow==null) return;
+				if (clickedRow.label_de!=null && !clickedRow.label_de.isBlank()) return;
+				clickedRow.label_de = clickedRow.label_en;
+				SwingUtilities.invokeLater(()->{
+					tableModel.fireValueChangedEvent(clickedRow, ObjectTypeValue.Label_de);
+					tableModel.fireTableCellUpdate(clickedRowIndex, ObjectTypesTableModel.ColumnID.label_de);
+				});
+			}));
+			
+			JMenuItem miCopyLabelDe2LabelEn = add(GUI.createMenuItem("###", e->{
+				if (clickedRow==null) return;
+				if (clickedRow.label_en!=null && !clickedRow.label_en.isBlank()) return;
+				clickedRow.label_en = clickedRow.label_de;
+				SwingUtilities.invokeLater(()->{
+					tableModel.fireValueChangedEvent(clickedRow, ObjectTypeValue.Label_en);
+					tableModel.fireTableCellUpdate(clickedRowIndex, ObjectTypesTableModel.ColumnID.label_en);
+				});
+			}));
+			
+			addSeparator();
+			
+			JMenuItem miEditMapShapes = add(GUI.createMenuItem("###", e->{
 				if (clickedRow==null) return;
 				main.showMapShapesEditor(clickedRow);
 			}));
@@ -168,24 +190,36 @@ class ObjectTypesPanel extends JScrollPane {
 				clickedRowIndex = rowM;
 				clickedRow = rowM<0 ? null : tableModel.getRow(rowM);
 				
-				miCopyID2Clipboard     .setEnabled(clickedRow!=null);
-				miCopyLabelEn2Clipboard.setEnabled(clickedRow!=null && clickedRow.label_en!=null && !clickedRow.label_en.isBlank());
-				miCopyLabelDe2Clipboard.setEnabled(clickedRow!=null && clickedRow.label_de!=null && !clickedRow.label_de.isBlank());
-				miEditMapShapes        .setEnabled(clickedRow!=null);
-				miCopyID2Clipboard.setText(clickedRow == null
+				boolean rowIsNotNull = clickedRow!=null;
+				boolean label_en_isOk = clickedRow!=null && clickedRow.label_en!=null && !clickedRow.label_en.isBlank();
+				boolean label_de_isOk = clickedRow!=null && clickedRow.label_de!=null && !clickedRow.label_de.isBlank();
+				miCopyID2Clipboard     .setEnabled(rowIsNotNull);
+				miCopyLabelEn2Clipboard.setEnabled(label_en_isOk);
+				miCopyLabelDe2Clipboard.setEnabled(label_de_isOk);
+				miCopyLabelEn2LabelDe  .setEnabled(label_en_isOk && !label_de_isOk);
+				miCopyLabelDe2LabelEn  .setEnabled(label_de_isOk && !label_en_isOk);
+				miEditMapShapes        .setEnabled(rowIsNotNull);
+				miCopyID2Clipboard.setText(!rowIsNotNull
 						? "Copy ID to Clipboard"
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
-				miCopyLabelEn2Clipboard.setText(clickedRow == null || clickedRow.label_en==null || clickedRow.label_en.isBlank()
+				miCopyLabelEn2Clipboard.setText(!label_en_isOk
 						? "Copy Label (En) to Clipboard"
 						: String.format("Copy Label (En) \"%s\" to Clipboard", clickedRow.label_en));
-				miCopyLabelDe2Clipboard.setText(clickedRow == null || clickedRow.label_de==null || clickedRow.label_de.isBlank()
+				miCopyLabelDe2Clipboard.setText(!label_de_isOk
 						? "Copy Label (De) to Clipboard"
 						: String.format("Copy Label (De) \"%s\" to Clipboard", clickedRow.label_de));
-				miEditMapShapes.setText(clickedRow == null
+				miCopyLabelEn2LabelDe.setText(!label_en_isOk || label_de_isOk
+						? "Copy Label (En -> De)"
+						: String.format("Copy Label (En) \"%s\" to Label (De)", clickedRow.label_en));
+				miCopyLabelDe2LabelEn.setText(!label_de_isOk || label_en_isOk
+						? "Copy Label (De -> En)"
+						: String.format("Copy Label (De) \"%s\" to Label (En)", clickedRow.label_de));
+				miEditMapShapes.setText(!rowIsNotNull
 						? "Create/Edit MapShapes"
 						: main.mapShapes.hasShapes(clickedRow)
-							? String.format(  "Edit MapShapes of \"%s\"", clickedRow.getName())
-							: String.format("Create MapShapes of \"%s\"", clickedRow.getName()));
+								? String.format(  "Edit MapShapes of \"%s\"", clickedRow.getName())
+								: String.format("Create MapShapes of \"%s\"", clickedRow.getName())
+				);
 			});
 		}
 	}
@@ -358,6 +392,10 @@ class ObjectTypesPanel extends JScrollPane {
 		void fireValueChangedEvent(String objectTypeID, ObjectTypeValue value) {
 			fireObjectTypesChangeEvent(ObjectTypesChangeEvent.createValueChangedEvent(objectTypeID, value));
 		}
+		void fireValueChangedEvent(ObjectType row, ObjectTypeValue value) {
+			if (row==null) return;
+			fireValueChangedEvent(row.id, value);
+		}
 		
 		private void fireObjectTypesChangeEvent(ObjectTypesChangeEvent event)
 		{
@@ -488,7 +526,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case isBoosterRocketFor  : row.isBoosterRocketFor   = (PhysicalValue)aValue;
 				if (row.isBoosterRocketFor!=null && row.boosterMultiplier==null) {
 					row.boosterMultiplier = ObjectTypes.DEFAULT_BOOSTER_MULTIPLIER;
-					fireValueChangedEvent(row.id, ColumnID.boosterMultiplier.objectTypeValue);
+					fireValueChangedEvent(row, ColumnID.boosterMultiplier.objectTypeValue);
 					fireTableCellUpdate(rowIndex, ColumnID.boosterMultiplier);
 				}
 				break;
@@ -501,7 +539,7 @@ class ObjectTypesPanel extends JScrollPane {
 			case isMOFuse           : row.isMOFuse           = (PhysicalValue)aValue; break;
 			case moFuseMultiplier   : row.moFuseMultiplier   = (Double       )aValue; break;
 			}
-			fireValueChangedEvent(row.id, columnID.objectTypeValue);
+			fireValueChangedEvent(row, columnID.objectTypeValue);
 		}
 		
 		

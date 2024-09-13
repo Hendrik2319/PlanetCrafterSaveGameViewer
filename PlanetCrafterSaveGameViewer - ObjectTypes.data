@@ -6,12 +6,14 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Algae1Seed
 label_en = Algae
+label_de = Algen
 class = Resource_Minable
 occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: AlgaeGenerator1
 label_en = Algae Generator T1
+label_de = Algen Generator T1
 class = Structure_Machine
 oxygen = 127.0
 plants = 0.8
@@ -21,6 +23,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: AlgaeGenerator2
 label_en = Algae Generator T2
+label_de = Algen Generator T2
 class = Structure_Machine
 oxygen = 350.0
 plants = 23.0
@@ -36,12 +39,14 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: Aluminium
 label_en = Aluminium
+label_de = Aluminium
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: AmphibiansFarm1
 label_en = Amphibians Farm
+label_de = Amphibien Farm
 class = Structure_Machine
 heat = 175.0
 pressure = 75.0
@@ -54,6 +59,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Aquarium1
 label_en = Aquarium T1
+label_de = Aquarium T1
 class = Structure_Machine
 animals = 4.0
 energy = -75.0
@@ -63,6 +69,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Aquarium2
 label_en = Aquarium T2
+label_de = Aquarium T2
 class = Structure_Building
 oxygen = 250.0
 plants = 18.0
@@ -130,6 +137,7 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: BalzarQuartz
+class = Resource_Minable
 occurrences = WorldObject
 
 ObjectType: Beacon
@@ -185,6 +193,7 @@ isProducer
 
 ObjectType: biodome
 label_en = Biodome T1
+label_de = Biodom T1
 class = Structure_Building
 oxygen = 135.0
 energy = -37.0
@@ -193,6 +202,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Biodome2
 label_en = Biodome T2
+label_de = Biodom T2
 class = Structure_Building
 oxygen = 1450.0
 plants = 11.0
@@ -654,6 +664,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EnergyGenerator1
 label_en = Wind Turbine
+label_de = Wind Turbine
 class = Structure_Machine
 energy = 1.2
 occurrences = WorldObject
@@ -868,6 +879,7 @@ label_en = Flare
 label_de = Fackel
 class = Special
 occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: FlowerPot1
 label_en = Flower Pot
@@ -1069,6 +1081,7 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: GoldenEffigie7
+class = Structure_Furniture
 occurrences = WorldObject
 
 ObjectType: GrassSpreader1
@@ -1132,6 +1145,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: HudChipCleanConstruction
 label_en = Microchip - Construction Menu Filter
+label_de = Microchip - Konstruktions-Menü-Filter
 class = Equipment_Player
 occurrences = Blueprint
 <finished>
@@ -1152,6 +1166,7 @@ occurrences = WorldObject
 
 ObjectType: Incubator1
 label_en = Incubator
+label_de = Inkubator
 class = Structure_Machine
 energy = -215.0
 occurrences = WorldObject,Achievement
@@ -1166,6 +1181,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: Iridium
 label_en = Iridium
+label_de = Iridium
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
@@ -1219,6 +1235,7 @@ occurrences = WorldObject
 
 ObjectType: LarvaeBase3
 label_en = Rare Larva
+label_de = Seltene Larve
 class = Resource_Minable
 occurrences = WorldObject,Achievement
 <finished>
@@ -1232,6 +1249,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Magnesium
 label_en = Magnesium
+label_de = Magnesium
 class = Resource_Minable_Cheap
 occurrences = WorldObject,ObjectList
 <finished>
@@ -1392,6 +1410,7 @@ isProducer
 
 ObjectType: Osmium
 label_en = Osmium
+label_de = Osmium
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
@@ -1515,6 +1534,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: QuasarQuartz
+class = Resource_Minable
 occurrences = WorldObject
 
 ObjectType: RecyclingMachine
@@ -1568,24 +1588,28 @@ occurrences = WorldObject,Achievement
 
 ObjectType: RocketMap1
 label_en = GPS Satellite T1
+label_de = GPS Satellit T1
 class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap2
 label_en = GPS Satellite T2
+label_de = GPS Satellit T2
 class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap3
 label_en = GPS Satellite T3
+label_de = GPS Satellit T3
 class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: RocketMap4
 label_en = GPS Satellite T4
+label_de = GPS Satellit T4
 class = Special_Rocket
 occurrences = WorldObject,Blueprint
 <finished>
@@ -1811,6 +1835,7 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-02
+class = Equipment_Player
 occurrences = WorldObject
 
 ObjectType: Skin-05
@@ -1856,6 +1881,7 @@ occurrences = Blueprint
 <finished>
 
 ObjectType: SolarQuartz
+class = Resource_Minable
 occurrences = WorldObject
 
 ObjectType: SpaceMultiplierBiomass
@@ -1908,6 +1934,7 @@ occurrences = WorldObject
 
 ObjectType: Teleporter1
 label_en = Teleporter
+label_de = Teleporter
 class = Structure_Machine
 energy = -276.0
 occurrences = WorldObject,Achievement
@@ -1970,6 +1997,7 @@ occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Tree13Seed
+class = Resource_SeedEgg
 occurrences = WorldObject
 
 ObjectType: Tree1Seed
@@ -2316,6 +2344,7 @@ occurrences = WorldObject
 
 ObjectType: Zeolite
 label_en = Zeolite
+label_de = Zeolite
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
