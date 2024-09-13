@@ -169,16 +169,16 @@ class ObjectTypesPanel extends JScrollPane {
 				clickedRow = rowM<0 ? null : tableModel.getRow(rowM);
 				
 				miCopyID2Clipboard     .setEnabled(clickedRow!=null);
-				miCopyLabelEn2Clipboard.setEnabled(clickedRow!=null);
-				miCopyLabelDe2Clipboard.setEnabled(clickedRow!=null);
+				miCopyLabelEn2Clipboard.setEnabled(clickedRow!=null && clickedRow.label_en!=null && !clickedRow.label_en.isBlank());
+				miCopyLabelDe2Clipboard.setEnabled(clickedRow!=null && clickedRow.label_de!=null && !clickedRow.label_de.isBlank());
 				miEditMapShapes        .setEnabled(clickedRow!=null);
 				miCopyID2Clipboard.setText(clickedRow == null
 						? "Copy ID to Clipboard"
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
-				miCopyLabelEn2Clipboard.setText(clickedRow == null
+				miCopyLabelEn2Clipboard.setText(clickedRow == null || clickedRow.label_en==null || clickedRow.label_en.isBlank()
 						? "Copy Label (En) to Clipboard"
 						: String.format("Copy Label (En) \"%s\" to Clipboard", clickedRow.label_en));
-				miCopyLabelDe2Clipboard.setText(clickedRow == null
+				miCopyLabelDe2Clipboard.setText(clickedRow == null || clickedRow.label_de==null || clickedRow.label_de.isBlank()
 						? "Copy Label (De) to Clipboard"
 						: String.format("Copy Label (De) \"%s\" to Clipboard", clickedRow.label_de));
 				miEditMapShapes.setText(clickedRow == null

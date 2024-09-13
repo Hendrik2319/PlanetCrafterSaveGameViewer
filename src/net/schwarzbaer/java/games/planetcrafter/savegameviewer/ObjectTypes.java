@@ -409,10 +409,13 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		}
 
 		String getLabel() {
-			if (PlanetCrafterSaveGameViewer.currentLabelLanguage==LabelLanguage.EN && label_en!=null && !label_en.isBlank()) return label_en;
-			if (PlanetCrafterSaveGameViewer.currentLabelLanguage==LabelLanguage.DE && label_de!=null && !label_de.isBlank()) return label_de;
-			if (label_en!=null && !label_en.isBlank()) return label_en;
-			if (label_de!=null && !label_de.isBlank()) return label_de;
+			LabelLanguage lang = PlanetCrafterSaveGameViewer.getCurrentLabelLanguage();
+			boolean label_en_isOk = label_en!=null && !label_en.isBlank();
+			boolean label_de_isOk = label_de!=null && !label_de.isBlank();
+			if (lang==LabelLanguage.EN && label_en_isOk) return label_en;
+			if (lang==LabelLanguage.DE && label_de_isOk) return label_de;
+			if (label_en_isOk) return String.format("[%s]", label_en);
+			if (label_de_isOk) return String.format("[%s]", label_de);
 			return null;
 		}
 

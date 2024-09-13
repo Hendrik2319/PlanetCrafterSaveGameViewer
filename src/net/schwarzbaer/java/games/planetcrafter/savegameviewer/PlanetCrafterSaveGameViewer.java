@@ -83,7 +83,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	
 	static final AppSettings settings = new AppSettings();
 	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
-	static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
+	private static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 
 	private final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
@@ -231,8 +231,13 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void setLabelLanguage(LabelLanguage lang)
 	{
 		currentLabelLanguage = lang;
+		settings.putEnum(AppSettings.ValueKey.LabelLanguage, currentLabelLanguage);
 		setGUI(loadedData);
-		// TODO Auto-generated method stub
+	}
+
+	static LabelLanguage getCurrentLabelLanguage()
+	{
+		return currentLabelLanguage;
 	}
 
 	private class AutoReloader {
@@ -292,8 +297,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			addSeparator();
 			add(new JLabel("Language of Labels:"));
 			ButtonGroup bgLanguage = new ButtonGroup();
-			add(createRadioButton("EN", currentLabelLanguage == LabelLanguage.EN, bgLanguage, true, ActionCommand.SetLabelLanguageEN));
-			add(createRadioButton("DE", currentLabelLanguage == LabelLanguage.DE, bgLanguage, true, ActionCommand.SetLabelLanguageDE));
+			add(createRadioButton("EN", getCurrentLabelLanguage() == LabelLanguage.EN, bgLanguage, true, ActionCommand.SetLabelLanguageEN));
+			add(createRadioButton("DE", getCurrentLabelLanguage() == LabelLanguage.DE, bgLanguage, true, ActionCommand.SetLabelLanguageDE));
 		}
 		
 		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
