@@ -1,5 +1,6 @@
 ObjectType: AirFilter1
 label_en = Air Filter
+label_de = Luftfilter
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
@@ -103,30 +104,35 @@ isProducer
 
 ObjectType: Backpack1
 label_en = Backpack T1
+label_de = Rucksack T1
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Backpack2
 label_en = Backpack T2
+label_de = Rucksack T2
 class = Equipment_Player
 occurrences = Achievement
 <finished>
 
 ObjectType: Backpack3
 label_en = Backpack T3
+label_de = Rucksack T3
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Backpack4
 label_en = Backpack T4
+label_de = Rucksack T4
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Backpack5
 label_en = Backpack T5
+label_de = Rucksack T5
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
@@ -277,18 +283,21 @@ occurrences = WorldObject
 
 ObjectType: BootsSpeed1
 label_en = Agility Boots T1
+label_de = Beweglichkeitsstiefel T1
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed2
 label_en = Agility Boots T2
+label_de = Beweglichkeitsstiefel T2
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: BootsSpeed3
 label_en = Agility Boots T3
+label_de = Beweglichkeitsstiefel T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
@@ -710,24 +719,28 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EquipmentIncrease1
 label_en = Exoskeleton T1
+label_de = Exoskelett T1
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: EquipmentIncrease2
 label_en = Exoskeleton T2
+label_de = Exoskelett T2
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EquipmentIncrease3
 label_en = Exoskeleton T3
+label_de = Exoskelett T3
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: EquipmentIncrease4
 label_en = Exoskeleton T4
+label_de = Exoskelett T4
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
@@ -1015,6 +1028,7 @@ ObjectType: FuseProduction1
 label_de = Produktionsmultiplikator-Sicherung (0,25)
 class = Equipment_Machine
 occurrences = WorldObject
+<finished>
 
 ObjectType: FusionEnergyCell
 label_en = Fusion Energy Cell
@@ -1206,18 +1220,21 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: Jetpack1
 label_en = Jetpack T1
+label_de = Jetpack T1
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Jetpack2
 label_en = Jetpack T2
+label_de = Jetpack T2
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Jetpack3
 label_en = Jetpack T3
+label_de = Jetpack T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
@@ -1287,71 +1304,83 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: MultiBuild
 label_en = Microchip - Construction
+label_de = Microchip - Konstruktion
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiDeconstruct
-label_en = Microchip - Deconstruction
+label_en = Microchip - Deconstruction T1
+label_de = Microchip - Dekonstruktion T1
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolDeconstruct2
 label_en = Microchip - Deconstruction T2
+label_de = Microchip - Dekonstruktion T2
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolDeconstruct3
 label_en = Microchip - Deconstruction T3
+label_de = Microchip - Dekonstruktion T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolLight
-label_en = MicroChip - Torch T1
+label_en = Microchip - Torch T1
+label_de = Microchip - Taschenlampe T1
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: MultiToolLight1
 label_en = Microchip - Torch T1
+label_de = Microchip - Taschenlampe T1
 class = Equipment_Player
 <finished>
 
 ObjectType: MultiToolLight2
 label_en = Microchip - Torch T2
+label_de = Microchip - Taschenlampe T2
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolLight3
 label_en = Microchip - Torch T3
+label_de = Microchip - Taschenlampe T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed1
-label_en = Microchip - Mining Speed  T1
+label_en = Microchip - Mining Speed T1
+label_de = Microchip - Abbaugeschwindigkeit T1
 class = Equipment_Player
 occurrences = Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed2
-label_en = Microchip - Mining Speed  T2
+label_en = Microchip - Mining Speed T2
+label_de = Microchip - Abbaugeschwindigkeit T2
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed3
-label_en = Microchip - Mining Speed  T3
+label_en = Microchip - Mining Speed T3
+label_de = Microchip - Abbaugeschwindigkeit T3
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MultiToolMineSpeed4
-label_en = Microchip - Mining Speed  T4
+label_en = Microchip - Mining Speed T4
+label_de = Microchip - Abbaugeschwindigkeit T4
 class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
@@ -1393,6 +1422,7 @@ occurrences = WorldObject,Achievement
 isMachineOptomizer
 moRange = 60.0
 moCapacity = 5
+<finished>
 
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1
@@ -1446,23 +1476,27 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: OxygenTank1
 label_en = Oxygen Tank T1
+label_de = Sauerstofftank T1
 class = Equipment_Player
 <finished>
 
 ObjectType: OxygenTank2
 label_en = Oxygen Tank T2
+label_de = Sauerstofftank T2
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank3
 label_en = Oxygen Tank T3
+label_de = Sauerstofftank T3
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OxygenTank4
 label_en = Oxygen Tank T4
+label_de = Sauerstofftank T4
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
@@ -1857,8 +1891,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-02
+label_de = Raumanzug Blasto
 class = Equipment_Player
 occurrences = WorldObject
+<finished>
 
 ObjectType: Skin-05
 label_de = Raumanzug Scifo
@@ -1907,6 +1943,7 @@ label_en = Solar Quartz
 label_de = Sonnen-Quarz
 class = Resource_Minable
 occurrences = WorldObject
+<finished>
 
 ObjectType: SpaceMultiplierBiomass
 class = Special_Hidden
@@ -2329,6 +2366,7 @@ isProducer
 
 ObjectType: WaterFilter
 label_en = Water Filter
+label_de = Wasserfilter
 class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
