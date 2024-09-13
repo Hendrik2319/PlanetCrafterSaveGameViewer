@@ -18,19 +18,24 @@ import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.LabelLanguage;
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
 class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
 
 	enum ObjectTypeValue {
-		Finished, Label, Class_,
+		Finished, Label_en, Label_de, Class_,
 		Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy,
 		ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier,
 		BoosterRocket, BoosterMultiplier,
 		IsMachineOptomizer, MORange, 
 		IsMOFuse, MOFuseMultiplier, 
 		IsProducer,
+		;
+		static boolean isLabel(ObjectTypeValue val) {
+			return val == Label_en || val == Label_de;
+		}
 	}
 	
 	enum ObjectTypeClassClass { Resource, Structure, Equipment, Special, Vehicle }
@@ -128,7 +133,9 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				
 				if (line.isEmpty()) continue;
 				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) put(valueStr, currentOT = new ObjectType(valueStr, null));
-				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label    = valueStr;
+				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label_en = valueStr;
+				if ( (valueStr=getValue(line,"label_en = "            ))!=null ) currentOT.label_en = valueStr;
+				if ( (valueStr=getValue(line,"label_de = "            ))!=null ) currentOT.label_de = valueStr;
 				if ( (valueStr=getValue(line,"class = "               ))!=null ) currentOT.class_   = ObjectTypeClass.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
 				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
@@ -183,7 +190,8 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			for (Entry<String, ObjectType> entry : vector) {
 				ObjectType ot = entry.getValue();
 				                                    out.printf("ObjectType: "           +"%s%n", ot.id       );
-				if ( ot.label               !=null) out.printf("label = "               +"%s%n", ot.label    );
+				if ( ot.label_en            !=null) out.printf("label_en = "            +"%s%n", ot.label_en );
+				if ( ot.label_de            !=null) out.printf("label_de = "            +"%s%n", ot.label_de );
 				if ( ot.class_              !=null) out.printf("class = "               +"%s%n", ot.class_.name());
 				if ( ot.heat                !=null) out.printf("heat = "                +"%s%n", ot.heat     );
 				if ( ot.pressure            !=null) out.printf("pressure = "            +"%s%n", ot.pressure );
@@ -346,7 +354,8 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	static class ObjectType {
 		final String id;
 		boolean finished;
-		String label;
+		String label_en;
+		String label_de;
 		ObjectTypeClass class_;
 		Double heat;
 		Double pressure;
@@ -372,7 +381,8 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			if (id==null) throw new IllegalArgumentException();
 			this.id = id;
 			finished = false;
-			label    = null;
+			label_en = null;
+			label_de = null;
 			class_   = null;
 			heat     = null;
 			pressure = null;
@@ -398,10 +408,17 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			occurrences.add(occurrence);
 		}
 
+		String getLabel() {
+			if (PlanetCrafterSaveGameViewer.currentLabelLanguage==LabelLanguage.EN && label_en!=null && !label_en.isBlank()) return label_en;
+			if (PlanetCrafterSaveGameViewer.currentLabelLanguage==LabelLanguage.DE && label_de!=null && !label_de.isBlank()) return label_de;
+			if (label_en!=null && !label_en.isBlank()) return label_en;
+			if (label_de!=null && !label_de.isBlank()) return label_de;
+			return null;
+		}
+
 		String getName() {
-			if (label!=null && !label.isBlank())
-				return label;
-			return String.format("{%s}", id);
+			String label = getLabel();
+			return label != null ? label : String.format("{%s}", id);
 		}
 
 		boolean isActive() {

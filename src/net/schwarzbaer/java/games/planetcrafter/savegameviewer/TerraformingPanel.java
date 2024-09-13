@@ -82,7 +82,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			return;
 		
 		switch (event.changedValue) {
-		case Label: case Energy:
+		case Label_en: case Label_de:
+		case Energy:
 			updateAll();
 			break;
 			

@@ -109,7 +109,8 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 		if (event.eventType==ObjectTypesChangeEvent.EventType.ValueChanged && event.changedValue!=null)
 			switch (event.changedValue)
 			{
-				case Label:
+				case Label_en:
+				case Label_de:
 					if (panel!=null)
 						panel.tableModel.updateContent();
 					break;

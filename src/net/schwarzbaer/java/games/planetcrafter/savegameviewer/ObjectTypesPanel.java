@@ -127,9 +127,14 @@ class ObjectTypesPanel extends JScrollPane {
 				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.id);
 			}));
 			
-			JMenuItem miCopyLabel2Clipboard = add(GUI.createMenuItem("Copy Label to Clipboard", e->{
+			JMenuItem miCopyLabelEn2Clipboard = add(GUI.createMenuItem("Copy Label (En) to Clipboard", e->{
 				if (clickedRow==null) return;
-				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label);
+				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label_en);
+			}));
+			
+			JMenuItem miCopyLabelDe2Clipboard = add(GUI.createMenuItem("Copy Label (De) to Clipboard", e->{
+				if (clickedRow==null) return;
+				ClipboardTools.copyStringSelectionToClipBoard(clickedRow.label_de);
 			}));
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
@@ -163,15 +168,19 @@ class ObjectTypesPanel extends JScrollPane {
 				clickedRowIndex = rowM;
 				clickedRow = rowM<0 ? null : tableModel.getRow(rowM);
 				
-				miCopyID2Clipboard   .setEnabled(clickedRow!=null);
-				miCopyLabel2Clipboard.setEnabled(clickedRow!=null);
-				miEditMapShapes      .setEnabled(clickedRow!=null);
+				miCopyID2Clipboard     .setEnabled(clickedRow!=null);
+				miCopyLabelEn2Clipboard.setEnabled(clickedRow!=null);
+				miCopyLabelDe2Clipboard.setEnabled(clickedRow!=null);
+				miEditMapShapes        .setEnabled(clickedRow!=null);
 				miCopyID2Clipboard.setText(clickedRow == null
 						? "Copy ID to Clipboard"
 						: String.format("Copy ID \"%s\" to Clipboard", clickedRow.id));
-				miCopyLabel2Clipboard.setText(clickedRow == null
-						? "Copy Label to Clipboard"
-						: String.format("Copy Label \"%s\" to Clipboard", clickedRow.label));
+				miCopyLabelEn2Clipboard.setText(clickedRow == null
+						? "Copy Label (En) to Clipboard"
+						: String.format("Copy Label (En) \"%s\" to Clipboard", clickedRow.label_en));
+				miCopyLabelDe2Clipboard.setText(clickedRow == null
+						? "Copy Label (De) to Clipboard"
+						: String.format("Copy Label (De) \"%s\" to Clipboard", clickedRow.label_de));
 				miEditMapShapes.setText(clickedRow == null
 						? "Create/Edit MapShapes"
 						: main.mapShapes.hasShapes(clickedRow)
@@ -240,7 +249,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (columnID==null) return value.toString();
 			
 			switch (columnID) {
-			case finished: case id: case label: case class_: case isBoosterRocketFor: case isProducer: case isMachineOptomizer: case isMOFuse:
+			case finished: case id: case label_en: case label_de: case class_: case isBoosterRocketFor: case isProducer: case isMachineOptomizer: case isMOFuse:
 			case expectsMultiplierFor: case occurrences: case amount: case showMarker: case effectOnTerraforming:
 				 return value.toString();
 			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
@@ -269,7 +278,8 @@ class ObjectTypesPanel extends JScrollPane {
 			occurrences          ("Occ."                  , String         .class,  50,   null, null                                 ),
 			amount               ("N"                     , Integer        .class,  30, CENTER, null                                 ),
 			id                   ("ID"                    , String         .class, 130,   null, null                                 ),
-			label                ("Label"                 , String         .class, 260,   null, ObjectTypeValue.Label                ),
+			label_en             ("Label (En)"            , String         .class, 260,   null, ObjectTypeValue.Label_en             ),
+			label_de             ("Label (De)"            , String         .class, 260,   null, ObjectTypeValue.Label_de             ),
 			class_               ("Class"                 , ObjectTypeClass.class, 130,   null, ObjectTypeValue.Class_               ),
 			showMarker           ("Show Marker?"          , Boolean        .class,  90,   null, null                                 ),
 			mapShape             ("MapShape"              , MapShape       .class,  90,   null, null                                 ),
@@ -407,7 +417,8 @@ class ObjectTypesPanel extends JScrollPane {
 			switch (columnID) {
 			case finished: return row.finished;
 			case id      : return row.id;
-			case label   : return row.label;
+			case label_en: return row.label_en;
+			case label_de: return row.label_de;
 			case class_  : return row.class_;
 			case effectOnTerraforming: return row.hasEffectOnTerraforming();
 			case heat    : return row.heat;
@@ -459,7 +470,8 @@ class ObjectTypesPanel extends JScrollPane {
 			case occurrences: break;
 			case amount     : break;
 			case id         : break;
-			case label   : row.label    = (String)aValue; if (row.label!=null && row.label.isBlank()) row.label = null; break;
+			case label_en: row.label_en = (String)aValue; if (row.label_en!=null && row.label_en.isBlank()) row.label_en = null; break;
+			case label_de: row.label_de = (String)aValue; if (row.label_de!=null && row.label_de.isBlank()) row.label_de = null; break;
 			case class_  : row.class_   = (ObjectTypeClass)aValue; break;
 			case effectOnTerraforming: break;
 			case heat    : row.heat     = (Double)aValue; break;

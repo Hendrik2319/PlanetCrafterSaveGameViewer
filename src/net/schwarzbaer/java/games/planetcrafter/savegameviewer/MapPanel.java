@@ -197,7 +197,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		if (event.eventType != ObjectTypesChangeEvent.EventType.ValueChanged)
 			return;
 		
-		if (event.changedValue == ObjectTypeValue.Label) {
+		if (ObjectTypeValue.isLabel( event.changedValue )) {
 			mapModel.updateInstalledObjectLabels();
 			mapModel.updateStoredObjectLabels();
 			

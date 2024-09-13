@@ -879,7 +879,7 @@ class GUI {
 				if (objectTypes==null) return null;
 				ObjectType ot = objectTypes.get(objectTypeID, null);
 				if (ot==null) return null;
-				return ot.label;
+				return ot.getLabel();
 			}
 
 			@Override public Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID) {

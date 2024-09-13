@@ -972,7 +972,7 @@ class MapShapes
 			switch (event.eventType)
 			{
 				case NewTypeAdded: updateAfterNewObjectTypes(); break;
-				case ValueChanged: if (event.changedValue==ObjectTypeValue.Label) updateAfterNewObjectTypes(); break;
+				case ValueChanged: if (ObjectTypeValue.isLabel( event.changedValue )) updateAfterNewObjectTypes(); break;
 			}
 		}
 	}

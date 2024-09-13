@@ -197,7 +197,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 
 		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
-			if (changedValue==ObjectTypeValue.Energy || changedValue==ObjectTypeValue.Label) {
+			if (changedValue==ObjectTypeValue.Energy || ObjectTypeValue.isLabel( changedValue )) {
 				updateValues();
 			}
 		}
@@ -856,7 +856,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		}
 
 		void objectTypeValueChanged(String objectTypeID, ObjectTypeValue changedValue) {
-			if (changedValue==ObjectTypeValue.Label)
+			if (ObjectTypeValue.isLabel( changedValue ));
 				textArea.setText(String.join(",\r\n", unlockedObjectTypes));
 		}
 	}

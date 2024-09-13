@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Vector;
@@ -202,7 +203,7 @@ class Achievements implements ObjectTypesChangeListener {
 	public void objectTypesChanged(ObjectTypesChangeEvent event) {
 		switch (event.eventType) {
 		case NewTypeAdded: updateObjectTypeAssignments(); break;
-		case ValueChanged: if (event.changedValue==ObjectTypeValue.Label) updateObjectTypeAssignments(); break;
+		case ValueChanged: if (ObjectTypeValue.isLabel( event.changedValue )) updateObjectTypeAssignments(); break;
 		}
 	}
 
@@ -555,20 +556,11 @@ class Achievements implements ObjectTypesChangeListener {
 				table.setDefaultRenderer(String.class, tcr);
 				table.setDefaultRenderer(ObjectType.class, tcr);
 				
-				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->{
-					Vector<ObjectType> sorted = new Vector<>(main.objectTypes.values());
-					sorted.sort(Comparator.<ObjectType,String>comparing(ot->{
-						if (ot.label!=null && !ot.label.isBlank())
-							return ot.label.toLowerCase();
-						return ot.id.toLowerCase();
-					}));
-					return sorted;
-				});
+				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->getSorted(main.objectTypes.values()));
 				Function<Object,String> rend = obj->{
-					if (obj instanceof ObjectType) {
-						ObjectType ot = (ObjectType) obj;
-						if (ot.label!=null && !ot.label.isBlank())
-							return ot.label;
+					if (obj instanceof ObjectType ot) {
+						String label = ot.getLabel();
+						if (label!=null && !label.isBlank()) return label;
 						return String.format("{ %s }", ot.id);
 					}
 					return obj==null ? null : obj.toString();
@@ -577,6 +569,22 @@ class Achievements implements ObjectTypesChangeListener {
 				
 				table.setDefaultEditor(ObjectType.class, tce);
 			}
+
+			private Vector<ObjectType> getSorted(Collection<ObjectType> objectTypes)
+			{
+				objectTypes = objectTypes
+					.stream()
+					.map(ot->{
+						String label = ot.getLabel();
+						if (label == null || label.isBlank()) label = ot.id;
+						return new ObjectTypeSortContainer(label.toLowerCase(), ot);
+					})
+					.sorted(Comparator.<ObjectTypeSortContainer,String>comparing(otsc->otsc.str))
+					.map(otsc->otsc.ot)
+					.toList();
+				return new Vector<>(objectTypes);
+			}
+			private record ObjectTypeSortContainer(String str, ObjectType ot) {}
 	
 			@Override public int getRowCount() {
 				return data.size()+1;
