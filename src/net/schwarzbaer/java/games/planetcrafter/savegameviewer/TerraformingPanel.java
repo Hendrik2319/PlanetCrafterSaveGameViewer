@@ -105,7 +105,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			updateAll();
 			break;
 		
-		case IsMachineOptomizer: case MORange: case IsMOFuse: case MOFuseMultiplier:
+		case IsMachineOptomizer: case MORange: case MOCapacity: case IsMOFuse: case MOFuseMultiplier:
 			updateAll();
 			break;
 			
@@ -209,6 +209,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			double boosterMultiplier = 0;
 			terraformingAspect.clearData();
 			
+			// TODO: MO Capacity
 			Vector<ActiveMachineOptimizer> activeMOs = determineActiveMOs();
 			
 			for (WorldObject wo : data.worldObjects) {

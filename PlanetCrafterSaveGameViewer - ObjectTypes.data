@@ -1392,7 +1392,7 @@ class = Structure_Machine
 occurrences = WorldObject,Achievement
 isMachineOptomizer
 moRange = 60.0
-<finished>
+moCapacity = 5
 
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1

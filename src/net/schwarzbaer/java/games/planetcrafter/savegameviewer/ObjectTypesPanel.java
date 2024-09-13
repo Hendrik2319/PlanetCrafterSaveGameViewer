@@ -286,20 +286,21 @@ class ObjectTypesPanel extends JScrollPane {
 			case finished: case id: case label_en: case label_de: case class_: case isBoosterRocketFor: case isProducer: case isMachineOptomizer: case isMOFuse:
 			case expectsMultiplierFor: case occurrences: case amount: case showMarker: case effectOnTerraforming:
 				 return value.toString();
-			case heat    : return PhysicalValue.Heat    .formatRate((Double) value);
-			case pressure: return PhysicalValue.Pressure.formatRate((Double) value);
-			case oxygen  : return PhysicalValue.Oxygen  .formatRate((Double) value);
-			case plants  : return PhysicalValue.Plants  .formatRate((Double) value);
-			case insects : return PhysicalValue.Insects .formatRate((Double) value);
-			case animals : return PhysicalValue.Animals .formatRate((Double) value);
-			case energy  : return ObjectTypes.formatEnergyRate((Double) value);
+			case heat             : return PhysicalValue.Heat    .formatRate((Double) value);
+			case pressure         : return PhysicalValue.Pressure.formatRate((Double) value);
+			case oxygen           : return PhysicalValue.Oxygen  .formatRate((Double) value);
+			case plants           : return PhysicalValue.Plants  .formatRate((Double) value);
+			case insects          : return PhysicalValue.Insects .formatRate((Double) value);
+			case animals          : return PhysicalValue.Animals .formatRate((Double) value);
+			case energy           : return ObjectTypes.formatEnergyRate((Double) value);
 			case oxygenMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case insectsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
 			case animalsMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
-			case mapShape: return ((MapShape)value).label;
+			case mapShape         : return ((MapShape)value).label;
 			case boosterMultiplier: return value instanceof Double multi ? String.format(Locale.ENGLISH, "%1.1f %%", multi*100) : "";
-			case moRange: return String.format(Locale.ENGLISH, "%1.1f m", value);
-			case moFuseMultiplier: return String.format(Locale.ENGLISH, "x %1.2f", value);
+			case moRange          : return String.format(Locale.ENGLISH, "%1.1f m", value);
+			case moCapacity       : return String.format(Locale.ENGLISH, "%d machines", value);
+			case moFuseMultiplier : return String.format(Locale.ENGLISH, "x %1.2f", value);
 			}
 			return null;
 		}
@@ -307,6 +308,7 @@ class ObjectTypesPanel extends JScrollPane {
 	
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
+		// Column Widths: [50, 50, 30, 130, 260, 260, 130, 90, 90, 50, 80, 80, 80, 80, 80, 80, 80, 90, 90, 90, 90, 90, 90, 125, 70, 80, 90, 90, 90] in ModelOrder
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface, SwingConstants {
 			finished             ("finished"              , Boolean        .class,  50,   null, ObjectTypeValue.Finished             ),
 			occurrences          ("Occ."                  , String         .class,  50,   null, null                                 ),
@@ -331,8 +333,9 @@ class ObjectTypesPanel extends JScrollPane {
 			animalsMultiplier    ("Animals Multi"         , Double         .class,  90,   null, ObjectTypeValue.AnimalsMultiplier    ),
 			isBoosterRocketFor   ("Booster Rocket"        , PhysicalValue  .class,  90, CENTER, ObjectTypeValue.BoosterRocket        ),
 			boosterMultiplier    ("Booster Multi"         , Double         .class,  90,   null, ObjectTypeValue.BoosterMultiplier    ),
-			isMachineOptomizer   ("Is Machine Optomizer?" , Boolean        .class,  90,   null, ObjectTypeValue.IsMachineOptomizer   ),
-			moRange              ("MO Range"              , Double         .class,  90,   null, ObjectTypeValue.MORange              ), 
+			isMachineOptomizer   ("Is Machine Optomizer?" , Boolean        .class, 125,   null, ObjectTypeValue.IsMachineOptomizer   ),
+			moRange              ("MO Range"              , Double         .class,  70,   null, ObjectTypeValue.MORange              ), 
+			moCapacity           ("MO Capacity"           , Integer        .class,  80,   null, ObjectTypeValue.MOCapacity           ), 
 			isMOFuse             ("Is MO Fuse for"        , PhysicalValue  .class,  90,   null, ObjectTypeValue.IsMOFuse             ),
 			moFuseMultiplier     ("MO Fuse Multi"         , Double         .class,  90,   null, ObjectTypeValue.MOFuseMultiplier     ), 
 			isProducer           ("Is Producer?"          , Boolean        .class,  90,   null, ObjectTypeValue.IsProducer           ),
@@ -472,15 +475,16 @@ class ObjectTypesPanel extends JScrollPane {
 			case animalsMultiplier   : return row.animalsMultiplier;
 			case isBoosterRocketFor  : return row.isBoosterRocketFor;
 			case boosterMultiplier   : return row.boosterMultiplier;
-			case isProducer  : return row.isProducer;
-			case occurrences : return toString(row.occurrences);
-			case amount      : return amounts.get(row.id);
-			case showMarker  : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.shouldShowMarker(row);
-			case mapShape    : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
-			case isMachineOptomizer : return row.isMachineOptomizer;
-			case moRange            : return row.moRange;
-			case isMOFuse           : return row.isMOFuse;
-			case moFuseMultiplier   : return row.moFuseMultiplier;
+			case isProducer          : return row.isProducer;
+			case occurrences         : return toString(row.occurrences);
+			case amount              : return amounts.get(row.id);
+			case showMarker          : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.shouldShowMarker(row);
+			case mapShape            : return !panel.main.mapShapes.hasShapes(row) ? null : panel.main.mapShapes.getSelectedShape(row);
+			case isMachineOptomizer  : return row.isMachineOptomizer;
+			case moRange             : return row.moRange;
+			case moCapacity          : return row.moCapacity;
+			case isMOFuse            : return row.isMOFuse;
+			case moFuseMultiplier    : return row.moFuseMultiplier;
 			}
 			return null;
 		}
@@ -534,10 +538,11 @@ class ObjectTypesPanel extends JScrollPane {
 			case isProducer          : row.isProducer           = (Boolean)aValue; break;
 			case showMarker          : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setShowMarker(row, (boolean)aValue); break;
 			case mapShape            : if (panel.main.mapShapes.hasShapes(row)) panel.main.mapShapes.setSelectedShape(row, (MapShape)aValue); fireTableCellUpdate(rowIndex, ColumnID.showMarker); break;
-			case isMachineOptomizer : row.isMachineOptomizer = (boolean      )aValue; break;
-			case moRange            : row.moRange            = (Double       )aValue; break;
-			case isMOFuse           : row.isMOFuse           = (PhysicalValue)aValue; break;
-			case moFuseMultiplier   : row.moFuseMultiplier   = (Double       )aValue; break;
+			case isMachineOptomizer  : row.isMachineOptomizer = (boolean      )aValue; break;
+			case moRange             : row.moRange            = (Double       )aValue; break;
+			case moCapacity          : row.moCapacity         = (Integer      )aValue; break;
+			case isMOFuse            : row.isMOFuse           = (PhysicalValue)aValue; break;
+			case moFuseMultiplier    : row.moFuseMultiplier   = (Double       )aValue; break;
 			}
 			fireValueChangedEvent(row, columnID.objectTypeValue);
 		}

@@ -29,7 +29,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Heat, Pressure, Oxygen, Plants, Insects, Animals, Energy,
 		ExpectsMultiplierFor, OxygenMultiplier, InsectsMultiplier, AnimalsMultiplier,
 		BoosterRocket, BoosterMultiplier,
-		IsMachineOptomizer, MORange, 
+		IsMachineOptomizer, MORange, MOCapacity, 
 		IsMOFuse, MOFuseMultiplier, 
 		IsProducer,
 		;
@@ -153,7 +153,9 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
 				
 				if (        line.equals(     "isMachineOptomizer"     )        ) currentOT.isMachineOptomizer = true;
-				if ( (valueStr=getValue(line,"moRange = "             ))!=null ) currentOT.moRange            = parseDouble(valueStr);
+				if ( (valueStr=getValue(line,"moRange = "             ))!=null ) currentOT.moRange            = parseDouble (valueStr);
+				if ( (valueStr=getValue(line,"moCapacity = "          ))!=null ) currentOT.moCapacity         = parseInteger(valueStr);
+				
 				if ( (valueStr=getValue(line,"isMOFuse = "            ))!=null ) currentOT.isMOFuse           = PhysicalValue.valueOf_checked(valueStr);
 				if ( (valueStr=getValue(line,"moFuseMultiplier = "    ))!=null ) currentOT.moFuseMultiplier   = parseDouble(valueStr);
 				
@@ -210,6 +212,8 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 				
 				if ( ot.isMachineOptomizer        ) out.printf("isMachineOptomizer"     +  "%n");
 				if ( ot.moRange             !=null) out.printf("moRange = "             +"%s%n", ot.moRange);
+				if ( ot.moCapacity          !=null) out.printf("moCapacity = "          +"%s%n", ot.moCapacity);
+				
 				if ( ot.isMOFuse            !=null) out.printf("isMOFuse = "            +"%s%n", ot.isMOFuse.name());
 				if ( ot.moFuseMultiplier    !=null) out.printf("moFuseMultiplier = "    +"%s%n", ot.moFuseMultiplier);
 				
@@ -236,6 +240,11 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 
 	private static Double parseDouble(String str) {
 		try { return Double.parseDouble(str); }
+		catch (NumberFormatException e) { return null; }
+	}
+
+	private static Integer parseInteger(String str) {
+		try { return Integer.parseInt(str); }
 		catch (NumberFormatException e) { return null; }
 	}
 
@@ -364,14 +373,15 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		Double insects;
 		Double animals;
 		Double energy;
-		PhysicalValue expectsMultiplierFor; 
+		PhysicalValue expectsMultiplierFor;
 		Double oxygenMultiplier; 
 		Double insectsMultiplier;
 		Double animalsMultiplier; 
-		PhysicalValue isBoosterRocketFor; 
-		Double boosterMultiplier; 
-		boolean isMachineOptomizer; 
-		Double moRange; 
+		PhysicalValue isBoosterRocketFor;
+		Double boosterMultiplier;
+		boolean isMachineOptomizer;
+		Double moRange;
+		Integer moCapacity;
 		PhysicalValue isMOFuse; 
 		Double moFuseMultiplier; 
 		boolean isProducer;
