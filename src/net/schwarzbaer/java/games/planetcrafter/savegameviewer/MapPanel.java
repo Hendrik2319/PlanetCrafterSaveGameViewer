@@ -589,6 +589,18 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					e -> mapBackgroundImage.resetFixPoints()
 			));
 			
+			JMenuItem miShowBgImage = add(GUI.createMenuItem(
+					mapBackgroundImage.isShowBgImage() ? "Hide Background Image" : "Show Background Image",
+					null
+			));
+			miShowBgImage.addActionListener(e -> {
+				mapBackgroundImage.setShowBgImage( !mapBackgroundImage.isShowBgImage() );
+				miShowBgImage.setText(
+						mapBackgroundImage.isShowBgImage() ? "Hide Background Image" : "Show Background Image"
+				);
+			});
+			
+			
 			addSeparator();
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
@@ -696,8 +708,9 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private static final int CONTRAST_MIN   = -100;
 		private static final int CONTRAST_MAX   =  100;
 		
-		private static final AppSettings.ValueKey SETTINGSKEY_CONTRAST   = AppSettings.ValueKey.MapBackgroundImage_Contrast;
-		private static final AppSettings.ValueKey SETTINGSKEY_BRIGHTNESS = AppSettings.ValueKey.MapBackgroundImage_Brightness;
+		private static final AppSettings.ValueKey SETTINGSKEY_CONTRAST    = AppSettings.ValueKey.MapBackgroundImage_Contrast;
+		private static final AppSettings.ValueKey SETTINGSKEY_BRIGHTNESS  = AppSettings.ValueKey.MapBackgroundImage_Brightness;
+		private static final AppSettings.ValueKey SETTINGSKEY_SHOWBGIMAGE = AppSettings.ValueKey.MapBackgroundImage_ShowBgImage;
 		
 		private final MapView mapView;
 		private final MapView.ViewState mapViewState;
@@ -710,6 +723,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private FixPoint fixPoint1;
 		private FixPoint fixPoint2;
 		private boolean showFixPoints;
+		private boolean showBgImage;
 		
 		MapBackgroundImage(MapView mapView) {
 			this.mapView = mapView;
@@ -723,12 +737,21 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			fixPoint1 = null;
 			fixPoint2 = null;
 			showFixPoints = false;
+			showBgImage = PlanetCrafterSaveGameViewer.settings.getBool(SETTINGSKEY_SHOWBGIMAGE, true);
 		}
 		
 		boolean isShowFixPoints() { return showFixPoints; }
 		void setShowFixPoints(boolean showFixPoints)
 		{
 			this.showFixPoints = showFixPoints;
+			mapView.repaint();
+		}
+
+		boolean isShowBgImage() { return showBgImage; }
+		void setShowBgImage(boolean showBgImage)
+		{
+			this.showBgImage = showBgImage;
+			PlanetCrafterSaveGameViewer.settings.putBool(SETTINGSKEY_SHOWBGIMAGE, this.showBgImage);
 			mapView.repaint();
 		}
 
@@ -826,7 +849,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			if (fixPoint1==null || fixPoint2==null || mapViewState==null || !mapViewState.isOk())
 				return;
 			
-			if (mapBgImage!=null) {
+			if (mapBgImage!=null && showBgImage) {
 				double map1X_scr = mapViewState.convertPos_AngleToScreen_LongXf(fixPoint1.mapX);
 				double map1Y_scr = mapViewState.convertPos_AngleToScreen_LatYf (fixPoint1.mapY);
 				double map2X_scr = mapViewState.convertPos_AngleToScreen_LongXf(fixPoint2.mapX);

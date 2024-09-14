@@ -778,6 +778,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			LabelLanguage,
 			MapBackgroundImage_Brightness,
 			MapBackgroundImage_Contrast,
+			MapBackgroundImage_ShowBgImage,
 			MapBackgroundImage_FixPoint_Map1X,
 			MapBackgroundImage_FixPoint_Map1Y,
 			MapBackgroundImage_FixPoint_Map2X,
@@ -785,7 +786,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			MapBackgroundImage_FixPoint_Image1X,
 			MapBackgroundImage_FixPoint_Image1Y,
 			MapBackgroundImage_FixPoint_Image2X,
-			MapBackgroundImage_FixPoint_Image2Y
+			MapBackgroundImage_FixPoint_Image2Y,
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {
