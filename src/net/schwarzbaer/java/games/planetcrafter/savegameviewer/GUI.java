@@ -3,6 +3,7 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -28,6 +29,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -135,8 +137,18 @@ class GUI {
 		return setAbstractButton(new JMenuItem(), title, null, null, isEnabled, al, null, null);
 	}
 
+	static JMenuItem createMenuItem(String title, Icon icon, ActionListener al) {
+		return setAbstractButton(new JMenuItem(), title, icon, null, null, true, al, null, null);
+	}
+
 	static JMenuItem createMenuItem(String title, ActionListener al) {
 		return setAbstractButton(new JMenuItem(), title, null, null, true, al, null, null);
+	}
+
+	static JCheckBoxMenuItem createCheckBoxMenuItem(String title, boolean checked, Consumer<Boolean> setValue) {
+		JCheckBoxMenuItem comp = new JCheckBoxMenuItem();
+		ActionListener al = setValue==null ? null : e -> setValue.accept(comp.isSelected());
+		return setAbstractButton(comp, title, null, checked, true, al, null, null);
 	}
 
 	static JTextField createOutputTextField(String text) {
@@ -161,6 +173,34 @@ class GUI {
 		JSlider comp = new JSlider(orientation, min, max, value);
 		if (chl!=null) comp.addChangeListener(chl);
 		return comp;
+	}
+	
+	static class ColorIcon implements Icon {
+
+		private final int width;
+		private final int height;
+		private final Color fillColor;
+		private final Color borderColor;
+		
+		ColorIcon(int width, int height, Color fillColor, Color borderColor)
+		{
+			this.width = width;
+			this.height = height;
+			this.fillColor = fillColor;
+			this.borderColor = borderColor;
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+			g.setColor(borderColor);
+			g.drawRect(x, y, width-1, height-1);
+			g.setColor(fillColor);
+			g.fillRect(x+1, y+1, width-1, height-1);
+		}
+
+		@Override public int getIconWidth () { return width ; }
+		@Override public int getIconHeight() { return height; }
 	}
 	
 	static class ColorTCE extends AbstractCellEditor implements TableCellEditor {

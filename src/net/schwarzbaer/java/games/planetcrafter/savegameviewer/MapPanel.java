@@ -18,6 +18,7 @@ import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -46,6 +47,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
@@ -572,11 +574,20 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			JMenu menuBackgroundImageFixPoint = new JMenu("Set Background Image Fix Point");
 			add(menuBackgroundImageFixPoint);
-			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Map Point 1 (Base)"     ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Map1  , clickedPoint)));
-			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Map Point 2 (Scaling)"  ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Map2  , clickedPoint)));
-			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Image Point 1 (Base)"   ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Image1, clickedPoint)));
-			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Image Point 2 (Scaling)",e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Image2, clickedPoint)));
-			
+			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Map Point 1"  , MapBackgroundImage.MapBGPoint.Map1  );
+			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Map Point 2"  , MapBackgroundImage.MapBGPoint.Map2  );
+			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Image Point 1", MapBackgroundImage.MapBGPoint.Image1);
+			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Image Point 2", MapBackgroundImage.MapBGPoint.Image2);
+			menuBackgroundImageFixPoint.addSeparator();
+			menuBackgroundImageFixPoint.add(GUI.createCheckBoxMenuItem(
+					"Show FixPoints",
+					mapBackgroundImage.isShowFixPoints(),
+					mapBackgroundImage::setShowFixPoints
+			));
+			menuBackgroundImageFixPoint.add(GUI.createMenuItem(
+					"Rest FixPoints",
+					e -> mapBackgroundImage.resetFixPoints()
+			));
 			
 			addSeparator();
 			
@@ -631,6 +642,17 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			});
 			addTo(mapView);
 		}
+
+		private void addFixPointMenuItem(
+				MapBackgroundImage mapBackgroundImage,
+				JMenu menu, String title, MapBGPoint pointID
+		) {
+			menu.add(GUI.createMenuItem(
+					title,
+					new GUI.ColorIcon(25, 16, pointID.color, Color.GRAY),
+					e -> mapBackgroundImage.setPoint(pointID, clickedPoint)
+			));
+		}
 	}
 	
 	static class MapBackgroundImage
@@ -638,26 +660,32 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		enum MapBGPoint {
 			Map1(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1X,
-					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1Y
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1Y,
+					new Color(0xFF0000)
 			),
 			Map2(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2X,
-					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2Y
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2Y,
+					new Color(0x0000FF)
 			),
 			Image1(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1X,
-					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1Y
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1Y,
+					new Color(0x00AA00)
 			),
 			Image2(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2X,
-					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2Y
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2Y,
+					new Color(0xFFAA00)
 			);
 			private final AppSettings.ValueKey keyX;
 			private final AppSettings.ValueKey keyY;
-
-			MapBGPoint(AppSettings.ValueKey keyX, AppSettings.ValueKey keyY) {
+			private final Color color;
+		
+			MapBGPoint(AppSettings.ValueKey keyX, AppSettings.ValueKey keyY, Color color) {
 				this.keyX = keyX;
 				this.keyY = keyY;
+				this.color = color;
 			}
 		}
 		
@@ -681,6 +709,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private int contrast;
 		private FixPoint fixPoint1;
 		private FixPoint fixPoint2;
+		private boolean showFixPoints;
 		
 		MapBackgroundImage(MapView mapView) {
 			this.mapView = mapView;
@@ -693,12 +722,38 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			mapViewState = this.mapView.setBgImage(this);
 			fixPoint1 = null;
 			fixPoint2 = null;
+			showFixPoints = false;
 		}
 		
+		boolean isShowFixPoints() { return showFixPoints; }
+		void setShowFixPoints(boolean showFixPoints)
+		{
+			this.showFixPoints = showFixPoints;
+			mapView.repaint();
+		}
+
+		ConfigureDialog createConfigureDialog(Window parent, String title) {
+			return new ConfigureDialog(parent, title);
+		}
+
 		void setPoint(MapBGPoint pointID, Point screenPoint)
 		{
-			// TODO Auto-generated method stub
+			if (mapViewState==null || !mapViewState.isOk()) return;
+			if (fixPoint1==null || fixPoint2==null) return;
+			if (pointID==null || screenPoint==null) return;
 			
+			double mapX = mapViewState.convertPos_ScreenToAngle_LongX(screenPoint.x);
+			double mapY = mapViewState.convertPos_ScreenToAngle_LatY (screenPoint.y);
+			Point2D.Double mapPos_image = convertPos_MapToImage(mapX, mapY);
+			
+			switch (pointID) {
+			case Image1: fixPoint1.setImagePoint(mapPos_image.x, mapPos_image.y); break;
+			case Image2: fixPoint2.setImagePoint(mapPos_image.x, mapPos_image.y); break;
+			case Map1  : fixPoint1.setMapPoint(mapX, mapY); break;
+			case Map2  : fixPoint2.setMapPoint(mapX, mapY); break;
+			}
+			
+			mapView.repaint();
 		}
 
 		void initialize(Component errDlgParent) {
@@ -714,52 +769,135 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					System.out.printf("   %d bytes read%n", storedImageFile.length());
 				}
 				
-				if (mapBgImageBase!=null && mapViewState.isOk()) {
-					double defaultMap1X = mapViewState.convertLength_ScreenToAngle_LongX(0);
-					double defaultMap1Y = mapViewState.convertLength_ScreenToAngle_LatY (0);
-					double defaultMap2X = mapViewState.convertLength_ScreenToAngle_LongX(mapView.getWidth ());
-					double defaultMap2Y = mapViewState.convertLength_ScreenToAngle_LatY (mapView.getHeight());
-					double imageWidth  = mapBgImageBase.getWidth();
-					double imageHeight = mapBgImageBase.getHeight();
-					
-					fixPoint1 = new FixPoint(MapBGPoint.Image1, MapBGPoint.Map1);
-					fixPoint2 = new FixPoint(MapBGPoint.Image2, MapBGPoint.Map2);
-					fixPoint1.getValuesFromSettings(      0   ,       0   ,defaultMap1X,defaultMap1Y);
-					fixPoint2.getValuesFromSettings(imageWidth,imageHeight,defaultMap2X,defaultMap2Y);
-					
-				} else {
-					fixPoint1 = null;
-					fixPoint2 = null;
-				}
+				resetFixPoints(FixPoint::getValuesFromSettings);
 				
+				//System.out.printf("MapBackgroundImage.fixPoint1: %s%n", fixPoint1);
+				//System.out.printf("MapBackgroundImage.fixPoint2: %s%n", fixPoint2);
 				computeImage();
 				mapView.repaint();
 			}
 		}
-		
-		private void setBaseImage(BufferedImage image)
+
+		void resetFixPoints()
 		{
-			mapBgImageBase = image;
-			
+			resetFixPoints(FixPoint::setValues);
+			mapView.repaint();
+		}
+
+		private void resetFixPoints(FixPointSetFunction func)
+		{
 			if (mapBgImageBase!=null && mapViewState.isOk()) {
-				double defaultMap1X = mapViewState.convertLength_ScreenToAngle_LongX(0);
-				double defaultMap1Y = mapViewState.convertLength_ScreenToAngle_LatY (0);
-				double defaultMap2X = mapViewState.convertLength_ScreenToAngle_LongX(mapView.getWidth ());
-				double defaultMap2Y = mapViewState.convertLength_ScreenToAngle_LatY (mapView.getHeight());
+				double defaultMap1X = mapViewState.convertPos_ScreenToAngle_LongX(0);
+				double defaultMap1Y = mapViewState.convertPos_ScreenToAngle_LatY (0);
+				double defaultMap2X = mapViewState.convertPos_ScreenToAngle_LongX(mapView.getWidth ());
+				double defaultMap2Y = mapViewState.convertPos_ScreenToAngle_LatY (mapView.getHeight());
 				double imageWidth  = mapBgImageBase.getWidth();
 				double imageHeight = mapBgImageBase.getHeight();
 				
 				fixPoint1 = new FixPoint(MapBGPoint.Image1, MapBGPoint.Map1);
 				fixPoint2 = new FixPoint(MapBGPoint.Image2, MapBGPoint.Map2);
-				fixPoint1.setValues(      0   ,       0   ,defaultMap1X,defaultMap1Y);
-				fixPoint2.setValues(imageWidth,imageHeight,defaultMap2X,defaultMap2Y);
+				func.setValues(fixPoint1,       0   ,       0   ,defaultMap1X,defaultMap1Y);
+				func.setValues(fixPoint2, imageWidth,imageHeight,defaultMap2X,defaultMap2Y);
 				
 			} else {
 				fixPoint1 = null;
 				fixPoint2 = null;
 			}
+		}
+		
+		private interface FixPointSetFunction
+		{
+			void setValues(FixPoint fixPoint, double imageX, double imageY, double mapX, double mapY);
+		}
+
+		private void setBaseImage(BufferedImage image)
+		{
+			mapBgImageBase = image;
 			
+			resetFixPoints();
+			
+			//System.out.printf("MapBackgroundImage.fixPoint1: %s%n", fixPoint1);
+			//System.out.printf("MapBackgroundImage.fixPoint2: %s%n", fixPoint2);
 			setImageValues(0, 0);
+		}
+
+		void drawImage(Graphics2D g2, int x, int y, int width, int height)
+		{
+			if (fixPoint1==null || fixPoint2==null || mapViewState==null || !mapViewState.isOk())
+				return;
+			
+			if (mapBgImage!=null) {
+				double map1X_scr = mapViewState.convertPos_AngleToScreen_LongXf(fixPoint1.mapX);
+				double map1Y_scr = mapViewState.convertPos_AngleToScreen_LatYf (fixPoint1.mapY);
+				double map2X_scr = mapViewState.convertPos_AngleToScreen_LongXf(fixPoint2.mapX);
+				double map2Y_scr = mapViewState.convertPos_AngleToScreen_LatYf (fixPoint2.mapY);
+				
+				double translate1X = - fixPoint1.imageX;
+				double translate1Y = - fixPoint1.imageY;
+				double translate2X = map1X_scr;
+				double translate2Y = map1Y_scr;
+				double scaleX = (map2X_scr-map1X_scr) / (fixPoint2.imageX-fixPoint1.imageX);
+				double scaleY = (map2Y_scr-map1Y_scr) / (fixPoint2.imageY-fixPoint1.imageY);
+				
+				AffineTransform transform = new AffineTransform();
+				transform.translate( translate2X, translate2Y );
+				transform.scale(scaleX, scaleY);
+				transform.translate( translate1X, translate1Y );
+				
+				g2.drawImage(mapBgImage, transform, null);
+			}
+			
+			if (showFixPoints) {
+				Point2D.Double imagePos1_map = convertPos_ImageToMap(fixPoint1.imageX, fixPoint1.imageY);
+				Point2D.Double imagePos2_map = convertPos_ImageToMap(fixPoint2.imageX, fixPoint2.imageY);
+				
+				drawMapPoint(g2, fixPoint1.mapX, fixPoint1.mapY, MapBGPoint.Map1.color, true );
+				drawMapPoint(g2, fixPoint2.mapX, fixPoint2.mapY, MapBGPoint.Map2.color, true );
+				drawMapPoint(g2, imagePos1_map.x, imagePos1_map.y, MapBGPoint.Image1.color, false);
+				drawMapPoint(g2, imagePos2_map.x, imagePos2_map.y, MapBGPoint.Image2.color, false);
+			}
+		}
+		
+		private void drawMapPoint(Graphics2D g2, double mapX, double mapY, Color color, boolean isType1) {
+			int mapX_scr = mapViewState.convertPos_AngleToScreen_LongX(mapX);
+			int mapY_scr = mapViewState.convertPos_AngleToScreen_LatY (mapY);
+			
+			g2.setColor(color);
+			if (isType1) {
+				g2.drawLine(mapX_scr-10, mapY_scr- 5, mapX_scr+10, mapY_scr+ 5);
+				g2.drawLine(mapX_scr+ 5, mapY_scr-10, mapX_scr- 5, mapY_scr+10);
+			} else {
+				g2.drawLine(mapX_scr- 5, mapY_scr-10, mapX_scr+ 5, mapY_scr+10);
+				g2.drawLine(mapX_scr+10, mapY_scr- 5, mapX_scr-10, mapY_scr+ 5);
+			}
+		}
+
+		private Point2D.Double convertPos_ImageToMap(double imageX, double imageY)
+		{
+			double scaleX = (fixPoint2.mapX-fixPoint1.mapX) / (fixPoint2.imageX-fixPoint1.imageX);
+			double scaleY = (fixPoint2.mapY-fixPoint1.mapY) / (fixPoint2.imageY-fixPoint1.imageY);
+			
+			double imageX_map = (imageX-fixPoint1.imageX)*scaleX + fixPoint1.mapX; 
+			double imageY_map = (imageY-fixPoint1.imageY)*scaleY + fixPoint1.mapY; 
+			
+			return new Point2D.Double(
+					imageX_map,
+					imageY_map
+			);
+		}
+		
+		private Point2D.Double convertPos_MapToImage(double mapX, double mapY)
+		{
+			double scaleX = (fixPoint2.mapX-fixPoint1.mapX) / (fixPoint2.imageX-fixPoint1.imageX);
+			double scaleY = (fixPoint2.mapY-fixPoint1.mapY) / (fixPoint2.imageY-fixPoint1.imageY);
+			
+			double mapX_image = (mapX-fixPoint1.mapX)/scaleX + fixPoint1.imageX; 
+			double mapY_image = (mapY-fixPoint1.mapY)/scaleY + fixPoint1.imageY; 
+			
+			return new Point2D.Double(
+					mapX_image,
+					mapY_image
+			);
 		}
 
 		private void computeImage()
@@ -770,7 +908,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				return;
 			}
 			
-			System.out.printf("MapBackgroundImage.computeImage( brightness: %d, contrast: %d )%n", brightness, contrast);
+			//System.out.printf("MapBackgroundImage.computeImage( brightness: %d, contrast: %d )%n", brightness, contrast);
 			int width  = mapBgImageBase.getWidth();
 			int height = mapBgImageBase.getHeight();
 			
@@ -832,10 +970,6 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			return Math.round( 255 * ((n_+1)/2) );
 		}
 
-		ConfigureDialog createConfigureDialog(Window parent, String title) {
-			return new ConfigureDialog(parent, title);
-		}
-		
 		private void setBrightness(int brightness) { setImageValues(brightness, null); }
 		private void setContrast  (int contrast  ) { setImageValues(null, contrast); }
 		
@@ -843,24 +977,18 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		{
 			if (brightness!=null) {
 				this.brightness = brightness;
-				System.out.printf("MapBackgroundImage.Brightness = %s%n", this.brightness);
+				//System.out.printf("MapBackgroundImage.Brightness = %s%n", this.brightness);
 				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_BRIGHTNESS, this.brightness);
 			}
 			if (contrast!=null) {
 				this.contrast = contrast;
-				System.out.printf("MapBackgroundImage.Contrast = %s%n", this.contrast);
+				//System.out.printf("MapBackgroundImage.Contrast = %s%n", this.contrast);
 				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_CONTRAST, this.contrast);
 			}
 			if (brightness!=null || contrast!=null) {
 				computeImage();
 				mapView.repaint();
 			}
-		}
-
-		void drawImage(Graphics2D g2, int x, int y, int width, int height)
-		{
-			g2.drawImage(mapBgImage, x, y, width, height, null);
-			// TODO Auto-generated method stub
 		}
 
 		private interface IOExceptionTask<ReturnValue> {
@@ -886,7 +1014,6 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 		}
 
-		@SuppressWarnings("unused")
 		private static class FixPoint
 		{
 			private double imageX;
@@ -915,11 +1042,31 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 			void setValues(double imageX, double imageY, double mapX, double mapY)
 			{
-				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyX, this.imageX = imageX);            
-				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyY, this.imageY = imageY);            
-				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId  .keyX, this.mapX   = mapX  );
-				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId  .keyY, this.mapY   = mapY  );
+				setImagePoint(imageX, imageY);            
+				setMapPoint(mapX, mapY);
 			}
+
+			void setMapPoint(double mapX, double mapY)
+			{
+				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId.keyX, this.mapX = mapX);
+				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId.keyY, this.mapY = mapY);
+			}
+
+			void setImagePoint(double imageX, double imageY)
+			{
+				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyX, this.imageX = imageX);            
+				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyY, this.imageY = imageY);
+			}
+
+			@Override
+			public String toString()
+			{
+				return String.format(
+						"FixPoint [imageX=%s, imageY=%s, imagePointId=%s, mapX=%s, mapY=%s, mapPointId=%s]",
+						imageX, imageY, imagePointId, mapX, mapY, mapPointId
+				);
+			}
+			
 		}
 
 		class ConfigureDialog extends StandardDialog
