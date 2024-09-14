@@ -1415,6 +1415,9 @@ class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
 <finished>
 
+ObjectType: Obsidian
+occurrences = WorldObject
+
 ObjectType: Optimizer1
 label_de = MaschinenOptimierer T1
 class = Structure_Machine
@@ -1534,7 +1537,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: PinChip3
 label_de = Microchip - Bauplan anheften T3
 class = Equipment_Player
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: pod
