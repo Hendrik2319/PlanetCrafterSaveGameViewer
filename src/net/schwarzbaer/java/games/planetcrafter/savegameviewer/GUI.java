@@ -33,9 +33,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -152,6 +154,12 @@ class GUI {
 	static JTextField createOutputTextField(String text, int size, int horizontalAlignment) {
 		JTextField comp = createOutputTextField(text,size);
 		comp.setHorizontalAlignment(horizontalAlignment);
+		return comp;
+	}
+	
+	static JSlider createSlider(int orientation, int min, int max, int value, ChangeListener chl) {
+		JSlider comp = new JSlider(orientation, min, max, value);
+		if (chl!=null) comp.addChangeListener(chl);
 		return comp;
 	}
 	

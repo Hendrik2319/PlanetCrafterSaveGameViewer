@@ -2,40 +2,59 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.function.Predicate;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.Canvas;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
+import net.schwarzbaer.java.lib.gui.FileChooser;
+import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
 import net.schwarzbaer.java.lib.image.linegeometry.Form;
 import net.schwarzbaer.java.lib.system.ClipboardTools;
@@ -84,14 +103,17 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 	}
 	
+	private final PlanetCrafterSaveGameViewer main;
 	private final MapModel mapModel;
 	private final MapView mapView;
+	private final MapBackgroundImage mapBackgroundImage;
 	private final JComboBox<String> cmbbxObjLabels;
 	private final JComboBox<ColoringType> cmbbxColoring;
 	private ColoringType selectedColoringType;
 
 	MapPanel(PlanetCrafterSaveGameViewer main, Data data) {
 		super(MapPanel.HORIZONTAL_SPLIT, true);
+		this.main = main;
 		
 		OverView overView = new OverView();
 		overView.setPreferredSize(200,150);
@@ -99,8 +121,9 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		JTextArea textOut = new JTextArea();
 		
 		mapModel = new MapModel(data);
-		mapView = new MapView(main.mapShapes, mapModel, overView, textOut);
-		new MapContextMenu(mapView, main);
+		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut);
+		mapBackgroundImage = new MapBackgroundImage(mapView);
+		new MapContextMenu(mapView, this.main, mapBackgroundImage);
 		
 		cmbbxColoring = new JComboBox<>(ColoringType.values());
 		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
@@ -133,7 +156,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					
 				case ObjectType:
 					cmbbxObjLabels.setEnabled(false);
-					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(main, "Object Type Colors").showDialogAndGetColors();
+					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(this.main, "Object Type Colors").showDialogAndGetColors();
 					mapModel.setObjectTypeColors(objectTypeColors);
 					break;
 				}
@@ -183,6 +206,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	void initialize() {
 		mapView.reset();
 		//System.out.printf("MapPanel.initialize() -> MapView.reset() -> ViewStateOk? %s%n", mapView.isViewStateOk());
+		mapBackgroundImage.initialize(main.mainWindow);
 	}
 
 	void showWorldObject(WorldObject wo) {
@@ -495,10 +519,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	
 	private static class MapContextMenu extends ContextMenu {
 		private static final long serialVersionUID = 8109374615040559202L;
+		
+		private final MapBackgroundImage.ConfigureDialog mapBackgroundImageConfigureDialog;
+		private Point clickedPoint;
 		private WorldObject clickedObject;
-
-		MapContextMenu(MapView mapView, PlanetCrafterSaveGameViewer main) {
+		
+		MapContextMenu(MapView mapView, PlanetCrafterSaveGameViewer main, MapBackgroundImage mapBackgroundImage) {
+			clickedPoint = null;
 			clickedObject = null;
+			
+			mapBackgroundImageConfigureDialog = mapBackgroundImage.createConfigureDialog(main.mainWindow, "Configure Map Background Image");
 			
 			JMenuItem miCopyPosNRotToClipboard = add(GUI.createMenuItem("Copy position & rotation to clipboard", e->{
 				if (clickedObject==null) return;
@@ -535,6 +565,21 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			addSeparator();
 			
+			
+			add(GUI.createMenuItem("Configure Map Background Image", e->{
+				mapBackgroundImageConfigureDialog.showDialog();
+			}));
+			
+			JMenu menuBackgroundImageFixPoint = new JMenu("Set Background Image Fix Point");
+			add(menuBackgroundImageFixPoint);
+			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Map Point 1 (Base)"     ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Map1  , clickedPoint)));
+			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Map Point 2 (Scaling)"  ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Map2  , clickedPoint)));
+			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Image Point 1 (Base)"   ,e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Image1, clickedPoint)));
+			menuBackgroundImageFixPoint.add(GUI.createMenuItem("Image Point 2 (Scaling)",e->mapBackgroundImage.setPoint(MapBackgroundImage.MapBGPoint.Image2, clickedPoint)));
+			
+			
+			addSeparator();
+			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedObject==null) return;
 				main.showMapShapesEditor(clickedObject.objectType);
@@ -546,6 +591,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}));
 			
 			addContextMenuInvokeListener((comp, x, y) -> {
+				clickedPoint = new Point(x,y);
 				clickedObject = mapView.hoveredObject;
 				miMarkForRemoval    .setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
 				miCopyPosNRotToClipboard.setEnabled(clickedObject!=null);
@@ -586,6 +632,404 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			addTo(mapView);
 		}
 	}
+	
+	static class MapBackgroundImage
+	{
+		enum MapBGPoint {
+			Map1(
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1X,
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1Y
+			),
+			Map2(
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2X,
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2Y
+			),
+			Image1(
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1X,
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1Y
+			),
+			Image2(
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2X,
+					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2Y
+			);
+			private final AppSettings.ValueKey keyX;
+			private final AppSettings.ValueKey keyY;
+
+			MapBGPoint(AppSettings.ValueKey keyX, AppSettings.ValueKey keyY) {
+				this.keyX = keyX;
+				this.keyY = keyY;
+			}
+		}
+		
+		static final String FILE_MAPBGIMAGE_EXT    = "png";
+		static final String FILE_MAPBGIMAGE_FORMAT = "png";
+		private static final int BRIGHTNESS_MIN = -100;
+		private static final int BRIGHTNESS_MAX =  100;
+		private static final int CONTRAST_MIN   = -100;
+		private static final int CONTRAST_MAX   =  100;
+		
+		private static final AppSettings.ValueKey SETTINGSKEY_CONTRAST   = AppSettings.ValueKey.MapBackgroundImage_Contrast;
+		private static final AppSettings.ValueKey SETTINGSKEY_BRIGHTNESS = AppSettings.ValueKey.MapBackgroundImage_Brightness;
+		
+		private final MapView mapView;
+		private final MapView.ViewState mapViewState;
+		private final File storedImageFile;
+		private final FileChooser imageFC;
+		private BufferedImage mapBgImageBase;
+		private BufferedImage mapBgImage;
+		private int brightness;
+		private int contrast;
+		private FixPoint fixPoint1;
+		private FixPoint fixPoint2;
+		
+		MapBackgroundImage(MapView mapView) {
+			this.mapView = mapView;
+			storedImageFile = new File(PlanetCrafterSaveGameViewer.FILE_MAPBGIMAGE);
+			imageFC = new FileChooser("PNG-File", "png");
+			mapBgImageBase = null;
+			mapBgImage = null;
+			brightness = PlanetCrafterSaveGameViewer.settings.getInt(SETTINGSKEY_BRIGHTNESS, 0);
+			contrast   = PlanetCrafterSaveGameViewer.settings.getInt(SETTINGSKEY_CONTRAST  , 0);
+			mapViewState = this.mapView.setBgImage(this);
+			fixPoint1 = null;
+			fixPoint2 = null;
+		}
+		
+		void setPoint(MapBGPoint pointID, Point screenPoint)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		void initialize(Component errDlgParent) {
+			if (storedImageFile.isFile()) {
+				System.out.printf("Read Map Background Image from file \"%s\"%n", storedImageFile.getAbsolutePath());
+				mapBgImageBase = runIOExceptionTask(
+						()->ImageIO.read(storedImageFile),
+						String.format("reading image from file \"%s\":", storedImageFile.getAbsolutePath()),
+						errDlgParent, "Read Error",
+						null
+				);
+				if (mapBgImageBase!=null) {
+					System.out.printf("   %d bytes read%n", storedImageFile.length());
+				}
+				
+				if (mapBgImageBase!=null && mapViewState.isOk()) {
+					double defaultMap1X = mapViewState.convertLength_ScreenToAngle_LongX(0);
+					double defaultMap1Y = mapViewState.convertLength_ScreenToAngle_LatY (0);
+					double defaultMap2X = mapViewState.convertLength_ScreenToAngle_LongX(mapView.getWidth ());
+					double defaultMap2Y = mapViewState.convertLength_ScreenToAngle_LatY (mapView.getHeight());
+					double imageWidth  = mapBgImageBase.getWidth();
+					double imageHeight = mapBgImageBase.getHeight();
+					
+					fixPoint1 = new FixPoint(MapBGPoint.Image1, MapBGPoint.Map1);
+					fixPoint2 = new FixPoint(MapBGPoint.Image2, MapBGPoint.Map2);
+					fixPoint1.getValuesFromSettings(      0   ,       0   ,defaultMap1X,defaultMap1Y);
+					fixPoint2.getValuesFromSettings(imageWidth,imageHeight,defaultMap2X,defaultMap2Y);
+					
+				} else {
+					fixPoint1 = null;
+					fixPoint2 = null;
+				}
+				
+				computeImage();
+				mapView.repaint();
+			}
+		}
+		
+		private void setBaseImage(BufferedImage image)
+		{
+			mapBgImageBase = image;
+			
+			if (mapBgImageBase!=null && mapViewState.isOk()) {
+				double defaultMap1X = mapViewState.convertLength_ScreenToAngle_LongX(0);
+				double defaultMap1Y = mapViewState.convertLength_ScreenToAngle_LatY (0);
+				double defaultMap2X = mapViewState.convertLength_ScreenToAngle_LongX(mapView.getWidth ());
+				double defaultMap2Y = mapViewState.convertLength_ScreenToAngle_LatY (mapView.getHeight());
+				double imageWidth  = mapBgImageBase.getWidth();
+				double imageHeight = mapBgImageBase.getHeight();
+				
+				fixPoint1 = new FixPoint(MapBGPoint.Image1, MapBGPoint.Map1);
+				fixPoint2 = new FixPoint(MapBGPoint.Image2, MapBGPoint.Map2);
+				fixPoint1.setValues(      0   ,       0   ,defaultMap1X,defaultMap1Y);
+				fixPoint2.setValues(imageWidth,imageHeight,defaultMap2X,defaultMap2Y);
+				
+			} else {
+				fixPoint1 = null;
+				fixPoint2 = null;
+			}
+			
+			setImageValues(0, 0);
+		}
+
+		private void computeImage()
+		{
+			if (mapBgImageBase==null)
+			{
+				mapBgImage = null;
+				return;
+			}
+			
+			System.out.printf("MapBackgroundImage.computeImage( brightness: %d, contrast: %d )%n", brightness, contrast);
+			int width  = mapBgImageBase.getWidth();
+			int height = mapBgImageBase.getHeight();
+			
+			mapBgImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			WritableRaster sourceRaster = mapBgImageBase.getRaster();
+			WritableRaster targetRaster = mapBgImage    .getRaster();
+			
+			int[] pixel = new int[] {0,0,0,0}; // [r,g,b,a ]
+			for (int x=0; x<width; x++)
+				for (int y=0; y<height; y++) {
+					sourceRaster.getPixel(x, y, pixel);
+					computeContrast  (pixel);
+					computeBrightness(pixel);
+					targetRaster.setPixel(x, y, pixel);
+				}
+			//sourceRaster.getPixel(width/2, height/2, pixel);
+			//System.out.printf("SourceRaster.Pixel( %d, %d ) -> %s%n", width/2, height/2, Arrays.toString(pixel));
+			//targetRaster.getPixel(width/2, height/2, pixel);
+			//System.out.printf("TargetRaster.Pixel( %d, %d ) -> %s%n", width/2, height/2, Arrays.toString(pixel));
+		}
+
+		private void computeBrightness(int[] pixel)
+		{
+			if (brightness < 0) {
+				float f = 1 - brightness/(float)BRIGHTNESS_MIN;
+				pixel[0] = Math.round( f*pixel[0] );
+				pixel[1] = Math.round( f*pixel[1] );
+				pixel[2] = Math.round( f*pixel[2] );
+				
+			} else if (brightness > 0) {
+				float f = 1 - brightness/(float)BRIGHTNESS_MAX;
+				pixel[0] = Math.round( 255 - f*(255 - (pixel[0] & 0xFF)) );
+				pixel[1] = Math.round( 255 - f*(255 - (pixel[1] & 0xFF)) );
+				pixel[2] = Math.round( 255 - f*(255 - (pixel[2] & 0xFF)) );
+			}
+		}
+
+		private void computeContrast(int[] pixel)
+		{
+			if (contrast < 0) { // lower contrast
+				float f = 1 - contrast/(float)CONTRAST_MIN;
+				pixel[0] = Math.round( f*((pixel[0] & 0xFF) - 127) + 127 );
+				pixel[1] = Math.round( f*((pixel[1] & 0xFF) - 127) + 127 );
+				pixel[2] = Math.round( f*((pixel[2] & 0xFF) - 127) + 127 );
+				
+			} else if (contrast > 0) { // raise contrast
+				float f = 1 - contrast/(float)CONTRAST_MAX;
+				pixel[0] = raiseContrast( f, pixel[0] );
+				pixel[1] = raiseContrast( f, pixel[1] );
+				pixel[2] = raiseContrast( f, pixel[2] );
+			}
+		}
+
+		private int raiseContrast(float f, int n)
+		{
+			float n_ = ((n & 0xFF) - 127)/(float)128; // 0 .. 255  ->  -1.0 .. 1.0
+			n_ = Math.min(Math.max(-1, n_), 1);
+			n_ = Math.signum(n_) * (float) Math.pow( Math.abs(n_), f);
+			return Math.round( 255 * ((n_+1)/2) );
+		}
+
+		ConfigureDialog createConfigureDialog(Window parent, String title) {
+			return new ConfigureDialog(parent, title);
+		}
+		
+		private void setBrightness(int brightness) { setImageValues(brightness, null); }
+		private void setContrast  (int contrast  ) { setImageValues(null, contrast); }
+		
+		private void setImageValues(Integer brightness, Integer contrast)
+		{
+			if (brightness!=null) {
+				this.brightness = brightness;
+				System.out.printf("MapBackgroundImage.Brightness = %s%n", this.brightness);
+				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_BRIGHTNESS, this.brightness);
+			}
+			if (contrast!=null) {
+				this.contrast = contrast;
+				System.out.printf("MapBackgroundImage.Contrast = %s%n", this.contrast);
+				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_CONTRAST, this.contrast);
+			}
+			if (brightness!=null || contrast!=null) {
+				computeImage();
+				mapView.repaint();
+			}
+		}
+
+		void drawImage(Graphics2D g2, int x, int y, int width, int height)
+		{
+			g2.drawImage(mapBgImage, x, y, width, height, null);
+			// TODO Auto-generated method stub
+		}
+
+		private interface IOExceptionTask<ReturnValue> {
+			ReturnValue run() throws IOException;
+		}
+
+		private static <ReturnValue> ReturnValue runIOExceptionTask( IOExceptionTask<ReturnValue> task, String taskDesc, Component errDlgParent, String errDlgtitle, ReturnValue errorValue ) {
+			try {
+				return task.run();
+			}
+			catch (IOException ex) {
+				JOptionPane.showMessageDialog(
+						errDlgParent,
+						new String[] {
+								String.format("IOException while %s:", taskDesc),
+								ex.getMessage(),
+						},
+						errDlgtitle, JOptionPane.ERROR_MESSAGE
+				);
+				System.err.printf("IOException while %s:%n   %s%n", taskDesc, ex.getMessage());
+				// ex.printStackTrace();
+				return errorValue;
+			}
+		}
+
+		@SuppressWarnings("unused")
+		private static class FixPoint
+		{
+			private double imageX;
+			private double imageY;
+			private double mapX;
+			private double mapY;
+			private final MapBGPoint imagePointId;
+			private final MapBGPoint mapPointId;
+		
+			FixPoint(MapBGPoint imagePointId, MapBGPoint mapPointId){
+				this.imageX = 0;
+				this.imageY = 0;
+				this.mapX = 0;
+				this.mapY = 0;
+				this.imagePointId = imagePointId;
+				this.mapPointId = mapPointId;
+			}
+
+			void getValuesFromSettings(double defaultImageX, double defaultImageY, double defaultMapX, double defaultMapY)
+			{
+				imageX = PlanetCrafterSaveGameViewer.settings.getDouble(imagePointId.keyX, defaultImageX);            
+				imageY = PlanetCrafterSaveGameViewer.settings.getDouble(imagePointId.keyY, defaultImageY);            
+				mapX   = PlanetCrafterSaveGameViewer.settings.getDouble(mapPointId  .keyX, defaultMapX  );
+				mapY   = PlanetCrafterSaveGameViewer.settings.getDouble(mapPointId  .keyY, defaultMapY  );
+			}
+
+			void setValues(double imageX, double imageY, double mapX, double mapY)
+			{
+				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyX, this.imageX = imageX);            
+				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyY, this.imageY = imageY);            
+				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId  .keyX, this.mapX   = mapX  );
+				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId  .keyY, this.mapY   = mapY  );
+			}
+		}
+
+		class ConfigureDialog extends StandardDialog
+		{
+			private static final long serialVersionUID = -8078213429132869645L;
+			private JSlider sliderBrightness;
+			private JSlider sliderContrast;
+			private JTextField outputBrightness;
+			private JTextField outputContrast;
+			
+			public ConfigureDialog(Window parent, String title)
+			{
+				super(parent, title, ModalityType.APPLICATION_MODAL, true);
+				
+				String btnLoadImageTitle = storedImageFile.isFile() ? "Replace Image" : "Load Image";
+				JButton btnLoadImage = GUI.createButton(btnLoadImageTitle, true, e -> loadImage  ());
+				JButton btnClose     = GUI.createButton("Close"          , true, e -> closeDialog());
+				
+				sliderBrightness = GUI.createSlider(JSlider.HORIZONTAL, BRIGHTNESS_MIN, BRIGHTNESS_MAX, brightness, null);
+				sliderContrast   = GUI.createSlider(JSlider.HORIZONTAL, CONTRAST_MIN  , CONTRAST_MAX  , contrast  , null);
+				
+				outputBrightness = GUI.createOutputTextField(Integer.toString(sliderBrightness.getValue()), 5);
+				outputContrast   = GUI.createOutputTextField(Integer.toString(sliderContrast  .getValue()), 5);
+				
+				sliderBrightness.addChangeListener(chev -> {
+					outputBrightness.setText(Integer.toString(sliderBrightness.getValue()));
+					if (!sliderBrightness.getValueIsAdjusting())
+						setBrightness(sliderBrightness.getValue());
+				});
+				sliderContrast.addChangeListener(chev -> {
+					outputContrast.setText(Integer.toString(sliderContrast.getValue()));
+					if (!sliderContrast.getValueIsAdjusting())
+						setContrast(sliderContrast.getValue());
+				});
+				
+				JPanel contentPane = new JPanel(new GridBagLayout());
+				GridBagConstraints c = new GridBagConstraints();
+				c.fill = GridBagConstraints.BOTH;
+				
+				c.weightx = 1;
+				c.weighty = 0;
+				c.gridwidth = 3;
+				c.gridheight = 1;
+				c.gridx = 0; c.gridy = 0; contentPane.add(btnLoadImage, c);
+		
+				c.gridwidth = 1;
+				c.gridheight = 1;
+				
+				c.weightx = 0;
+				c.weighty = 0;
+				c.gridx = 0; c.gridy = 1; contentPane.add(new JLabel("Brightness: "), c);
+				c.gridx = 0; c.gridy = 2; contentPane.add(new JLabel("Contrast: "  ), c);
+				c.weightx = 1;
+				c.gridx = 1; c.gridy = 1; contentPane.add(sliderBrightness, c);
+				c.gridx = 1; c.gridy = 2; contentPane.add(sliderContrast  , c);
+				c.weightx = 0;
+				c.gridx = 2; c.gridy = 1; contentPane.add(outputBrightness, c);
+				c.gridx = 2; c.gridy = 2; contentPane.add(outputContrast, c);
+				
+				createGUI(contentPane, btnClose);
+			}
+		
+			private void loadImage()
+			{
+				if (storedImageFile.isFile()) {
+					int result = JOptionPane.showConfirmDialog(
+							this,
+							"Do you want to replace existing background image?",
+							"Replace Existing Background Image",
+							JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
+					);
+					if (result != JOptionPane.YES_OPTION)
+						return;
+				}
+				
+				if (imageFC.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+					return;
+				
+				File imageFile = imageFC.getSelectedFile();
+				
+				
+				System.out.printf("Read image from file \"%s\"%n", imageFile.getAbsolutePath());
+				BufferedImage image = runIOExceptionTask(
+						()->ImageIO.read(imageFile),
+						String.format("reading image from file \"%s\":", imageFile.getAbsolutePath()),
+						this, "Read Error",
+						null
+				);
+				if (image==null) return;
+				System.out.printf("   %d bytes read%n", imageFile.length());
+				
+				
+				System.out.printf("Write image to file \"%s\"%n", storedImageFile.getAbsolutePath());
+				boolean success = runIOExceptionTask(
+						()->{ ImageIO.write(image, FILE_MAPBGIMAGE_FORMAT, storedImageFile); return true; },
+						String.format("writing image to file \"%s\":", storedImageFile.getAbsolutePath()),
+						this, "Write Error",
+						false
+				);
+				if (!success) return;
+				System.out.printf("   %d bytes written%n", storedImageFile.length());
+				
+				setBaseImage(image);
+				sliderBrightness.setValue(brightness);
+				sliderContrast  .setValue(contrast  );
+				outputBrightness.setText(Integer.toString(sliderBrightness.getValue()));
+				outputContrast  .setText(Integer.toString(sliderContrast  .getValue()));
+			}
+		}
+	}
 
 	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
@@ -599,6 +1043,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 		private final MapModel mapModel;
 		private final MapShapes mapShapes;
+		private MapBackgroundImage mapBackgroundImage;
 
 		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
 			this.mapShapes = mapShapes;
@@ -608,6 +1053,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			hoveredObject = null;
 			extraShownObject = null;
 			toolTipBox = null;
+			mapBackgroundImage = null;
 			overView.setRange(this.mapModel.range);
 			
 			activateMapScale(COLOR_MAP_AXIS, "px", true);
@@ -620,6 +1066,12 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			addZoomListener(new ZoomListener() {
 				@Override public void zoomChanged() { updateOverviewImage(); }
 			});
+		}
+
+		ViewState setBgImage(MapBackgroundImage mapBackgroundImage)
+		{
+			this.mapBackgroundImage = mapBackgroundImage;
+			return viewState;
 		}
 
 		void setExtraShownObject(WorldObject extraShownObject) {
@@ -761,9 +1213,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					if (screenY0>screenY1) { int temp=screenY0; screenY0=screenY1; screenY1=temp; }
 					g2.setColor(COLOR_MAP_BACKGROUND);
 					g2.fillRect(screenX0, screenY0, screenX1-screenX0, screenY1-screenY0);
+					if (mapBackgroundImage!=null)
+						mapBackgroundImage.drawImage(g2, x, y, width, height);
 					g2.setColor(COLOR_MAP_BORDER);
 					g2.drawRect(screenX0-1, screenY0-1, screenX1-screenX0+1, screenY1-screenY0+1);
 				}
+				else
+					if (mapBackgroundImage!=null)
+						mapBackgroundImage.drawImage(g2, x, y, width, height);
 				
 				drawShapes(g2);
 				

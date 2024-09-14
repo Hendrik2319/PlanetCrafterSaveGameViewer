@@ -42,6 +42,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.FileChooser;
@@ -68,6 +69,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	        static final String FILE_ACHIEVEMENTS        = "PlanetCrafterSaveGameViewer - Achievements.data";
 	private static final String FILE_MAPSHAPES           = "PlanetCrafterSaveGameViewer - MapShapes.data";
+            static final String FILE_MAPBGIMAGE          = "PlanetCrafterSaveGameViewer - MapBackgroundImage."+MapBackgroundImage.FILE_MAPBGIMAGE_EXT;
 	private static final String FILE_AUTOCRAFTER_TRADING = "PlanetCrafterSaveGameViewer - AutoCrafterTrading.data";
 
 	public static void main(String[] args) {
@@ -85,7 +87,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
 	private static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 
-	private final StandardMainWindow mainWindow;
+	        final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
 	private final FileChooser jsonFileChooser;
 	private final JTabbedPane dataTabPane;
@@ -773,7 +775,17 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			MapShapesEditor_WindowWidth,
 			MapShapesEditor_WindowHeight,
 			MapShapesEditor_SplitPaneDivider,
-			LabelLanguage
+			LabelLanguage,
+			MapBackgroundImage_Brightness,
+			MapBackgroundImage_Contrast,
+			MapBackgroundImage_FixPoint_Map1X,
+			MapBackgroundImage_FixPoint_Map1Y,
+			MapBackgroundImage_FixPoint_Map2X,
+			MapBackgroundImage_FixPoint_Map2Y,
+			MapBackgroundImage_FixPoint_Image1X,
+			MapBackgroundImage_FixPoint_Image1Y,
+			MapBackgroundImage_FixPoint_Image2X,
+			MapBackgroundImage_FixPoint_Image2Y
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {
