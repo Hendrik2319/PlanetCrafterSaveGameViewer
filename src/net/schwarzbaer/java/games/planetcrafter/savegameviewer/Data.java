@@ -884,6 +884,7 @@ class Data {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(WorldObject.class)
 				.add("id"    , Value.Type.Integer)
 				.add("gId"   , Value.Type.String )
+				.add("siIds" , Value.Type.String )
 				.add("liId"  , Value.Type.Integer)
 				.add("liGrps", Value.Type.String )
 				.add("pos"   , Value.Type.String )
@@ -893,11 +894,15 @@ class Data {
 				.add("color" , Value.Type.String )
 				.add("text"  , Value.Type.String )
 				.add("grwth" , Value.Type.Integer)
-				.add("set"   , Value.Type.Integer);
+				.add("set"   , Value.Type.Integer)
+				.add("trtInd", Value.Type.Integer)
+				.add("trtVal", Value.Type.Integer)
+				;
 		
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
+		final String   _siIds;
 		final String   productsStr;
 		final Coord3   position;
 		final String   positionStr;
@@ -910,6 +915,8 @@ class Data {
 		final String   text;
 		final long     growth;
 		final Long     _set;
+		final Long     _trtInd;
+		final Long     _trtVal;
 		
 		final ObjectType objectType;
 		final String[]   productIDs;
@@ -946,6 +953,7 @@ class Data {
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
 			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
 			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
+			_siIds       = JSON_Data.getStringValue (object, "siIds" , true, false, debugLabel);
 			productsStr  = JSON_Data.getStringValue (object, "liGrps", debugLabel);
 			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
 			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
@@ -955,6 +963,8 @@ class Data {
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
 			_set         = JSON_Data.getIntegerValue(object, "set"   , true, false, debugLabel);
+			_trtInd      = JSON_Data.getIntegerValue(object, "trtInd", true, false, debugLabel);
+			_trtVal      = JSON_Data.getIntegerValue(object, "trtVal", true, false, debugLabel);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 			
@@ -997,6 +1007,7 @@ class Data {
 						"id"    +":"+  "%d"  +", "+  // Int  
 						"gId"   +":"+"\"%s\""+", "+  // Str
 						"liId"  +":"+  "%d"  +", "+  // Int
+						"siIds" +":"+"\"%s\""+", "+  // Str
 						"liGrps"+":"+"\"%s\""+", "+  // Str
 						"pos"   +":"+"\"%s\""+", "+  // Str
 						"rot"   +":"+"\"%s\""+", "+  // Str
@@ -1006,10 +1017,13 @@ class Data {
 						"text"  +":"+"\"%s\""+", "+  // Str
 						"grwth" +":"+  "%d"  +", "+  // Int
 						"set"   +":"+  "%d"  +       // Int
+						"trtInd"+":"+  "%d"  +       // Int
+						"trtVal"+":"+  "%d"  +       // Int
 						" }, special vars: %s%n", 
 						id          ,
 						objectTypeID,
 						listId      ,
+						_siIds      ,
 						productsStr ,
 						positionStr ,
 						rotationStr ,
@@ -1019,6 +1033,8 @@ class Data {
 						text        ,
 						growth      ,
 						_set        ,
+						_trtInd     ,
+						_trtVal     ,
 						String.join(", ", vars)
 						);
 			}
@@ -1029,6 +1045,7 @@ class Data {
 					toIntegerValueStr("id"    , id          ),
 					toStringValueStr ("gId"   , objectTypeID),
 					toIntegerValueStr("liId"  , listId      ),
+					toStringValueStr ("siIds" , _siIds      , true),
 					toStringValueStr ("liGrps", productsStr ),
 					toStringValueStr ("pos"   , positionStr ),
 					toStringValueStr ("rot"   , rotationStr ),
@@ -1037,7 +1054,9 @@ class Data {
 					toStringValueStr ("color" , colorStr    ),
 					toStringValueStr ("text"  , text        ),
 					toIntegerValueStr("grwth" , growth      ),
-					toIntegerValueStr("set"   , _set        , true)
+					toIntegerValueStr("set"   , _set        , true),
+					toIntegerValueStr("trtInd", _trtInd     , true),
+					toIntegerValueStr("trtVal", _trtVal     , true)
 			) );
 		}
 
