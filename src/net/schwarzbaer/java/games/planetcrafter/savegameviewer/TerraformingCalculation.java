@@ -13,26 +13,20 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 
-class TerraformingCalculation // TODO: move whole terraforming calculation from TerraformingPanel
+class TerraformingCalculation
 {
-	private static TerraformingCalculation instance = null;
-	static TerraformingCalculation getInstance()
-	{
-		return instance == null ? instance = new TerraformingCalculation() : instance;
-	}
-	
-	private final Map<PhysicalValue,TerraformingAspect> data;
+	private final Map<PhysicalValue,TerraformingAspect> aspects;
 
 	TerraformingCalculation()
 	{
-		data = new EnumMap<>(PhysicalValue.class);
+		aspects = new EnumMap<>(PhysicalValue.class);
 		for (PhysicalValue phVal : PhysicalValue.values())
-			data.put(phVal, new TerraformingAspect(phVal));
+			aspects.put(phVal, new TerraformingAspect(phVal));
 	}
 
 	TerraformingAspect getAspect(PhysicalValue physicalValue)
 	{
-		return data.get(physicalValue);
+		return aspects.get(physicalValue);
 	}
 	
 	void clearData(PhysicalValue physicalValue)
@@ -42,21 +36,16 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 	
 	void clearData()
 	{
-		data.forEach((phVal,aspect)->{
+		aspects.forEach((phVal,aspect)->{
 			aspect.clearData();
 		});
 	}
 
-	ActiveWorldObject getWOData(PhysicalValue physicalValue, WorldObject worldObject)
+	void foreachAWO(WorldObject worldObject, boolean skipNulls, BiConsumer<PhysicalValue,ActiveWorldObject> action)
 	{
-		return getAspect(physicalValue).getWOData(worldObject);
-	}
-
-	void foreachWOData(WorldObject worldObject, BiConsumer<PhysicalValue,ActiveWorldObject> action)
-	{
-		data.forEach((phVal,aspect)->{
-			ActiveWorldObject woData = aspect.getWOData(worldObject);
-			if (woData!=null)
+		aspects.forEach((phVal,aspect)->{
+			ActiveWorldObject woData = aspect.getAWO(worldObject);
+			if (woData!=null || !skipNulls)
 				action.accept(phVal, woData);
 		});
 	}
@@ -74,7 +63,7 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 	) {}
 	
 	record NearMachineOptimizer (
-		WorldObject wo,
+		ActiveMachineOptimizer amo,
 		double distance
 	) {}
 	
@@ -95,15 +84,15 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 			moMulti = null;
 		}
 		
-		void addMachineOptimizer(WorldObject wo, double distance)
+		void addMachineOptimizer(ActiveMachineOptimizer amo, double distance)
 		{
-			nearMachineOptimizers.add(new NearMachineOptimizer(wo, distance));
+			nearMachineOptimizers.add(new NearMachineOptimizer(amo, distance));
 		}
 	}
 	
 	static class TerraformingAspect
 	{
-		final PhysicalValue physicalValue;
+		private final PhysicalValue physicalValue;
 		private final Map<WorldObject,ActiveWorldObject> activeWorldObjects;
 		private final Map<WorldObject,ActiveMachineOptimizer> machineOptimizers;
 		private final Map<WorldObject,BoosterRocket> boosterRockets;
@@ -122,12 +111,17 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 			totalSumBoosted = 0;
 		}
 
-		ActiveWorldObject getWOData(WorldObject worldObject)
+		int    getNumberOfBoosterRockets() { return boosterRockets.size(); }
+		double getBoosterMultiplier     () { return boosterMultiplier;     }
+		double getTotalSum              () { return totalSum;              }
+		double getTotalSumBoosted       () { return totalSumBoosted;       }
+
+		ActiveWorldObject getAWO(WorldObject worldObject)
 		{
 			return activeWorldObjects.get(worldObject);
 		}
 		
-		void forEachActiveWorldObject(BiConsumer<? super WorldObject, ? super ActiveWorldObject> action) {
+		void forEachAWO(BiConsumer<? super WorldObject, ? super ActiveWorldObject> action) {
 			activeWorldObjects.forEach(action);
 		}
 
@@ -180,7 +174,7 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 				for (ActiveMachineOptimizer machOpt : machineOptimizers.values()) {
 					double distance = machOpt.position.getDistanceXYZ_m(aWoObj.wo.position);
 					if (distance <= machOpt.range) {
-						aWoObj.nearMachineOptimizers.add(new NearMachineOptimizer(machOpt.wo, distance));
+						aWoObj.nearMachineOptimizers.add(new NearMachineOptimizer(machOpt, distance));
 						if (aWoObj.moMulti==null) aWoObj.moMulti = 0.0;
 						aWoObj.moMulti += machOpt.fuseMulti; // values of multiple MOs will be summarized
 					}
@@ -247,27 +241,6 @@ class TerraformingCalculation // TODO: move whole terraforming calculation from 
 				return null;
 			
 			return new ActiveMachineOptimizer(wo, wo.position, ot.moRange, moMulti);
-		}
-
-		int getNumberOfBoosterRockets()
-		{
-			return boosterRockets.size();
-		}
-
-		double getBoosterMultiplier()
-		{
-			return boosterMultiplier;
-		}
-
-		double getTotalSum()
-		{
-			return totalSum;
-		}
-
-		double getTotalSumBoosted()
-		{
-			// TODO Auto-generated method stub
-			return totalSumBoosted;
 		}
 	}
 }

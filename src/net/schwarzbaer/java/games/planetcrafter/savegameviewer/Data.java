@@ -1091,17 +1091,25 @@ class Data {
 				if (objectType.hasEffectOnTerraforming())
 				{
 					out.add(0, "Effect on Terraforming");
-					ObjectType[] objectTypes = list==null ? null : getObjectTypes(list.worldObjs);
-					objectType.addTerraformingOutputTo(out, 1, objectTypes);
+					PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, false, (phVal,awo) -> {
+						if (awo != null)
+							generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier);
+						else
+						{
+							Double baseValue = phVal.getBaseValue.apply(objectType);
+							if (baseValue!=null && objectType.expectsMultiplierFor == phVal)
+								generateNotFullActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, baseValue, "expects multiplier item");
+						}
+					});
 				}
-				if (objectType.isActive())
+				if (objectType.energy !=null)
 				{
 					out.add(0, "Is Active");
-					objectType.addActiveOutputTo(out, 1);
+					generateActiveOutputLine(out, 1, "Energy", ObjectTypes::formatEnergyRate, objectType.energy, null);
 				}
 			}
 			
-			TerraformingCalculation.getInstance().foreachWOData(this, (phVal, woData) -> {
+			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, true, (phVal, woData) -> {
 				if (!woData.nearMachineOptimizers.isEmpty())
 				{
 					out.add(0, "Near MachineOptimizers", "%s", phVal);
@@ -1110,7 +1118,7 @@ class Data {
 						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
 						.forEach( nmo -> {
 							String distStr = String.format(Locale.ENGLISH, "%1.2f m", nmo.distance());
-							WorldObject wo = nmo.wo();
+							WorldObject wo = nmo.amo().wo();
 							if (wo!=null)
 								out.add(1, distStr, "%s", wo.getShortDesc());
 						} );
@@ -1141,7 +1149,19 @@ class Data {
 			return out.generateOutput();
 		}
 		
+		private static void generateActiveOutputLine(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier) {
+			if (multiplier != null) {
+				out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", multiplier, formatRate.apply(rate)));
+				out.add(indentLevel,  null, "%s", formatRate.apply(rate*multiplier));
+			} else
+				out.add(indentLevel, label, "%s", formatRate.apply(rate));
+		}
 		
+		
+		private static void generateNotFullActiveOutputLine(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, String reason) {
+			out.add(indentLevel, label, "(%s) -> %s", formatRate.apply(rate), reason);
+		}
+
 		private static void generateOutput(ValueListOutput out, int indentLevel, String label, ObjectType[] items)
 		{
 			if (items!=null && items.length>0)

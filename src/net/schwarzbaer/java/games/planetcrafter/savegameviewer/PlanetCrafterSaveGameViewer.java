@@ -86,6 +86,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	static final AppSettings settings = new AppSettings();
 	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
 	private static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
+	static final TerraformingCalculation terraformingCalculation = new TerraformingCalculation();
 
 	        final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
@@ -113,7 +114,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		generalDataPanel = null;
 		objectTypesPanel = null;
 		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
-		TerraformingCalculation.getInstance().clearData();
+		terraformingCalculation.clearData();
 		
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
@@ -485,7 +486,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void setGUI(Data data) {
 		Data.clearAllRemoveStateListeners();
 		dataTabPane.removeAll();
-		TerraformingCalculation.getInstance().clearData();
+		terraformingCalculation.clearData();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(this, data);

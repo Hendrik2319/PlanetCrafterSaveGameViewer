@@ -61,7 +61,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	
 	private static SubPanel addPanel(TerraformingPanel main, Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue)
 	{
-		TerraformingAspect aspect = TerraformingCalculation.getInstance().getAspect(physicalValue);
+		TerraformingAspect aspect = PlanetCrafterSaveGameViewer.terraformingCalculation.getAspect(physicalValue);
 		SubPanel subPanel = new SubPanel(data, terraformingStatesPanel, physicalValue, aspect);
 		main.add(subPanel);
 		main.subPanels.put(physicalValue, subPanel);
@@ -179,7 +179,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
 			terraformingAspect.calculate(data.worldObjects);
 			
-			terraformingAspect.forEachActiveWorldObject((wo,awo) -> {
+			terraformingAspect.forEachAWO((wo,awo) -> {
 				RowIndex rowIndex = new RowIndex(
 						wo.objectTypeID,
 						awo.multiplier==null ? 0 : awo.multiplier.doubleValue(),

@@ -19,7 +19,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.LabelLanguage;
-import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
 class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
@@ -78,27 +77,25 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	enum PhysicalValue {
 		Heat    ("pK/s" , ot->ot.heat    ),
 		Pressure("nPa/s", ot->ot.pressure),
-		Oxygen  ("ppq/s", ot->ot.oxygen  , true, ot->ot.oxygenMultiplier),
+		Oxygen  ("ppq/s", ot->ot.oxygen  , ot->ot.oxygenMultiplier),
 		Plants  ("g/s"  , ot->ot.plants  ),
-		Insects ("g/s"  , ot->ot.insects , true, ot->ot.insectsMultiplier),
-		Animals ("g/s"  , ot->ot.animals , true, ot->ot.animalsMultiplier),
+		Insects ("g/s"  , ot->ot.insects , ot->ot.insectsMultiplier),
+		Animals ("g/s"  , ot->ot.animals , ot->ot.animalsMultiplier),
 		;
 		
 		final String rateUnit;
 		final boolean isMultiplierBased;
-		final Function<ObjectType, Double> getMultiplierFcn; // TODO: remove 
 		final Function<ObjectType, Double> getMultiplier;
 		final Function<ObjectType, Double> getBaseValue;
 		
 		PhysicalValue(String rateUnit, Function<ObjectType,Double> getBaseValue) {
-			this(rateUnit, getBaseValue, false, null);
+			this(rateUnit, getBaseValue, null);
 		}
-		PhysicalValue(String rateUnit, Function<ObjectType,Double> getBaseValue, boolean isMultiplierBased, Function<ObjectType,Double> getMultiplier) {
+		PhysicalValue(String rateUnit, Function<ObjectType,Double> getBaseValue, Function<ObjectType,Double> getMultiplier) {
 			this.rateUnit = rateUnit;
 			this.getBaseValue = getBaseValue;
-			this.isMultiplierBased = isMultiplierBased;
+			this.isMultiplierBased = getMultiplier!=null;
 			this.getMultiplier = getMultiplier;
-			this.getMultiplierFcn = getMultiplier;
 		}
 		
 		String formatRate(double value) {
@@ -437,10 +434,6 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			String label = getLabel();
 			return label != null ? label : String.format("{%s}", id);
 		}
-
-		boolean isActive() {
-			return hasEffectOnTerraforming() || energy  !=null;
-		}
 	
 		boolean hasEffectOnTerraforming()
 		{
@@ -451,41 +444,6 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 					plants  !=null ||
 					insects !=null ||
 					animals !=null;
-		}
-
-		void addTerraformingOutputTo(ValueListOutput out, int indentLevel, ObjectType[] children) {
-			if (oxygen  !=null) {
-				if (expectsMultiplierFor == PhysicalValue.Oxygen)
-					            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
-				else            addActiveOutputLineTo(out, indentLevel, "Oxygen"  , PhysicalValue.Oxygen  ::formatRate, oxygen  , null, false);
-			}
-			if (heat    !=null) addActiveOutputLineTo(out, indentLevel, "Heat"    , PhysicalValue.Heat    ::formatRate, heat    , null, false);
-			if (pressure!=null) addActiveOutputLineTo(out, indentLevel, "Pressure", PhysicalValue.Pressure::formatRate, pressure, null, false);
-			if (plants  !=null) addActiveOutputLineTo(out, indentLevel, "Plants"  , PhysicalValue.Plants  ::formatRate, plants  , null, false);
-			if (insects !=null) {
-				if (expectsMultiplierFor == PhysicalValue.Insects)
-					            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
-				else            addActiveOutputLineTo(out, indentLevel, "Insects" , PhysicalValue.Insects ::formatRate, insects , null, false);
-			}
-			if (animals !=null) {
-				if (expectsMultiplierFor == PhysicalValue.Animals)
-					            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , sumUpMultipliers(children, expectsMultiplierFor.getMultiplierFcn), true);
-				else            addActiveOutputLineTo(out, indentLevel, "Animals" , PhysicalValue.Animals ::formatRate, animals , null, false);
-			}
-		}
-
-		void addActiveOutputTo(ValueListOutput out, int indentLevel) {
-			if (energy  !=null) addActiveOutputLineTo(out, indentLevel, "Energy"  , ObjectTypes::formatEnergyRate     , energy  , null, false);
-		}
-	
-		void addActiveOutputLineTo(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier, boolean multiplierExpected) {
-			if (multiplier != null) {
-				out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", multiplier, formatRate.apply(rate)));
-				out.add(indentLevel,  null, "%s", formatRate.apply(rate*multiplier));
-			} else if (multiplierExpected)
-				out.add(indentLevel, label, "%s", "<multiplier expected>");
-			else
-				out.add(indentLevel, label, "%s", formatRate.apply(rate));
 		}
 		
 		static String toString(ObjectType[] objectTypes)
