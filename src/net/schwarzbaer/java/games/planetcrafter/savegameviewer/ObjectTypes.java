@@ -76,25 +76,29 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 
 	enum PhysicalValue {
-		Heat    ("pK/s" ),
-		Pressure("nPa/s"),
-		Oxygen  ("ppq/s", true, ot->ot.oxygenMultiplier),
-		Plants  ("g/s"  ),
-		Insects ("g/s"  , true, ot->ot.insectsMultiplier),
-		Animals ("g/s"  , true, ot->ot.animalsMultiplier),
+		Heat    ("pK/s" , ot->ot.heat    ),
+		Pressure("nPa/s", ot->ot.pressure),
+		Oxygen  ("ppq/s", ot->ot.oxygen  , true, ot->ot.oxygenMultiplier),
+		Plants  ("g/s"  , ot->ot.plants  ),
+		Insects ("g/s"  , ot->ot.insects , true, ot->ot.insectsMultiplier),
+		Animals ("g/s"  , ot->ot.animals , true, ot->ot.animalsMultiplier),
 		;
 		
 		final String rateUnit;
 		final boolean isMultiplierBased;
-		final Function<ObjectType, Double> getMultiplierFcn;
+		final Function<ObjectType, Double> getMultiplierFcn; // TODO: remove 
+		final Function<ObjectType, Double> getMultiplier;
+		final Function<ObjectType, Double> getBaseValue;
 		
-		PhysicalValue(String rateUnit) {
-			this(rateUnit, false, null);
+		PhysicalValue(String rateUnit, Function<ObjectType,Double> getBaseValue) {
+			this(rateUnit, getBaseValue, false, null);
 		}
-		PhysicalValue(String rateUnit, boolean isMultiplierBased, Function<ObjectType,Double> getMultiplierFcn) {
+		PhysicalValue(String rateUnit, Function<ObjectType,Double> getBaseValue, boolean isMultiplierBased, Function<ObjectType,Double> getMultiplier) {
 			this.rateUnit = rateUnit;
+			this.getBaseValue = getBaseValue;
 			this.isMultiplierBased = isMultiplierBased;
-			this.getMultiplierFcn = getMultiplierFcn;
+			this.getMultiplier = getMultiplier;
+			this.getMultiplierFcn = getMultiplier;
 		}
 		
 		String formatRate(double value) {

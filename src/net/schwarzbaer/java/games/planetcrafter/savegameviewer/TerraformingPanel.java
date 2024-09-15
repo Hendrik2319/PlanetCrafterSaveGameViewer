@@ -13,9 +13,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Vector;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
@@ -29,13 +26,11 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GeneralDataPanel.TerraformingStatesPanel;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TerraformingCalculation.ActiveWorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TerraformingCalculation.TerraformingAspect;
 import net.schwarzbaer.java.lib.gui.Tables;
 
@@ -179,85 +174,37 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			SwingUtilities.invokeLater(this::updateContent);
 		}
 
-		private Double getValue(WorldObject wo) {
-			if (wo == null) return null;
-			if (wo.objectType == null) return null;
-			
-			switch (physicalValue) {
-			case Oxygen  : return wo.objectType.oxygen;
-			case Heat    : return wo.objectType.heat;
-			case Pressure: return wo.objectType.pressure;
-			case Plants  : return wo.objectType.plants;
-			case Insects : return wo.objectType.insects;
-			case Animals : return wo.objectType.animals;
-			}
-			return null;
-		}
-		
-		private static record ActiveMachineOptimizer (
-			WorldObject wo,
-			Coord3 position,
-			double range,
-			double fuseMulti
-		) {}
-
 		void updateContent()
 		{
 			HashMap<RowIndex,ObjectsTableRow> tableContent = new HashMap<>();
-			double totalSum = 0.0;
-			int numberOfBoosterRockets = 0;
-			double boosterMultiplier = 0;
-			terraformingAspect.clearData();
+			terraformingAspect.calculate(data.worldObjects);
 			
-			// TODO: MO Capacity
-			Vector<ActiveMachineOptimizer> activeMOs = determineActiveMOs();
-			
-			for (WorldObject wo : data.worldObjects) {
-				if (wo == null) continue;
-				if (wo.objectType == null) continue;
+			terraformingAspect.forEachActiveWorldObject((wo,awo) -> {
+				RowIndex rowIndex = new RowIndex(
+						wo.objectTypeID,
+						awo.multiplier==null ? 0 : awo.multiplier.doubleValue(),
+						awo.moMulti   ==null ? 0 : awo.moMulti   .doubleValue()
+				);
 				
-				Double value = getValue(wo);
-				if (value!=null && wo.isInstalled()) {
-					Double multiplier = null;
-					if (wo.objectType.expectsMultiplierFor==physicalValue && physicalValue.isMultiplierBased)
-					{
-						multiplier = getMultiplier( wo, physicalValue.getMultiplierFcn );
-						if (multiplier==null) continue;
-					}
-					
-					Double moMulti = getTotalMultiOfMOsInRange(activeMOs, wo.position, (amo,dist) -> {
-						terraformingAspect.getOrCreateWOData(wo).addMachineOptimizer(amo.wo,dist);
-					});
-					
-					RowIndex rowIndex = new RowIndex(
-							wo.objectTypeID,
-							multiplier==null ? 0 : multiplier.doubleValue(),
-							moMulti   ==null ? 0 : moMulti   .doubleValue()
-					);
-					ObjectsTableRow row = tableContent.get(rowIndex);
-					if (row==null) tableContent.put(rowIndex, row = new ObjectsTableRow(wo.getName(), multiplier, moMulti));
-					
-					row.add(wo,value);
-					totalSum += computeMultipliedValue(value, multiplier, moMulti);
-				}
+				ObjectsTableRow row = tableContent.get(rowIndex);
+				if (row==null)
+					tableContent.put(rowIndex, row = new ObjectsTableRow(wo.getName(), awo.multiplier, awo.moMulti));
 				
-				if (wo.objectType.isBoosterRocketFor==physicalValue) {
-					if (wo.objectType.boosterMultiplier!=null)
-						boosterMultiplier += wo.objectType.boosterMultiplier;
-					numberOfBoosterRockets++;
-				}
-			}
+				row.add(awo);
+			});
 			
-			if (boosterMultiplier==0) boosterMultiplier = 1;
-			double totalSumFinal = totalSum*boosterMultiplier;
+			int numberOfBoosterRockets = terraformingAspect.getNumberOfBoosterRockets();
+			double totalSum            = terraformingAspect.getTotalSum();
+			double boosterMultiplier   = terraformingAspect.getBoosterMultiplier();
+			double totalSumBoosted     = terraformingAspect.getTotalSumBoosted();
 			
 			String strBoosterRockets = numberOfBoosterRockets == 0 ? "---" : String.format(Locale.ENGLISH, "%d Ro. (= %1.1f %%)", numberOfBoosterRockets, boosterMultiplier*100);
 			fieldProductionRate     .setText(physicalValue.formatRate(totalSum));
 			fieldBoosterRockets     .setText(strBoosterRockets);
-			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumFinal));
+			fieldProductionRateFinal.setText(physicalValue.formatRate(totalSumBoosted));
 			tableModel.setData(tableContent.values());
 			
-			terraformingStatesPanel.setRateOfPhysicalValue(physicalValue, totalSumFinal);
+			terraformingStatesPanel.setRateOfPhysicalValue(physicalValue, totalSumBoosted);
 		}
 
 		private static double computeMultipliedValue(double value, Double multiplier, Double moMulti)
@@ -267,73 +214,14 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 					* (moMulti   ==null ? 1 : moMulti   .doubleValue());
 		}
 
-		private Vector<ActiveMachineOptimizer> determineActiveMOs()
+		private static class RowIndex
 		{
-			Vector<ActiveMachineOptimizer> activeMOs = new Vector<>();
-			for (WorldObject wo : data.worldObjects) {
-				if (wo                == null) continue;
-				if (wo.position       == null) continue;
-				if (wo.list           == null) continue;
-				if (wo.list.worldObjs == null) continue;
-				if (wo.objectType     == null) continue;
-				ObjectType ot = wo.objectType;
-				
-				if (!ot.isMachineOptomizer) continue;
-				if ( ot.moRange    == null) continue;
-				
-				
-				double moMulti = Double.NaN;
-				for (WorldObject fuse : wo.list.worldObjs) {
-					if (fuse            == null) continue;
-					if (fuse.objectType == null) continue;
-					ObjectType ot_f = fuse.objectType;
-					
-					if (ot_f.isMOFuse != physicalValue) continue;
-					if (ot_f.moFuseMultiplier  == null) continue;
-					
-					if (Double.isNaN(moMulti)) moMulti = 0;
-					moMulti += ot_f.moFuseMultiplier; // values of multiple fuses in one optimizer will be summarized
-				}
-				
-				if (!Double.isNaN(moMulti))
-					activeMOs.add(new ActiveMachineOptimizer(wo, wo.position, ot.moRange, moMulti));
-			}
-			return activeMOs;
-		}
-		
-		private Double getTotalMultiOfMOsInRange(Vector<ActiveMachineOptimizer> activeMOs, Coord3 woPos, BiConsumer<ActiveMachineOptimizer,Double> foundAMO)
-		{
-			if (woPos==null) return null;
-			
-			Double moMulti = null;
-			for (ActiveMachineOptimizer activeMO : activeMOs)
-			{
-				double distance = activeMO.position.getDistanceXYZ_m(woPos);
-				if (distance <= activeMO.range) {
-					foundAMO.accept(activeMO, distance);
-					if (moMulti==null) moMulti = 0.0;
-					moMulti += activeMO.fuseMulti; // values of multiple MOs will be summarized
-				}
-			}
-			
-			return moMulti;
-		}
-
-		private Double getMultiplier(WorldObject wo, Function<ObjectType, Double> getMultiplier) {
-			if (wo.list==null) return null;
-			if (wo.list.worldObjs.length==0) return null;
-			
-			ObjectType[] objectTypes = WorldObject.getObjectTypes(wo.list.worldObjs);
-			return ObjectTypes.sumUpMultipliers(objectTypes, getMultiplier);
-		}
-
-		private static class RowIndex {
-			
 			final String objectTypeID;
 			final double multiplier;
 			final double moMulti;
 			
-			RowIndex(String objectTypeID, double multiplier, double moMulti) {
+			RowIndex(String objectTypeID, double multiplier, double moMulti)
+			{
 				if (objectTypeID==null) throw new IllegalArgumentException();
 				this.objectTypeID = objectTypeID;
 				this.multiplier = multiplier;
@@ -341,7 +229,8 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 			}
 
 			@Override
-			public int hashCode() {
+			public int hashCode()
+			{
 				return Objects.hash(moMulti, multiplier, objectTypeID);
 			}
 
@@ -355,7 +244,6 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 						&& Double.doubleToLongBits(multiplier) == Double.doubleToLongBits(other.multiplier)
 						&& Objects.equals(objectTypeID, other.objectTypeID);
 			}
-			
 		}
 		
 		private static class ObjectsTableRow extends GUI.ObjectsTableRow {
@@ -373,11 +261,12 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 				energySum = 0;
 			}
 
-			void add(WorldObject wo, double value) {
-				add(wo);
-				baseSum += value;
-				if (wo.objectType.energy!=null)
-					energySum += wo.objectType.energy;
+			public void add(ActiveWorldObject awo)
+			{
+				add(awo.wo);
+				baseSum += awo.baseValue;
+				if (awo.wo.objectType!=null && awo.wo.objectType.energy!=null)
+					energySum += awo.wo.objectType.energy;
 			}
 		}
 		
