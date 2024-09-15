@@ -1113,7 +1113,7 @@ class Data {
 					out.add(0, "Effect on Terraforming");
 					PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, false, (phVal,awo) -> {
 						if (awo != null)
-							generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier);
+							generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier, awo.moMulti);
 						else
 						{
 							Double baseValue = phVal.getBaseValue.apply(objectType);
@@ -1125,14 +1125,14 @@ class Data {
 				if (objectType.energy !=null)
 				{
 					out.add(0, "Is Active");
-					generateActiveOutputLine(out, 1, "Energy", ObjectTypes::formatEnergyRate, objectType.energy, null);
+					generateActiveOutputLine(out, 1, "Energy", ObjectTypes::formatEnergyRate, objectType.energy, null, null);
 				}
 			}
 			
 			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, true, (phVal, awo) -> {
 				if (!awo.nearMachineOptimizers.isEmpty())
 				{
-					out.add(0, "Near MachineOptimizers", "%s", phVal);
+					out.add(0, "Near MachineOptimizers (%s)".formatted(phVal));
 					awo.nearMachineOptimizers
 						.stream()
 						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
@@ -1183,11 +1183,19 @@ class Data {
 			return out.generateOutput();
 		}
 		
-		private static void generateActiveOutputLine(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier) {
-			if (multiplier != null) {
-				out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", multiplier, formatRate.apply(rate)));
-				out.add(indentLevel,  null, "%s", formatRate.apply(rate*multiplier));
-			} else
+		private static void generateActiveOutputLine(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier, Double moMulti) {
+			if (multiplier!=null && moMulti!=null)
+			{
+				out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "(%1.2f + %1.2f) x %s", multiplier, moMulti, formatRate.apply(rate)));
+				out.add(indentLevel,  null, "%s", formatRate.apply(rate*(multiplier+moMulti)));
+			}
+			else if (multiplier!=null || moMulti!=null)
+			{
+				double x = multiplier!=null ? multiplier : moMulti!=null ? moMulti : 1;
+				out.add(indentLevel, label, "%s", String.format(Locale.ENGLISH, "%1.2f x %s", x, formatRate.apply(rate)));
+				out.add(indentLevel,  null, "%s", formatRate.apply(rate*x));
+			}
+			else
 				out.add(indentLevel, label, "%s", formatRate.apply(rate));
 		}
 		

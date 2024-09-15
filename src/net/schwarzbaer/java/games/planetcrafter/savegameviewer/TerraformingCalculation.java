@@ -227,9 +227,17 @@ class TerraformingCalculation
 			
 			totalSum = 0;
 			for (ActiveWorldObject aWoObj : activeWorldObjects.values()) {
-				totalSum += aWoObj.baseValue
-						* (aWoObj.multiplier==null ? 1 : aWoObj.multiplier)
-						* (aWoObj.moMulti   ==null ? 1 : aWoObj.moMulti   );
+				double multiplier;
+				if (aWoObj.multiplier!=null && aWoObj.moMulti!=null)
+					multiplier = aWoObj.multiplier + aWoObj.moMulti;
+				else
+					multiplier =
+							aWoObj.multiplier!=null
+								? aWoObj.multiplier
+								: aWoObj.moMulti!=null
+										? aWoObj.moMulti
+										: 1;
+				totalSum += aWoObj.baseValue * multiplier;
 			}
 			
 			Double boosterMultiplier = null;
