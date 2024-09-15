@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,11 +60,22 @@ class TerraformingCalculation
 		WorldObject wo,
 		Coord3 position,
 		double range,
-		double fuseMulti
-	) {}
+		int capacity,
+		double fuseMulti,
+		Vector<NearActiveWorldObject> nearAWOs
+	) {
+		ActiveMachineOptimizer(WorldObject wo, Coord3 position, double range, int capacity, double fuseMulti) {
+			this(wo, position, range, capacity, fuseMulti, new Vector<>());
+		}
+	}
 	
 	record NearMachineOptimizer (
 		ActiveMachineOptimizer amo,
+		double distance
+	) {}
+	
+	record NearActiveWorldObject (
+		ActiveWorldObject awo,
 		double distance
 	) {}
 	
@@ -149,7 +161,7 @@ class TerraformingCalculation
 				
 				if (wo.isInstalled())
 				{
-					ActiveMachineOptimizer amo = addMachineOptimizer(wo);
+					ActiveMachineOptimizer amo = computeMachineOptimizer(wo);
 					if (amo != null)
 						machineOptimizers.put(wo, amo);
 					
@@ -168,16 +180,34 @@ class TerraformingCalculation
 				}
 			}
 			
-			// TODO: MO Capacity
-			for (ActiveWorldObject aWoObj : activeWorldObjects.values()) {
-				aWoObj.moMulti = null;
-				for (ActiveMachineOptimizer machOpt : machineOptimizers.values()) {
+			// find ActiveWorldObjects near to an ActiveMachineOptimizer
+			for (ActiveMachineOptimizer machOpt : machineOptimizers.values()) {
+				machOpt.nearAWOs.clear();
+				
+				for (ActiveWorldObject aWoObj : activeWorldObjects.values()) {
 					double distance = machOpt.position.getDistanceXYZ_m(aWoObj.wo.position);
-					if (distance <= machOpt.range) {
-						aWoObj.nearMachineOptimizers.add(new NearMachineOptimizer(machOpt, distance));
-						if (aWoObj.moMulti==null) aWoObj.moMulti = 0.0;
-						aWoObj.moMulti += machOpt.fuseMulti; // values of multiple MOs will be summarized
-					}
+					if (distance <= machOpt.range)
+						machOpt.nearAWOs.add(new NearActiveWorldObject(aWoObj, distance));
+				}
+				
+				machOpt.nearAWOs.sort(Comparator.comparing(nawo->nawo.distance));
+				
+				if (machOpt.capacity < machOpt.nearAWOs.size())
+					machOpt.nearAWOs.setSize(machOpt.capacity);
+			}
+			
+			// clear MachineOptimizer values in ActiveWorldObjects
+			for (ActiveWorldObject awo : activeWorldObjects.values()) {
+				awo.moMulti = null;
+				awo.nearMachineOptimizers.clear();
+			}
+			
+			// set MachineOptimizer values in ActiveWorldObjects near to an ActiveMachineOptimizer
+			for (ActiveMachineOptimizer machOpt : machineOptimizers.values()) {
+				for (NearActiveWorldObject nawo : machOpt.nearAWOs) {
+					nawo.awo.nearMachineOptimizers.add(new NearMachineOptimizer(machOpt, nawo.distance));
+					if (nawo.awo.moMulti==null) nawo.awo.moMulti = 0.0;
+					nawo.awo.moMulti += machOpt.fuseMulti; // values of multiple MOs will be summarized
 				}
 			}
 			
@@ -212,7 +242,7 @@ class TerraformingCalculation
 			return ObjectTypes.sumUpMultipliers(objectTypes, getMultiplier);
 		}
 
-		private ActiveMachineOptimizer addMachineOptimizer(WorldObject wo)
+		private ActiveMachineOptimizer computeMachineOptimizer(WorldObject wo)
 		{
 			if (wo                == null) return null;
 			if (wo.position       == null) return null;
@@ -223,6 +253,7 @@ class TerraformingCalculation
 			
 			if (!ot.isMachineOptomizer) return null;
 			if ( ot.moRange    == null) return null;
+			if ( ot.moCapacity == null) return null;
 			
 			
 			double moMulti = Double.NaN;
@@ -240,7 +271,7 @@ class TerraformingCalculation
 			if (Double.isNaN(moMulti))
 				return null;
 			
-			return new ActiveMachineOptimizer(wo, wo.position, ot.moRange, moMulti);
+			return new ActiveMachineOptimizer(wo, wo.position, ot.moRange, ot.moCapacity, moMulti);
 		}
 	}
 }
