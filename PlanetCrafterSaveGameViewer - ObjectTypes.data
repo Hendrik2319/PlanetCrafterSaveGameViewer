@@ -85,7 +85,7 @@ occurrences = WorldObject,Achievement
 ObjectType: astrofood
 label_en = Space Food
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: astrofood2
@@ -140,13 +140,13 @@ occurrences = WorldObject,Achievement
 ObjectType: Bacteria1
 label_en = Bacteria Sample
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: BalzarQuartz
 label_de = Blazar-Quarz
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Beacon
@@ -230,7 +230,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Bioplastic1
 label_en = Bioplastic Nugget
 class = Resource_Craftable
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: BlueprintBedDoubleColored
@@ -306,7 +306,7 @@ ObjectType: Butterfly10Larvae
 label_en = Butterfly Liux Larva (rare, 500%)
 class = Resource_SeedEgg
 insectsMultiplier = 5.0
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Butterfly11Larvae
@@ -397,7 +397,7 @@ ObjectType: Butterfly4Larvae
 label_en = Butterfly Galaxe Larva (common, 175%)
 class = Resource_SeedEgg
 insectsMultiplier = 1.75
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Butterfly5Larvae
@@ -418,7 +418,7 @@ ObjectType: Butterfly7Larvae
 label_en = Butterfly Penga Larva (rare, 230%)
 class = Resource_SeedEgg
 insectsMultiplier = 2.3
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Butterfly8Larvae
@@ -432,7 +432,7 @@ ObjectType: Butterfly9Larvae
 label_en = Butterfly Aemel Larva (rare, 300%)
 class = Resource_SeedEgg
 insectsMultiplier = 3.0
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: ButterflyDisplayer1
@@ -611,6 +611,9 @@ class = Structure_Storage
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: DNASequence
+occurrences = ObjectList
+
 ObjectType: Drill0
 label_en = Drill T1
 class = Structure_Machine
@@ -658,7 +661,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Drone1
 label_en = Drone T1
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Drone2
@@ -755,7 +758,7 @@ ObjectType: Explosive
 label_en = Explosive
 label_de = Explosiv
 class = Special
-occurrences = WorldObject,Blueprint
+occurrences = WorldObject,Blueprint,ObjectList
 <finished>
 
 ObjectType: FabricBlue
@@ -783,13 +786,13 @@ occurrences = Blueprint
 ObjectType: Fertilizer1
 label_en = Fertilizer T1
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Fertilizer2
 label_en = Fertilizer T2
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Fish10Eggs
@@ -900,7 +903,7 @@ ObjectType: Flare
 label_en = Flare
 label_de = Fackel
 class = Special
-occurrences = WorldObject,Blueprint
+occurrences = WorldObject,Blueprint,ObjectList
 <finished>
 
 ObjectType: FlowerPot1
@@ -917,6 +920,13 @@ class = Structure_Building
 occurrences = WorldObject
 <finished>
 
+ObjectType: FoundationAngle
+label_en = Foundation - Corner
+label_de = Fundament - Ecke
+class = Structure_Building
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: FoundationSlope
 label_en = Foundation - Slope
 label_de = Fundament - Rampe
@@ -930,6 +940,9 @@ class = Resource_SeedEgg
 animalsMultiplier = 5.0
 occurrences = WorldObject,Product
 <finished>
+
+ObjectType: Frog11Eggs
+occurrences = WorldObject
 
 ObjectType: Frog1Eggs
 label_en = Generic Frog Eggs (100% | P.C, M4, F1)
@@ -1000,10 +1013,14 @@ animalsMultiplier = 6.0
 occurrences = WorldObject
 <finished>
 
+ObjectType: FuseEnergy1
+class = Equipment_Machine
+occurrences = WorldObject
+
 ObjectType: FuseHeat1
 label_de = Wärmemultiplikator-Sicherung 500%
 class = Equipment_Machine
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 isMOFuse = Heat
 moFuseMultiplier = 5.0
 <finished>
@@ -1011,7 +1028,7 @@ moFuseMultiplier = 5.0
 ObjectType: FuseOxygen1
 label_de = Sauerstoffmultiplikator-Sicherung 500%
 class = Equipment_Machine
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 isMOFuse = Oxygen
 moFuseMultiplier = 5.0
 <finished>
@@ -1019,7 +1036,7 @@ moFuseMultiplier = 5.0
 ObjectType: FusePlants1
 label_de = Pflanzenmultiplikator-Sicherung 500%
 class = Equipment_Machine
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 isMOFuse = Plants
 moFuseMultiplier = 5.0
 <finished>
@@ -1027,13 +1044,13 @@ moFuseMultiplier = 5.0
 ObjectType: FuseProduction1
 label_de = Produktionsmultiplikator-Sicherung (0,25)
 class = Equipment_Machine
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: FusionEnergyCell
 label_en = Fusion Energy Cell
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: GasExtractor1
@@ -1061,6 +1078,9 @@ class = Structure_Machine
 energy = -117.5
 occurrences = WorldObject,Achievement
 <finished>
+
+ObjectType: GeneticTrait
+occurrences = WorldObject,ObjectList
 
 ObjectType: GoldenContainer
 label_en = Golden Container
@@ -1108,6 +1128,7 @@ ObjectType: GoldenEffigie7
 label_en = Golden Effigie "Probe?"
 class = Structure_Furniture
 occurrences = WorldObject
+<finished>
 
 ObjectType: GrassSpreader1
 label_en = Grass Spreader T1
@@ -1186,7 +1207,7 @@ ObjectType: ice
 label_en = Ice
 label_de = Eis
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Incubator1
@@ -1240,8 +1261,10 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Keycard1
+label_de = Zugangskarte
 class = Equipment_Player
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
+<finished>
 
 ObjectType: Ladder
 label_en = Indoor Ladder
@@ -1258,7 +1281,7 @@ occurrences = WorldObject,Achievement
 ObjectType: LarvaeBase2
 label_en = Uncommon Larva
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: LarvaeBase3
@@ -1286,7 +1309,7 @@ ObjectType: MagnetarQuartz
 label_en = Magnetar Quartz
 label_de = Magnetar-Quarz
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: MapChip
@@ -1388,7 +1411,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: Mutagen1
 label_en = Mutagen T1
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Mutagen2
@@ -1400,13 +1423,13 @@ occurrences = WorldObject,Achievement
 ObjectType: Mutagen3
 label_en = Mutagen T3
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Mutagen4
 label_en = Mutagen T4
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: NitrogenCapsule1
@@ -1416,7 +1439,11 @@ occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Obsidian
-occurrences = WorldObject
+label_en = Obsidian
+label_de = Obsidian
+class = Resource_Minable
+occurrences = WorldObject,ObjectList
+<finished>
 
 ObjectType: Optimizer1
 label_de = MaschinenOptimierer T1
@@ -1590,7 +1617,7 @@ ObjectType: QuasarQuartz
 label_en = Quasar Quartz
 label_de = Quasar-Quarz
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: RecyclingMachine
@@ -1603,7 +1630,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: RedPowder1
 label_en = Explosive Powder
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: RocketBiomass1
@@ -1689,7 +1716,7 @@ occurrences = WorldObject
 ObjectType: RocketReactor
 label_en = Rocket Engine
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: RockExplodable
@@ -1706,20 +1733,20 @@ ObjectType: Rod-iridium
 label_en = Iridium Rod
 label_de = Iridium-Stab
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Rod-osmium
 label_en = Osmium Rod
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Rod-uranium
 label_en = Uranium Rod
 label_de = Uran-Stab
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: ScreenBiomass
@@ -1789,49 +1816,49 @@ ObjectType: Seed1
 label_en = Seed Shanga (150%)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.5
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed2
 label_en = Seed Pestera (200%)
 class = Resource_SeedEgg
 oxygenMultiplier = 2.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed3
 label_en = Seed Nulna (300%)
 class = Resource_SeedEgg
 oxygenMultiplier = 3.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed4
 label_en = Seed Tuska (400%)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed5
 label_en = Seed Orema (450%)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.5
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed6
 label_en = Seed Volnus (500%)
 class = Resource_SeedEgg
 oxygenMultiplier = 5.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: SeedGold
 label_en = Golden Seeds (600%)
 class = Resource_SeedEgg
 oxygenMultiplier = 6.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: SeedSpreader1
@@ -1884,7 +1911,7 @@ isProducer
 ObjectType: SilkWorm
 label_en = Silk Worm
 class = Resource_Craftable
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Skin-01
@@ -1911,6 +1938,24 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-09
+label_de = Raumanzug Fablo
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-10
+label_de = Raumanzug Tubio
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-16
+label_de = Raumanzug Plesao
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
 ObjectType: SkinDisplayer
 label_de = Raumanzug-Displayer
 class = Structure_Storage
@@ -1920,7 +1965,7 @@ occurrences = Blueprint
 ObjectType: SmartFabric
 label_en = Smart Fabric
 class = Resource_Craftable
-occurrences = WorldObject,Blueprint
+occurrences = WorldObject,Blueprint,ObjectList
 <finished>
 
 ObjectType: Sofa
@@ -1945,7 +1990,7 @@ ObjectType: SolarQuartz
 label_en = Solar Quartz
 label_de = Sonnen-Quarz
 class = Resource_Minable
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
@@ -2050,7 +2095,7 @@ ObjectType: Tree0Seed
 label_en = Tree Seed "Iterra" (125%, ???)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree10Seed
@@ -2064,70 +2109,70 @@ ObjectType: Tree13Seed
 label_de = Ruberu-Baumsamen (1200%)
 class = Resource_SeedEgg
 oxygenMultiplier = 12.0
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree1Seed
 label_en = Tree Seed "Linifolia" (125%, Shanga150) #0
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree2Seed
 label_en = Tree Seed "Aleatus" (125%, Pestera200) #0
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree3Seed
 label_en = Tree Seed "Cernea" (150%, Nulna300) #1
 class = Resource_SeedEgg
 oxygenMultiplier = 1.5
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Tree4Seed
 label_en = Tree Seed "Elegea" (175%, Tuska400) #2
 class = Resource_SeedEgg
 oxygenMultiplier = 1.75
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Tree5Seed
 label_en = Tree Seed "Humelora" (250%, Orema450) #3
 class = Resource_SeedEgg
 oxygenMultiplier = 2.5
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Tree6Seed
 label_en = Tree Seed "Aemora" (400%, Volnus500) #4
 class = Resource_SeedEgg
 oxygenMultiplier = 4.0
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Tree7Seed
 label_en = Tree Seed "Pleom" (350%, Gold600)
 class = Resource_SeedEgg
 oxygenMultiplier = 3.5
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree8Seed
 label_en = Tree Seed "Soleus" (125%, Lirma100) #0
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Tree9Seed
 label_en = Tree Seed "Shreox" (450%, MutT2)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.5
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: TreeRoot
@@ -2182,7 +2227,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Vegetable0Seed
 label_en = Eggplant Seeds
 class = Resource_SeedEgg
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable1Growable
@@ -2194,7 +2239,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Vegetable1Seed
 label_en = Squash Seeds
 class = Resource_SeedEgg
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable2Growable
@@ -2206,7 +2251,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Vegetable2Seed
 label_en = Beans Seeds
 class = Resource_SeedEgg
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Vegetable3Growable
@@ -2218,7 +2263,7 @@ occurrences = WorldObject,ObjectList
 ObjectType: Vegetable3Seed
 label_en = Mushroom Seed
 class = Resource_SeedEgg
-occurrences = WorldObject
+occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: VegetableGrower1
