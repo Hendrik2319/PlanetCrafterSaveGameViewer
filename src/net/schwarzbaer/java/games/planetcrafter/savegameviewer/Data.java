@@ -15,6 +15,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorld
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeCreator;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Occurrence;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TerraformingCalculation.NearActiveWorldObject;
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data.JSON_Object;
@@ -1128,11 +1129,11 @@ class Data {
 				}
 			}
 			
-			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, true, (phVal, woData) -> {
-				if (!woData.nearMachineOptimizers.isEmpty())
+			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, true, (phVal, awo) -> {
+				if (!awo.nearMachineOptimizers.isEmpty())
 				{
 					out.add(0, "Near MachineOptimizers", "%s", phVal);
-					woData.nearMachineOptimizers
+					awo.nearMachineOptimizers
 						.stream()
 						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
 						.forEach( nmo -> {
@@ -1141,6 +1142,20 @@ class Data {
 							if (wo!=null)
 								out.add(1, distStr, "%s", wo.getShortDesc());
 						} );
+				}
+			});
+			
+			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAMO(this, true, (phVal, amo)-> {
+				Vector<NearActiveWorldObject> nearAWOs = amo.nearAWOs();
+				if (!nearAWOs.isEmpty())
+				{
+					out.add(0, "Is MachineOptimizer (%s) for".formatted(phVal));
+					nearAWOs.forEach(nawo -> {
+						String distStr = String.format(Locale.ENGLISH, "%1.2f m", nawo.distance());
+						WorldObject wo = nawo.awo().wo;
+						if (wo!=null)
+							out.add(1, distStr, "%s", wo.getShortDesc());
+					});
 				}
 			});
 			

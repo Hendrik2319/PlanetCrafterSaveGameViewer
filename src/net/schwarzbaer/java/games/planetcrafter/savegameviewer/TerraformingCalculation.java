@@ -45,9 +45,18 @@ class TerraformingCalculation
 	void foreachAWO(WorldObject worldObject, boolean skipNulls, BiConsumer<PhysicalValue,ActiveWorldObject> action)
 	{
 		aspects.forEach((phVal,aspect)->{
-			ActiveWorldObject woData = aspect.getAWO(worldObject);
-			if (woData!=null || !skipNulls)
-				action.accept(phVal, woData);
+			ActiveWorldObject awo = aspect.getAWO(worldObject);
+			if (awo!=null || !skipNulls)
+				action.accept(phVal, awo);
+		});
+	}
+
+	void foreachAMO(WorldObject worldObject, boolean skipNulls, BiConsumer<PhysicalValue,ActiveMachineOptimizer> action)
+	{
+		aspects.forEach((phVal,aspect)->{
+			ActiveMachineOptimizer amo = aspect.getAMO(worldObject);
+			if (amo!=null || !skipNulls)
+				action.accept(phVal, amo);
 		});
 	}
 	
@@ -133,6 +142,11 @@ class TerraformingCalculation
 			return activeWorldObjects.get(worldObject);
 		}
 		
+		ActiveMachineOptimizer getAMO(WorldObject worldObject)
+		{
+			return machineOptimizers.get(worldObject);
+		}
+
 		void forEachAWO(BiConsumer<? super WorldObject, ? super ActiveWorldObject> action) {
 			activeWorldObjects.forEach(action);
 		}
