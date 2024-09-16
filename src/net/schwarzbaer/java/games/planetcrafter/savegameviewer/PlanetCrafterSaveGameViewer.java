@@ -82,11 +82,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		new PlanetCrafterSaveGameViewer().initialize();
 	}
 	
-	        static final AppSettings settings = new AppSettings();
 	        static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
-	        static final TerraformingCalculation terraformingCalculation = new TerraformingCalculation();
 	private static final boolean DEBUG_SCANFILECONTENT = false;
-	private static       LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
+	private static       LabelLanguage currentLabelLanguage = AppSettings.getInstance().getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 
 	        final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
@@ -114,7 +112,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		generalDataPanel = null;
 		objectTypesPanel = null;
 		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
-		terraformingCalculation.clearData();
+		TerraformingCalculation.getInstance().clearData();
 		
 		jsonFileChooser = new FileChooser("JSON File", "json");
 		
@@ -133,7 +131,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		//mainWindow.startGUI(contentPane, new MyMenuBar());
 		mainWindow.setIconImagesFromResource("/icons/icon_%d_green.png", 16,24,32,48,64,96);
 		
-		settings.registerAppWindow(mainWindow);
+		AppSettings.getInstance().registerAppWindow(mainWindow);
 		
 		mapShapes = new MapShapes(mainWindow, new File(FILE_MAPSHAPES));
 		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes, event -> {
@@ -241,7 +239,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void setLabelLanguage(LabelLanguage lang)
 	{
 		currentLabelLanguage = lang;
-		settings.putEnum(AppSettings.ValueKey.LabelLanguage, currentLabelLanguage);
+		AppSettings.getInstance().putEnum(AppSettings.ValueKey.LabelLanguage, currentLabelLanguage);
 		setGUI(loadedData);
 	}
 
@@ -286,8 +284,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			} );
 		}
 		
-		boolean isActive()                { return settings.getBool(AppSettings.ValueKey.ReloadAutomatically, false ); }
-		void    setActive(boolean active) {        settings.putBool(AppSettings.ValueKey.ReloadAutomatically, active); }
+		boolean isActive()                { return AppSettings.getInstance().getBool(AppSettings.ValueKey.ReloadAutomatically, false ); }
+		void    setActive(boolean active) {        AppSettings.getInstance().putBool(AppSettings.ValueKey.ReloadAutomatically, active); }
 		
 	}
 
@@ -357,7 +355,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		mapShapesEditor.updateAfterNewObjectTypes();
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
-		File file = settings.getFile(AppSettings.ValueKey.OpenFile, null);
+		File file = AppSettings.getInstance().getFile(AppSettings.ValueKey.OpenFile, null);
 		if (file==null || !file.isFile()) {
 			file = null;
 			if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
@@ -418,7 +416,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				pd.setTaskTitle("Update GUI");
 				pd.setIndeterminate(true);
 				
-				settings.putFile(AppSettings.ValueKey.OpenFile, file);
+				AppSettings.getInstance().putFile(AppSettings.ValueKey.OpenFile, file);
 				loadedData = data;
 				openFile = file;
 				autoReloader.setFile(file);
@@ -495,7 +493,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void setGUI(Data data) {
 		Data.clearAllRemoveStateListeners();
 		dataTabPane.removeAll();
-		terraformingCalculation.clearData();
+		TerraformingCalculation.getInstance().clearData();
 		generalDataPanel = new GeneralDataPanel(data, achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(this, data);
@@ -778,6 +776,15 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 
 
 	static class AppSettings extends Settings.DefaultAppSettings<AppSettings.ValueGroup, AppSettings.ValueKey> {
+		
+		private static AppSettings instance = null;
+		static AppSettings getInstance()
+		{
+			return instance == null
+					? instance = new AppSettings()
+					: instance;
+		}
+		
 		public enum ValueKey {
 			OpenFile,
 			AchievementsConfigDialogWidth,

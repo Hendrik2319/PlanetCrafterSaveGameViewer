@@ -61,7 +61,7 @@ class TerraformingPanel extends JPanel implements ObjectTypesChangeListener {
 	
 	private static SubPanel addPanel(TerraformingPanel main, Data data, TerraformingStatesPanel terraformingStatesPanel, PhysicalValue physicalValue)
 	{
-		TerraformingAspect aspect = PlanetCrafterSaveGameViewer.terraformingCalculation.getAspect(physicalValue);
+		TerraformingAspect aspect = TerraformingCalculation.getInstance().getAspect(physicalValue);
 		SubPanel subPanel = new SubPanel(data, terraformingStatesPanel, physicalValue, aspect);
 		main.add(subPanel);
 		main.subPanels.put(physicalValue, subPanel);

@@ -1124,7 +1124,7 @@ class Data {
 				if (objectType.hasEffectOnTerraforming())
 				{
 					out.add(0, "Effect on Terraforming");
-					PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, false, (phVal,awo) -> {
+					TerraformingCalculation.getInstance().foreachAWO(this, false, (phVal,awo) -> {
 						if (awo != null)
 							generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier, awo.moMulti);
 						else
@@ -1142,7 +1142,7 @@ class Data {
 				}
 			}
 			
-			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAWO(this, true, (phVal, awo) -> {
+			TerraformingCalculation.getInstance().foreachAWO(this, true, (phVal, awo) -> {
 				if (!awo.nearMachineOptimizers.isEmpty())
 				{
 					out.add(0, "Near MachineOptimizers (%s)".formatted(phVal));
@@ -1158,7 +1158,7 @@ class Data {
 				}
 			});
 			
-			PlanetCrafterSaveGameViewer.terraformingCalculation.foreachAMO(this, true, (phVal, amo)-> {
+			TerraformingCalculation.getInstance().foreachAMO(this, true, (phVal, amo)-> {
 				Vector<NearActiveWorldObject> nearAWOs = amo.nearAWOs();
 				if (!nearAWOs.isEmpty())
 				{

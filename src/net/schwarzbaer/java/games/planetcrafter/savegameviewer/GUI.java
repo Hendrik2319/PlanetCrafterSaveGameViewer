@@ -44,6 +44,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.GeneralIcons;
@@ -771,7 +772,7 @@ class GUI {
 		}
 
 		public HashMap<String, Color> showDialogAndGetColors() {
-			String colorArrStr = PlanetCrafterSaveGameViewer.settings.getString(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.ObjectTypeColors, "");
+			String colorArrStr = AppSettings.getInstance().getString(AppSettings.ValueKey.ObjectTypeColors, "");
 			//System.out.printf("ObjectTypeColorsDialog.input: %s%n", colorArrStr);
 			HashMap<String, Color> colors = decodeColors(colorArrStr);
 			//colors.forEach((id,color)->System.out.printf("ObjectTypeColorsDialog.input: \"%s\", %s%n", id, color));
@@ -784,7 +785,7 @@ class GUI {
 				//colors.forEach((id,color)->System.out.printf("ObjectTypeColorsDialog.result: \"%s\", %s%n", id, color));
 				colorArrStr = encodeColors(colors);
 				//System.out.printf("ObjectTypeColorsDialog.result: %s%n", colorArrStr);
-				PlanetCrafterSaveGameViewer.settings.putString(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.ObjectTypeColors, colorArrStr);
+				AppSettings.getInstance().putString(AppSettings.ValueKey.ObjectTypeColors, colorArrStr);
 			}
 			
 			return colors;

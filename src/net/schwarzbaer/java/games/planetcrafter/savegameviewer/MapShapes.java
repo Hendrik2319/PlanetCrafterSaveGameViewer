@@ -359,14 +359,14 @@ class MapShapes
 				GUI.createButton("Close", true, e->closeDialog())
 			);
 
-			PlanetCrafterSaveGameViewer.settings.registerExtraWindow(this,
+			AppSettings.getInstance().registerExtraWindow(this,
 				AppSettings.ValueKey.MapShapesEditor_WindowX,
 				AppSettings.ValueKey.MapShapesEditor_WindowY,
 				AppSettings.ValueKey.MapShapesEditor_WindowWidth,
 				AppSettings.ValueKey.MapShapesEditor_WindowHeight
 			);
 			
-			PlanetCrafterSaveGameViewer.settings.registerSplitPaneDividers(
+			AppSettings.getInstance().registerSplitPaneDividers(
 				new AppSettings.SplitPaneDividersDefinition<>(this, AppSettings.ValueKey.class)
 				.add(contentPane, AppSettings.ValueKey.MapShapesEditor_SplitPaneDivider)
 			);

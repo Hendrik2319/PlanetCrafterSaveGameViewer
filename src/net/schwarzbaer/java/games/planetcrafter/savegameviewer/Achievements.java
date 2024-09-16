@@ -38,6 +38,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Objec
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.Tables;
@@ -318,7 +319,7 @@ class Achievements implements ObjectTypesChangeListener {
 		public ConfigDialog(Window parent, Achievements achievements) {
 			super(parent, "Achievements Configuration");
 			
-			showTabbedView = PlanetCrafterSaveGameViewer.settings.getBool(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
+			showTabbedView = AppSettings.getInstance().getBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
 			btnSwitchView = GUI.createButton(
 				showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View",
 				true, e->switchView()
@@ -336,16 +337,16 @@ class Achievements implements ObjectTypesChangeListener {
 			
 			createView();
 			
-			PlanetCrafterSaveGameViewer.settings.registerWindowSizeListener(
+			AppSettings.getInstance().registerWindowSizeListener(
 					this,
-					PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogWidth,
-					PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogHeight,
+					AppSettings.ValueKey.AchievementsConfigDialogWidth,
+					AppSettings.ValueKey.AchievementsConfigDialogHeight,
 					-1, -1);
 		}
 	
 		private void switchView() {
 			showTabbedView = !showTabbedView;
-			PlanetCrafterSaveGameViewer.settings.putBool(PlanetCrafterSaveGameViewer.AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, showTabbedView);
+			AppSettings.getInstance().putBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, showTabbedView);
 			btnSwitchView.setText(showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View");
 			createView();
 		}

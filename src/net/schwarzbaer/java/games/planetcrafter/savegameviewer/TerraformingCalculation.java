@@ -16,6 +16,14 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Physi
 
 class TerraformingCalculation
 {
+	private static TerraformingCalculation instance = null;
+	static TerraformingCalculation getInstance()
+	{
+		return instance == null
+				? instance = new TerraformingCalculation()
+				: instance;
+	}
+	
 	private final Map<PhysicalValue,TerraformingAspect> aspects;
 
 	TerraformingCalculation()

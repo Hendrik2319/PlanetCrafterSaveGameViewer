@@ -708,10 +708,6 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private static final int CONTRAST_MIN   = -100;
 		private static final int CONTRAST_MAX   =  100;
 		
-		private static final AppSettings.ValueKey SETTINGSKEY_CONTRAST    = AppSettings.ValueKey.MapBackgroundImage_Contrast;
-		private static final AppSettings.ValueKey SETTINGSKEY_BRIGHTNESS  = AppSettings.ValueKey.MapBackgroundImage_Brightness;
-		private static final AppSettings.ValueKey SETTINGSKEY_SHOWBGIMAGE = AppSettings.ValueKey.MapBackgroundImage_ShowBgImage;
-		
 		private final MapView mapView;
 		private final MapView.ViewState mapViewState;
 		private final File storedImageFile;
@@ -727,17 +723,18 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 		MapBackgroundImage(MapView mapView) {
 			this.mapView = mapView;
+			AppSettings appSettings = AppSettings.getInstance();
 			storedImageFile = new File(PlanetCrafterSaveGameViewer.FILE_MAPBGIMAGE);
 			imageFC = new FileChooser("PNG-File", "png");
 			mapBgImageBase = null;
 			mapBgImage = null;
-			brightness = PlanetCrafterSaveGameViewer.settings.getInt(SETTINGSKEY_BRIGHTNESS, 0);
-			contrast   = PlanetCrafterSaveGameViewer.settings.getInt(SETTINGSKEY_CONTRAST  , 0);
+			brightness = appSettings.getInt(AppSettings.ValueKey.MapBackgroundImage_Brightness, 0);
+			contrast   = appSettings.getInt(AppSettings.ValueKey.MapBackgroundImage_Contrast  , 0);
 			mapViewState = this.mapView.setBgImage(this);
 			fixPoint1 = null;
 			fixPoint2 = null;
 			showFixPoints = false;
-			showBgImage = PlanetCrafterSaveGameViewer.settings.getBool(SETTINGSKEY_SHOWBGIMAGE, true);
+			showBgImage = appSettings.getBool(AppSettings.ValueKey.MapBackgroundImage_ShowBgImage, true);
 		}
 		
 		boolean isShowFixPoints() { return showFixPoints; }
@@ -751,7 +748,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		void setShowBgImage(boolean showBgImage)
 		{
 			this.showBgImage = showBgImage;
-			PlanetCrafterSaveGameViewer.settings.putBool(SETTINGSKEY_SHOWBGIMAGE, this.showBgImage);
+			AppSettings.getInstance().putBool(AppSettings.ValueKey.MapBackgroundImage_ShowBgImage, this.showBgImage);
 			mapView.repaint();
 		}
 
@@ -1001,12 +998,12 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			if (brightness!=null) {
 				this.brightness = brightness;
 				//System.out.printf("MapBackgroundImage.Brightness = %s%n", this.brightness);
-				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_BRIGHTNESS, this.brightness);
+				AppSettings.getInstance().putInt(AppSettings.ValueKey.MapBackgroundImage_Brightness, this.brightness);
 			}
 			if (contrast!=null) {
 				this.contrast = contrast;
 				//System.out.printf("MapBackgroundImage.Contrast = %s%n", this.contrast);
-				PlanetCrafterSaveGameViewer.settings.putInt(SETTINGSKEY_CONTRAST, this.contrast);
+				AppSettings.getInstance().putInt(AppSettings.ValueKey.MapBackgroundImage_Contrast, this.contrast);
 			}
 			if (brightness!=null || contrast!=null) {
 				computeImage();
@@ -1057,10 +1054,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 			void getValuesFromSettings(double defaultImageX, double defaultImageY, double defaultMapX, double defaultMapY)
 			{
-				imageX = PlanetCrafterSaveGameViewer.settings.getDouble(imagePointId.keyX, defaultImageX);            
-				imageY = PlanetCrafterSaveGameViewer.settings.getDouble(imagePointId.keyY, defaultImageY);            
-				mapX   = PlanetCrafterSaveGameViewer.settings.getDouble(mapPointId  .keyX, defaultMapX  );
-				mapY   = PlanetCrafterSaveGameViewer.settings.getDouble(mapPointId  .keyY, defaultMapY  );
+				AppSettings appSettings = AppSettings.getInstance();
+				imageX = appSettings.getDouble(imagePointId.keyX, defaultImageX);            
+				imageY = appSettings.getDouble(imagePointId.keyY, defaultImageY);            
+				mapX   = appSettings.getDouble(mapPointId  .keyX, defaultMapX  );
+				mapY   = appSettings.getDouble(mapPointId  .keyY, defaultMapY  );
 			}
 
 			void setValues(double imageX, double imageY, double mapX, double mapY)
@@ -1071,14 +1069,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 			void setMapPoint(double mapX, double mapY)
 			{
-				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId.keyX, this.mapX = mapX);
-				PlanetCrafterSaveGameViewer.settings.putDouble(mapPointId.keyY, this.mapY = mapY);
+				AppSettings appSettings = AppSettings.getInstance();
+				appSettings.putDouble(mapPointId.keyX, this.mapX = mapX);
+				appSettings.putDouble(mapPointId.keyY, this.mapY = mapY);
 			}
 
 			void setImagePoint(double imageX, double imageY)
 			{
-				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyX, this.imageX = imageX);            
-				PlanetCrafterSaveGameViewer.settings.putDouble(imagePointId.keyY, this.imageY = imageY);
+				AppSettings appSettings = AppSettings.getInstance();
+				appSettings.putDouble(imagePointId.keyX, this.imageX = imageX);            
+				appSettings.putDouble(imagePointId.keyY, this.imageY = imageY);
 			}
 
 			@Override
