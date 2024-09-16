@@ -18,7 +18,6 @@ import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends JPanel {
 	private static final long serialVersionUID = 5518131959056782917L;
 	private final JTable table;
-	private final AbstractTableModel<ValueType, ColumnID> tableModel;
 	
 	enum LayoutPos {
 		Top, Right, Bottom, Left;
@@ -34,18 +33,21 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 	}
 	
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly) {
+	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
+	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly) {
 		this(tableModel, singleLineSelectionOnly, null, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
+	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
+	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
 		this(tableModel, singleLineSelectionOnly, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
+	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
+	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
 		this(tableModel, singleLineSelectionOnly, null, textAreaPos, textAreaSize);
 	}
-	<TableModelType extends AbstractTablePanel.AbstractTableModel<ValueType, ColumnID>> AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
+	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
+	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
-		this.tableModel = tableModel;
 		
 		JTextArea textArea = new JTextArea();
 		textArea.setEditable(false);
@@ -66,7 +68,7 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		});
 		tableModel.setTable(table);
 		tableModel.setColumnWidths(table);
-		tableModel.setDefaultRenderers();
+		tableModel.setDefaultCellEditorsAndRenderers();
 		
 		TableContextMenu tableContextMenu;
 		if (tcmConstructor==null) tableContextMenu = new TableContextMenu(table);
@@ -79,10 +81,6 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		
 		add(tableScrollPane, BorderLayout.CENTER);
 		add(textareaScrollPane,LayoutPos.getBorderLayoutValue(textAreaPos));
-	}
-	
-	AbstractTableModel<ValueType, ColumnID> getTableModel() {
-		return tableModel;
 	}
 	
 	void setDefaultRenderer(Class<?> columnClass, TableCellRenderer renderer) {
@@ -103,7 +101,11 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 	}
 	
-	protected static abstract class AbstractTableModel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends Tables.SimplifiedTableModel<ColumnID> {
+	interface TableModelExtension<RowType> extends Tables.StandardTableModelExtension<RowType>  {
+		String getRowText(RowType row, int rowIndex);
+	}
+	
+	protected static abstract class AbstractTableModel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends Tables.SimplifiedTableModel<ColumnID> implements TableModelExtension<ValueType> {
 		
 		final Vector<ValueType> data;
 
@@ -112,11 +114,14 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 			this.data = data;
 		}
 
-		public void setDefaultRenderers() {}
+		@Override
+		public void setDefaultCellEditorsAndRenderers() {}
 
-		@Override public int getRowCount() { return data.size(); }
+		@Override
+		public int getRowCount() { return data.size(); }
 		
-		ValueType getRow(int rowIndex) {
+		@Override
+		public ValueType getRow(int rowIndex) {
 			if (rowIndex < 0) return null;
 			if (data.size() <= rowIndex) return null;
 			return data.get(rowIndex);
@@ -129,7 +134,8 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 		
 		protected abstract Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID, ValueType row);
-		protected abstract String getRowText(ValueType row, int rowIndex);
+		@Override
+		public abstract String getRowText(ValueType row, int rowIndex);
 		
 	}
 }

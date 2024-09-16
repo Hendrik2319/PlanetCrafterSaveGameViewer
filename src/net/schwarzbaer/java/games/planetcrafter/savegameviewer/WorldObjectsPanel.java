@@ -242,12 +242,12 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			this.data = data;
 		}
 
-		@Override public void setDefaultRenderers() {
+		@Override public void setDefaultCellEditorsAndRenderers() {
 			GeneralTCR renderer = new GeneralTCR(this);
 			setDefaultRenderers(class_ -> renderer);
 		}
 
-		@Override protected String getRowText(WorldObject row, int rowIndex) {
+		@Override public String getRowText(WorldObject row, int rowIndex) {
 			String str = row==null ? "No Data" : row.generateOutput();
 			if (row!=null && data.mapObjectLists.containsKey(row.id)) {
 				ObjectList twin = data.mapObjectLists.get(row.id);

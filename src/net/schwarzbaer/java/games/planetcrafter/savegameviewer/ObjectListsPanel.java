@@ -155,7 +155,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			this.data = data;
 		}
 
-		@Override public void setDefaultRenderers() {
+		@Override public void setDefaultCellEditorsAndRenderers() {
 			GeneralTCR renderer = new GeneralTCR(this);
 			table.setDefaultRenderer(Double    .class, renderer);
 			table.setDefaultRenderer(Long      .class, renderer);
@@ -163,7 +163,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			table.setDefaultRenderer(String    .class, renderer);
 		}
 
-		@Override protected String getRowText(ObjectList row, int rowIndex) {
+		@Override public String getRowText(ObjectList row, int rowIndex) {
 			String str = row==null ? "No Data" : row.generateOutput();
 			if (row!=null && data.mapWorldObjects.containsKey(row.id)) {
 				WorldObject twin = data.mapWorldObjects.get(row.id);

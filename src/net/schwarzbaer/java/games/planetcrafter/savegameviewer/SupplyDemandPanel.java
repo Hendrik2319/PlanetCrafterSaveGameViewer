@@ -100,7 +100,7 @@ class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDeman
 			return rows;
 		}
 
-		@Override public void setDefaultRenderers() {
+		@Override public void setDefaultCellEditorsAndRenderers() {
 			GeneralTCR renderer = new GeneralTCR(this);
 			table.setDefaultRenderer(Double    .class, renderer);
 			table.setDefaultRenderer(Long      .class, renderer);
@@ -109,7 +109,7 @@ class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDeman
 		}
 
 		@Override
-		protected String getRowText(RowType row, int rowIndex)
+		public String getRowText(RowType row, int rowIndex)
 		{
 			if (row==null)
 				return "No Data";
