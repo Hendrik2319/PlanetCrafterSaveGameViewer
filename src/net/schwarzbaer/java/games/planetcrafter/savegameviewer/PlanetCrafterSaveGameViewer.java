@@ -38,6 +38,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
@@ -217,7 +218,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				break;
 				
 			case ConfigureAchievements:
-				new Achievements.ConfigDialog(getMainWindow(),achievements).showDialog(StandardDialog.Position.PARENT_CENTER);
+				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(getMainWindow(),achievements,this::getAchievedValues);
+				dlg.showDialog(StandardDialog.Position.PARENT_CENTER);
 				achievements.writeToFile();
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
@@ -234,6 +236,24 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case SetLabelLanguageEN: setLabelLanguage(LabelLanguage.EN); break;
 		}
 		
+	}
+	
+	private Double getAchievedValues(AchievementList listID)
+	{
+		if (listID != null && loadedData != null && loadedData.achievedValues != null)
+			switch (listID)
+			{
+			case Animals       : return loadedData.achievedValues.animalsLevel;
+			case Biomass       : return loadedData.achievedValues.getBiomassLevel();
+			case Heat          : return loadedData.achievedValues.heatLevel;
+			case Insects       : return loadedData.achievedValues.insectsLevel;
+			case Oxygen        : return loadedData.achievedValues.oxygenLevel;
+			case Plants        : return loadedData.achievedValues.plantsLevel;
+			case Pressure      : return loadedData.achievedValues.pressureLevel;
+			case Stages        : return loadedData.achievedValues.getTerraformLevel();
+			case Terraformation: return loadedData.achievedValues.getTerraformLevel();
+			}
+		return null;
 	}
 	
 	private void setLabelLanguage(LabelLanguage lang)

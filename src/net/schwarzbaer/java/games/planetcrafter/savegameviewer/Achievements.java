@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -19,6 +20,7 @@ import java.util.EnumMap;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -317,7 +319,7 @@ class Achievements implements ObjectTypesChangeListener {
 		private final JButton btnClose;
 		private final EnumMap<AchievementList,AchievementsTablePanel> panels;
 	
-		public ConfigDialog(Window parent, Achievements achievements) {
+		public ConfigDialog(Window parent, Achievements achievements, Function<AchievementList,Double> getCurrentLevel) {
 			super(parent, "Achievements Configuration");
 			
 			showTabbedView = AppSettings.getInstance().getBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
@@ -333,7 +335,8 @@ class Achievements implements ObjectTypesChangeListener {
 				if (list == null) achievements.achievements.put(al, list = new Vector<>());
 				boolean showObjType      = al!=AchievementList.Stages;
 				boolean showTIEquivalent = al!=AchievementList.Stages && al!=AchievementList.Terraformation;
-				panels.put(al, new AchievementsTablePanel(achievements, al, list, al.getFormatter(), showObjType, showTIEquivalent));
+				Double currentLevel = getCurrentLevel==null ? null : getCurrentLevel.apply(al);
+				panels.put(al, new AchievementsTablePanel(achievements, al, list, currentLevel, al.getFormatter(), showObjType, showTIEquivalent));
 			}
 			
 			createView();
@@ -418,9 +421,9 @@ class Achievements implements ObjectTypesChangeListener {
 			private static final long serialVersionUID = 5790599615513764895L;
 			private final Border defaultBorder;
 	
-			AchievementsTablePanel(Achievements main, AchievementList listID, Vector<Achievement> list, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
+			AchievementsTablePanel(Achievements main, AchievementList listID, Vector<Achievement> list, Double currentLevel, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
 				
-				AchievementsTableModel tableModel = new AchievementsTableModel(main, list, formatLevel, showObjType, showTIEquivalent);
+				AchievementsTableModel tableModel = new AchievementsTableModel(main, list, currentLevel, formatLevel, showObjType, showTIEquivalent);
 				
 				JTable table = new JTable(tableModel);
 				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
@@ -464,13 +467,16 @@ class Achievements implements ObjectTypesChangeListener {
 		
 		private static class AchievementsTableCellRenderer implements TableCellRenderer {
 			
+			private static final Color BGCOLOR_ACHIEVED = new Color(0xFEEFA5);
 			private final AchievementsTableModel tableModel;
 			private final Function<Double, String> formatLevel;
 			private final Tables.LabelRendererComponent rendererComponent;
+			private final Double currentLevel;
 	
-			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel) {
+			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel, Double currentLevel) {
 				this.tableModel = tableModel;
 				this.formatLevel = formatLevel;
+				this.currentLevel = currentLevel;
 				rendererComponent = new Tables.LabelRendererComponent();
 			}
 	
@@ -479,12 +485,17 @@ class Achievements implements ObjectTypesChangeListener {
 				int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
 				AchievementsTableModel.ColumnID columnID = columnM<0 ? null : tableModel.getColumnID(columnM);
 				
+				Supplier<Color> getCustomBackground = null;
 				String valueStr = value==null ? null : value.toString();
 				if (columnID!=null)
 					switch (columnID) {
 					case Level:
-						if (value instanceof Double)
-							valueStr = formatLevel.apply((Double) value);
+						if (value instanceof Double valueL)
+						{
+							valueStr = formatLevel.apply(valueL);
+							if (currentLevel!=null)
+								getCustomBackground = () -> valueL < currentLevel ? BGCOLOR_ACHIEVED : null;
+						}
 						break;
 						
 					case Label:
@@ -501,7 +512,7 @@ class Achievements implements ObjectTypesChangeListener {
 						break;
 					}
 				
-				rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus);
+				rendererComponent.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
 				if (value instanceof Number)
 					rendererComponent.setHorizontalAlignment(SwingConstants.RIGHT);
 				else
@@ -538,20 +549,20 @@ class Achievements implements ObjectTypesChangeListener {
 	
 			private final Achievements main;
 			private final Vector<Achievement> data;
+			private final Double currentLevel;
 			private final Function<Double, String> formatLevel;
 	
-			AchievementsTableModel(Achievements main, Vector<Achievement> data, Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
+			AchievementsTableModel(Achievements main, Vector<Achievement> data, Double currentLevel, Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
 				super( ColumnID.values(showObjType, showTIEquivalent) );
 				this.main = main;
 				this.data = data;
+				this.currentLevel = currentLevel;
 				this.formatLevel = formatLevel;
 			}
 	
 			void setDefaultCellEditorsAndRenderers() {
-				AchievementsTableCellRenderer tcr = new AchievementsTableCellRenderer(this,formatLevel);
-				table.setDefaultRenderer(Double.class, tcr);
-				table.setDefaultRenderer(String.class, tcr);
-				table.setDefaultRenderer(ObjectType.class, tcr);
+				AchievementsTableCellRenderer tcr = new AchievementsTableCellRenderer(this, formatLevel, currentLevel);
+				setDefaultRenderers(class_-> tcr);
 				
 				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->getSorted(main.objectTypes.values()));
 				Function<Object,String> rend = obj->{
