@@ -232,6 +232,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			Name        ("Name"        , String    .class, 130,        row  -> row.isEmptyWO ? null : row.getName()),
 			container   ("Container"   , String    .class, 350,        row  -> row.isEmptyWO ? null : row.getContainerLabel()),
 			listId      ("List-ID"     , Long      .class,  70,        row  -> row.isEmptyWO ? null : row.listId),
+			_siIds      ("[siIds]"     , String    .class,  70,        row  -> row.isEmptyWO ? null : row._siIds),
 			text        ("Text"        , String    .class, 120,        row  -> row.isEmptyWO ? null : row.text),
 			growth      ("Growth"      , Long      .class,  60,        row  -> row.isEmptyWO ? null : row.growth),
 			product     ("Product"     , String    .class, 130,        row  -> row.isEmptyWO ? null : getProductsStr(row)),
