@@ -161,10 +161,11 @@ class Data {
 			});
 		}
 		
-		for (GeneratedWreck genWreck : generatedWrecks) {
-			genWreck.worldObjsGenerated = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsGenerated, null);
-			genWreck.worldObjsDropped   = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsDropped  , null);
-		}
+		if (generatedWrecks!=null)
+			for (GeneratedWreck genWreck : generatedWrecks) {
+				genWreck.worldObjsGenerated = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsGenerated, null);
+				genWreck.worldObjsDropped   = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsDropped  , null);
+			}
 		
 		
 		System.out.printf("Done%n");
