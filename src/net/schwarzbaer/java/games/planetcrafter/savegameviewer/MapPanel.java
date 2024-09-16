@@ -46,6 +46,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
@@ -73,6 +74,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	static final Color COLOR_TOOLTIP_BACKGORUND  = new Color(0xFFFFE9);
 	static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
 	static final Color COLOR_PLAYERPOS           = Color.RED;
+	static final Color COLOR_WRECK               = new Color(0xFF8000);
 	static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
 	static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
 	static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
@@ -310,6 +312,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		final Data.Coord3 playerPosition;
 		final Data.Rotation playerOrientation;
 		final Vector<WorldObject> displayableObjects;
+		final Vector<Data.Coord3> wreckPositions;
 		final MinMax minmax;
 		final Rectangle2D.Double range;
 		final Vector<String> installedObjectLabels;
@@ -320,6 +323,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 		MapModel(Data data) {
 			displayableObjects = new Vector<>();
+			wreckPositions = new Vector<>();
 			installedObjectLabels = new Vector<>();
 			storedObjectLabels = new Vector<>();
 			objectTypeColors = null;
@@ -345,6 +349,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				else              minmax.change(wo.position);
 			}
 			this.minmax = minmax;
+			
+			if (data.generatedWrecks!=null)
+				for (GeneratedWreck wreck : data.generatedWrecks)
+					if (wreck.position!=null)
+						wreckPositions.add(wreck.position);
 			
 			// ----------------------------------------------------------------
 			// range
@@ -1392,6 +1401,9 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					if (mapBackgroundImage!=null)
 						mapBackgroundImage.drawImage(g2, x, y, width, height);
 				
+				for (Data.Coord3 pos : mapModel.wreckPositions)
+					drawMapPoint(g2, clip, pos, COLOR_WRECK);
+				
 				drawShapes(g2);
 				
 				HashMap<String,Boolean> showMarkerCache = new HashMap<>();
@@ -1473,6 +1485,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			Boolean result = cache.get(wo.objectType.id);
 			if (result==null) cache.put(wo.objectType.id, result = mapShapes.shouldShowMarker(wo.objectType));
 			return result;
+		}
+		
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color) {
+			int posX_scr = viewState.convertPos_AngleToScreen_LongX(position.getMapX());
+			int posY_scr = viewState.convertPos_AngleToScreen_LatY (position.getMapY());
+			if (!clip.contains(posX_scr, posY_scr)) return;
+			
+			g2.setColor(color);
+			g2.drawLine(posX_scr-10, posY_scr-10, posX_scr+10, posY_scr+10);
+			g2.drawLine(posX_scr+10, posY_scr-10, posX_scr-10, posY_scr+10);
 		}
 
 		private void drawPlayerPosition(Graphics2D g2, Rectangle clip, Data.Coord3 position, Data.Rotation orientation, Color contourColor, Color fillColor) {
