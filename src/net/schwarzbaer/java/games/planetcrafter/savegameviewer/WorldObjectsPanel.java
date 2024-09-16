@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -212,7 +214,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		enum ColumnID implements Tables.SimpleGetValueTableModel2.ColumnIDTypeInt2<WorldObjectsTableModel,WorldObject> {
 			id          ("ID"          , Long      .class,  75, row -> row.id),
 			NonUniqueID ("UnI"         , Boolean   .class,  30, row -> row.nonUniqueID),
-			twinID      ("Twin"        , Boolean   .class,  35, (model,row) -> model.data.mapObjectLists.containsKey(row.id)),
+			twinID      ("Twin"        , Boolean   .class,  35, (model,row) -> model.getMapObjectLists().containsKey(row.id)),
 			objectTypeID("ObjectTypeID", String    .class, 130, row -> row.objectTypeID),
 			Name        ("Name"        , String    .class, 130, row -> row.getName()),
 			container   ("Container"   , String    .class, 350, row -> row.getContainerLabel()),
@@ -251,9 +253,27 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		private final Data data;
 
+		WorldObjectsTableModel(WorldObject[] worldObjects) {
+			super( getArrayWithout(ColumnID.values(),ColumnID.twinID), worldObjects );
+			this.data = null;
+		}
+		
 		WorldObjectsTableModel(Data data) {
-			super(ColumnID.values(), data.worldObjects);
+			super( ColumnID.values(), data.worldObjects );
 			this.data = data;
+		}
+
+		private static ColumnID[] getArrayWithout(ColumnID[] arr1, ColumnID... arr2)
+		{
+			return Arrays
+					.stream(arr1)
+					.filter(columnID -> {
+						for (ColumnID columnID2 : arr2)
+							if (columnID2 == columnID)
+								return false;
+						return true;
+					})
+					.toArray(ColumnID[]::new);
 		}
 
 		@Override protected WorldObjectsTableModel getThis() { return this; }
@@ -265,13 +285,21 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		@Override public String getRowText(WorldObject row, int rowIndex) {
 			String str = row==null ? "No Data" : row.generateOutput();
-			if (row!=null && data.mapObjectLists.containsKey(row.id)) {
-				ObjectList twin = data.mapObjectLists.get(row.id);
+			HashMap<Long, ObjectList> mapObjectLists = getMapObjectLists();
+			if (row!=null && mapObjectLists.containsKey(row.id)) {
+				ObjectList twin = mapObjectLists.get(row.id);
 				str += String.format("%n#################################%n");
 				str += String.format(  "  Twin ObjectList with same ID%n%n");
 				str += twin.generateOutput();
 			}
 			return str;
+		}
+
+		private HashMap<Long, ObjectList> getMapObjectLists()
+		{
+			if (data!=null && data.mapObjectLists!=null)
+				return data.mapObjectLists;
+			return new HashMap<>();
 		}
 
 		private static String getProductsStr(WorldObject row)
@@ -285,7 +313,5 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		@Override public void fireTableRowUpdate(int rowIndex) {
 			super.fireTableRowUpdate(rowIndex);
 		}
-		
-		
 	}
 }
