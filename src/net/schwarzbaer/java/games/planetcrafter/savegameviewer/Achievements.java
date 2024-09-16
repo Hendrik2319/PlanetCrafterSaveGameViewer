@@ -49,6 +49,7 @@ class Achievements implements ObjectTypesChangeListener {
 	
 	private static final Comparator<Achievement> ACHIEVEMENT_COMPARATOR = Comparator
 	.<Achievement,Double>comparing(a->a.getLevel(), Comparator.nullsLast(Comparator.naturalOrder()))
+	.thenComparing(a->a.objectTypeID, Comparator.nullsLast(Comparator.naturalOrder()))
 	.thenComparing(a->a.getLabel());
 	
 	enum AchievementList {

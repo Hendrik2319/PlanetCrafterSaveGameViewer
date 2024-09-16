@@ -30,8 +30,8 @@ Pressure
 250.0|Living Compartment Window
 1200.0|{Drill1}
 4000.0|{ComAntenna}
-4000.0|Living Compartment Glass
 4000.0|{ScreenMessage}
+4000.0|Living Compartment Glass
 60000.0|{EnergyGenerator4}
 155000.0|{OreExtractor1}
 1500000.0|{EnergyGenerator5}
