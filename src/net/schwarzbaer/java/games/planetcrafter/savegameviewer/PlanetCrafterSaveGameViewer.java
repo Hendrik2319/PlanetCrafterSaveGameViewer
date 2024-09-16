@@ -53,7 +53,6 @@ import net.schwarzbaer.java.lib.gui.ProgressDialog;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.StandardMainWindow;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
-import net.schwarzbaer.java.lib.jsonparser.JSON_Data.Value;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser.ParseException;
@@ -83,10 +82,11 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		new PlanetCrafterSaveGameViewer().initialize();
 	}
 	
-	static final AppSettings settings = new AppSettings();
-	static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
-	private static LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
-	static final TerraformingCalculation terraformingCalculation = new TerraformingCalculation();
+	        static final AppSettings settings = new AppSettings();
+	        static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
+	        static final TerraformingCalculation terraformingCalculation = new TerraformingCalculation();
+	private static final boolean DEBUG_SCANFILECONTENT = false;
+	private static       LabelLanguage currentLabelLanguage = settings.getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 
 	        final StandardMainWindow mainWindow;
 	private final Disabler<ActionCommand> disabler;
@@ -163,7 +163,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private void updateGuiAccess() {
 		disabler.setEnable(ac->{
 			switch (ac) {
-			case OpenSaveGame: break;
+			case OpenSaveGame:
+			case ScanSaveGame:
+				break;
 			
 			case ReloadSaveGameAutoSwitch:
 			case ReloadSaveGame:
@@ -200,6 +202,11 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case OpenSaveGame:
 				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
 					readFile(jsonFileChooser.getSelectedFile());
+				break;
+				
+			case ScanSaveGame:
+				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+					scanFile(jsonFileChooser.getSelectedFile());
 				break;
 				
 			case WriteReducedSaveGame:
@@ -293,6 +300,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			add(createButton  ("Reload SaveGame"       , GrayCommandIcons.IconGroup.Reload, false, ActionCommand.ReloadSaveGame      ));
 			add(createCheckBox("Reload Automatically"  , autoReloader.isActive()          , true , autoReloader::setActive, ActionCommand.ReloadSaveGameAutoSwitch));
 			add(createButton  ("Write Reduced SaveGame", GrayCommandIcons.IconGroup.Save  , false, ActionCommand.WriteReducedSaveGame));
+			//addSeparator();
+			//add(createButton  ("Scan SaveGame"         , GrayCommandIcons.IconGroup.Folder, true , ActionCommand.ScanSaveGame        ));
 			addSeparator();
 			add(createButton  ("Configure Achievements", null                             , true , ActionCommand.ConfigureAchievements));
 			addSeparator();
@@ -525,7 +534,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		});
 	}
 
-	private static Vector<Vector<Value<NV, V>>> readContent(ProgressDialog pd, File file) {
+	private static Vector<Vector<JSON_Data.Value<NV, V>>> readContent(ProgressDialog pd, File file) {
 		showIndeterminateTask(pd, "Read Content");
 		byte[] bytes;
 		try { bytes = Files.readAllBytes(file.toPath()); }
@@ -537,12 +546,14 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		if (Thread.currentThread().isInterrupted()) return null;
 		String content = new String(bytes);
 		
-		//showIndeterminateTask(pd, "Scan JSON Structure");
-		//scanFileContent(content);
+		if (DEBUG_SCANFILECONTENT) {
+			showIndeterminateTask(pd, "Scan JSON Structure");
+			scanFileContent(content);
+		}
 		
 		showIndeterminateTask(pd, "Create JSON Structure");
-		Vector<Vector<Value<NV, V>>> fileData = new Vector<>();
-		Vector<Value<NV, V>> blockData = new Vector<>();
+		Vector<Vector<JSON_Data.Value<NV, V>>> fileData = new Vector<>();
+		Vector<JSON_Data.Value<NV, V>> blockData = new Vector<>();
 		
 		new IterativeJsonParser().parse(content, (val,ch) -> {
 			blockData.add(val);
@@ -597,7 +608,10 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 
 	@SuppressWarnings("unused")
 	private static void scanFile(String pathname) {
-		File file = new File(pathname);
+		scanFile(new File(pathname));
+	}
+
+	private static void scanFile(File file) {
 		if (!file.isFile()) return;
 		
 		byte[] bytes;

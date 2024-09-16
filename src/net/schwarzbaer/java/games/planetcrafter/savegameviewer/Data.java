@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -67,6 +68,7 @@ class Data {
 	final Vector<StoryEvent> storyEvents;
 	final GeneralData2 generalData2;
 	final Vector<Layer> layers;
+	final Vector<GeneratedWreck> generatedWrecks;
 	final HashMap<Long,WorldObject> mapWorldObjects;
 	final HashMap<Long,ObjectList> mapObjectLists;
 
@@ -81,6 +83,7 @@ class Data {
 		blocks.add(Reversable.toJsonStrs(/* 6 */ storyEvents       ));
 		blocks.add(Reversable.toJsonStrs(/* 7 */ generalData2      ));
 		blocks.add(Reversable.toJsonStrs(/* 8 */ layers            ));
+		blocks.add(Reversable.toJsonStrs(/* 9 */ generatedWrecks   ));
 		return blocks;
 	}
 
@@ -91,15 +94,16 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ achievedValues = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues", getOrCreateObjectType); blockIndex++;
-		/* 1 */ playerStates   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates"  , getOrCreateObjectType); blockIndex++;
-		/* 2 */ worldObjects   = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects"  , getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists"   , getOrCreateObjectType); blockIndex++;
-		/* 4 */ generalData1   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                         ); blockIndex++;
-		/* 5 */ messages       = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                             ); blockIndex++;
-		/* 6 */ storyEvents    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                          ); blockIndex++;
-		/* 7 */ generalData2   = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                         ); blockIndex++;
-		/* 8 */ layers         = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                               ); blockIndex++;
+		/* 0 */ achievedValues  = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues", getOrCreateObjectType); blockIndex++;
+		/* 1 */ playerStates    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates"  , getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects"  , getOrCreateObjectType); blockIndex++;
+		/* 3 */ objectLists     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists"   , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                         ); blockIndex++;
+		/* 5 */ messages        = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                             ); blockIndex++;
+		/* 6 */ storyEvents     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                          ); blockIndex++;
+		/* 7 */ generalData2    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                         ); blockIndex++;
+		/* 8 */ layers          = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                               ); blockIndex++;
+		/* 9 */ generatedWrecks = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), GeneratedWreck::new, "GeneratedWreck"                       ); blockIndex++;
 		
 		for (;blockIndex < dataVec.size(); blockIndex++)
 		{
@@ -151,25 +155,34 @@ class Data {
 				other.nonUniqueID = true;
 			}
 			
-			int[] worldObjIds = ol.worldObjIds;
-			ol.worldObjs = new WorldObject[worldObjIds.length];
-			for (int i=0; i<worldObjIds.length; i++) {
-				int woId = worldObjIds[i];
-				ol.worldObjs[i] = null;
-				for (WorldObject wo : worldObjects)
-					if (wo.id==woId) {
-						ol.worldObjs[i] = wo;
-						wo.container = ol.container;
-						wo.containerList = ol;
-						break;
-					}
-			}
+			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, wo -> {
+				wo.container = ol.container;
+				wo.containerList = ol;
+			});
+		}
+		
+		for (GeneratedWreck genWreck : generatedWrecks) {
+			genWreck.worldObjsGenerated = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsGenerated, null);
+			genWreck.worldObjsDropped   = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsDropped  , null);
 		}
 		
 		
 		System.out.printf("Done%n");
 		
 		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
+	}
+	
+	private static WorldObject[] generateWorldObjectArray(HashMap<Long,WorldObject> mapWorldObjects, int[] worldObjIds, Consumer<WorldObject> postprocessWO)
+	{
+		return Arrays
+				.stream(worldObjIds)
+				.mapToObj(woId -> {
+					WorldObject wo = mapWorldObjects.get((long)woId);
+					if (wo!=null && postprocessWO!=null)
+						postprocessWO.accept(wo);
+					return wo;
+				})
+				.toArray(WorldObject[]::new);
 	}
 	
 	interface ParseConstructor1<ValueType> {
@@ -926,8 +939,8 @@ class Data {
 		boolean        nonUniqueID; // is <id> unique over all WorldObjects
 		ObjectList     list; // list associated with listId
 		WorldObject    container; // container, it is containing this object
-		ObjectList     containerList; // list, it is containing this object
-		MapWorldObjectData mapWorldObjectData;
+		ObjectList     containerList; // list, that contains this object
+		final MapWorldObjectData mapWorldObjectData;
 		
 		/*
 			Block[2]: 3033 entries
@@ -1713,6 +1726,105 @@ class Data {
 		}
 	}
 	
+	static class GeneratedWreck extends Reversable {
+		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(GeneratedWreck.class)
+				.add("index"            , Value.Type.Integer)
+				.add("owner"            , Value.Type.Integer)
+				.add("pos"              , Value.Type.String )
+				.add("rot"              , Value.Type.String )
+				.add("seed"             , Value.Type.Integer)
+				.add("version"          , Value.Type.Integer)
+				.add("woIdsDropped"     , Value.Type.String )
+				.add("woIdsGenerated"   , Value.Type.String )
+				.add("wrecksWOGenerated", Value.Type.Bool   )
+				;
+		
+		final long owner;
+		final long index;
+		final long seed;
+		final String positionStr;
+		final String rotationStr;
+		final boolean wrecksWOGenerated;
+		final String woIdsGeneratedStr;
+		final String woIdsDroppedStr;
+		final long version;
+		final Coord3 position;
+		final Rotation rotation;
+		final int[] worldObjIdsGenerated;
+		final int[] worldObjIdsDropped;
+		WorldObject[] worldObjsGenerated;
+		WorldObject[] worldObjsDropped;
+		/*
+			Block[9]: 4 entries
+			-> Format: [2 blocks]
+			    Block "ParseResult" [0]
+			        <Base>:Object
+			    Block "ParseResult.<Base>" [9]
+			        index:Integer
+			        owner:Integer
+			        pos:String
+			        rot:String
+			        seed:Integer
+			        version:Integer
+			        woIdsDropped:String
+			        woIdsGenerated:String
+			        wrecksWOGenerated:Bool
+		 */
+		GeneratedWreck(Value<NV, V> value, String debugLabel) throws TraverseException, ParseException {
+			super(false);
+			
+			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
+			
+			owner             = JSON_Data.getIntegerValue(object, "owner"            , debugLabel);
+			index             = JSON_Data.getIntegerValue(object, "index"            , debugLabel);
+			seed              = JSON_Data.getIntegerValue(object, "seed"             , debugLabel);
+			positionStr       = JSON_Data.getStringValue (object, "pos"              , debugLabel);
+			rotationStr       = JSON_Data.getStringValue (object, "rot"              , debugLabel);
+			wrecksWOGenerated = JSON_Data.getBoolValue   (object, "wrecksWOGenerated", debugLabel);
+			woIdsGeneratedStr = JSON_Data.getStringValue (object, "woIdsGenerated"   , debugLabel);
+			woIdsDroppedStr   = JSON_Data.getStringValue (object, "woIdsDropped"     , debugLabel);
+			version           = JSON_Data.getIntegerValue(object, "version"          , debugLabel);
+			
+			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
+			
+			position     = new Coord3  (positionStr, debugLabel+".pos");
+			rotation     = new Rotation(rotationStr, debugLabel+".rot");
+			
+			worldObjIdsGenerated = parseIntegerArray(woIdsGeneratedStr, debugLabel+".woIdsGenerated");
+			worldObjIdsDropped   = parseIntegerArray(woIdsDroppedStr  , debugLabel+".woIdsDropped"  );
+			worldObjsGenerated   = null; // will be set in post processing at end of Data constructor
+			worldObjsDropped     = null; // will be set in post processing at end of Data constructor
+		}
+
+		/*
+		{
+			owner             : Integer  "owner"             : 0,
+			index             : Integer  "index"             : 8,
+			seed              : Integer  "seed"              : 918858038,
+			pos               : String   "pos"               : "1250.623,-51.60085,-215.7026",
+			rot               : String   "rot"               : "-0.00115074,-0.3532449,-0.01073181,-0.9354687",
+			wrecksWOGenerated : Bool     "wrecksWOGenerated" : true,
+			woIdsGenerated    : String   "woIdsGenerated"    : "201452419,202369113,203968859,207932212,201424085,207712834,209497896,202373334,209937124,206989988,205799139,204648740,208671081,206534054,202431090,206499924,204544640,203603571,202232768,209388159,202845280,204124057,203717578,209268118,202357245,207198963,202153493,201685910,206480036,205077028,201191712,202485828,207289632,203690340,201014368,204360325,205780337,204413805,204036308,207891881,201831365,203585199,206396549,207711567,202103217,208292663,206204652,206992836,208008348,209131384,207066315,207732344,208078307,205478495,205215464,201970288,208364795,203965928,208676997,201133323,205862319,204974453,202728619,209038829,201559246,209188869,203387855,209436217,209925179,209425174,204783011,201385478,209529894,207762127,209351799,204724641,206996314,203974885,205947855,208780571,206153862,209878592,201363582,205141697,206720235,203498295,203969654,208433335,206870610,201753920,206902608,209879451,207279083,209426652,202814257,205621820,208169453,201257307,206688735,201065125,201122931,206019711,208933136,208668648",
+			woIdsDropped      : String   "woIdsDropped"      : "202848071,206270512",
+			version           : Integer  "version"           : 8
+		}|
+		*/
+		@Override String toJsonStrs() {
+			return toJsonStr( removeNulls(
+					toIntegerValueStr("owner"            , owner            ),
+					toIntegerValueStr("index"            , index            ),
+					toIntegerValueStr("seed"             , seed             ),
+					toStringValueStr ("pos"              , positionStr      ),
+					toStringValueStr ("rot"              , rotationStr      ),
+					toBoolValueStr   ("wrecksWOGenerated", wrecksWOGenerated),
+					toStringValueStr ("woIdsGenerated"   , woIdsGeneratedStr),
+					toStringValueStr ("woIdsDropped"     , woIdsDroppedStr  ),
+					toIntegerValueStr("version"          , version          )
+			) );
+		}
+		
+	}
+	
 	static String toFloatValueStr  (String field, double  value, String format) { return toFloatValueStr  (field, value, format, false); }
 	static String toIntegerValueStr(String field, long    value               ) { return toIntegerValueStr(field, value,         false); }
 	static String toBoolValueStr   (String field, boolean value               ) { return toBoolValueStr   (field, value,         false); }
@@ -1730,89 +1842,4 @@ class Data {
 		if (strings==null) return null;
 		return Arrays.stream(strings).filter(str->str!=null).toArray(String[]::new);
 	}
-
-/*
-Block[0]: 1 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [4]
-        unitBiomassLevel:Float
-        unitHeatLevel:Float
-        unitOxygenLevel:Float
-        unitPressureLevel:Float
-Block[1]: 1 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [6]
-        playerGaugeHealth:Float
-        playerGaugeOxygen:Float
-        playerGaugeThirst:Float
-        playerPosition:String
-        playerRotation:String
-        unlockedGroups:String
-Block[2]: 3033 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [11]
-        color:String
-        gId:String
-        grwth:Integer
-        id:Integer
-        liGrps:String
-        liId:Integer
-        pnls:String
-        pos:String
-        rot:String
-        text:String
-        wear:Integer
-Block[3]: 221 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [3]
-        id:Integer
-        size:Integer
-        woIds:String
-Block[4]: 1 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [3]
-        craftedObjects:Integer
-        totalSaveFileLoad:Integer
-        totalSaveFileTime:Integer
-Block[5]: 6 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [2]
-        isRead:Bool
-        stringId:String
-Block[6]: 6 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [1]
-        stringId:String
-Block[7]: 1 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [2]
-        hasPlayedIntro:Bool
-        mode:String
-Block[8]: 10 entries
--> Format: [2 blocks]
-    Block "ParseResult" [0]
-        <Base>:Object
-    Block "ParseResult.<Base>" [5]
-        colorBase:String
-        colorBaseLerp:Integer
-        colorCustom:String
-        colorCustomLerp:Integer
-        layerId:String
- */
 }
