@@ -178,9 +178,13 @@ class Data {
 				.stream(worldObjIds)
 				.mapToObj(woId -> {
 					WorldObject wo = mapWorldObjects.get((long)woId);
-					if (wo!=null && postprocessWO!=null)
-						postprocessWO.accept(wo);
-					return wo;
+					if (wo!=null)
+					{
+						if (postprocessWO!=null)
+							postprocessWO.accept(wo);
+						return wo;
+					}
+					return new WorldObject(woId);
 				})
 				.toArray(WorldObject[]::new);
 	}
@@ -913,6 +917,7 @@ class Data {
 				.add("trtVal", Value.Type.Integer)
 				;
 		
+		final boolean  isEmptyWO;
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
@@ -960,8 +965,44 @@ class Data {
 			        text  :String
 			        grwth :Integer
 		 */
+		WorldObject(long id) {
+			super(true);
+			isEmptyWO = true;
+			
+			this.id = id;
+			objectTypeID = null;
+			listId       = 0;
+			_siIds       = null;
+			productsStr  = null;
+			positionStr  = null;
+			rotationStr  = null;
+			_wear        = 0;
+			mods         = null;
+			colorStr     = null;
+			text         = null;
+			growth       = 0;
+			_set         = null;
+			_trtInd      = null;
+			_trtVal      = null;
+			
+			position     = null;
+			rotation     = null;
+			color        = null;
+			
+			objectType   = null;
+			
+			productIDs = null;
+			products   = null;
+			
+			list          = null;
+			container     = null;
+			containerList = null;
+			mapWorldObjectData = null;
+		}
+		
 		WorldObject(Value<NV, V> value, ObjectTypeCreator getOrCreateObjectType, String debugLabel) throws TraverseException, ParseException {
 			super(true);
+			isEmptyWO = false;
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
 			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
@@ -1092,104 +1133,107 @@ class Data {
 			ValueListOutput out = new ValueListOutput();
 			out.add(0, "Name", getName());
 			out.add(0, "ID", id);
-			if (nonUniqueID) out.add(0, null, "%s", "is not unique");
-			out.add(0, "ObjectTypeID", objectTypeID);
-			
-			if (!text.isEmpty())
-				out.add(0, "Text", text);
-			
-			if (growth>0)
-				out.add(0, "Growth", "%d%%", growth);
-			
-			if (color!=null) {
-				out.add(0, "Color");
-				out.add(1, null, "%s", color);
-				out.add(1, null, "\"%s\"", colorStr);
-			} else if (!colorStr.isEmpty())
-				out.add(0, "Color", colorStr);
-			
-			if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
-			if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
-			
-			if (containerList!=null) {
-				out.add(0, "Is IN a Container");
-				if (container==null)
-					out.add(1, null, "<UnknownContainer> [List:%d]", containerList.id);
-				else
-					container.addShortDescTo(out, 1);
-			}
-			
-			if (objectType!=null)
+			if (!isEmptyWO)
 			{
-				if (objectType.hasEffectOnTerraforming())
-				{
-					out.add(0, "Effect on Terraforming");
-					TerraformingCalculation.getInstance().foreachAWO(this, false, (phVal,awo) -> {
-						if (awo != null)
-							generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier, awo.moMulti);
-						else
-						{
-							Double baseValue = phVal.getBaseValue.apply(objectType);
-							if (baseValue!=null && objectType.expectsMultiplierFor == phVal)
-								generateNotFullActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, baseValue, "expects multiplier item");
-						}
-					});
+				if (nonUniqueID) out.add(0, null, "%s", "is not unique");
+				out.add(0, "ObjectTypeID", objectTypeID);
+				
+				if (!text.isEmpty())
+					out.add(0, "Text", text);
+				
+				if (growth>0)
+					out.add(0, "Growth", "%d%%", growth);
+				
+				if (color!=null) {
+					out.add(0, "Color");
+					out.add(1, null, "%s", color);
+					out.add(1, null, "\"%s\"", colorStr);
+				} else if (!colorStr.isEmpty())
+					out.add(0, "Color", colorStr);
+				
+				if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
+				if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
+				
+				if (containerList!=null) {
+					out.add(0, "Is IN a Container");
+					if (container==null)
+						out.add(1, null, "<UnknownContainer> [List:%d]", containerList.id);
+					else
+						container.addShortDescTo(out, 1);
 				}
-				if (objectType.energy !=null)
+				
+				if (objectType!=null)
 				{
-					out.add(0, "Is Active");
-					generateActiveOutputLine(out, 1, "Energy", ObjectTypes::formatEnergyRate, objectType.energy, null, null);
+					if (objectType.hasEffectOnTerraforming())
+					{
+						out.add(0, "Effect on Terraforming");
+						TerraformingCalculation.getInstance().foreachAWO(this, false, (phVal,awo) -> {
+							if (awo != null)
+								generateActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, awo.baseValue, awo.multiplier, awo.moMulti);
+							else
+							{
+								Double baseValue = phVal.getBaseValue.apply(objectType);
+								if (baseValue!=null && objectType.expectsMultiplierFor == phVal)
+									generateNotFullActiveOutputLine(out, 1, phVal.toString(), phVal::formatRate, baseValue, "expects multiplier item");
+							}
+						});
+					}
+					if (objectType.energy !=null)
+					{
+						out.add(0, "Is Active");
+						generateActiveOutputLine(out, 1, "Energy", ObjectTypes::formatEnergyRate, objectType.energy, null, null);
+					}
 				}
-			}
-			
-			TerraformingCalculation.getInstance().foreachAWO(this, true, (phVal, awo) -> {
-				if (!awo.nearMachineOptimizers.isEmpty())
-				{
-					out.add(0, "Near MachineOptimizers (%s)".formatted(phVal));
-					awo.nearMachineOptimizers
-						.stream()
-						.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
-						.forEach( nmo -> {
-							String distStr = String.format(Locale.ENGLISH, "%1.2f m", nmo.distance());
-							WorldObject wo = nmo.amo().wo();
+				
+				TerraformingCalculation.getInstance().foreachAWO(this, true, (phVal, awo) -> {
+					if (!awo.nearMachineOptimizers.isEmpty())
+					{
+						out.add(0, "Near MachineOptimizers (%s)".formatted(phVal));
+						awo.nearMachineOptimizers
+							.stream()
+							.sorted( Comparator.<TerraformingCalculation.NearMachineOptimizer,Double>comparing(nmo->nmo.distance()) )
+							.forEach( nmo -> {
+								String distStr = String.format(Locale.ENGLISH, "%1.2f m", nmo.distance());
+								WorldObject wo = nmo.amo().wo();
+								if (wo!=null)
+									out.add(1, distStr, "%s", wo.getShortDesc());
+							} );
+					}
+				});
+				
+				TerraformingCalculation.getInstance().foreachAMO(this, true, (phVal, amo)-> {
+					Vector<NearActiveWorldObject> nearAWOs = amo.nearAWOs();
+					if (!nearAWOs.isEmpty())
+					{
+						out.add(0, "Is MachineOptimizer (%s) for".formatted(phVal));
+						nearAWOs.forEach(nawo -> {
+							String distStr = String.format(Locale.ENGLISH, "%1.2f m", nawo.distance());
+							WorldObject wo = nawo.awo().wo;
 							if (wo!=null)
 								out.add(1, distStr, "%s", wo.getShortDesc());
-						} );
-				}
-			});
-			
-			TerraformingCalculation.getInstance().foreachAMO(this, true, (phVal, amo)-> {
-				Vector<NearActiveWorldObject> nearAWOs = amo.nearAWOs();
-				if (!nearAWOs.isEmpty())
-				{
-					out.add(0, "Is MachineOptimizer (%s) for".formatted(phVal));
-					nearAWOs.forEach(nawo -> {
-						String distStr = String.format(Locale.ENGLISH, "%1.2f m", nawo.distance());
-						WorldObject wo = nawo.awo().wo;
-						if (wo!=null)
-							out.add(1, distStr, "%s", wo.getShortDesc());
-					});
-				}
-			});
-			
-			if (products!=null && products.length>0)
-				generateOutput(out, 0, "Products", products);
-			else if (productIDs!=null && productIDs.length>0)
-				out.add(0, "Products", "%s", Data.toString(productIDs));
-			else if (productsStr!=null && !productsStr.isEmpty())
-				out.add(0, "Products", "{ %s }", productsStr);
-			
-			if (listId>0) {
-				out.add(0, "Is a Container");
-				out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");
-				if (list!=null) {
-					out.add(1, "Size", "%d", list.size);
-					out.add(1, "Content", "%d items", list.worldObjs.length);
-					Vector<Map.Entry<String, Integer>> content = list.getContentResume();
-					for (Map.Entry<String, Integer> entry : content)
-						out.add(2, null, "%dx %s", entry.getValue(), entry.getKey());
-					generateOutput(out, 1, "Demand", list.demandItems);
-					generateOutput(out, 1, "Supply", list.supplyItems);
+						});
+					}
+				});
+				
+				if (products!=null && products.length>0)
+					generateOutput(out, 0, "Products", products);
+				else if (productIDs!=null && productIDs.length>0)
+					out.add(0, "Products", "%s", Data.toString(productIDs));
+				else if (productsStr!=null && !productsStr.isEmpty())
+					out.add(0, "Products", "{ %s }", productsStr);
+				
+				if (listId>0) {
+					out.add(0, "Is a Container");
+					out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");
+					if (list!=null) {
+						out.add(1, "Size", "%d", list.size);
+						out.add(1, "Content", "%d items", list.worldObjs.length);
+						Vector<Map.Entry<String, Integer>> content = list.getContentResume();
+						for (Map.Entry<String, Integer> entry : content)
+							out.add(2, null, "%dx %s", entry.getValue(), entry.getKey());
+						generateOutput(out, 1, "Demand", list.demandItems);
+						generateOutput(out, 1, "Supply", list.supplyItems);
+					}
 				}
 			}
 			
@@ -1238,7 +1282,7 @@ class Data {
 		}
 
 		boolean isInstalled() {
-			return !rotation.isZero() || !position.isZero();
+			return rotation==null || !rotation.isZero() || position==null || !position.isZero();
 		}
 		
 		static boolean isInstalled(WorldObject wo) {

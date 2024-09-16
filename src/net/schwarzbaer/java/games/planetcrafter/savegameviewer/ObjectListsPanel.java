@@ -17,7 +17,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.lib.gui.Tables;
 
-class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID> {
+class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID, ObjectListsPanel.ObjectListsTableModel> {
 	private static final long serialVersionUID = -1787920497956857504L;
 
 	ObjectListsPanel(Data data, MapPanel mapPanel) {

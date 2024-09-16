@@ -15,9 +15,16 @@ import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 
-class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDInterface> extends JPanel {
+class AbstractTablePanel<
+			ValueType,
+			ColumnID extends Tables.SimplifiedColumnIDInterface,
+			TableModelType extends Tables.SimplifiedTableModel<ColumnID> & AbstractTablePanel.TableModelExtension<ValueType>
+		>
+		extends JPanel
+{
 	private static final long serialVersionUID = 5518131959056782917L;
 	private final JTable table;
+	protected final TableModelType tableModel;
 	
 	enum LayoutPos {
 		Top, Right, Bottom, Left;
@@ -33,28 +40,25 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		}
 	}
 	
-	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
 	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly) {
 		this(tableModel, singleLineSelectionOnly, null, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
 	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
 		this(tableModel, singleLineSelectionOnly, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
 	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
 		this(tableModel, singleLineSelectionOnly, null, textAreaPos, textAreaSize);
 	}
-	<TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TableModelExtension<ValueType>>
 	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
+		this.tableModel = tableModel;
 		
 		JTextArea textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setLineWrap(false);
 		
-		table = new JTable(tableModel);
-		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
+		table = new JTable(this.tableModel);
+		table.setRowSorter(new Tables.SimplifiedRowSorter(this.tableModel));
 		table.setSelectionMode(singleLineSelectionOnly ? ListSelectionModel.SINGLE_SELECTION : ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.getSelectionModel().addListSelectionListener(e -> {
@@ -62,17 +66,17 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 			if (rowV<0) return;
 			int rowM = table.convertRowIndexToModel(rowV);
 			if (rowM<0) return;
-			ValueType row = tableModel.getRow(rowM);
-			String str = tableModel.getRowText(row,rowM);
+			ValueType row = this.tableModel.getRow(rowM);
+			String str = this.tableModel.getRowText(row,rowM);
 			textArea.setText(str);
 		});
-		tableModel.setTable(table);
-		tableModel.setColumnWidths(table);
-		tableModel.setDefaultCellEditorsAndRenderers();
+		this.tableModel.setTable(table);
+		this.tableModel.setColumnWidths(table);
+		this.tableModel.setDefaultCellEditorsAndRenderers();
 		
 		TableContextMenu tableContextMenu;
 		if (tcmConstructor==null) tableContextMenu = new TableContextMenu(table);
-		else tableContextMenu = tcmConstructor.create(table,tableModel);
+		else tableContextMenu = tcmConstructor.create(table,this.tableModel);
 		tableContextMenu.addTo(table);
 		
 		JScrollPane tableScrollPane = new JScrollPane(table);
@@ -91,7 +95,7 @@ class AbstractTablePanel<ValueType, ColumnID extends Tables.SimplifiedColumnIDIn
 		TableContextMenu create(JTable table, TableModelType tableModel);
 	}
 
-	protected static class TableContextMenu extends ContextMenu {
+	static class TableContextMenu extends ContextMenu {
 		private static final long serialVersionUID = 1755523803906870773L;
 
 		TableContextMenu(JTable table) {

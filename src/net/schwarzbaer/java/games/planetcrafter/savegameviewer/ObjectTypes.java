@@ -261,7 +261,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 		
 		Double multiplierSum = null;
 		for (ObjectType ot : objectTypes) {
-			Double multiplier = getMultiplier.apply(ot);
+			Double multiplier = ot==null ? null : getMultiplier.apply(ot);
 			if (multiplier!=null) {
 				if (multiplierSum == null)
 					multiplierSum = multiplier;

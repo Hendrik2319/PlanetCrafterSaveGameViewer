@@ -14,7 +14,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.Objec
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
-class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDemandTableModel.RowType, SupplyDemandPanel.SupplyDemandTableModel.ColumnID>
+class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDemandTableModel.RowType, SupplyDemandPanel.SupplyDemandTableModel.ColumnID, SupplyDemandPanel.SupplyDemandTableModel>
 {
 	private static final long serialVersionUID = 3889765960212837045L;
 
