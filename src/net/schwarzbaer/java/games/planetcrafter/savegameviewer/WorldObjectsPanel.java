@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.JMenuItem;
@@ -202,37 +204,49 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		}
 	}
 	
-	static class WorldObjectsTableModel extends AbstractTablePanel.AbstractTableModel<WorldObject, WorldObjectsTableModel.ColumnID> {
-		
+	static class WorldObjectsTableModel
+			extends Tables.SimpleGetValueTableModel2<WorldObjectsTableModel, WorldObject, WorldObjectsTableModel.ColumnID>
+			implements AbstractTablePanel.TableModelExtension<WorldObject>
+	{
 		// Column Widths: [75, 30, 35, 130, 130, 350, 70, 120, 60, 130, 36, 200, 33, 205, 50, 90, 50] in ModelOrder
-		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
-			id          ("ID"          , Long      .class,  75),
-			NonUniqueID ("UnI"         , Boolean   .class,  30),
-			twinID      ("Twin"        , Boolean   .class,  35),
-			objectTypeID("ObjectTypeID", String    .class, 130),
-			Name        ("Name"        , String    .class, 130),
-			container   ("Container"   , String    .class, 350),
-			listId      ("List-ID"     , Long      .class,  70),
-			text        ("Text"        , String    .class, 120),
-			growth      ("Growth"      , Long      .class,  60),
-			product     ("Product"     , String    .class, 130),
-			has_position("Pos."        , Boolean   .class,  35),
-			position    ("Position"    , Coord3    .class, 200),
-			has_rotation("Rot."        , Boolean   .class,  35),
-			rotation    ("Rotation"    , Rotation  .class, 205),
-			color       ("Color"       , Data.Color.class,  50),
-			mods        ("Mods"        , String    .class,  90),
-			_wear       ("[wear]"      , Long      .class,  50),
-			_set        ("[set]"       , Long      .class,  50),
+		enum ColumnID implements Tables.SimpleGetValueTableModel2.ColumnIDTypeInt2<WorldObjectsTableModel,WorldObject> {
+			id          ("ID"          , Long      .class,  75, row -> row.id),
+			NonUniqueID ("UnI"         , Boolean   .class,  30, row -> row.nonUniqueID),
+			twinID      ("Twin"        , Boolean   .class,  35, (model,row) -> model.data.mapObjectLists.containsKey(row.id)),
+			objectTypeID("ObjectTypeID", String    .class, 130, row -> row.objectTypeID),
+			Name        ("Name"        , String    .class, 130, row -> row.getName()),
+			container   ("Container"   , String    .class, 350, row -> row.getContainerLabel()),
+			listId      ("List-ID"     , Long      .class,  70, row -> row.listId),
+			text        ("Text"        , String    .class, 120, row -> row.text),
+			growth      ("Growth"      , Long      .class,  60, row -> row.growth),
+			product     ("Product"     , String    .class, 130, row -> getProductsStr(row)),
+			has_position("Pos."        , Boolean   .class,  35, row -> row.position!=null && !row.position.isZero()),
+			position    ("Position"    , Coord3    .class, 200, row -> row.position),
+			has_rotation("Rot."        , Boolean   .class,  35, row -> row.rotation!=null && !row.rotation.isZero()),
+			rotation    ("Rotation"    , Rotation  .class, 205, row -> row.rotation),
+			color       ("Color"       , Data.Color.class,  50, row -> row.color),
+			mods        ("Mods"        , String    .class,  90, row -> row.mods),
+			_wear       ("[wear]"      , Long      .class,  50, row -> row._wear),
+			_set        ("[set]"       , Long      .class,  50, row -> row._set),
 			;
 			private final Tables.SimplifiedColumnConfig cfg;
-			ColumnID(String name, Class<?> colClass, int width) {
+			private final Function<WorldObject, ?> getValue;
+			private final BiFunction<WorldObjectsTableModel, WorldObject, ?> getValueM;
+			
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM) {
+				this(name, colClass, width, null, getValueM);
+			}
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue) {
+				this(name, colClass, width, getValue, null);
+			}
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM) {
+				this.getValue = getValue;
+				this.getValueM = getValueM;
 				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
-			@Override public Tables.SimplifiedColumnConfig getColumnConfig() {
-				return cfg;
-			}
-		
+			@Override public Tables.SimplifiedColumnConfig getColumnConfig() { return cfg; }
+			@Override public   Function<                        WorldObject, ?> getGetValue () { return getValue ; }
+			@Override public BiFunction<WorldObjectsTableModel, WorldObject, ?> getGetValueM() { return getValueM; }
 		}
 
 		private final Data data;
@@ -241,6 +255,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			super(ColumnID.values(), data.worldObjects);
 			this.data = data;
 		}
+
+		@Override protected WorldObjectsTableModel getThis() { return this; }
 
 		@Override public void setDefaultCellEditorsAndRenderers() {
 			GeneralTCR renderer = new GeneralTCR(this);
@@ -256,30 +272,6 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 				str += twin.generateOutput();
 			}
 			return str;
-		}
-
-		@Override protected Object getValueAt(int rowIndex, int columnIndex, WorldObjectsTableModel.ColumnID columnID, WorldObject row) {
-			switch (columnID) {
-			case _wear        : return row._wear;
-			case _set         : return row._set;
-			case color        : return row.color;
-			case growth       : return row.growth;
-			case has_position : return row.position!=null && !row.position.isZero();
-			case has_rotation : return row.rotation!=null && !row.rotation.isZero();
-			case id           : return row.id;
-			case listId       : return row.listId;
-			case mods         : return row.mods;
-			case objectTypeID : return row.objectTypeID;
-			case position     : return row.position;
-			case product      : return getProductsStr(row);
-			case rotation     : return row.rotation;
-			case text         : return row.text;
-			case Name         : return row.getName();
-			case twinID       : return data.mapObjectLists.containsKey(row.id);
-			case NonUniqueID  : return row.nonUniqueID;
-			case container    : return row.getContainerLabel();
-			}
-			return null;
 		}
 
 		private static String getProductsStr(WorldObject row)
