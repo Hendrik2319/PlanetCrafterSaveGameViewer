@@ -1228,7 +1228,8 @@ class Data {
 		}
 
 		static ObjectType[] getObjectTypes(WorldObject[] worldObjs) {
-			ObjectType[] ots = new ObjectType[worldObjs==null ? 0 : worldObjs.length];
+			if (worldObjs==null) return new ObjectType[0];
+			ObjectType[] ots = new ObjectType[worldObjs.length];
 			for (int i=0; i<ots.length; i++) {
 				WorldObject wo = worldObjs[i];
 				ots[i] = wo==null ? null : wo.objectType;

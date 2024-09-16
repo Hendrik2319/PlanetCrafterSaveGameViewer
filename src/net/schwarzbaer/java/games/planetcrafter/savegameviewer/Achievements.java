@@ -106,7 +106,7 @@ class Achievements implements ObjectTypesChangeListener {
 				}
 				
 				if ( (value=Achievement.parseLine(line))!=null )
-					if (!value.isEmpty())
+					if (!value.isEmpty() && currentList!=null)
 						currentList.add(value);
 				
 			}

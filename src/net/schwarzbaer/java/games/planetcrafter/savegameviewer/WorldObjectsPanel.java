@@ -244,17 +244,12 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 
 		@Override public void setDefaultRenderers() {
 			GeneralTCR renderer = new GeneralTCR(this);
-			table.setDefaultRenderer(Long      .class, renderer);
-			table.setDefaultRenderer(Boolean   .class, renderer);
-			table.setDefaultRenderer(String    .class, renderer);
-			table.setDefaultRenderer(Coord3    .class, renderer);
-			table.setDefaultRenderer(Rotation  .class, renderer);
-			table.setDefaultRenderer(Data.Color.class, renderer);
+			setDefaultRenderers(class_ -> renderer);
 		}
 
 		@Override protected String getRowText(WorldObject row, int rowIndex) {
 			String str = row==null ? "No Data" : row.generateOutput();
-			if (data.mapObjectLists.containsKey(row.id)) {
+			if (row!=null && data.mapObjectLists.containsKey(row.id)) {
 				ObjectList twin = data.mapObjectLists.get(row.id);
 				str += String.format("%n#################################%n");
 				str += String.format(  "  Twin ObjectList with same ID%n%n");
@@ -287,7 +282,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			return null;
 		}
 
-		private String getProductsStr(WorldObject row)
+		private static String getProductsStr(WorldObject row)
 		{
 			if (row.products   !=null &&  row.products   .length>0 ) return ObjectTypes.ObjectType.toString(row.products);
 			if (row.productIDs !=null &&  row.productIDs .length>0 ) return Data.toString(row.productIDs);

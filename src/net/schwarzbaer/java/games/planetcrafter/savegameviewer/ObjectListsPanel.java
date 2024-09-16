@@ -165,7 +165,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 
 		@Override protected String getRowText(ObjectList row, int rowIndex) {
 			String str = row==null ? "No Data" : row.generateOutput();
-			if (data.mapWorldObjects.containsKey(row.id)) {
+			if (row!=null && data.mapWorldObjects.containsKey(row.id)) {
 				WorldObject twin = data.mapWorldObjects.get(row.id);
 				str += String.format("%n#################################%n");
 				str += String.format(  "  Twin WorldObject with same ID%n%n");

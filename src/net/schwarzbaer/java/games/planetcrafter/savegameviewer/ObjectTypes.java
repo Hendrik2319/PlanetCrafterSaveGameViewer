@@ -133,36 +133,37 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 			while ( (line=in.readLine())!=null ) {
 				
 				if (line.isEmpty()) continue;
-				if ( (valueStr=getValue(line,"ObjectType: "           ))!=null ) put(valueStr, currentOT = new ObjectType(valueStr, null));
-				if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label_en = valueStr;
-				if ( (valueStr=getValue(line,"label_en = "            ))!=null ) currentOT.label_en = valueStr;
-				if ( (valueStr=getValue(line,"label_de = "            ))!=null ) currentOT.label_de = valueStr;
-				if ( (valueStr=getValue(line,"class = "               ))!=null ) currentOT.class_   = ObjectTypeClass.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"oxygen = "              ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"plants = "              ))!=null ) currentOT.plants   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insects = "             ))!=null ) currentOT.insects  = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"animals = "             ))!=null ) currentOT.animals  = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"energy = "              ))!=null ) currentOT.energy   = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"expectsMultiplierFor = "))!=null ) currentOT.expectsMultiplierFor = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier     = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier    = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier    = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor   = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"boosterMultiplier = "   ))!=null ) currentOT.boosterMultiplier    = parseDouble(valueStr);
-				if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
-				
-				if (        line.equals(     "isMachineOptomizer"     )        ) currentOT.isMachineOptomizer = true;
-				if ( (valueStr=getValue(line,"moRange = "             ))!=null ) currentOT.moRange            = parseDouble (valueStr);
-				if ( (valueStr=getValue(line,"moCapacity = "          ))!=null ) currentOT.moCapacity         = parseInteger(valueStr);
-				
-				if ( (valueStr=getValue(line,"isMOFuse = "            ))!=null ) currentOT.isMOFuse           = PhysicalValue.valueOf_checked(valueStr);
-				if ( (valueStr=getValue(line,"moFuseMultiplier = "    ))!=null ) currentOT.moFuseMultiplier   = parseDouble(valueStr);
-				
-				if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
-				if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
-				
+				if (     (valueStr=getValue(line,"ObjectType: "           ))!=null ) put(valueStr, currentOT = new ObjectType(valueStr, null));
+				if (currentOT != null) {
+					if ( (valueStr=getValue(line,"label = "               ))!=null ) currentOT.label_en = valueStr;
+					if ( (valueStr=getValue(line,"label_en = "            ))!=null ) currentOT.label_en = valueStr;
+					if ( (valueStr=getValue(line,"label_de = "            ))!=null ) currentOT.label_de = valueStr;
+					if ( (valueStr=getValue(line,"class = "               ))!=null ) currentOT.class_   = ObjectTypeClass.valueOf_checked(valueStr);
+					if ( (valueStr=getValue(line,"heat = "                ))!=null ) currentOT.heat     = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"pressure = "            ))!=null ) currentOT.pressure = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"oxygen = "              ))!=null ) currentOT.oxygen   = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"plants = "              ))!=null ) currentOT.plants   = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"insects = "             ))!=null ) currentOT.insects  = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"animals = "             ))!=null ) currentOT.animals  = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"energy = "              ))!=null ) currentOT.energy   = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"expectsMultiplierFor = "))!=null ) currentOT.expectsMultiplierFor = PhysicalValue.valueOf_checked(valueStr);
+					if ( (valueStr=getValue(line,"oxygenMultiplier = "    ))!=null ) currentOT.oxygenMultiplier     = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"insectsMultiplier = "   ))!=null ) currentOT.insectsMultiplier    = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"animalsMultiplier = "   ))!=null ) currentOT.animalsMultiplier    = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"isBoosterRocketFor = "  ))!=null ) currentOT.isBoosterRocketFor   = PhysicalValue.valueOf_checked(valueStr);
+					if ( (valueStr=getValue(line,"boosterMultiplier = "   ))!=null ) currentOT.boosterMultiplier    = parseDouble(valueStr);
+					if ( (valueStr=getValue(line,"occurrences = "         ))!=null ) Occurrence.parseDataStr(valueStr, currentOT.occurrences);
+					
+					if (        line.equals(     "isMachineOptomizer"     )        ) currentOT.isMachineOptomizer = true;
+					if ( (valueStr=getValue(line,"moRange = "             ))!=null ) currentOT.moRange            = parseDouble (valueStr);
+					if ( (valueStr=getValue(line,"moCapacity = "          ))!=null ) currentOT.moCapacity         = parseInteger(valueStr);
+					
+					if ( (valueStr=getValue(line,"isMOFuse = "            ))!=null ) currentOT.isMOFuse           = PhysicalValue.valueOf_checked(valueStr);
+					if ( (valueStr=getValue(line,"moFuseMultiplier = "    ))!=null ) currentOT.moFuseMultiplier   = parseDouble(valueStr);
+					
+					if (        line.equals(     "isProducer"             )        ) currentOT.isProducer = true;
+					if (        line.equals(     "<finished>"             )        ) currentOT.finished = true;
+				}
 			}
 			forEach( (id,ot) -> setDefaultValues(ot) );
 			
