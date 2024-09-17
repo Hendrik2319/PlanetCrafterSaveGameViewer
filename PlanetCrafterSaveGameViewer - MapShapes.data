@@ -589,6 +589,12 @@ GuideLine.Horizontal=-2.95
 GuideLine.Vertical=2.95
 GuideLine.Vertical=-2.95
 
+ObjectType: FoundationSlope
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
+
 ObjectType: FrogDisplayer1
 hideMarker
 MapShape: Shape001

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Predicate;
 
@@ -1210,7 +1211,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		}
 	}
 
-	private static class MapView extends ZoomableCanvas<MapView.ViewState> {
+	private static class MapView extends ZoomableCanvas<ZoomableCanvas.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
 		private static final int NEAREST_OBJECT_MAX_DIST = 15;
 		
@@ -1223,6 +1224,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private final MapModel mapModel;
 		private final MapShapes mapShapes;
 		private MapBackgroundImage mapBackgroundImage;
+		private final MousePos currentMousePos;
 
 		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
 			this.mapShapes = mapShapes;
@@ -1234,9 +1236,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			toolTipBox = null;
 			mapBackgroundImage = null;
 			overView.setRange(this.mapModel.range);
+			currentMousePos = new MousePos();
 			
-			activateMapScale(COLOR_MAP_AXIS, "px", true);
+			activateMapScale(COLOR_MAP_AXIS, "m", true);
 			activateAxes(COLOR_MAP_AXIS, true,true,true,true);
+			addTextToMapScale(currentMousePos::getText);
 			
 			addPanListener(new PanListener() {
 				@Override public void panStarted() {}
@@ -1261,6 +1265,27 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		protected void sizeChanged(int width, int height) {
 			super.sizeChanged(width, height);
 			updateOverviewImage();
+		}
+		
+		private class MousePos
+		{
+			private final String[] output = { "" };
+
+			synchronized String[] getText()
+			{
+				return output;
+			}
+
+			synchronized void setPos(Point mouse)
+			{
+				if (!viewState.isOk() || mouse==null)
+					output[0] = "";
+				else {
+					double mapX = viewState.convertPos_ScreenToAngle_LongX(mouse.x);
+					double mapY = viewState.convertPos_ScreenToAngle_LatY (mouse.y);
+					output[0] = String.format(Locale.ENGLISH, "%1.1f : ## : %1.1f", mapY, mapX);
+				}
+			}
 		}
 		
 		private static class ToolTipBox {
@@ -1321,11 +1346,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 		}
 
-		@Override public void mouseEntered(MouseEvent e) { updateHoveredObject(e.getPoint()); }
-		@Override public void mouseMoved  (MouseEvent e) { updateHoveredObject(e.getPoint()); }
-		@Override public void mouseExited (MouseEvent e) { updateHoveredObject(null); }
+		@Override public void mouseEntered(MouseEvent e) { mousePosChanged(e.getPoint()); }
+		@Override public void mouseMoved  (MouseEvent e) { mousePosChanged(e.getPoint()); }
+		@Override public void mouseExited (MouseEvent e) { mousePosChanged(null); }
 
-		private void updateHoveredObject(Point mouse) {
+		private void mousePosChanged(Point mouse) {
+			currentMousePos.setPos(mouse);
+			
 			WorldObject nearestObject = getNearestObject(mouse);
 			if (hoveredObject != nearestObject) {
 				hoveredObject = nearestObject;
@@ -1542,47 +1569,32 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 		@Override
 		protected ViewState createViewState() {
-			return new ViewState();
-		}
-
-		class ViewState extends ZoomableCanvas.ViewState {
-		
-			protected ViewState() {
-				super(MapView.this, 0.1f);
-				setPlainMapSurface();
-				setVertAxisDownPositive(false);
-				setHorizAxisRightPositive(false);
-			}
-		
-			@Override
-			protected void determineMinMax(MapLatLong min, MapLatLong max) {
-				if (mapModel.minmax!=null) {
-					min.longitude_x = mapModel.minmax.minX;
-					min.latitude_y  = mapModel.minmax.minY;
-					max.longitude_x = mapModel.minmax.maxX;
-					max.latitude_y  = mapModel.minmax.maxY;
-				} else {
-					min.longitude_x = 0.0;
-					min.latitude_y  = 0.0;
-					max.longitude_x = 100.0;
-					max.latitude_y  = 100.0;
+			ViewState viewState = new ViewState(MapView.this, 0.1f) {
+				@Override protected void determineMinMax(MapLatLong min, MapLatLong max) {
+					if (mapModel.minmax!=null) {
+						min.longitude_x = mapModel.minmax.minX;
+						min.latitude_y  = mapModel.minmax.minY;
+						max.longitude_x = mapModel.minmax.maxX;
+						max.latitude_y  = mapModel.minmax.maxY;
+					} else {
+						min.longitude_x = 0.0;
+						min.latitude_y  = 0.0;
+						max.longitude_x = 100.0;
+						max.latitude_y  = 100.0;
+					}
+					
+					if (min.longitude_x==max.longitude_x && min.latitude_y==max.latitude_y) {
+						min.longitude_x = max.longitude_x-50;
+						min.latitude_y  = max.latitude_y -50;
+						max.longitude_x = max.longitude_x+50;
+						max.latitude_y  = max.latitude_y +50;
+					}
 				}
-				
-				if (min.longitude_x==max.longitude_x && min.latitude_y==max.latitude_y) {
-					min.longitude_x = max.longitude_x-50;
-					min.latitude_y  = max.latitude_y -50;
-					max.longitude_x = max.longitude_x+50;
-					max.latitude_y  = max.latitude_y +50;
-				}
-				
-				//System.out.printf(Locale.ENGLISH, "MapView.ViewState.MinMax: (%s,%s) -> (%s,%s)%n",
-				//		min.longitude_x,
-				//		min.latitude_y ,
-				//		max.longitude_x,
-				//		max.latitude_y 
-				//);
-			}
-			
+			};
+			viewState.setPlainMapSurface();
+			viewState.setVertAxisDownPositive(false);
+			viewState.setHorizAxisRightPositive(false);
+			return viewState;
 		}
 	}
 }
