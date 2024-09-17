@@ -434,6 +434,13 @@ class Data {
 	static class Coord3 {
 		private final double x,y,z;
 		
+		Coord3(double x, double y, double z)
+		{
+			this.x = x;
+			this.y = y;
+			this.z = z;
+		}
+
 		Coord3(String str, String debugLabel) throws ParseException {
 			double[] arr =  parseDoubleArray(str, debugLabel);
 			if (arr.length!=3) throw new ParseException("%s: Unexpected length of array: %d (!=3)", debugLabel, arr.length);

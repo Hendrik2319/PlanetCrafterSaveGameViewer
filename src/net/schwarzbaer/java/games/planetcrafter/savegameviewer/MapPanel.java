@@ -47,6 +47,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
@@ -58,6 +59,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSave
 import net.schwarzbaer.java.lib.gui.Canvas;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.FileChooser;
+import net.schwarzbaer.java.lib.gui.MultiValueInputDialog;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
 import net.schwarzbaer.java.lib.image.linegeometry.Form;
@@ -76,6 +78,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
 	static final Color COLOR_PLAYERPOS           = Color.RED;
 	static final Color COLOR_WRECK               = new Color(0xFF8000);
+	static final Color COLOR_SPECCOORDS          = Color.BLUE;
 	static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
 	static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
 	static final Color COLOR_WORLDOBJECT_FILL_REMOVAL     = null;
@@ -565,7 +568,38 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				ClipboardTools.copyToClipBoard(msg);
 			}));
 			
+			
+			addSeparator();
+			
+			
+			JMenuItem miShowSpecCoords = add(GUI.createMenuItem(
+					"Show Specific Coordinates in Map",
+					null
+			));
+			miShowSpecCoords.addActionListener(e -> {
+				if (mapView.hasSpecCoords())
+				{
+					mapView.clearSpecCoords();
+					miShowSpecCoords.setText("Show Specific Coordinates in Map");
+				}
+				else
+				{
+					Point2D.Double coords = new Point2D.Double(0,0);
+					
+					new MultiValueInputDialog(main.mainWindow, "Enter Coordinates")
+						.addText("Enter coordinates of a specific position to show in map:")
+						.addDoubleField("X Coordinate", 10, "%s".formatted(coords.x), Double::isFinite, x -> coords.x = x)
+						.addDoubleField("Z Coordinate", 10, "%s".formatted(coords.y), Double::isFinite, z -> coords.y = z)
+						.showDialog();
+					
+					mapView.setSpecCoords(new Data.Coord3(coords.x, 0, coords.y));
+					miShowSpecCoords.setText("Remove Specific Coordinates Marker from Map");
+				}
+			});
+			
+			
 //			addSeparator();
+//			
 //			
 //			JMenuItem miMeasureDistanceFrom = add(GUI.createMenuItem("Measure Distance From", e->{
 //				if (clickedObject==null) return;
@@ -574,6 +608,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 //				System.out.println(msg);
 //				ClipboardTools.copyToClipBoard(msg);
 //			}));
+			
 			
 			addSeparator();
 			
@@ -612,6 +647,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			
 			addSeparator();
+			
 			
 			JMenuItem miEditMapShapes = add(GUI.createMenuItem("Create/Edit MapShapes", e->{
 				if (clickedObject==null) return;
@@ -1225,6 +1261,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private final MapShapes mapShapes;
 		private MapBackgroundImage mapBackgroundImage;
 		private final MousePos currentMousePos;
+		private Coord3 specCoords;
 
 		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
 			this.mapShapes = mapShapes;
@@ -1237,6 +1274,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			mapBackgroundImage = null;
 			overView.setRange(this.mapModel.range);
 			currentMousePos = new MousePos();
+			specCoords = null;
 			
 			activateMapScale(COLOR_MAP_AXIS, "m", true);
 			activateAxes(COLOR_MAP_AXIS, true,true,true,true);
@@ -1250,6 +1288,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				@Override public void zoomChanged() { updateOverviewImage(); }
 			});
 		}
+
+		void setSpecCoords(Coord3 specCoords) { this.specCoords = specCoords; }
+		void clearSpecCoords() { this.specCoords = null; }
+		boolean hasSpecCoords() { return specCoords != null; }
 
 		ViewState setBgImage(MapBackgroundImage mapBackgroundImage)
 		{
@@ -1452,6 +1494,9 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				
 				if (mapModel.playerPosition!=null)
 					drawPlayerPosition(g2, clip, mapModel.playerPosition, mapModel.playerOrientation, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
+				
+				if (specCoords!=null)
+					drawMapPoint(g2, clip, specCoords, COLOR_SPECCOORDS);
 				
 				if (toolTipBox!=null)
 					toolTipBox.draw(g2, x, y, width, height);
