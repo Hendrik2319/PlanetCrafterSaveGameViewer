@@ -121,43 +121,69 @@ class Data {
 			}
 		}
 		
-		mapWorldObjects = new HashMap<>();
 		System.out.printf("Processing Data ...%n");
+		
+		mapWorldObjects = new HashMap<>();
 		for (WorldObject wo : worldObjects) {
 			
 			if (!mapWorldObjects.containsKey(wo.id))
 				mapWorldObjects.put(wo.id, wo);
-			else {
+			else
+			{
 				WorldObject other = mapWorldObjects.get(wo.id);
-				System.err.printf("Non unique ID in WorldObject: %d (this:\"%s\", other:\"%s\")%n", wo.id, wo.objectTypeID, other.objectTypeID);
+				System.err.printf("More WorldObjects with same ID[%d]:   Type1:\"%s\", Type2:\"%s\"%n", wo.id, wo.objectTypeID, other.objectTypeID);
 				wo.nonUniqueID = true;
 				other.nonUniqueID = true;
 			}
-			
-			if (0 < wo.listId)
-				for (ObjectList ol : objectLists)
-					if (ol.id==wo.listId) {
-						ol.container = wo;
-						wo.list = ol;
-						break;
-					}
 		}
 		
 		mapObjectLists = new HashMap<>();
 		for (ObjectList ol : objectLists) {
-			
 			if (!mapObjectLists.containsKey(ol.id))
 				mapObjectLists.put(ol.id, ol);
-			else {
+			else
+			{
 				ObjectList other = mapObjectLists.get(ol.id);
-				System.err.printf("Non unique ID in ObjectList: %d%n", ol.id);
+				System.err.printf("More ObjectLists with same ID[%d]%n", ol.id);
 				ol.nonUniqueID = true;
 				other.nonUniqueID = true;
 			}
-			
+		}
+		
+		for (WorldObject wo : worldObjects)
+		{
+			ObjectList ol = 0 < wo.listId ? mapObjectLists.get(wo.listId) : null;
+			if (ol!=null)
+			{
+				if (ol.container!=null)
+					System.err.printf(
+							"ObjectList[ id:%d ] is used by WorldObject[ id:%d, type:%s ] and WorldObject[ id:%d, type:%s ]%n",
+							ol.id,
+							ol.container.id, ol.container.objectTypeID,
+							wo.id, wo.objectTypeID
+					);
+				else
+				{
+					ol.container = wo;
+					wo.list = ol;
+				}
+			}
+		}
+		
+		for (ObjectList ol : objectLists) {
 			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, wo -> {
-				wo.container = ol.container;
-				wo.containerList = ol;
+				if (wo.containerList!=null)
+					System.err.printf(
+							"WorldObject[ id:%d, type:%s ] is part of ObjectList[ id:%d ] and ObjectList[ id:%d ]%n",
+							wo.id, wo.objectTypeID,
+							ol.id,
+							wo.containerList.id
+					);
+				else
+				{
+					wo.container = ol.container;
+					wo.containerList = ol;
+				}
 			});
 		}
 		
