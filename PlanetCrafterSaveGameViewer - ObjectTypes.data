@@ -48,13 +48,39 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: AmphibiansFarm1
 label_en = Amphibians Farm
-label_de = Amphibien Farm
+label_de = Amphibien-Farm
 class = Structure_Machine
 heat = 175.0
 pressure = 75.0
 plants = 75.0
 animals = 825.0
 energy = -155.0
+expectsMultiplierFor = Animals
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: AnimalFeeder1
+label_de = Futterspender für Tiere
+class = Structure_Machine
+energy = -95.0
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: AnimalFood1
+label_de = Tierfutter T1
+class = Resource_Craftable
+occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: AnimalShelter1
+label_de = Tierheim
+class = Structure_Machine
+heat = 280.0
+pressure = 340.0
+plants = 310.0
+insects = 170.0
+animals = 3490.0
+energy = -270.0
 expectsMultiplierFor = Animals
 occurrences = WorldObject,Achievement
 <finished>
@@ -137,6 +163,13 @@ class = Equipment_Player
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: Backpack6
+label_en = Backpack T6
+label_de = Rucksack T6
+class = Equipment_Player
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Bacteria1
 label_en = Bacteria Sample
 class = Resource_Craftable
@@ -193,8 +226,8 @@ isProducer
 ObjectType: Beehive2
 label_en = Beehive T2
 class = Structure_Machine
-plants = 358.0
-insects = 390.0
+plants = 758.0
+insects = 890.0
 energy = -95.0
 occurrences = WorldObject,Achievement
 isProducer
@@ -304,6 +337,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: Butterfly10Larvae
 label_en = Butterfly Liux Larva (rare, 500%)
+label_de = Schmetterlingslarve "Liux" (500%, common, M1, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 5.0
 occurrences = WorldObject,Achievement,Product,ObjectList
@@ -346,16 +380,18 @@ occurrences = WorldObject
 
 ObjectType: Butterfly16Larvae
 label_en = Butterfly Imeo Larva (1000%)
+label_de = Schmetterlingslarve "Imeo" (1000%, rare, M2, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 10.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Butterfly17Larvae
 label_en = Butterfly Serena Larva (1200%)
+label_de = Schmetterlingslarve "Serena" (1200%, rare, M2, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 12.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Butterfly18Larvae
@@ -374,6 +410,7 @@ occurrences = WorldObject,Product
 
 ObjectType: Butterfly1Larvae
 label_en = Butterfly Azurae Larva (common, 120%)
+label_de = Schmetterlingslarve "Azurae" (120%, common, M1, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 1.2
 occurrences = WorldObject,Product
@@ -416,6 +453,7 @@ occurrences = WorldObject,Product
 
 ObjectType: Butterfly7Larvae
 label_en = Butterfly Penga Larva (rare, 230%)
+label_de = Schmetterlingslarve "Penga" (230%, rare, M1, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 2.3
 occurrences = WorldObject,Product,ObjectList
@@ -423,6 +461,7 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: Butterfly8Larvae
 label_en = Butterfly Chevrone Larva (rare, 250%)
+label_de = Schmetterlingslarve "Chevrone" (250%, rare, M1, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 2.5
 occurrences = WorldObject,Achievement,Product
@@ -430,6 +469,7 @@ occurrences = WorldObject,Achievement,Product
 
 ObjectType: Butterfly9Larvae
 label_en = Butterfly Aemel Larva (rare, 300%)
+label_de = Schmetterlingslarve "Aemel" (300%, rare, M1, F1)
 class = Resource_SeedEgg
 insectsMultiplier = 3.0
 occurrences = WorldObject,Achievement,Product,ObjectList
@@ -452,6 +492,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: ButterflyFarm1
 label_en = Butterfly Farm T1
+label_de = Schmetterlingsfarm
 class = Structure_Machine
 insects = 75.0
 energy = -30.0
@@ -461,6 +502,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: ButterflyFarm2
 label_en = Butterfly Farm T2
+label_de = Schmetterlingsfarm T2
 class = Structure_Machine
 insects = 475.0
 energy = -45.0
@@ -612,7 +654,7 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: DNASequence
-occurrences = ObjectList
+occurrences = WorldObject,ObjectList
 
 ObjectType: Drill0
 label_en = Drill T1
@@ -675,6 +717,17 @@ label_en = Drone Station
 class = Structure_Machine
 energy = -850.0
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Ecosystem1
+label_en = Ecosystem
+label_de = Ökosystem
+class = Structure_Machine
+plants = 2980.0
+insects = 187.0
+energy = -325.0
+occurrences = WorldObject,Achievement
+isProducer
 <finished>
 
 ObjectType: EnergyGenerator1
@@ -769,6 +822,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: Farm1
 label_en = Outdoor Farm
+label_de = Bauernhof
 class = Structure_Machine
 plants = 95.0
 insects = 8.0
@@ -797,13 +851,15 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Fish10Eggs
 label_en = Fish Tiloo Eggs (400% | P.C, M2, F1)
+label_de = Fischeier "Tiloo" (400% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 4.0
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Fish11Eggs
 label_en = Golden Fish Eggs (500% | P.C, M3, F1)
+label_de = Golden Fischeier (500% | P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 5.0
 occurrences = WorldObject,Product
@@ -818,20 +874,23 @@ occurrences = WorldObject,Product
 
 ObjectType: Fish1Eggs
 label_en = Fish Provios Eggs (100% | P.A, M3, F1)
+label_de = Fischeier "Kooni" (100% | P.A, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Fish2Eggs
 label_en = Fish Vilnus Eggs (150% | P.A, M3, F1)
+label_de = Fischeier "Booriuna" (150% | P.A, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Fish3Eggs
 label_en = Fish Gerrero Eggs (150% | P.B, M3, F1)
+label_de = Fischeier "Gerrero" (150% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
 occurrences = WorldObject,Achievement
@@ -839,6 +898,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Fish4Eggs
 label_en = Fish Khrom Eggs (200% | P.B, M3, F1)
+label_de = Fischeier "Chrom" (200% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.0
 occurrences = WorldObject
@@ -846,6 +906,7 @@ occurrences = WorldObject
 
 ObjectType: Fish5Eggs
 label_en = Fish Ulani Eggs (250% | P.C, M3, F1)
+label_de = Fischeier "Ulani" (250% | P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.5
 occurrences = WorldObject,Achievement,Product
@@ -853,6 +914,7 @@ occurrences = WorldObject,Achievement,Product
 
 ObjectType: Fish6Eggs
 label_en = Fish Aelera Eggs (300% | P.C, M2, F1)
+label_de = Fischeier "Aelera" (300% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
 occurrences = WorldObject,Achievement,Product
@@ -867,6 +929,7 @@ occurrences = WorldObject
 
 ObjectType: Fish8Eggs
 label_en = Fish Ecaru Eggs (325% | P.B, M3, F1)
+label_de = Fischeier "Ecaru" (325% | P.B, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.25
 occurrences = WorldObject
@@ -874,10 +937,10 @@ occurrences = WorldObject
 
 ObjectType: Fish9Eggs
 label_en = Fish Buyu Eggs (350% | P.C, M3, F1)
+label_de = Fischeier "Buyu" (350% | ?? P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
 occurrences = WorldObject,Product
-<finished>
 
 ObjectType: FishDisplayer1
 label_en = Fish Display
@@ -958,6 +1021,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Frog2Eggs
 label_en = Frog Huli Eggs (150% | GFE, M4)
+label_de = Froscheier "Huli" (150% | GFE, M4)
 class = Resource_SeedEgg
 animalsMultiplier = 1.5
 occurrences = WorldObject,Achievement,Product
@@ -994,9 +1058,17 @@ occurrences = WorldObject,Product
 
 ObjectType: Frog7Eggs
 label_en = Frog Afae Eggs (350% | GFE, M3, F2)
+label_de = Froscheier "Afae" (350% | GFE, M3. F2)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
 occurrences = WorldObject,Achievement
+<finished>
+
+ObjectType: Frog8Eggs
+label_en = Frog Cillus Eggs (350% | GFE, M3, F2)
+label_de = Froscheier "Cillus" (350% | GFE, M3. F2)
+animalsMultiplier = 3.5
+occurrences = WorldObject
 <finished>
 
 ObjectType: Frog9Eggs
@@ -1078,15 +1150,36 @@ occurrences = WorldObject,Achievement
 isProducer
 <finished>
 
+ObjectType: GeneticExtractor1
+label_en = Genetic Extractor
+label_de = Genetischer Extraktor
+class = Structure_Machine
+energy = -317.5
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: GeneticManipulator1
 label_en = DNA Manipulator
+label_de = DNS-Manipulator
 class = Structure_Machine
 energy = -117.5
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: GeneticSynthetizer1
+label_en = Genetic Synthesizer
+label_de = Genetischer Synthesizer
+class = Structure_Machine
+energy = -292.0
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: GeneticTrait
+label_en = Genetic Trait
+label_de = Genetisches Merkmal
+class = Resource
 occurrences = WorldObject,ObjectList
+<finished>
 
 ObjectType: GoldenContainer
 label_en = Golden Container
@@ -1132,6 +1225,12 @@ occurrences = WorldObject
 
 ObjectType: GoldenEffigie7
 label_en = Golden Effigie "Probe?"
+class = Structure_Furniture
+occurrences = WorldObject
+<finished>
+
+ObjectType: GoldenEffigie9
+label_en = Golden Effigie "Rover"
 class = Structure_Furniture
 occurrences = WorldObject
 <finished>
@@ -1469,7 +1568,7 @@ ObjectType: Optimizer2
 label_de = MaschinenOptimierer T2
 class = Structure_Machine
 energy = -150.0
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 isMachineOptomizer
 moRange = 75.0
 moCapacity = 8
@@ -1613,7 +1712,12 @@ occurrences = Blueprint
 <finished>
 
 ObjectType: PortalGenerator1
-occurrences = WorldObject
+label_en = Portal Generator
+label_de = Portal-Generator
+class = Structure_Building
+energy = -1890.0
+occurrences = WorldObject,Achievement
+<finished>
 
 ObjectType: ProceduralInstanceGenerator
 class = Special_Wreckage
@@ -1657,6 +1761,13 @@ class = Resource_Craftable
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: RocketAnimals1
+label_de = Tiere Streurakete
+class = Special_Rocket
+isBoosterRocketFor = Animals
+boosterMultiplier = 17.5
+occurrences = WorldObject
+
 ObjectType: RocketBiomass1
 label_en = Plants Rocket
 class = Special_Rocket
@@ -1689,7 +1800,7 @@ ObjectType: RocketInsects1
 label_en = Insect Spreader Rocket
 class = Special_Rocket
 isBoosterRocketFor = Insects
-boosterMultiplier = 10.0
+boosterMultiplier = 15.0
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -1833,7 +1944,7 @@ ObjectType: Seed0
 label_en = Seed Lirma (100%)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.0
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: Seed1
@@ -1926,6 +2037,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: SilkGenerator
 label_en = Silk Generator
+label_de = Seiden-Generator
 class = Structure_Machine
 energy = -38.0
 occurrences = WorldObject,Achievement
@@ -1946,6 +2058,12 @@ occurrences = WorldObject
 
 ObjectType: Skin-02
 label_de = Raumanzug Blasto
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-03
+label_de = Raumanzug Primo
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
@@ -1974,6 +2092,12 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-13
+label_de = Raumanzug Mekio
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
 ObjectType: Skin-16
 label_de = Raumanzug Plesao
 class = Equipment_Player
@@ -1983,7 +2107,7 @@ occurrences = WorldObject
 ObjectType: SkinDisplayer
 label_de = Raumanzug-Displayer
 class = Structure_Storage
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: SmartFabric
@@ -2015,6 +2139,11 @@ label_en = Solar Quartz
 label_de = Sonnen-Quarz
 class = Resource_Minable
 occurrences = WorldObject,ObjectList
+<finished>
+
+ObjectType: SpaceMultiplierAnimals
+class = Special_Hidden
+occurrences = WorldObject
 <finished>
 
 ObjectType: SpaceMultiplierBiomass
@@ -2110,6 +2239,7 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: TradePlatform1
 label_en = Space Trading Rocket
+label_de = Weltraumhandelsrakete
 class = Structure_Building
 energy = -425.0
 occurrences = WorldObject,Blueprint
@@ -2138,6 +2268,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Tree1Seed
 label_en = Tree Seed "Linifolia" (125%, Shanga150) #0
+label_de = Baumsamen "Linifolia" (125%, Shanga150)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
 occurrences = WorldObject,ObjectList
@@ -2145,6 +2276,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Tree2Seed
 label_en = Tree Seed "Aleatus" (125%, Pestera200) #0
+label_de = Baumsamen "Aleatus" (125%, Pestera200)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
 occurrences = WorldObject,ObjectList
@@ -2152,6 +2284,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Tree3Seed
 label_en = Tree Seed "Cernea" (150%, Nulna300) #1
+label_de = Baumsamen "Cernea" (150%, Nulna300)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.5
 occurrences = WorldObject,Achievement,Product,ObjectList
@@ -2159,6 +2292,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: Tree4Seed
 label_en = Tree Seed "Elegea" (175%, Tuska400) #2
+label_de = Baumsamen "Elegea" (175%, Tuska400)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.75
 occurrences = WorldObject,Achievement,Product,ObjectList
@@ -2166,6 +2300,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: Tree5Seed
 label_en = Tree Seed "Humelora" (250%, Orema450) #3
+label_de = Baumsamen "Humelora" (250%, Orema450)
 class = Resource_SeedEgg
 oxygenMultiplier = 2.5
 occurrences = WorldObject,Achievement,ObjectList
@@ -2173,6 +2308,7 @@ occurrences = WorldObject,Achievement,ObjectList
 
 ObjectType: Tree6Seed
 label_en = Tree Seed "Aemora" (400%, Volnus500) #4
+label_de = Baumsamen "Aemora" (400%, Volnus500)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.0
 occurrences = WorldObject,Achievement,Product,ObjectList
@@ -2187,6 +2323,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Tree8Seed
 label_en = Tree Seed "Soleus" (125%, Lirma100) #0
+label_de = Baumsamen "Soleus" (125%, Lirma100)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.25
 occurrences = WorldObject,ObjectList
@@ -2194,6 +2331,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Tree9Seed
 label_en = Tree Seed "Shreox" (450%, MutT2)
+label_de = Baumsamen "Shreox" (450%, M2)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.5
 occurrences = WorldObject,Achievement,ObjectList
@@ -2207,6 +2345,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: TreeSpreader0
 label_en = Tree Spreader T1
+label_de = Baumverteiler T1
 class = Structure_Machine
 oxygen = 920.0
 plants = 97.0
@@ -2217,6 +2356,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: TreeSpreader1
 label_en = Tree Spreader T2
+label_de = Baumverteiler T2
 class = Structure_Machine
 oxygen = 1950.0
 plants = 175.0
@@ -2227,6 +2367,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: TreeSpreader2
 label_en = Tree Spreader T3
+label_de = Baumverteiler T3
 class = Structure_Machine
 oxygen = 8500.0
 plants = 1250.0
@@ -2331,11 +2472,15 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VehicleBeacon1
+label_de = Fahrzeug-Leuchtfeuer
+class = Equipment_Vehicle
 occurrences = WorldObject
+<finished>
 
 ObjectType: VehicleCrafter1
 label_de = Fahrzeugstation
 class = Structure_Building
+energy = -63.0
 occurrences = WorldObject,Achievement
 <finished>
 
@@ -2379,6 +2524,12 @@ ObjectType: VehicleLights2
 label_de = Fahrzeug-Leuchten T2
 class = Equipment_Vehicle
 occurrences = WorldObject,Blueprint
+<finished>
+
+ObjectType: VehicleLogistic1
+label_de = Fahrzeug-Logistik
+class = Equipment_Vehicle
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VehicleOxygen1
@@ -2448,6 +2599,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: WaterLifeCollector1
 label_en = Water Life Collector
+label_de = Sammer des Wasserlebens
 class = Structure_Machine
 energy = -105.5
 occurrences = WorldObject,Achievement

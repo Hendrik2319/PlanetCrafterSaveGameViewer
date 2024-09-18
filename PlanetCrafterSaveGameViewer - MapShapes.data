@@ -648,6 +648,18 @@ MapShape: Shape001
 selectedShape
 PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
 
+ObjectType: GoldenEffigie7
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
+ObjectType: GoldenEffigie9
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
 ObjectType: Heater3
 hideMarker
 MapShape: Shape001

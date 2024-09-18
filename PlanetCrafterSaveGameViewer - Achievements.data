@@ -23,7 +23,7 @@ Heat
 1.2E7|{Biodome2}
 4.1E7|{Drill3}
 7.5E8|{EnergyGenerator6}
-1.85E9|MaschinenOptimierer St2
+1.85E9|{Optimizer2}
 
 Pressure
 70.0|{OxygenTank2}
@@ -50,13 +50,13 @@ Biomass
 8.3E9|{Heater5}
 1.77E10|{RocketInsects1}
 2.3E10|{Drill4}
-3.0E10|Fish Kooni/Provios Eggs (100% | P.A, M3, F1)
+3.0E10|{Fish1Eggs}
 3.5E10|{Fish3Eggs}
 4.2E10|{Aquarium2}
-5.2E10|Genetischer Synthesizer
+5.2E10|{GeneticSynthetizer1}
 7.0E10|Tiere Streurakete
 8.0E10|Frog Strabo Eggs
-8.5E10|Tierfutter T1
+8.5E10|{AnimalFood1}
 
 Plants
 8.0E7|{Beehive1}
@@ -81,9 +81,9 @@ Insects
 1500000.0|{Farm1}
 2500000.0|{ButterflyDisplayer1}
 5.0E7|{Mutagen2}
-6.425E7|Ökosystem
+6.425E7|{Ecosystem1}
 1.45E8|{Beehive2}
-8.0E8|Genetischer Extraktor
+8.0E8|{GeneticExtractor1}
 9.25E8|{ButterflyFarm2}
 1.2E10|{Frog5Eggs}
 
@@ -92,7 +92,7 @@ Animals
 250000.0|{Fish6Eggs}
 2500000.0|{FishDisplayer1}
 5500000.0|{FishFarm1}
-6700000.0|Fahrzeug-Logistik
+6700000.0|{VehicleLogistic1}
 7800000.0|{Seed0}
 2.2E7|{LarvaeBase1}
 3.5E7|{Frog7Eggs}
@@ -140,13 +140,13 @@ Terraformation
 1.22E11|{Mutagen3}
 1.6E11|{CircuitBoard1}
 1.75E11|{PulsarQuartz}
-2.5E11|Portalgenerator
-3.5E11|Backpack St 6
+2.5E11|{PortalGenerator1}
+3.5E11|{Backpack6}
 4.25E11|{AmphibiansFarm1}
 4.25E11|{Mutagen4}
 4.5E11|{Frog2Eggs}
-1.25E12|Futterspender für Tiere
-1.25E12|Tierheim
+1.25E12|{AnimalFeeder1}
+1.25E12|{AnimalShelter1}
 2.25E12|Tierfutter T2
 5.0E12|Extraktionsplattform
 
@@ -165,5 +165,5 @@ Stages
 1.2E11|Fish
 4.25E11|Amphibians
 1.25E12|Mammals
-1.0E15|(Next Step?)
+5.19E12|(Next Step?)
 
