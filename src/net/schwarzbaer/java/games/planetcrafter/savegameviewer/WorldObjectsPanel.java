@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -207,6 +208,8 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			} else {
 				selectedRendererComponent = standardComp;
 				String valueStr = value==null ? null : value.toString();
+				if (row!=null && columnID!=null && columnID.getDisplayStr!=null)
+					valueStr = columnID.getDisplayStr.apply(row);
 				standardComp.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus, getCustomBackground, null);
 				if (value instanceof Number)
 					standardComp.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -235,6 +238,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			_siIds      ("[siIds]"     , String    .class,  70,        row  -> row.isEmptyWO ? null : row._siIds),
 			text        ("Text"        , String    .class, 120,        row  -> row.isEmptyWO ? null : row.text),
 			growth      ("Growth"      , Long      .class,  60,        row  -> row.isEmptyWO ? null : row.growth),
+			hunger      ("Hunger"      , Double    .class,  60,        row  -> row.isEmptyWO ? null : row.hunger, row -> row.hunger==null ? null : String.format(Locale.ENGLISH, "%1.3f", row.hunger)),
 			product     ("Product"     , String    .class, 130,        row  -> row.isEmptyWO ? null : getProductsStr(row)),
 			has_position("Pos."        , Boolean   .class,  35,        row  -> row.isEmptyWO ? null : row.position!=null && !row.position.isZero()),
 			position    ("Position"    , Coord3    .class, 200,        row  -> row.isEmptyWO ? null : row.position),
@@ -248,16 +252,24 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			private final Tables.SimplifiedColumnConfig cfg;
 			private final Function<WorldObject, ?> getValue;
 			private final BiFunction<WorldObjectsTableModel, WorldObject, ?> getValueM;
+			private final Function<WorldObject, String> getDisplayStr;
 			
 			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM) {
-				this(name, colClass, width, null, getValueM);
+				this(name, colClass, width, null, getValueM, null);
 			}
 			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue) {
-				this(name, colClass, width, getValue, null);
+				this(name, colClass, width, getValue, null, null);
 			}
-			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM) {
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM, Function<WorldObject, String> getDisplayStr) {
+				this(name, colClass, width, null, getValueM, getDisplayStr);
+			}
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue, Function<WorldObject, String> getDisplayStr) {
+				this(name, colClass, width, getValue, null, getDisplayStr);
+			}
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<WorldObject, ColumnClass> getValue, BiFunction<WorldObjectsTableModel, WorldObject, ColumnClass> getValueM, Function<WorldObject, String> getDisplayStr) {
 				this.getValue = getValue;
 				this.getValueM = getValueM;
+				this.getDisplayStr = getDisplayStr;
 				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
 			@Override public Tables.SimplifiedColumnConfig getColumnConfig() { return cfg; }

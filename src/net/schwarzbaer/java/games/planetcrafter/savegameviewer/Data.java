@@ -946,6 +946,7 @@ class Data {
 				.add("color" , Value.Type.String )
 				.add("text"  , Value.Type.String )
 				.add("grwth" , Value.Type.Integer)
+				.add("hunger", Value.Type.Float  )
 				.add("set"   , Value.Type.Integer)
 				.add("trtInd", Value.Type.Integer)
 				.add("trtVal", Value.Type.Integer)
@@ -967,6 +968,7 @@ class Data {
 		final Color    color;
 		final String   text;
 		final long     growth;
+		final Double   hunger;
 		final Long     _set;
 		final Long     _trtInd;
 		final Long     _trtVal;
@@ -998,6 +1000,7 @@ class Data {
 			        color :String
 			        text  :String
 			        grwth :Integer
+   			        hunger:Float
 		 */
 		WorldObject(long id) {
 			super(true);
@@ -1015,6 +1018,7 @@ class Data {
 			colorStr     = null;
 			text         = null;
 			growth       = 0;
+			hunger       = null;
 			_set         = null;
 			_trtInd      = null;
 			_trtVal      = null;
@@ -1051,6 +1055,7 @@ class Data {
 			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
 			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
 			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			hunger       = JSON_Data.getFloatValue  (object, "hunger", true, false, debugLabel);
 			_set         = JSON_Data.getIntegerValue(object, "set"   , true, false, debugLabel);
 			_trtInd      = JSON_Data.getIntegerValue(object, "trtInd", true, false, debugLabel);
 			_trtVal      = JSON_Data.getIntegerValue(object, "trtVal", true, false, debugLabel);
@@ -1105,6 +1110,7 @@ class Data {
 						"color" +":"+"\"%s\""+", "+  // Str
 						"text"  +":"+"\"%s\""+", "+  // Str
 						"grwth" +":"+  "%d"  +", "+  // Int
+						"hunger"+":"+  "%s"  +", "+  // Int
 						"set"   +":"+  "%d"  +       // Int
 						"trtInd"+":"+  "%d"  +       // Int
 						"trtVal"+":"+  "%d"  +       // Int
@@ -1121,6 +1127,7 @@ class Data {
 						colorStr    ,
 						text        ,
 						growth      ,
+						hunger      ,
 						_set        ,
 						_trtInd     ,
 						_trtVal     ,
@@ -1143,6 +1150,7 @@ class Data {
 					toStringValueStr ("color" , colorStr    ),
 					toStringValueStr ("text"  , text        ),
 					toIntegerValueStr("grwth" , growth      ),
+					toFloatValueStr  ("hunger", hunger      , "%1.6f", true),
 					toIntegerValueStr("set"   , _set        , true),
 					toIntegerValueStr("trtInd", _trtInd     , true),
 					toIntegerValueStr("trtVal", _trtVal     , true)
