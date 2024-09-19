@@ -38,8 +38,9 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 			
 			JMenuItem miShowContainerInMap = add(GUI.createMenuItem("Show Container in Map", e->{
 				if (clickedRow==null) return;
-				if (!WorldObject.isInstalled(clickedRow.container))return;
-				mapPanel.showWorldObject(clickedRow.container);
+				if (clickedRow.container==null)return;
+				if (!WorldObject.isInstalled(clickedRow.container.wo()))return;
+				mapPanel.showWorldObject(clickedRow.container.wo());
 			}));
 			
 			addContextMenuInvokeListener((comp, x, y) -> {
@@ -48,11 +49,11 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 				clickedRow = clickedRowIndex<0 ? null : tableModel.getRow(clickedRowIndex);
 				
 				miShowContainerInMap.setEnabled(
-					clickedRow!=null && WorldObject.isInstalled(clickedRow.container));
+						clickedRow!=null && clickedRow.container!=null && WorldObject.isInstalled(clickedRow.container.wo()));
 				miShowContainerInMap.setText(
-					clickedRow==null || !WorldObject.isInstalled(clickedRow.container)
-					? "Show Container in Map"
-					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
+						clickedRow==null || clickedRow.container==null || !WorldObject.isInstalled(clickedRow.container.wo())
+								? "Show Container in Map"
+								: String.format("Show Container \"%s\" in Map", clickedRow.container.wo().getName())
 				);
 			});
 		}
@@ -179,7 +180,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 				case id         : return row.id;
 				case nonUniqueID: return row.nonUniqueID;
 				case IsTwinID   : return data.mapWorldObjects.containsKey(row.id);
-				case container  : return row.container==null ? "--" : row.container.getShortDesc();
+				case container  : return row.container==null ? "--" : row.container.wo().getShortDesc();
 				case size       : return row.size;
 				case Filling    : return row.worldObjs==null || row.size==0 ? null : row.worldObjs.length / (double) row.size;
 				case worldObjs:

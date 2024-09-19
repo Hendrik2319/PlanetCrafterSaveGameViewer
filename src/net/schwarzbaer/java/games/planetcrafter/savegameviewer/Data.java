@@ -153,29 +153,32 @@ class Data {
 		// Assign ObjectLists to WorldObjects (-> is a Container)   via   WorldObject.listId == ObjectList.id 
 		for (WorldObject wo : worldObjects)
 		{
-			ObjectList ol = 0 < wo.listId ? mapObjectLists.get(wo.listId) : null;
-			if (ol!=null)
-			{
-				if (ol.container!=null)
-					System.err.printf(
-							"ObjectList[ id:%d ] is used by WorldObject[ id:%d, type:%s ] and WorldObject[ id:%d, type:%s ]%n",
-							ol.id,
-							ol.container.id, ol.container.objectTypeID,
-							wo.id, wo.objectTypeID
-					);
-				else
-				{
-					ol.container = wo;
-					wo.list = ol;
-				}
-			}
+			wo.list = assignWorldObject2ObjectListAsContainer(
+					wo,
+					wo.listId,
+					null,
+					mapObjectLists
+			);
+			
+			if (wo.specialListIds!=null)
+				wo.specialLists = Arrays
+						.stream(wo.specialListIds)
+						.mapToObj(
+								listId -> assignWorldObject2ObjectListAsContainer(
+									wo,
+									listId,
+									String.format("SpecialList [ID:%d]", listId),
+									mapObjectLists
+								)
+						)
+						.toArray(ObjectList[]::new);
 		}
 		
 		// Assign WorldObjects to ObjectLists (-> WO is contained by ObjectList)   via   WorldObject.id == ObjectList.ol.worldObjIds[n]
 		for (ObjectList ol : objectLists) {
 			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, wo -> {
 				if (wo.container == null)
-					wo.container = Container.create(ol.container, ol);
+					wo.container = ContainerWO.create(ol.container, ol);
 				else
 					System.err.printf(
 							"WorldObject[ id:%d, type:%s ] is part of ObjectList[ id:%d ] and ObjectList[ id:%d ]%n",
@@ -196,6 +199,27 @@ class Data {
 		System.out.printf("Done%n");
 		
 		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
+	}
+	
+	private static ObjectList assignWorldObject2ObjectListAsContainer(WorldObject wo, long listId, String containerLabel, HashMap<Long, ObjectList> mapObjectLists)
+	{
+		ObjectList ol = 0 < listId ? mapObjectLists.get(listId) : null;
+		if (ol!=null)
+		{
+			if (ol.container == null)
+			{
+				ol.container = ContainerOL.create(containerLabel, wo);
+				return ol;
+			}
+			else
+				System.err.printf(
+						"ObjectList[ id:%d ] is used by WorldObject[ id:%d, type:%s ] and WorldObject[ id:%d, type:%s ]%n",
+						ol.id,
+						ol.container.wo.id, ol.container.wo.objectTypeID,
+						wo.id, wo.objectTypeID
+				);
+		}
+		return null;
 	}
 	
 	private static WorldObject[] generateWorldObjectArray(HashMap<Long,WorldObject> mapWorldObjects, long[] worldObjIds, Consumer<WorldObject> postprocessWO)
@@ -929,14 +953,28 @@ class Data {
 		}
 	}
 	
-	record Container (
+	record ContainerWO (
 			WorldObject wo,
+			String label,
 			ObjectList ol
 	) {
-		static Container create(WorldObject wo, ObjectList ol) {
-			return new Container(
-					wo,
+		static ContainerWO create(ContainerOL container, ObjectList ol) {
+			return new ContainerWO(
+					container==null ? null : container.wo,
+					container==null ? null : container.label,
 					Objects.requireNonNull(ol)
+			);
+		}
+	}
+	
+	record ContainerOL (
+			String label,
+			WorldObject wo
+	) {
+		static ContainerOL create(String label, WorldObject wo) {
+			return new ContainerOL(
+					label,
+					Objects.requireNonNull(wo)
 			);
 		}
 	}
@@ -987,10 +1025,10 @@ class Data {
 		final String[]   productIDs;
 		final ObjectType[] products;
 		
-		boolean        nonUniqueID; // is <id> unique over all WorldObjects
-		ObjectList     list; // list associated with listId (-> this WorldObject is a container)
-		final Vector<ObjectList> specialLists; // lists associated with IDs in specialListIds (-> this WorldObject is a container)
-		Container      container; // container, that contains this object
+		boolean        nonUniqueID;  // is <id> unique over all WorldObjects
+		ObjectList     list;         // list associated with listId (-> this WorldObject is a container)
+		ObjectList[]   specialLists; // lists associated with IDs in specialListIds (-> this WorldObject is a container)
+		ContainerWO    container;    // container, that contains this object
 		final MapWorldObjectData mapWorldObjectData;
 		
 		/*
@@ -1173,6 +1211,10 @@ class Data {
 		protected void updateMarkerInChildren(boolean isMarkedForRemoval) {
 			if (list!=null)
 				list.markForRemoval(isMarkedForRemoval, false);
+			if (specialLists!=null)
+				for (ObjectList ol : specialLists)
+					if (ol!=null)
+						ol.markForRemoval(isMarkedForRemoval, false);
 		}
 
 		String getName() {
@@ -1210,6 +1252,8 @@ class Data {
 				
 				if (container!=null) {
 					out.add(0, "Is IN a Container");
+					if (container.label!= null)
+						out.add(1, "Label", container.label);
 					if (container.wo != null)
 						container.wo.addShortDescTo(out, 1);
 					else
@@ -1279,19 +1323,32 @@ class Data {
 				if (listId>0) {
 					out.add(0, "Is a Container");
 					out.add(1, "List-ID", "%d%s", listId, list==null ? "(no list found)" : "");
-					if (list!=null) {
-						out.add(1, "Size", "%d", list.size);
-						out.add(1, "Content", "%d items", list.worldObjs.length);
-						Vector<Map.Entry<String, Integer>> content = list.getContentResume();
-						for (Map.Entry<String, Integer> entry : content)
-							out.add(2, null, "%dx %s", entry.getValue(), entry.getKey());
-						generateOutput(out, 1, "Demand", list.demandItems);
-						generateOutput(out, 1, "Supply", list.supplyItems);
-					}
+					if (list!=null)
+						generateOutput(out, 1, list);
+				}
+				
+				if (specialLists!=null) {
+					out.add(0, "Has additional Storages");
+					for (ObjectList ol : specialLists)
+						if (ol!=null) {
+							out.add(1, "List-ID", ol.id);
+							generateOutput(out, 2, ol);
+						}
 				}
 			}
 			
 			return out.generateOutput();
+		}
+
+		private void generateOutput(ValueListOutput out, int indentLevel, ObjectList list)
+		{
+			out.add(indentLevel, "Size", "%d", list.size);
+			out.add(indentLevel, "Content", "%d items", list.worldObjs.length);
+			Vector<Map.Entry<String, Integer>> content = list.getContentResume();
+			for (Map.Entry<String, Integer> entry : content)
+				out.add(indentLevel+1, null, "%dx %s", entry.getValue(), entry.getKey());
+			generateOutput(out, indentLevel, "Demand", list.demandItems);
+			generateOutput(out, indentLevel, "Supply", list.supplyItems);
 		}
 		
 		private static void generateActiveOutputLine(ValueListOutput out, int indentLevel, String label, Function<Double,String> formatRate, double rate, Double multiplier, Double moMulti) {
@@ -1393,7 +1450,7 @@ class Data {
 		final long size;
 		final long[] worldObjIds;
 		WorldObject[] worldObjs;
-		WorldObject container; // container using this list
+		ContainerOL container; // container using this list
 		private final String woIdsStr;
 		boolean nonUniqueID; // is <id> unique over all ObjectLists
 		final Long dronePrio;
@@ -1483,7 +1540,9 @@ class Data {
 			
 			if (container!=null) {
 				out.add(indentLevel, "Container using this list");
-				container.addShortDescTo(out,indentLevel+1);
+				if (container.label!=null)
+					out.add(indentLevel+1, "Label", container.label);
+				container.wo.addShortDescTo(out,indentLevel+1);
 			}
 			
 			if (supplyItems!=null || supplyItemsStr!=null)

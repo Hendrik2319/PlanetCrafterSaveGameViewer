@@ -267,6 +267,7 @@ class TerraformingCalculation
 			if (wo.list             == null) return null;
 			if (wo.list.worldObjs   == null) return null;
 			if (wo.list.worldObjs.length==0) return null;
+			// TODO Can wo.specialLists be ignored in <TerraformingAspect.getMultiplierFromStoredObjects> ? 
 			
 			ObjectType[] objectTypes = WorldObject.getObjectTypes(wo.list.worldObjs);
 			return ObjectTypes.sumUpMultipliers(objectTypes, getMultiplier);
@@ -278,6 +279,7 @@ class TerraformingCalculation
 			if (wo.position       == null) return null;
 			if (wo.list           == null) return null;
 			if (wo.list.worldObjs == null) return null;
+			// TODO Can wo.specialLists be ignored in <TerraformingAspect.computeMachineOptimizer> ? 
 			if (wo.objectType     == null) return null;
 			ObjectType ot = wo.objectType;
 			

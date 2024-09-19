@@ -133,7 +133,7 @@ class SupplyDemandPanel extends AbstractTablePanel<SupplyDemandPanel.SupplyDeman
 				case ObjectType: return row.ot.getName();
 				case direction : return row.direction;
 				case id        : return row.ol.id;
-				case container : return row.ol.container==null ? "--" : row.ol.container.getShortDesc();
+				case container : return row.ol.container==null ? "--" : row.ol.container.wo().getShortDesc();
 				case size      : return row.ol.size;
 				case Filling   : return row.ol.worldObjs==null || row.ol.size==0 ? null : row.ol.worldObjs.length / (double) row.ol.size;
 				case worldObjs : return String.join(", ", (Iterable<String>)()->row.ol.getContentResume().stream().map(e->String.format("%dx %s", e.getValue(), e.getKey())).iterator());

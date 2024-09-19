@@ -49,6 +49,7 @@ import javax.swing.JTextField;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
@@ -404,7 +405,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				{
 					case FindInstalledObject  : return wo.getName().equals(objLabel);
 					case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
-					case ProducersFillingLevel: return wo.objectType != null && wo.objectType.isProducer && wo.list != null;
+					case ProducersFillingLevel: return wo.objectType != null && wo.objectType.isProducer && (wo.list!=null || (wo.specialLists!=null && wo.specialLists.length>0));
 					case StoragesFillingLevel : return wo.list != null;
 					case ObjectType           : return wo.objectType != null && objectTypeColors != null && objectTypeColors.get(wo.objectType.id) != null;
 					case GrowthState          : return wo.growth > 0;
@@ -428,19 +429,30 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
 					
 				case ProducersFillingLevel: case StoragesFillingLevel:
-					if (wo.list==null) return null; // shouldn't be
-					if (wo.list.worldObjIds.length == wo.list.size)
-						return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
-					return getMixedColor(wo.list.worldObjIds.length / (double)wo.list.size,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
+					if (wo.list!=null)
+						return computeFillingColor(wo.list);
+					if (wo.specialLists!=null)
+						for (ObjectList ol : wo.specialLists)
+							if (ol!=null)
+								return computeFillingColor(ol);
+					return null;
 				
 				case  ObjectType:
 					if (wo.objectType==null || objectTypeColors==null) return null; // shouldn't be
 					return objectTypeColors.get(wo.objectType.id);
 				}
 			return null;
+		}
+
+		private Color computeFillingColor(ObjectList list)
+		{
+			if (list.worldObjIds.length >= list.size)
+				return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
+			
+			return getMixedColor(list.worldObjIds.length / (double)list.size,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
 		}
 
 		private Color getMixedColor(double value, Color color00, Color color05, Color color10) {
@@ -470,18 +482,24 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		void updateStoredObjectLabels() {
 			HashSet<String> labels = new HashSet<>();
 			for (WorldObject wo : displayableObjects) {
-				wo.mapWorldObjectData.storedObjectLabels.clear();
-				if (wo.list!=null) {
-					for (WorldObject storedObj : wo.list.worldObjs) {
-						String soName = storedObj.getName();
-						wo.mapWorldObjectData.storedObjectLabels.add(soName);
-						labels.add(soName);
-					}
-				}
+				HashSet<String> woStoredObjectLabels = wo.mapWorldObjectData.storedObjectLabels;
+				woStoredObjectLabels.clear();
+				collectLablesFromStoredObjects(wo.list, woStoredObjectLabels);
+				if (wo.specialLists!=null)
+					for (ObjectList ol : wo.specialLists)
+						collectLablesFromStoredObjects(ol, woStoredObjectLabels);
+				labels.addAll(woStoredObjectLabels);
 			}
 			storedObjectLabels.clear();
 			storedObjectLabels.addAll(labels);
 			storedObjectLabels.sort(Data.caseIgnoringComparator);
+		}
+
+		private static void collectLablesFromStoredObjects(ObjectList list, HashSet<String> storedObjectLabels)
+		{
+			if (list!=null)
+				for (WorldObject storedObj : list.worldObjs)
+					storedObjectLabels.add(storedObj.getName());
 		}
 
 		WorldObject getNearestObject(double x, double y, Predicate<Double> checkMaxDist) {
