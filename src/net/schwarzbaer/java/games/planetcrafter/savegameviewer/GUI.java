@@ -296,7 +296,7 @@ class GUI {
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
 			if (value instanceof Data.Color) {
 				Data.Color color = (Data.Color) value;
-				value = color.getColor();
+				value = color.getColor(true);
 			}
 			rendererComponent.configureAsTableCellRendererComponent(table, value, isSelected, hasFocus, ()->{
 				if (getSurrogateText==null) return null;

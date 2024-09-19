@@ -150,6 +150,7 @@ class Data {
 			}
 		}
 		
+		// Assign ObjectLists to WorldObjects (-> is a Container)   via   WorldObject.listId == ObjectList.id 
 		for (WorldObject wo : worldObjects)
 		{
 			ObjectList ol = 0 < wo.listId ? mapObjectLists.get(wo.listId) : null;
@@ -170,20 +171,18 @@ class Data {
 			}
 		}
 		
+		// Assign WorldObjects to ObjectLists (-> WO is contained by ObjectList)   via   WorldObject.id == ObjectList.ol.worldObjIds[n]
 		for (ObjectList ol : objectLists) {
 			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, wo -> {
-				if (wo.containerList!=null)
+				if (wo.container == null)
+					wo.container = Container.create(ol.container, ol);
+				else
 					System.err.printf(
 							"WorldObject[ id:%d, type:%s ] is part of ObjectList[ id:%d ] and ObjectList[ id:%d ]%n",
 							wo.id, wo.objectTypeID,
 							ol.id,
-							wo.containerList.id
+							wo.container.ol.id
 					);
-				else
-				{
-					wo.container = ol.container;
-					wo.containerList = ol;
-				}
 			});
 		}
 		
@@ -444,8 +443,8 @@ class Data {
 			a = arr[3];
 		}
 		
-		java.awt.Color getColor() {
-			return new java.awt.Color((float)r, (float)g, (float)b, (float)a);
+		java.awt.Color getColor(boolean ignoreAlpha) {
+			return new java.awt.Color((float)r, (float)g, (float)b, ignoreAlpha ? 1 : (float)a);
 		}
 
 		@Override
@@ -930,6 +929,18 @@ class Data {
 		}
 	}
 	
+	record Container (
+			WorldObject wo,
+			ObjectList ol
+	) {
+		static Container create(WorldObject wo, ObjectList ol) {
+			return new Container(
+					wo,
+					Objects.requireNonNull(ol)
+			);
+		}
+	}
+	
 	static class WorldObject extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(WorldObject.class)
 				.add("id"    , Value.Type.Integer)
@@ -979,8 +990,7 @@ class Data {
 		boolean        nonUniqueID; // is <id> unique over all WorldObjects
 		ObjectList     list; // list associated with listId (-> this WorldObject is a container)
 		final Vector<ObjectList> specialLists; // lists associated with IDs in specialListIds (-> this WorldObject is a container)
-		WorldObject    container; // container, that contains this object
-		ObjectList     containerList; // list, that contains this object
+		Container      container; // container, that contains this object
 		final MapWorldObjectData mapWorldObjectData;
 		
 		/*
@@ -1036,7 +1046,6 @@ class Data {
 			list          = null;
 			specialLists  = null;
 			container     = null;
-			containerList = null;
 			mapWorldObjectData = null;
 		}
 		
@@ -1077,12 +1086,10 @@ class Data {
 					? null
 					: getOrCreateObjectType.getOrCreate(productIDs[i], Occurrence.Product);
 			
-			specialListIds = specialListIdsStr==null ? null : parseIntegerArray(specialListIdsStr, debugLabel+".siIds");
-			specialLists   = null;
-			
-			list          = null;
-			container     = null;
-			containerList = null;
+			list               = null;
+			specialListIds     = specialListIdsStr==null ? null : parseIntegerArray(specialListIdsStr, debugLabel+".siIds");
+			specialLists       = null;
+			container          = null;
 			mapWorldObjectData = new MapWorldObjectData();
 			
 			// -------------------------------------------------------------------
@@ -1201,12 +1208,12 @@ class Data {
 				if (!position.isZero()) { out.add(0, "Position"); position.addTo(out,1); }
 				if (!rotation.isZero()) { out.add(0, "Rotation"); rotation.addTo(out,1); }
 				
-				if (containerList!=null) {
+				if (container!=null) {
 					out.add(0, "Is IN a Container");
-					if (container==null)
-						out.add(1, null, "<UnknownContainer> [List:%d]", containerList.id);
+					if (container.wo != null)
+						container.wo.addShortDescTo(out, 1);
 					else
-						container.addShortDescTo(out, 1);
+						out.add(1, null, "%s", getContainerLabel(container.ol.id));
 				}
 				
 				if (objectType!=null)
@@ -1348,21 +1355,28 @@ class Data {
 		}
 
 		public String getContainerLabel() {
-			if (containerList==null)
+			if (container==null)
 				return null;
-			if (container==null) {
-				if (containerList.id > 0xFFFFFFFFL)
-					return String.format("<UnknownContainer> [List:%d]", containerList.id);
-				switch ((int) containerList.id) {
-					case 1: return "Player Inventory (old)";
-					case 2: return "Player Equipment (old)";
-					case 3: return "Player Inventory";
-					case 4: return "Player Equipment";
-					default: return String.format("<UnknownContainer> [List:%d]", containerList.id);
-				}
+			
+			if (container.wo != null)
+				//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
+				return container.wo.getShortDesc();
+			
+			return getContainerLabel(container.ol.id);
+		}
+
+		public static String getContainerLabel(long objectListID)
+		{
+			if (objectListID >= 0xFFFFFFFFL)
+				return String.format("<UnknownContainer> [List:%d]", objectListID);
+			
+			switch ((int) objectListID) {
+				case 1 : return String.format("Player Inventory (old)"+" [List:%d]", objectListID);
+				case 2 : return String.format("Player Equipment (old)"+" [List:%d]", objectListID);
+				case 3 : return String.format("Player Inventory"      +" [List:%d]", objectListID);
+				case 4 : return String.format("Player Equipment"      +" [List:%d]", objectListID);
+				default: return String.format("<UnknownContainer>"    +" [List:%d]", objectListID);
 			}
-			//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
-			return container.getShortDesc();
 		}
 	}
 

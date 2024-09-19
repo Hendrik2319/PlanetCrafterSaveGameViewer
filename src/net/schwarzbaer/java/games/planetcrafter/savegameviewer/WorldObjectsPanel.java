@@ -62,8 +62,9 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			
 			JMenuItem miShowContainerInMap = add(GUI.createMenuItem("Show Container in Map", e->{
 				if (clickedRow==null) return;
-				if (!WorldObject.isInstalled(clickedRow.container))return;
-				mapPanel.showWorldObject(clickedRow.container);
+				if (clickedRow.container==null) return;
+				if (!WorldObject.isInstalled(clickedRow.container.wo())) return;
+				mapPanel.showWorldObject(clickedRow.container.wo());
 			}));
 			
 			addSeparator();
@@ -128,16 +129,16 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 					WorldObject.isInstalled(clickedRow) );
 				miShowInMap.setText(
 					! WorldObject.isInstalled(clickedRow)
-					? "Show in Map"
-					: String.format("Show \"%s\" in Map", clickedRow.getName())
+						? "Show in Map"
+						: String.format("Show \"%s\" in Map", clickedRow.getName())
 				);
 				
 				miShowContainerInMap.setEnabled(
-					clickedRow!=null && WorldObject.isInstalled(clickedRow.container));
+					clickedRow!=null && clickedRow.container!=null && WorldObject.isInstalled(clickedRow.container.wo()));
 				miShowContainerInMap.setText(
-					clickedRow==null || !WorldObject.isInstalled(clickedRow.container)
-					? "Show Container in Map"
-					: String.format("Show Container \"%s\" in Map", clickedRow.container.getName())
+					clickedRow==null || clickedRow.container==null || !WorldObject.isInstalled(clickedRow.container.wo())
+						? "Show Container in Map"
+						: String.format("Show Container \"%s\" in Map", clickedRow.container.wo().getName())
 				);
 				
 				miEditMapShapes.setEnabled(clickedRow!=null);
@@ -186,7 +187,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 			
 			if (value instanceof Data.Color) {
 				Data.Color color = (Data.Color) value;
-				value = color.getColor();
+				value = color.getColor(true);
 			}
 			
 			if (value instanceof Color) {
