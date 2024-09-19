@@ -199,12 +199,12 @@ class Data {
 		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
 	}
 	
-	private static WorldObject[] generateWorldObjectArray(HashMap<Long,WorldObject> mapWorldObjects, int[] worldObjIds, Consumer<WorldObject> postprocessWO)
+	private static WorldObject[] generateWorldObjectArray(HashMap<Long,WorldObject> mapWorldObjects, long[] worldObjIds, Consumer<WorldObject> postprocessWO)
 	{
 		return Arrays
 				.stream(worldObjIds)
 				.mapToObj(woId -> {
-					WorldObject wo = mapWorldObjects.get((long)woId);
+					WorldObject wo = mapWorldObjects.get(woId);
 					if (wo!=null)
 					{
 						if (postprocessWO!=null)
@@ -320,24 +320,22 @@ class Data {
 			catch (NumberFormatException e) { return null; }
 		});
 		
-		double[] results = new double[arr1.length];
-		for (int i=0; i<arr1.length; i++)
-			results[i] = arr1[i].doubleValue();
-		
-		return results;
+		return Arrays
+				.stream(arr1)
+				.mapMultiToDouble( (n,cons) -> cons.accept(n) )
+				.toArray();
 	}
 
-	static int[] parseIntegerArray(String str, String debugLabel) throws ParseException {
-		Integer[] arr1 = parseCommaSeparatedArray(str, debugLabel, "Integer", Integer[]::new, valStr->{
-			try { return Integer.parseInt(valStr); }
+	static long[] parseIntegerArray(String str, String debugLabel) throws ParseException {
+		Long[] arr1 = parseCommaSeparatedArray(str, debugLabel, "Long", Long[]::new, valStr->{
+			try { return Long.parseLong(valStr); }
 			catch (NumberFormatException e) { return null; }
 		});
 		
-		int[] results = new int[arr1.length];
-		for (int i=0; i<arr1.length; i++)
-			results[i] = arr1[i].intValue();
-		
-		return results;
+		return Arrays
+				.stream(arr1)
+				.mapMultiToLong( (n,cons) -> cons.accept(n) )
+				.toArray();
 	}
 
 	static String[] parseStringArray(String str, String debugLabel) throws ParseException
@@ -956,7 +954,8 @@ class Data {
 		final long     id;
 		final String   objectTypeID;
 		final long     listId;
-		final String   _siIds;
+		final String   specialListIdsStr;
+		final long[]   specialListIds;
 		final String   productsStr;
 		final Coord3   position;
 		final String   positionStr;
@@ -978,8 +977,9 @@ class Data {
 		final ObjectType[] products;
 		
 		boolean        nonUniqueID; // is <id> unique over all WorldObjects
-		ObjectList     list; // list associated with listId
-		WorldObject    container; // container, it is containing this object
+		ObjectList     list; // list associated with listId (-> this WorldObject is a container)
+		final Vector<ObjectList> specialLists; // lists associated with IDs in specialListIds (-> this WorldObject is a container)
+		WorldObject    container; // container, that contains this object
 		ObjectList     containerList; // list, that contains this object
 		final MapWorldObjectData mapWorldObjectData;
 		
@@ -1009,7 +1009,8 @@ class Data {
 			this.id = id;
 			objectTypeID = null;
 			listId       = 0;
-			_siIds       = null;
+			specialListIdsStr = null;
+			specialListIds    = null;
 			productsStr  = null;
 			positionStr  = null;
 			rotationStr  = null;
@@ -1033,6 +1034,7 @@ class Data {
 			products   = null;
 			
 			list          = null;
+			specialLists  = null;
 			container     = null;
 			containerList = null;
 			mapWorldObjectData = null;
@@ -1043,22 +1045,22 @@ class Data {
 			isEmptyWO = false;
 			
 			JSON_Object<NV, V> object = JSON_Data.getObjectValue(value, debugLabel);
-			id           = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
-			objectTypeID = JSON_Data.getStringValue (object, "gId"   , debugLabel);
-			listId       = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
-			_siIds       = JSON_Data.getStringValue (object, "siIds" , true, false, debugLabel);
-			productsStr  = JSON_Data.getStringValue (object, "liGrps", debugLabel);
-			positionStr  = JSON_Data.getStringValue (object, "pos"   , debugLabel);
-			rotationStr  = JSON_Data.getStringValue (object, "rot"   , debugLabel);
-			_wear        = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
-			mods         = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
-			colorStr     = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
-			text         = JSON_Data.getStringValue (object, "text"  , debugLabel);
-			growth       = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
-			hunger       = JSON_Data.getFloatValue  (object, "hunger", true, false, debugLabel);
-			_set         = JSON_Data.getIntegerValue(object, "set"   , true, false, debugLabel);
-			_trtInd      = JSON_Data.getIntegerValue(object, "trtInd", true, false, debugLabel);
-			_trtVal      = JSON_Data.getIntegerValue(object, "trtVal", true, false, debugLabel);
+			id                = JSON_Data.getIntegerValue(object, "id"    , debugLabel);
+			objectTypeID      = JSON_Data.getStringValue (object, "gId"   , debugLabel);
+			listId            = JSON_Data.getIntegerValue(object, "liId"  , debugLabel);
+			specialListIdsStr = JSON_Data.getStringValue (object, "siIds" , true, false, debugLabel);
+			productsStr       = JSON_Data.getStringValue (object, "liGrps", debugLabel);
+			positionStr       = JSON_Data.getStringValue (object, "pos"   , debugLabel);
+			rotationStr       = JSON_Data.getStringValue (object, "rot"   , debugLabel);
+			_wear             = JSON_Data.getIntegerValue(object, "wear"  , debugLabel);
+			mods              = JSON_Data.getStringValue (object, "pnls"  , debugLabel);
+			colorStr          = JSON_Data.getStringValue (object, "color" , debugLabel); // "1-1-1-1" in OutsideLamp1
+			text              = JSON_Data.getStringValue (object, "text"  , debugLabel);
+			growth            = JSON_Data.getIntegerValue(object, "grwth" , debugLabel);
+			hunger            = JSON_Data.getFloatValue  (object, "hunger", true, false, debugLabel);
+			_set              = JSON_Data.getIntegerValue(object, "set"   , true, false, debugLabel);
+			_trtInd           = JSON_Data.getIntegerValue(object, "trtInd", true, false, debugLabel);
+			_trtVal           = JSON_Data.getIntegerValue(object, "trtVal", true, false, debugLabel);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
 			
@@ -1074,6 +1076,9 @@ class Data {
 				products[i] = productIDs[i].isEmpty()
 					? null
 					: getOrCreateObjectType.getOrCreate(productIDs[i], Occurrence.Product);
+			
+			specialListIds = specialListIdsStr==null ? null : parseIntegerArray(specialListIdsStr, debugLabel+".siIds");
+			specialLists   = null;
 			
 			list          = null;
 			container     = null;
@@ -1118,7 +1123,7 @@ class Data {
 						id          ,
 						objectTypeID,
 						listId      ,
-						_siIds      ,
+						specialListIdsStr,
 						productsStr ,
 						positionStr ,
 						rotationStr ,
@@ -1141,7 +1146,7 @@ class Data {
 					toIntegerValueStr("id"    , id          ),
 					toStringValueStr ("gId"   , objectTypeID),
 					toIntegerValueStr("liId"  , listId      ),
-					toStringValueStr ("siIds" , _siIds      , true),
+					toStringValueStr ("siIds" , specialListIdsStr, true),
 					toStringValueStr ("liGrps", productsStr ),
 					toStringValueStr ("pos"   , positionStr ),
 					toStringValueStr ("rot"   , rotationStr ),
@@ -1372,7 +1377,7 @@ class Data {
 		
 		final long id;
 		final long size;
-		final int[] worldObjIds;
+		final long[] worldObjIds;
 		WorldObject[] worldObjs;
 		WorldObject container; // container using this list
 		private final String woIdsStr;
@@ -1482,7 +1487,7 @@ class Data {
 			if (showContentIDs)
 			{
 				out.add(indentLevel, "Content IDs", "%d items", worldObjIds.length);
-				for (int woID : worldObjIds)
+				for (long woID : worldObjIds)
 					out.add(indentLevel+1, null, woID);
 			}
 		}
@@ -1837,8 +1842,8 @@ class Data {
 		final long version;
 		final Coord3 position;
 		final Rotation rotation;
-		final int[] worldObjIdsGenerated;
-		final int[] worldObjIdsDropped;
+		final long[] worldObjIdsGenerated;
+		final long[] worldObjIdsDropped;
 		WorldObject[] worldObjsGenerated;
 		WorldObject[] worldObjsDropped;
 		/*
