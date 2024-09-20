@@ -1,12 +1,11 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Dimension;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
@@ -19,50 +18,48 @@ class GeneratedWrecksPanel extends JSplitPane
 {
 	private static final long serialVersionUID = 5162885598069310200L;
 	
-	private final JTable wrecksTable;
-	private final GeneratedWrecksTableModel wrecksTableModel;
-	private final WorldObjectsPanel worldObjsGeneratedPanel;
-	private final WorldObjectsPanel worldObjsDroppedPanel;
-	
 	GeneratedWrecksPanel(PlanetCrafterSaveGameViewer main, Data data, MapPanel mapPanel)
 	{
 		super(JSplitPane.VERTICAL_SPLIT, true);
 		
-		wrecksTable = new JTable(wrecksTableModel = new GeneratedWrecksTableModel(data));
-		wrecksTable.setRowSorter(new Tables.SimplifiedRowSorter(wrecksTableModel));
-		wrecksTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		wrecksTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		wrecksTableModel.setTable(wrecksTable);
-		wrecksTableModel.setColumnWidths(wrecksTable);
-		wrecksTableModel.setDefaultCellEditorsAndRenderers();
-		wrecksTable.setPreferredScrollableViewportSize(wrecksTable.getMinimumSize());
-		JScrollPane wrecksTableScrollPane = new JScrollPane(wrecksTable);
-		
-		new TablePanelWithTextArea.TableContextMenu(wrecksTable).addTo(wrecksTable);
-		
-		worldObjsGeneratedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
-		worldObjsDroppedPanel   = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
-		
-		wrecksTable.getSelectionModel().addListSelectionListener(e -> {
-			int rowV = wrecksTable.getSelectedRow();
-			if (rowV<0) return;
-			int rowM = wrecksTable.convertRowIndexToModel(rowV);
-			if (rowM<0) return;
-			
-			GeneratedWreck row = wrecksTableModel.getRow(rowM);
-			worldObjsGeneratedPanel.setData(row.worldObjsGenerated);
-			worldObjsDroppedPanel  .setData(row.worldObjsDropped  );
-		});
+		WorldObjectsPanel worldObjsGeneratedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
+		WorldObjectsPanel worldObjsDroppedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
 		
 		JTabbedPane objectListTablesPanel = new JTabbedPane();
 		objectListTablesPanel.addTab("woIdsGenerated", worldObjsGeneratedPanel);
 		objectListTablesPanel.addTab("woIdsDropped"  , worldObjsDroppedPanel  );
 		
-		setTopComponent(wrecksTableScrollPane);
+		GeneratedWrecksTablePanel wrecksTablePanel = new GeneratedWrecksTablePanel(data, wreck -> {
+			worldObjsGeneratedPanel.setData(wreck.worldObjsGenerated);
+			worldObjsDroppedPanel  .setData(wreck.worldObjsDropped  );
+		});
+		
+		setTopComponent(wrecksTablePanel);
 		setBottomComponent(objectListTablesPanel);
 	}
 	
-	static class GeneratedWrecksTableModel extends Tables.SimpleGetValueTableModel<GeneratedWreck, GeneratedWrecksTableModel.ColumnID>
+	static class GeneratedWrecksTablePanel extends TablePanelWithTextArea<GeneratedWreck, GeneratedWrecksTableModel.ColumnID, GeneratedWrecksTableModel>
+	{
+		private static final long serialVersionUID = 3538383643672212291L;
+		private Consumer<GeneratedWreck> tableSelectionChanged;
+		
+		GeneratedWrecksTablePanel(Data data, Consumer<GeneratedWreck> tableSelectionChanged) {
+			super(new GeneratedWrecksTableModel(data), true, LayoutPos.Right, new Dimension(300, 200));
+			this.tableSelectionChanged = tableSelectionChanged;
+			table.setPreferredScrollableViewportSize(table.getMinimumSize());
+		}
+
+		@Override
+		protected void tableSelectionChanged(GeneratedWreck row)
+		{
+			tableSelectionChanged.accept(row);
+			super.tableSelectionChanged(row);
+		}
+	}
+	
+	static class GeneratedWrecksTableModel
+			extends Tables.SimpleGetValueTableModel<GeneratedWreck, GeneratedWrecksTableModel.ColumnID>
+			implements TablePanelWithTextArea.TableModelExtension<GeneratedWreck>
 	{
 		// Column Widths: [45, 75, 70, 50, 35, 200, 35, 205, 120, 100, 90] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<GeneratedWreck> {
@@ -93,6 +90,13 @@ class GeneratedWrecksPanel extends JSplitPane
 		GeneratedWrecksTableModel(Data data)
 		{
 			super(ColumnID.values(), data.generatedWrecks);
+		}
+
+		@Override
+		public String getRowText(GeneratedWreck row, int rowIndex)
+		{
+			// TODO Auto-generated method stub
+			return "t.b.d. (%d)".formatted(rowIndex);
 		}
 	}
 	

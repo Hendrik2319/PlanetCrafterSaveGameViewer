@@ -72,6 +72,7 @@ class TablePanelWithTextArea<
 			int rowM = table.convertRowIndexToModel(rowV);
 			if (rowM<0) return;
 			ValueType row = this.tableModel.getRow(rowM);
+			tableSelectionChanged(row);
 			String str = this.tableModel.getRowText(row,rowM);
 			setText(str);
 		});
@@ -91,6 +92,8 @@ class TablePanelWithTextArea<
 		add(tableScrollPane, BorderLayout.CENTER);
 		add(textareaScrollPane,LayoutPos.getBorderLayoutValue(textAreaPos));
 	}
+	
+	protected void tableSelectionChanged(ValueType row)	{}
 	
 	public void setText(String str)
 	{
