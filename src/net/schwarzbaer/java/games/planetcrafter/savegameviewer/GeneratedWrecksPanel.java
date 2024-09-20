@@ -38,7 +38,7 @@ class GeneratedWrecksPanel extends JSplitPane
 		wrecksTable.setPreferredScrollableViewportSize(wrecksTable.getMinimumSize());
 		JScrollPane wrecksTableScrollPane = new JScrollPane(wrecksTable);
 		
-		new AbstractTablePanel.TableContextMenu(wrecksTable).addTo(wrecksTable);
+		new TablePanelWithTextArea.TableContextMenu(wrecksTable).addTo(wrecksTable);
 		
 		worldObjsGeneratedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
 		worldObjsDroppedPanel   = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
@@ -64,10 +64,10 @@ class GeneratedWrecksPanel extends JSplitPane
 	
 	static class GeneratedWrecksTableModel extends Tables.SimpleGetValueTableModel<GeneratedWreck, GeneratedWrecksTableModel.ColumnID>
 	{
-		// Column Widths: [45, 45, 70, 50, 35, 200, 35, 205, 120, 100, 90] in ModelOrder
+		// Column Widths: [45, 75, 70, 50, 35, 200, 35, 205, 120, 100, 90] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<GeneratedWreck> {
 			index             ("index"            , Long    .class,  45, row -> row.index            ),
-			owner             ("owner"            , Long    .class,  45, row -> row.owner            ),
+			owner             ("owner"            , Long    .class,  75, row -> row.owner            ),
 			seed              ("seed"             , Long    .class,  70, row -> row.seed             ),
 			version           ("version"          , Long    .class,  50, row -> row.version          ),
 			has_position      ("Pos."             , Boolean .class,  35, row -> row.position!=null && !row.position.isZero()),

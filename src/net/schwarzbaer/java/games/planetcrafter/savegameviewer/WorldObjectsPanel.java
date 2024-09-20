@@ -22,7 +22,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.lib.gui.Tables;
 
-class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID, WorldObjectsPanel.WorldObjectsTableModel> {
+class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID, WorldObjectsPanel.WorldObjectsTableModel> {
 	private static final long serialVersionUID = 8733627835226098636L;
 
 	WorldObjectsPanel(PlanetCrafterSaveGameViewer main, Data data, MapPanel mapPanel) {
@@ -42,7 +42,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 		tableModel.setData(worldObjs);
 	}
 
-	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
+	private static class TableContextMenu extends TablePanelWithTextArea.TableContextMenu {
 		private static final long serialVersionUID = -8757567111391531443L;
 		private int clickedRowIndex;
 		private WorldObject clickedRow;
@@ -225,7 +225,7 @@ class WorldObjectsPanel extends AbstractTablePanel<WorldObject, WorldObjectsPane
 	
 	static class WorldObjectsTableModel
 			extends Tables.SimpleGetValueTableModel2<WorldObjectsTableModel, WorldObject, WorldObjectsTableModel.ColumnID>
-			implements AbstractTablePanel.TableModelExtension<WorldObject>
+			implements TablePanelWithTextArea.TableModelExtension<WorldObject>
 	{
 		// Column Widths: [75, 30, 35, 130, 130, 350, 70, 120, 60, 130, 36, 200, 33, 205, 50, 90, 50] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel2.ColumnIDTypeInt2<WorldObjectsTableModel,WorldObject> {

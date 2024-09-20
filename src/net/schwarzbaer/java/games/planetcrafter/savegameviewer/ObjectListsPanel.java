@@ -17,14 +17,14 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.lib.gui.Tables;
 
-class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID, ObjectListsPanel.ObjectListsTableModel> {
+class ObjectListsPanel extends TablePanelWithTextArea<ObjectList, ObjectListsPanel.ObjectListsTableModel.ColumnID, ObjectListsPanel.ObjectListsTableModel> {
 	private static final long serialVersionUID = -1787920497956857504L;
 
 	ObjectListsPanel(Data data, MapPanel mapPanel) {
 		super( new ObjectListsTableModel(data), true, (table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel), LayoutPos.Right, new Dimension(300,100) );
 	}
 	
-	private static class TableContextMenu extends AbstractTablePanel.TableContextMenu {
+	private static class TableContextMenu extends TablePanelWithTextArea.TableContextMenu {
 		private static final long serialVersionUID = -5452206425591893443L;
 		
 		private int clickedRowIndex;
@@ -120,7 +120,7 @@ class ObjectListsPanel extends AbstractTablePanel<ObjectList, ObjectListsPanel.O
 		}
 	}
 	
-	static class ObjectListsTableModel extends AbstractTablePanel.AbstractTableModel<ObjectList, ObjectListsTableModel.ColumnID> {
+	static class ObjectListsTableModel extends TablePanelWithTextArea.AbstractTableModel<ObjectList, ObjectListsTableModel.ColumnID> {
 
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id         ("ID"                , Long   .class,  75),

@@ -15,10 +15,10 @@ import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 
-class AbstractTablePanel<
+class TablePanelWithTextArea<
 			ValueType,
 			ColumnID extends Tables.SimplifiedColumnIDInterface,
-			TableModelType extends Tables.SimplifiedTableModel<ColumnID> & AbstractTablePanel.TableModelExtension<ValueType>
+			TableModelType extends Tables.SimplifiedTableModel<ColumnID> & TablePanelWithTextArea.TableModelExtension<ValueType>
 		>
 		extends JPanel
 {
@@ -40,16 +40,16 @@ class AbstractTablePanel<
 		}
 	}
 	
-	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly) {
+	TablePanelWithTextArea(TableModelType tableModel, boolean singleLineSelectionOnly) {
 		this(tableModel, singleLineSelectionOnly, null, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
+	TablePanelWithTextArea(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor) {
 		this(tableModel, singleLineSelectionOnly, tcmConstructor, LayoutPos.Bottom, new Dimension(100,100));
 	}
-	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
+	TablePanelWithTextArea(TableModelType tableModel, boolean singleLineSelectionOnly, LayoutPos textAreaPos, Dimension textAreaSize) {
 		this(tableModel, singleLineSelectionOnly, null, textAreaPos, textAreaSize);
 	}
-	AbstractTablePanel(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
+	TablePanelWithTextArea(TableModelType tableModel, boolean singleLineSelectionOnly, TableContextMenuConstructor<TableModelType> tcmConstructor, LayoutPos textAreaPos, Dimension textAreaSize) {
 		super(new BorderLayout(3,3));
 		this.tableModel = tableModel;
 		
