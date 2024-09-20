@@ -72,6 +72,12 @@ class = Resource_Craftable
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: AnimalFood2
+label_de = Tierfutter T2
+class = Resource_Craftable
+occurrences = WorldObject,ObjectList
+<finished>
+
 ObjectType: AnimalShelter1
 label_de = Tierheim
 class = Structure_Machine
@@ -267,52 +273,74 @@ occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: BlueprintBedDoubleColored
-label_en = Bluepriint "Customizable Bed"
+label_en = Blueprint "Customizable Bed"
 class = Special_Blueprint
 occurrences = Product
-<finished>
 
 ObjectType: BlueprintContainer3
-label_en = Bluepriint "Locker Storage T2"
+label_en = Blueprint "Locker Storage T2"
 class = Special_Blueprint
 occurrences = WorldObject
-<finished>
 
 ObjectType: BlueprintCookingStation
-label_en = Bluepriint "Cooking Station"
+label_en = Blueprint "Cooking Station"
+label_de = Bauplan "Kochstation"
 class = Special_Blueprint
 occurrences = WorldObject
 <finished>
 
 ObjectType: BlueprintDrone2
-label_en = Bluepriint "Drone T2"
+label_en = Blueprint "Drone T2"
+label_de = Bauplan "Drone T2"
 class = Special_Blueprint
 occurrences = WorldObject,Product
+<finished>
+
+ObjectType: BlueprintFireplace
+label_en = Blueprint "Fireplace"
+label_de = Bauplan "Kamin"
+class = Special_Blueprint
+occurrences = WorldObject
+<finished>
+
+ObjectType: BlueprintLightBoxMedium
+label_en = Blueprint "Light Box"
+label_de = Bauplan "Leuchtkasten"
+class = Special_Blueprint
+occurrences = WorldObject
 <finished>
 
 ObjectType: BlueprintPod9xC
-label_en = Bluepriint "3x3 Living Compartment"
+label_en = Blueprint "3x3 Living Compartment"
 class = Special_Blueprint
 occurrences = WorldObject,Product
-<finished>
 
 ObjectType: BlueprintSmartFabric
-label_en = Bluepriint "Smart Fabric"
+label_en = Blueprint "Smart Fabric"
 class = Special_Blueprint
 occurrences = WorldObject
-<finished>
 
 ObjectType: BlueprintSofaColored
-label_en = Bluepriint "Customizable Sofa"
+label_en = Blueprint "Customizable Sofa"
 class = Special_Blueprint
 occurrences = WorldObject,Product
-<finished>
+
+ObjectType: BlueprintSolarQuartz
+label_en = Blueprint "Solar Quartz"
+class = Special_Blueprint
+occurrences = WorldObject
 
 ObjectType: BlueprintT1
 label_en = Blueprint Chip
-class = Resource_Minable
+label_de = Mikrochip-Bauplan
+class = Special_Blueprint
 occurrences = WorldObject
 <finished>
+
+ObjectType: BlueprintTreePlanter
+label_en = Blueprint "Tree Planter"
+class = Special_Blueprint
+occurrences = WorldObject
 
 ObjectType: BootsSpeed1
 label_en = Agility Boots T1
@@ -654,6 +682,8 @@ occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: DNASequence
+label_de = Kreatur-DNA
+class = Resource_Craftable
 occurrences = WorldObject,ObjectList
 
 ObjectType: Drill0
@@ -848,6 +878,12 @@ label_en = Fertilizer T2
 class = Resource_Craftable
 occurrences = WorldObject,ObjectList
 <finished>
+
+ObjectType: Fireplace
+label_en = Fireplace
+label_de = Kamin
+class = Structure_Machine
+occurrences = Blueprint
 
 ObjectType: Fish10Eggs
 label_en = Fish Tiloo Eggs (400% | P.C, M2, F1)
@@ -1403,6 +1439,9 @@ energy = -55.0
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: LightBoxMedium
+occurrences = Blueprint
+
 ObjectType: Magnesium
 label_en = Magnesium
 label_de = Magnesium
@@ -1767,6 +1806,7 @@ class = Special_Rocket
 isBoosterRocketFor = Animals
 boosterMultiplier = 17.5
 occurrences = WorldObject
+<finished>
 
 ObjectType: RocketBiomass1
 label_en = Plants Rocket
@@ -2138,7 +2178,7 @@ ObjectType: SolarQuartz
 label_en = Solar Quartz
 label_de = Sonnen-Quarz
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Blueprint,ObjectList
 <finished>
 
 ObjectType: SpaceMultiplierAnimals
@@ -2259,6 +2299,12 @@ oxygenMultiplier = 6.0
 occurrences = WorldObject,Product
 <finished>
 
+ObjectType: Tree11Seed
+occurrences = WorldObject
+
+ObjectType: Tree12Seed
+occurrences = WorldObject
+
 ObjectType: Tree13Seed
 label_de = Ruberu-Baumsamen (1200%)
 class = Resource_SeedEgg
@@ -2336,6 +2382,10 @@ class = Resource_SeedEgg
 oxygenMultiplier = 4.5
 occurrences = WorldObject,Achievement,ObjectList
 <finished>
+
+ObjectType: TreePlanter
+class = Structure_Machine
+occurrences = WorldObject,Blueprint
 
 ObjectType: TreeRoot
 label_en = Tree Bark
@@ -2611,6 +2661,10 @@ class = Special_Wreckage
 occurrences = WorldObject
 
 ObjectType: WreckEntryLocked2
+class = Special_Wreckage
+occurrences = WorldObject
+
+ObjectType: WreckEntryLocked3
 class = Special_Wreckage
 occurrences = WorldObject
 
