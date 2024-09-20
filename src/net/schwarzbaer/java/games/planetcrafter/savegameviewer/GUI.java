@@ -3,6 +3,7 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,6 +38,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeListener;
@@ -174,6 +176,22 @@ class GUI {
 		JSlider comp = new JSlider(orientation, min, max, value);
 		if (chl!=null) comp.addChangeListener(chl);
 		return comp;
+	}
+	
+	static void reduceTextAreaFontSize(Component baseComp, int diff, JTextArea textArea)
+	{
+		Font baseFont = baseComp.getFont();
+		if (baseFont==null) return;
+		reduceTextAreaFontSize(baseFont.getSize() + diff, textArea);
+	}
+	static void reduceTextAreaFontSize(int maxFontSize, JTextArea textArea)
+	{
+		Font textAreaFont = textArea.getFont();
+		if (textAreaFont==null) return;
+		int textAreaFontSize = textAreaFont.getSize();
+		
+		if (maxFontSize < textAreaFontSize)
+			textArea.setFont( textAreaFont.deriveFont((float)maxFontSize) );
 	}
 	
 	static class ColorIcon implements Icon {

@@ -91,6 +91,8 @@ class TablePanelWithTextArea<
 		
 		add(tableScrollPane, BorderLayout.CENTER);
 		add(textareaScrollPane,LayoutPos.getBorderLayoutValue(textAreaPos));
+		
+		GUI.reduceTextAreaFontSize(table, 1, textArea);
 	}
 	
 	protected void tableSelectionChanged(ValueType row)	{}

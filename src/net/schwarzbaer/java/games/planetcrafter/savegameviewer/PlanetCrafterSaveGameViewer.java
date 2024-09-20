@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
@@ -84,6 +85,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	}
 	
 	        static final DateTimeFormatter dtFormatter = new DateTimeFormatter();
+	        static final Comparator<String> STRING_COMPARATOR__IGNORING_CASE = Comparator.<String,String>comparing(str->str.toLowerCase()).thenComparing(Comparator.naturalOrder());
 	private static final boolean DEBUG_SCANFILECONTENT = false;
 	private static       LabelLanguage currentLabelLanguage = AppSettings.getInstance().getEnum(AppSettings.ValueKey.LabelLanguage, LabelLanguage.EN, LabelLanguage.class);
 

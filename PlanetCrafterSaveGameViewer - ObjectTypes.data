@@ -1761,18 +1761,25 @@ occurrences = WorldObject,Achievement
 ObjectType: ProceduralInstanceGenerator
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: ProceduralWreckContainer1
-class = Structure_Storage
+label_en = Wreck Chest
+class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: ProceduralWreckContainer2
-class = Structure_Storage
+label_en = Wreck Small Box
+class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: ProceduralWreckSafe
-class = Structure_Storage
+label_en = Wreck Safe
+class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: PulsarQuartz
 label_en = Pulsar Quartz
@@ -1895,7 +1902,11 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: RockExplodable
+label_en = Rock (explodable)
+label_de = Stein, sprengbar
+class = Structure
 occurrences = WorldObject
+<finished>
 
 ObjectType: Rod-alloy
 label_en = Super Alloy Rod
@@ -2657,20 +2668,28 @@ isProducer
 <finished>
 
 ObjectType: WreckEntryLocked1
+label_en = Wreck Entry (locked) (1)
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: WreckEntryLocked2
+label_en = Wreck Entry (locked) (2)
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: WreckEntryLocked3
+label_en = Wreck Entry (locked) (3)
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: WreckFusionGenerator
+label_en = Wreck Fusion Generator
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: wreckpilar
 label_en = Wreck Pilar (Iron)
@@ -2679,8 +2698,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: WreckRockExplodable
+label_en = Wreck Rock (explodable)
 class = Special_Wreckage
 occurrences = WorldObject
+<finished>
 
 ObjectType: WreckServer
 label_en = Wreck Server (Circuit Board)

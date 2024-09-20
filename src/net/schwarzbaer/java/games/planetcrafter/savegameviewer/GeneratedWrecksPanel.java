@@ -1,6 +1,11 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Dimension;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -11,8 +16,11 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClass;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
+import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
 class GeneratedWrecksPanel extends JSplitPane
 {
@@ -23,7 +31,7 @@ class GeneratedWrecksPanel extends JSplitPane
 		super(JSplitPane.VERTICAL_SPLIT, true);
 		
 		WorldObjectsPanel worldObjsGeneratedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
-		WorldObjectsPanel worldObjsDroppedPanel = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
+		WorldObjectsPanel worldObjsDroppedPanel   = new WorldObjectsPanel(main, new WorldObject[0], mapPanel);
 		
 		JTabbedPane objectListTablesPanel = new JTabbedPane();
 		objectListTablesPanel.addTab("woIdsGenerated", worldObjsGeneratedPanel);
@@ -61,6 +69,8 @@ class GeneratedWrecksPanel extends JSplitPane
 			extends Tables.SimpleGetValueTableModel<GeneratedWreck, GeneratedWrecksTableModel.ColumnID>
 			implements TablePanelWithTextArea.TableModelExtension<GeneratedWreck>
 	{
+		static final Comparator<ObjectType> COMPARATOR_OBJECTTYPE = Comparator.<ObjectType,String>comparing(ot->ot.getName(),PlanetCrafterSaveGameViewer.STRING_COMPARATOR__IGNORING_CASE);
+		
 		// Column Widths: [45, 75, 70, 50, 35, 200, 35, 205, 120, 100, 90] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<GeneratedWreck> {
 			index             ("index"            , Long    .class,  45, row -> row.index            ),
@@ -91,12 +101,88 @@ class GeneratedWrecksPanel extends JSplitPane
 		{
 			super(ColumnID.values(), data.generatedWrecks);
 		}
+		
+		private static class WreckageGroup
+		{
+			@SuppressWarnings("unused")
+			final ObjectType objectType;
+			final List<ContainerValues> containerValues;
+			int nonContainers;
+			
+			WreckageGroup(ObjectType objectType)
+			{
+				this.objectType = objectType;
+				containerValues = new Vector<>();
+				nonContainers = 0;
+			}
+			
+			private record ContainerValues(int amount, long size) {}
+		}
 
 		@Override
-		public String getRowText(GeneratedWreck row, int rowIndex)
+		public String getRowText(GeneratedWreck wreck, int rowIndex)
 		{
-			// TODO Auto-generated method stub
-			return "t.b.d. (%d)".formatted(rowIndex);
+			if (wreck.worldObjsGenerated==null)
+				return "<no data>";
+			
+			Map<ObjectType,WreckageGroup> wreckage = new HashMap<>();
+			Map<ObjectType,Integer> storedObjects = new HashMap<>();
+			
+			for (WorldObject wreckageObj : wreck.worldObjsGenerated) {
+				ObjectType objectType = wreckageObj.objectType;
+				if (objectType==null)
+					continue;
+				
+				if (objectType.class_==ObjectTypeClass.Special_Wreckage)
+				{
+					WreckageGroup group = wreckage.computeIfAbsent(objectType, WreckageGroup::new);
+					if (wreckageObj.list!=null)
+					{
+						long size = wreckageObj.list.size;
+						int amount = wreckageObj.list.worldObjs==null ? 0 :wreckageObj.list.worldObjs.length;
+						group.containerValues.add(new WreckageGroup.ContainerValues(amount, size));
+					} else
+						group.nonContainers++;
+				}
+				else if (wreckageObj.container!=null)
+				{
+					int n = storedObjects.computeIfAbsent(objectType, ot->0);
+					storedObjects.put(objectType, n+1);
+				}
+			}
+			
+			ValueListOutput out = new ValueListOutput();
+			
+			if (!wreckage.isEmpty())
+			{
+				out.add(0, "Wreckage");
+				Vector<ObjectType> keys = new Vector<>( wreckage.keySet() );
+				keys.sort(COMPARATOR_OBJECTTYPE);
+				for (ObjectType ot : keys)
+				{
+					WreckageGroup group = wreckage.get(ot);
+					out.add(1, "%3dx %s".formatted( group.containerValues.size() + group.nonContainers, ot.getName() ));
+					if (!group.containerValues.isEmpty())
+					{
+						group.containerValues.forEach(cv -> {
+							out.add(2, "%d of %d items".formatted(cv.amount, cv.size));
+						});
+						if (group.nonContainers>0)
+							out.add(2, "%d x Non Containers".formatted(group.nonContainers));
+					}
+				}
+			}
+			
+			if (!storedObjects.isEmpty())
+			{
+				out.add(0, "Stored Objects");
+				Vector<ObjectType> keys = new Vector<>( storedObjects.keySet() );
+				keys.sort(COMPARATOR_OBJECTTYPE);
+				for (ObjectType ot : keys)
+					out.add(1, "%3dx %s".formatted( storedObjects.get(ot), ot.getName() ));
+			}
+			
+			return out.generateOutput();
 		}
 	}
 	

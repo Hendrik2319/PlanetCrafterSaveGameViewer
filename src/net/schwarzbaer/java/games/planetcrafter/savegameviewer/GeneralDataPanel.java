@@ -847,6 +847,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			textAreaScrollPane.setPreferredSize(new Dimension(100,100));
 			//textAreaScrollPane.setBorder(BorderFactory.createTitledBorder("Unlocked Groups"));
 			textAreaScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Unlocked Groups"), textAreaScrollPane.getBorder()));
+			GUI.reduceTextAreaFontSize(new JLabel(), 1, textArea);
 			
 			
 			

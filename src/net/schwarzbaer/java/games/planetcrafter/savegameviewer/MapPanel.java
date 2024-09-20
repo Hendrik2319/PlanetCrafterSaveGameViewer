@@ -128,6 +128,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		overView.setPreferredSize(200,150);
 		
 		JTextArea textOut = new JTextArea();
+		GUI.reduceTextAreaFontSize(new JLabel(), 1, textOut);
 		
 		mapModel = new MapModel(data);
 		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut);
