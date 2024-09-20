@@ -40,6 +40,7 @@ class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjects
 	void setData(WorldObject[] worldObjs)
 	{
 		tableModel.setData(worldObjs);
+		setText("");
 	}
 
 	private static class TableContextMenu extends TablePanelWithTextArea.TableContextMenu {

@@ -9,9 +9,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.lib.gui.ContextMenu;
+import net.schwarzbaer.java.lib.gui.ScrollPosition;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 
@@ -23,8 +25,11 @@ class TablePanelWithTextArea<
 		extends JPanel
 {
 	private static final long serialVersionUID = 5518131959056782917L;
-	private final JTable table;
+	
+	protected final JTable table;
 	protected final TableModelType tableModel;
+	protected final JTextArea textArea;
+	private   final JScrollPane textareaScrollPane;
 	
 	enum LayoutPos {
 		Top, Right, Bottom, Left;
@@ -53,7 +58,7 @@ class TablePanelWithTextArea<
 		super(new BorderLayout(3,3));
 		this.tableModel = tableModel;
 		
-		JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setLineWrap(false);
 		
@@ -68,7 +73,7 @@ class TablePanelWithTextArea<
 			if (rowM<0) return;
 			ValueType row = this.tableModel.getRow(rowM);
 			String str = this.tableModel.getRowText(row,rowM);
-			textArea.setText(str);
+			setText(str);
 		});
 		this.tableModel.setTable(table);
 		this.tableModel.setColumnWidths(table);
@@ -80,11 +85,19 @@ class TablePanelWithTextArea<
 		tableContextMenu.addTo(table);
 		
 		JScrollPane tableScrollPane = new JScrollPane(table);
-		JScrollPane textareaScrollPane = new JScrollPane(textArea);
+		textareaScrollPane = new JScrollPane(textArea);
 		textareaScrollPane.setPreferredSize(textAreaSize);
 		
 		add(tableScrollPane, BorderLayout.CENTER);
 		add(textareaScrollPane,LayoutPos.getBorderLayoutValue(textAreaPos));
+	}
+	
+	public void setText(String str)
+	{
+		ScrollPosition scrollPos = ScrollPosition.getVertical(textareaScrollPane);
+		textArea.setText(str);
+		if (scrollPos!=null)
+			SwingUtilities.invokeLater(()->scrollPos.setVertical(textareaScrollPane));
 	}
 	
 	void setDefaultRenderer(Class<?> columnClass, TableCellRenderer renderer) {
