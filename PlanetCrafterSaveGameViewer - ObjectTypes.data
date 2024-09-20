@@ -2669,25 +2669,25 @@ isProducer
 
 ObjectType: WreckEntryLocked1
 label_en = Wreck Entry (locked) (1)
-class = Special_Wreckage
+class = Special_Wreckage_important
 occurrences = WorldObject
 <finished>
 
 ObjectType: WreckEntryLocked2
 label_en = Wreck Entry (locked) (2)
-class = Special_Wreckage
+class = Special_Wreckage_important
 occurrences = WorldObject
 <finished>
 
 ObjectType: WreckEntryLocked3
 label_en = Wreck Entry (locked) (3)
-class = Special_Wreckage
+class = Special_Wreckage_important
 occurrences = WorldObject
 <finished>
 
 ObjectType: WreckFusionGenerator
 label_en = Wreck Fusion Generator
-class = Special_Wreckage
+class = Special_Wreckage_important
 occurrences = WorldObject
 <finished>
 
@@ -2699,7 +2699,7 @@ occurrences = WorldObject
 
 ObjectType: WreckRockExplodable
 label_en = Wreck Rock (explodable)
-class = Special_Wreckage
+class = Special_Wreckage_important
 occurrences = WorldObject
 <finished>
 

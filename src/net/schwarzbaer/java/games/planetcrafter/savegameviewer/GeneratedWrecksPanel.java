@@ -69,7 +69,22 @@ class GeneratedWrecksPanel extends JSplitPane
 			extends Tables.SimpleGetValueTableModel<GeneratedWreck, GeneratedWrecksTableModel.ColumnID>
 			implements TablePanelWithTextArea.TableModelExtension<GeneratedWreck>
 	{
-		static final Comparator<ObjectType> COMPARATOR_OBJECTTYPE = Comparator.<ObjectType,String>comparing(ot->ot.getName(),PlanetCrafterSaveGameViewer.STRING_COMPARATOR__IGNORING_CASE);
+		static final Comparator<ObjectType> COMPARATOR_OBJECTTYPE = Comparator
+				.<ObjectType,Integer>comparing(GeneratedWrecksTableModel::getObjectTypeClassOrder)
+				.thenComparing(ot->ot.getName(),PlanetCrafterSaveGameViewer.STRING_COMPARATOR__IGNORING_CASE);
+		
+		private static int getObjectTypeClassOrder(ObjectType ot)
+		{
+			if (ot==null || ot.class_==null)
+				return Integer.MAX_VALUE;
+			
+			switch (ot.class_)
+			{
+			case Special_Wreckage_important : return 1;
+			case Special_Wreckage : return 2;
+			default: return 100;
+			}
+		}
 		
 		// Column Widths: [45, 75, 70, 50, 35, 200, 35, 205, 120, 100, 90] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<GeneratedWreck> {
@@ -133,7 +148,7 @@ class GeneratedWrecksPanel extends JSplitPane
 				if (objectType==null)
 					continue;
 				
-				if (objectType.class_==ObjectTypeClass.Special_Wreckage)
+				if (objectType.class_==ObjectTypeClass.Special_Wreckage_important || objectType.class_==ObjectTypeClass.Special_Wreckage)
 				{
 					WreckageGroup group = wreckage.computeIfAbsent(objectType, WreckageGroup::new);
 					if (wreckageObj.list!=null)

@@ -308,15 +308,15 @@ class ObjectTypesPanel extends JScrollPane {
 	
 	private static class ObjectTypesTableModel extends Tables.SimplifiedTableModel<ObjectTypesTableModel.ColumnID>{
 		
-		// Column Widths: [50, 50, 30, 130, 260, 260, 130, 90, 90, 50, 80, 80, 80, 80, 80, 80, 80, 90, 90, 90, 90, 90, 90, 125, 70, 80, 90, 90, 90] in ModelOrder
+		// Column Widths: [50, 50, 30, 158, 260, 260, 155, 90, 90, 50, 80, 80, 80, 80, 80, 80, 80, 90, 90, 90, 90, 90, 90, 125, 70, 80, 90, 90, 90] in ModelOrder
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface, SwingConstants {
 			finished             ("finished"              , Boolean        .class,  50,   null, ObjectTypeValue.Finished             ),
 			occurrences          ("Occ."                  , String         .class,  50,   null, null                                 ),
 			amount               ("N"                     , Integer        .class,  30, CENTER, null                                 ),
-			id                   ("ID"                    , String         .class, 130,   null, null                                 ),
+			id                   ("ID"                    , String         .class, 160,   null, null                                 ),
 			label_en             ("Label (En)"            , String         .class, 260,   null, ObjectTypeValue.Label_en             ),
 			label_de             ("Label (De)"            , String         .class, 260,   null, ObjectTypeValue.Label_de             ),
-			class_               ("Class"                 , ObjectTypeClass.class, 130,   null, ObjectTypeValue.Class_               ),
+			class_               ("Class"                 , ObjectTypeClass.class, 155,   null, ObjectTypeValue.Class_               ),
 			showMarker           ("Show Marker?"          , Boolean        .class,  90,   null, null                                 ),
 			mapShape             ("MapShape"              , MapShape       .class,  90,   null, null                                 ),
 			effectOnTerraforming ("Terraf."               , Boolean        .class,  50,   null, null                                 ),
