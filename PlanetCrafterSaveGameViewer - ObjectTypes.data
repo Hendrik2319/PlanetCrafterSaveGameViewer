@@ -2131,6 +2131,9 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-07
+occurrences = WorldObject
+
 ObjectType: Skin-09
 label_de = Raumanzug Fablo
 class = Equipment_Player
