@@ -339,6 +339,7 @@ occurrences = WorldObject
 
 ObjectType: BlueprintTreePlanter
 label_en = Blueprint "Tree Planter"
+label_de = Bauplan "Baumtopf"
 class = Special_Blueprint
 occurrences = WorldObject
 
@@ -883,7 +884,9 @@ ObjectType: Fireplace
 label_en = Fireplace
 label_de = Kamin
 class = Structure_Machine
+heat = 15.0
 occurrences = Blueprint
+<finished>
 
 ObjectType: Fish10Eggs
 label_en = Fish Tiloo Eggs (400% | P.C, M2, F1)
@@ -1008,6 +1011,7 @@ occurrences = WorldObject,Blueprint,ObjectList
 
 ObjectType: FlowerPot1
 label_en = Flower Pot
+label_de = Blumentopf
 class = Structure_Storage
 oxygen = 5.0
 occurrences = WorldObject,Achievement
@@ -1361,6 +1365,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: InsideLamp1
 label_en = Area Lamp
+label_de = Gebietsleuchte
 class = Structure_Furniture
 energy = -1.2
 occurrences = WorldObject,Blueprint
@@ -1440,7 +1445,11 @@ occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: LightBoxMedium
+label_en = Light Box
+label_de = Leuchtkasten
+class = Structure_Building
 occurrences = Blueprint
+<finished>
 
 ObjectType: Magnesium
 label_en = Magnesium
@@ -2398,8 +2407,14 @@ occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: TreePlanter
+label_en = Tree Planter
+label_de = Baumtopf
 class = Structure_Machine
+oxygen = 150.0
+plants = 150.0
+energy = -40.0
 occurrences = WorldObject,Blueprint
+<finished>
 
 ObjectType: TreeRoot
 label_en = Tree Bark
