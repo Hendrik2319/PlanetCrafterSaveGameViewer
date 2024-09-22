@@ -20,6 +20,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClass;
 import net.schwarzbaer.java.lib.gui.Tables;
 
 class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID, WorldObjectsPanel.WorldObjectsTableModel> {
@@ -230,26 +231,27 @@ class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjects
 	{
 		// Column Widths: [75, 30, 35, 130, 130, 350, 70, 120, 60, 130, 36, 200, 33, 205, 50, 90, 50] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel2.ColumnIDTypeInt2<WorldObjectsTableModel,WorldObject> {
-			id          ("ID"          , Long      .class,  75,        row  -> row.id),
-			NonUniqueID ("UnI"         , Boolean   .class,  30,        row  -> row.isEmptyWO ? null : row.nonUniqueID),
-			twinID      ("Twin"        , Boolean   .class,  35, (model,row) -> row.isEmptyWO ? null : model.getMapObjectLists().containsKey(row.id)),
-			objectTypeID("ObjectTypeID", String    .class, 130,        row  -> row.isEmptyWO ? null : row.objectTypeID),
-			Name        ("Name"        , String    .class, 130,        row  -> row.isEmptyWO ? null : row.getName()),
-			container   ("Container"   , String    .class, 350,        row  -> row.isEmptyWO ? null : row.getContainerLabel()),
-			listId      ("ListID"      , Long      .class,  70,        row  -> row.isEmptyWO ? null : row.listId),
-			_siIds      ("Sp.ListIDs"  , String    .class,  70,        row  -> row.isEmptyWO ? null : row.specialListIds!=null ? Arrays.toString(row.specialListIds) : row.specialListIdsStr),
-			text        ("Text"        , String    .class, 120,        row  -> row.isEmptyWO ? null : row.text),
-			growth      ("Growth"      , Long      .class,  60,        row  -> row.isEmptyWO ? null : row.growth),
-			hunger      ("Hunger"      , Double    .class,  60,        row  -> row.isEmptyWO ? null : row.hunger, row -> row.hunger==null ? null : String.format(Locale.ENGLISH, "%1.3f", row.hunger)),
-			product     ("Product"     , String    .class, 130,        row  -> row.isEmptyWO ? null : getProductsStr(row)),
-			has_position("Pos."        , Boolean   .class,  35,        row  -> row.isEmptyWO ? null : row.position!=null && !row.position.isZero()),
-			position    ("Position"    , Coord3    .class, 200,        row  -> row.isEmptyWO ? null : row.position),
-			has_rotation("Rot."        , Boolean   .class,  35,        row  -> row.isEmptyWO ? null : row.rotation!=null && !row.rotation.isZero()),
-			rotation    ("Rotation"    , Rotation  .class, 205,        row  -> row.isEmptyWO ? null : row.rotation),
-			color       ("Color"       , Data.Color.class,  50,        row  -> row.isEmptyWO ? null : row.color),
-			mods        ("Mods"        , String    .class,  90,        row  -> row.isEmptyWO ? null : row.mods),
-			_wear       ("[wear]"      , Long      .class,  50,        row  -> row.isEmptyWO ? null : row._wear),
-			_set        ("[set]"       , Long      .class,  50,        row  -> row.isEmptyWO ? null : row._set),
+			id              ("ID"              , Long           .class,  75,        row  -> row.id),
+			NonUniqueID     ("UnI"             , Boolean        .class,  30,        row  -> row.isEmptyWO ? null : row.nonUniqueID),
+			twinID          ("Twin"            , Boolean        .class,  35, (model,row) -> row.isEmptyWO ? null : model.getMapObjectLists().containsKey(row.id)),
+			ObjectTypeClass ("ObjectType Class", ObjectTypeClass.class, 155,        row  -> row.isEmptyWO ? null : row.objectType==null ? null : row.objectType.class_),
+			objectTypeID    ("ObjectTypeID"    , String         .class, 130,        row  -> row.isEmptyWO ? null : row.objectTypeID),
+			Name            ("Name"            , String         .class, 130,        row  -> row.isEmptyWO ? null : row.getName()),
+			container       ("Container"       , String         .class, 350,        row  -> row.isEmptyWO ? null : row.getContainerLabel()),
+			listId          ("ListID"          , Long           .class,  70,        row  -> row.isEmptyWO ? null : row.listId),
+			_siIds          ("Sp.ListIDs"      , String         .class,  70,        row  -> row.isEmptyWO ? null : row.specialListIds!=null ? Arrays.toString(row.specialListIds) : row.specialListIdsStr),
+			text            ("Text"            , String         .class, 120,        row  -> row.isEmptyWO ? null : row.text),
+			growth          ("Growth"          , Long           .class,  60,        row  -> row.isEmptyWO ? null : row.growth),
+			hunger          ("Hunger"          , Double         .class,  60,        row  -> row.isEmptyWO ? null : row.hunger, row -> row.hunger==null ? null : String.format(Locale.ENGLISH, "%1.3f", row.hunger)),
+			product         ("Product"         , String         .class, 130,        row  -> row.isEmptyWO ? null : getProductsStr(row)),
+			has_position    ("Pos."            , Boolean        .class,  35,        row  -> row.isEmptyWO ? null : row.position!=null && !row.position.isZero()),
+			position        ("Position"        , Coord3         .class, 200,        row  -> row.isEmptyWO ? null : row.position),
+			has_rotation    ("Rot."            , Boolean        .class,  35,        row  -> row.isEmptyWO ? null : row.rotation!=null && !row.rotation.isZero()),
+			rotation        ("Rotation"        , Rotation       .class, 205,        row  -> row.isEmptyWO ? null : row.rotation),
+			color           ("Color"           , Data.Color     .class,  50,        row  -> row.isEmptyWO ? null : row.color),
+			mods            ("Mods"            , String         .class,  90,        row  -> row.isEmptyWO ? null : row.mods),
+			_wear           ("[wear]"          , Long           .class,  50,        row  -> row.isEmptyWO ? null : row._wear),
+			_set            ("[set]"           , Long           .class,  50,        row  -> row.isEmptyWO ? null : row._set),
 			;
 			private final Tables.SimplifiedColumnConfig cfg;
 			private final Function<WorldObject, ?> getValue;
