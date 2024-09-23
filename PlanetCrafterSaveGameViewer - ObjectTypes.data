@@ -69,13 +69,13 @@ occurrences = WorldObject,Achievement
 ObjectType: AnimalFood1
 label_de = Tierfutter T1
 class = Resource_Craftable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: AnimalFood2
 label_de = Tierfutter T2
 class = Resource_Craftable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: AnimalShelter1
@@ -179,7 +179,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Bacteria1
 label_en = Bacteria Sample
 class = Resource_Craftable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: BalzarQuartz
@@ -341,6 +341,11 @@ ObjectType: BlueprintTreePlanter
 label_en = Blueprint "Tree Planter"
 label_de = Bauplan "Baumtopf"
 class = Special_Blueprint
+occurrences = WorldObject
+
+ObjectType: BlueprintWardensChip
+label_en = Blueprint "Warden Key Detector"
+label_de = Bauplan "Schlüsseldetektor des Aufsehers"
 occurrences = WorldObject
 
 ObjectType: BootsSpeed1
@@ -671,6 +676,7 @@ occurrences = WorldObject
 
 ObjectType: Destructor1
 label_en = Shredder Machine
+label_de = Schreddermaschine
 class = Structure_Machine
 energy = -18.0
 occurrences = WorldObject,Blueprint
@@ -760,6 +766,9 @@ energy = -325.0
 occurrences = WorldObject,Achievement
 isProducer
 <finished>
+
+ObjectType: EndingExplosives
+occurrences = Blueprint
 
 ObjectType: EnergyGenerator1
 label_en = Wind Turbine
@@ -871,13 +880,13 @@ occurrences = Blueprint
 ObjectType: Fertilizer1
 label_en = Fertilizer T1
 class = Resource_Craftable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Fertilizer2
 label_en = Fertilizer T2
 class = Resource_Craftable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Fireplace
@@ -1051,6 +1060,9 @@ class = Resource_SeedEgg
 animalsMultiplier = 5.0
 occurrences = WorldObject
 <finished>
+
+ObjectType: Frog13Eggs
+occurrences = WorldObject
 
 ObjectType: Frog1Eggs
 label_en = Generic Frog Eggs (100% | P.C, M4, F1)
@@ -1421,7 +1433,7 @@ occurrences = WorldObject,Achievement
 ObjectType: LarvaeBase1
 label_en = Common Larva
 class = Resource_Minable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: LarvaeBase2
@@ -1434,7 +1446,7 @@ ObjectType: LarvaeBase3
 label_en = Rare Larva
 label_de = Seltene Larve
 class = Resource_Minable
-occurrences = WorldObject,Achievement
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: LaunchPlatform
@@ -1469,7 +1481,7 @@ ObjectType: MapChip
 label_en = Microchip - Map
 label_de = Microchip-Karte
 class = Equipment_Player
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: MethanCapsule1
@@ -1565,7 +1577,7 @@ ObjectType: Mutagen1
 label_en = Mutagen T1
 label_de = Mutagen T1
 class = Resource_Craftable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Mutagen2
@@ -1579,14 +1591,14 @@ ObjectType: Mutagen3
 label_en = Mutagen T3
 label_de = Mutagen T3
 class = Resource_Craftable
-occurrences = WorldObject,Achievement,ObjectList
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Mutagen4
 label_en = Mutagen T4
 label_de = Mutagen T4
 class = Resource_Craftable
-occurrences = WorldObject,Achievement,ObjectList
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: NitrogenCapsule1
@@ -1805,6 +1817,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: RecyclingMachine
 label_en = Recycling Machine
+label_de = Recyclingmaschine
 class = Structure_Machine
 energy = -12.5
 occurrences = WorldObject,Blueprint
@@ -2111,58 +2124,79 @@ occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Skin-01
-label_de = Raumanzug Comto
+label_de = Raumanzug "Comto"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-02
-label_de = Raumanzug Blasto
+label_de = Raumanzug "Blasto"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-03
-label_de = Raumanzug Primo
+label_de = Raumanzug "Primo"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-05
-label_de = Raumanzug Scifo
+label_de = Raumanzug "Scifo"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-06
-label_de = Raumanzug Cipto
+label_de = Raumanzug "Cipto"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-07
+label_de = Raumanzug "Beteo"
+class = Equipment_Player
 occurrences = WorldObject
+<finished>
 
 ObjectType: Skin-09
-label_de = Raumanzug Fablo
+label_de = Raumanzug "Fablo"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-10
-label_de = Raumanzug Tubio
+label_de = Raumanzug "Tubio"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-13
-label_de = Raumanzug Mekio
+label_de = Raumanzug "Mekio"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-14
+label_de = Raumanzug "Abyso"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-15
+label_de = Raumanzug "Ettio"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-16
-label_de = Raumanzug Plesao
+label_de = Raumanzug "Plesao"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-17
+label_de = Raumanzug "Rorao"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
@@ -2248,7 +2282,7 @@ ObjectType: Sulfur
 label_en = Sulfur
 label_de = Schwefel
 class = Resource_Minable
-occurrences = WorldObject,ObjectList
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: TableSmall
@@ -2403,7 +2437,7 @@ label_en = Tree Seed "Shreox" (450%, MutT2)
 label_de = Baumsamen "Shreox" (450%, M2)
 class = Resource_SeedEgg
 oxygenMultiplier = 4.5
-occurrences = WorldObject,Achievement,ObjectList
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: TreePlanter
@@ -2512,6 +2546,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: VegetableGrower1
 label_en = Food Grower T1
+label_de = Nahrungszüchter T1
 class = Structure_Machine
 energy = -15.0
 occurrences = WorldObject,Achievement
@@ -2519,6 +2554,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: VegetableGrower2
 label_en = Food Grower T2
+label_de = Nahrungszüchter T2
 class = Structure_Machine
 energy = -29.5
 occurrences = WorldObject,Achievement
@@ -2645,6 +2681,13 @@ ObjectType: WardenKey
 label_en = Warden's Key
 class = Special_Quest
 occurrences = WorldObject
+<finished>
+
+ObjectType: WardensChip
+label_en = Warden Key Detector
+label_de = Schlüsseldetektor des Aufsehers
+class = Equipment_Player
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: WaterBottle1
