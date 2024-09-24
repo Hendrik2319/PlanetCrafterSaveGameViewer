@@ -654,6 +654,12 @@ MapShape: Shape001
 selectedShape
 PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
 
+ObjectType: GoldenEffigie8
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-0.35;0.45;0.35;0.45;0.35;-0.45;-0.35;-0.45;-0.35;0.45
+
 ObjectType: GoldenEffigie9
 hideMarker
 MapShape: Shape001
