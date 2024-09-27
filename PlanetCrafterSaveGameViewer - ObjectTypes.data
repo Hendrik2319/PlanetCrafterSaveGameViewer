@@ -342,12 +342,14 @@ label_en = Blueprint "Tree Planter"
 label_de = Bauplan "Baumtopf"
 class = Special_Blueprint
 occurrences = WorldObject
+<finished>
 
 ObjectType: BlueprintWardensChip
 label_en = Blueprint "Warden Key Detector"
 label_de = Bauplan "Schlüsseldetektor des Aufsehers"
 class = Special_Blueprint
 occurrences = WorldObject
+<finished>
 
 ObjectType: BootsSpeed1
 label_en = Agility Boots T1
@@ -1093,13 +1095,15 @@ occurrences = WorldObject,Achievement,Product
 
 ObjectType: Frog3Eggs
 label_en = Frog Felicianna Eggs (200% | GFE, M4)
+label_de = Froscheier "Felicianna" (200% | GFE, M4)
 class = Resource_SeedEgg
 animalsMultiplier = 2.0
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: Frog4Eggs
 label_en = Frog Strabo Eggs (200% | GFE, M4, F1)
+label_de = Froscheier "Strabo" (350% | GFE, M4. F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.0
 occurrences = WorldObject,Product
@@ -1107,7 +1111,7 @@ occurrences = WorldObject,Product
 
 ObjectType: Frog5Eggs
 label_en = Frog Trajuu Eggs (300% | GFE, M4, F1)
-label_de = Froscheier "Trajuu" (300%)
+label_de = Froscheier "Trajuu" (300% | GFE, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
 occurrences = WorldObject,Achievement,Product
@@ -1115,6 +1119,7 @@ occurrences = WorldObject,Achievement,Product
 
 ObjectType: Frog6Eggs
 label_en = Frog Aiolus Eggs (250% | GFE, M4, F1))
+label_de = Froscheier "Aiolus" (250% | GFE, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.5
 occurrences = WorldObject,Product
@@ -1138,6 +1143,7 @@ occurrences = WorldObject
 
 ObjectType: Frog9Eggs
 label_en = Frog Amedo Eggs (400% | GFE, M4, F2)
+label_de = Froscheier "Amedo" (400% | GFE, M4. F2)
 class = Resource_SeedEgg
 animalsMultiplier = 4.0
 occurrences = WorldObject,Achievement,Product
@@ -1437,7 +1443,15 @@ class = Equipment_Player
 occurrences = WorldObject,Blueprint
 <finished>
 
+ObjectType: Jetpack4
+label_en = Jetpack T4
+label_de = Jetpack T4
+class = Equipment_Player
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Keycard1
+label_en = Keycard
 label_de = Zugangskarte
 class = Equipment_Player
 occurrences = WorldObject,ObjectList
