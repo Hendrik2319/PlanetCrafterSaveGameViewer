@@ -148,7 +148,7 @@ Terraformation
 1.25E12|{AnimalFeeder1}
 1.25E12|{AnimalShelter1}
 2.25E12|{AnimalFood2}
-5.0E12|Extraktionsplattform
+5.0E12|{DeparturePlatform}
 
 Stages
 0.0|Barren

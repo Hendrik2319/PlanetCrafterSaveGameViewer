@@ -75,7 +75,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 ObjectType: AnimalFood2
 label_de = Tierfutter T2
 class = Resource_Craftable
-occurrences = WorldObject,Product,ObjectList
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: AnimalShelter1
@@ -671,6 +671,13 @@ energy = -12.5
 occurrences = WorldObject,Achievement
 <finished>
 
+ObjectType: DeparturePlatform
+label_en = Departure Platform
+label_de = Extraktionsplattform
+class = Structure_Building
+occurrences = WorldObject,Achievement
+<finished>
+
 ObjectType: Desktop1
 label_en = Desktop
 class = Structure_Furniture
@@ -1106,7 +1113,7 @@ label_en = Frog Strabo Eggs (200% | GFE, M4, F1)
 label_de = Froscheier "Strabo" (350% | GFE, M4. F1)
 class = Resource_SeedEgg
 animalsMultiplier = 2.0
-occurrences = WorldObject,Product
+occurrences = WorldObject,Achievement,Product
 <finished>
 
 ObjectType: Frog5Eggs
@@ -1453,7 +1460,7 @@ occurrences = WorldObject,Achievement
 ObjectType: Keycard1
 label_en = Keycard
 label_de = Zugangskarte
-class = Equipment_Player
+class = Special
 occurrences = WorldObject,ObjectList
 <finished>
 
@@ -1868,7 +1875,7 @@ label_de = Tiere Streurakete
 class = Special_Rocket
 isBoosterRocketFor = Animals
 boosterMultiplier = 17.5
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: RocketBiomass1
@@ -2192,6 +2199,9 @@ label_de = Raumanzug "Beteo"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
+
+ObjectType: Skin-08
+occurrences = WorldObject
 
 ObjectType: Skin-09
 label_de = Raumanzug "Fablo"
