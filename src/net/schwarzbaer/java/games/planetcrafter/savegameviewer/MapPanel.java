@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -14,6 +15,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Predicate;
@@ -51,6 +54,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapShapes.MapShape;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
@@ -79,6 +83,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	static final Color COLOR_TOOLTIP_TEXT        = Color.BLACK;
 	static final Color COLOR_PLAYERPOS           = Color.RED;
 	static final Color COLOR_WRECK               = new Color(0xFF8000);
+	static final Color COLOR_WRECKAREA_EDITABLE  = new Color(0xCF6800);
 	static final Color COLOR_SPECCOORDS          = Color.BLUE;
 	static final Color COLOR_WORLDOBJECT_CONTOUR = new Color(0x70000000,true);
 	static final Color COLOR_WORLDOBJECT_FILL             = Color.LIGHT_GRAY;
@@ -586,6 +591,27 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				System.out.println(msg);
 				ClipboardTools.copyToClipBoard(msg);
 			}));
+			
+			
+			addSeparator();
+			
+			
+			add(GUI.createCheckBoxMenuItem( "Show Wreck Areas", mapView.getShowWreckAreas(), mapView::setShowWreckAreas));
+			
+			add(GUI.createMenuItem( "Add Player Position to Wreck Area", e -> {
+				WreckArea editableArea = FarWreckAreas.getInstance().getEditableArea();
+				if (editableArea==null)
+				{
+					String msg = "Sorry, can't add position to an area. Please set an area as editable in tab \"[ Far Wreck Areas ]\".";
+					String title_ = "No area editable";
+					JOptionPane.showMessageDialog(main.mainWindow, msg, title_, JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				
+				editableArea.addPoint(mapView.mapModel.playerPosition);
+				FarWreckAreas.getInstance().writeToFile();
+				mapView.repaint();
+			} ));
 			
 			
 			addSeparator();
@@ -1281,6 +1307,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private MapBackgroundImage mapBackgroundImage;
 		private final MousePos currentMousePos;
 		private Coord3 specCoords;
+		private boolean showWreckAreas;
 
 		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
 			this.mapShapes = mapShapes;
@@ -1294,6 +1321,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			overView.setRange(this.mapModel.range);
 			currentMousePos = new MousePos();
 			specCoords = null;
+			showWreckAreas = AppSettings.getInstance().getBool(AppSettings.ValueKey.MapView_ShowWreckAreas, true);
 			
 			activateMapScale(COLOR_MAP_AXIS, "m", true);
 			activateAxes(COLOR_MAP_AXIS, true,true,true,true);
@@ -1308,6 +1336,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			});
 		}
 
+		boolean getShowWreckAreas() { return showWreckAreas; }
+		void setShowWreckAreas(boolean showWreckAreas) {
+			this.showWreckAreas = showWreckAreas;
+			AppSettings.getInstance().putBool(AppSettings.ValueKey.MapView_ShowWreckAreas, this.showWreckAreas);
+			repaint();
+		}
+		
 		void setSpecCoords(Coord3 specCoords) { this.specCoords = specCoords; }
 		void clearSpecCoords() { this.specCoords = null; }
 		boolean hasSpecCoords() { return specCoords != null; }
@@ -1489,6 +1524,16 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					if (mapBackgroundImage!=null)
 						mapBackgroundImage.drawImage(g2, x, y, width, height);
 				
+				if (showWreckAreas)
+				{
+					FarWreckAreas farWreckAreas = FarWreckAreas.getInstance();
+					Vector<WreckArea> wreckAreas = farWreckAreas.getAreas();
+					WreckArea editableArea = farWreckAreas.getEditableArea();
+					
+					for (WreckArea area : wreckAreas)
+						drawWreckArea(g2, clip, area, editableArea==area);
+				}
+				
 				for (Data.Coord3 pos : mapModel.wreckPositions)
 					drawMapPoint(g2, clip, pos, COLOR_WRECK);
 				
@@ -1524,6 +1569,55 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				
 				g2.setClip(prevClip);
 			}
+		}
+
+		private void drawWreckArea(Graphics2D g2, Rectangle clip, WreckArea area, boolean isEditableArea)
+		{
+			Color color     = isEditableArea ? COLOR_WRECKAREA_EDITABLE : COLOR_WRECK;
+			float lineWidth = isEditableArea ? 2.5f : 1; 
+			Stroke stroke = new BasicStroke(
+					lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1,
+					new float[] { 3.0f, 1.0f }, 0
+			);
+			
+			drawPolygon(g2, clip, area.points, color, stroke);
+		}
+
+		private void drawPolygon(Graphics2D g2, Rectangle clip, Vector<Point2D.Double> points, Color color, Stroke stroke)
+		{
+			if (points.isEmpty())
+				return;
+					
+			Stroke prevStroke = null;
+			if (stroke!=null)
+			{
+				prevStroke = g2.getStroke();
+				g2.setStroke( stroke );
+			}
+			
+			if (points.size()==1)
+				drawMapPoint(g2, clip, points.get(0), color, 6);
+			
+			else
+			{
+				List<Point> points_scr = points
+					.stream()
+					.map(p->{
+						int x = viewState.convertPos_AngleToScreen_LongX(p.x);
+						int y = viewState.convertPos_AngleToScreen_LatY (p.y);
+						return new Point(x,y);
+					})
+					.toList();
+				
+				int[] xPoints = points_scr.stream().mapToInt(p->p.x).toArray();
+				int[] yPoints = points_scr.stream().mapToInt(p->p.y).toArray();
+				
+				g2.setColor(color);
+				g2.drawPolygon(xPoints, yPoints, points.size());
+			}
+			
+			if (stroke!=null)
+				g2.setStroke(prevStroke);
 		}
 
 		private void drawShapes(Graphics2D g2)
@@ -1579,13 +1673,25 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		}
 		
 		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color) {
-			int posX_scr = viewState.convertPos_AngleToScreen_LongX(position.getMapX());
-			int posY_scr = viewState.convertPos_AngleToScreen_LatY (position.getMapY());
+			drawMapPoint(g2, clip, position, color, 10);
+		}
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color, int size)
+		{
+			drawMapPoint(g2, clip, color, size, position.getMapX(), position.getMapY());
+		}
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Point2D.Double position, Color color, int size)
+		{
+			drawMapPoint(g2, clip, color, size, position.x, position.y);
+		}
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Color color, int size, double mapX, double mapY)
+		{
+			int posX_scr = viewState.convertPos_AngleToScreen_LongX(mapX);
+			int posY_scr = viewState.convertPos_AngleToScreen_LatY (mapY);
 			if (!clip.contains(posX_scr, posY_scr)) return;
 			
 			g2.setColor(color);
-			g2.drawLine(posX_scr-10, posY_scr-10, posX_scr+10, posY_scr+10);
-			g2.drawLine(posX_scr+10, posY_scr-10, posX_scr-10, posY_scr+10);
+			g2.drawLine(posX_scr-size, posY_scr-size, posX_scr+size, posY_scr+size);
+			g2.drawLine(posX_scr+size, posY_scr-size, posX_scr-size, posY_scr+size);
 		}
 
 		private void drawPlayerPosition(Graphics2D g2, Rectangle clip, Data.Coord3 position, Data.Rotation orientation, Color contourColor, Color fillColor) {

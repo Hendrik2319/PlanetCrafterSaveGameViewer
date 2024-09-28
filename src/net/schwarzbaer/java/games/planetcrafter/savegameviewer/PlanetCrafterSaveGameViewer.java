@@ -72,6 +72,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private static final String FILE_MAPSHAPES           = "PlanetCrafterSaveGameViewer - MapShapes.data";
             static final String FILE_MAPBGIMAGE          = "PlanetCrafterSaveGameViewer - MapBackgroundImage."+MapBackgroundImage.FILE_MAPBGIMAGE_EXT;
 	private static final String FILE_AUTOCRAFTER_TRADING = "PlanetCrafterSaveGameViewer - AutoCrafterTrading.data";
+	        static final String FILE_FARWRECKAREAS       = "PlanetCrafterSaveGameViewer - FarWreckAreas.data";
 
 	public static void main(String[] args) {
 		//String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
@@ -375,6 +376,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		achievements.sortAchievements();
 		mapShapes.readFromFile();
 		mapShapesEditor.updateAfterNewObjectTypes();
+		FarWreckAreas.getInstance().readFromFile();
 		
 		// String pathname = "c:\\Users\\Hendrik 2\\AppData\\LocalLow\\MijuGames\\Planet Crafter\\Survival-1.json";
 		File file = AppSettings.getInstance().getFile(AppSettings.ValueKey.OpenFile, null);
@@ -548,6 +550,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			dataTabPane.addTab("Generated Wrecks", new GeneratedWrecksPanel(this,data,mapPanel));
 		dataTabPane.addTab("[ Object Types ]", objectTypesPanel);
 		dataTabPane.addTab("[ AutoCrafter Trading ]", autoCrafterTrading.createNewPanel());
+		dataTabPane.addTab("[ Far Wreck Areas ]", new FarWreckAreaTablePanel());
 		
 		mapShapesEditor.updateAfterNewObjectTypes();
 		
@@ -816,12 +819,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			AchievementsConfigDialogShowTabbedView,
 			ObjectTypeColors,
 			ReloadAutomatically,
+			LabelLanguage,
 			MapShapesEditor_WindowX,
 			MapShapesEditor_WindowY,
 			MapShapesEditor_WindowWidth,
 			MapShapesEditor_WindowHeight,
 			MapShapesEditor_SplitPaneDivider,
-			LabelLanguage,
 			MapBackgroundImage_Brightness,
 			MapBackgroundImage_Contrast,
 			MapBackgroundImage_ShowBgImage,
@@ -833,6 +836,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			MapBackgroundImage_FixPoint_Image1Y,
 			MapBackgroundImage_FixPoint_Image2X,
 			MapBackgroundImage_FixPoint_Image2Y,
+			MapView_ShowWreckAreas,
 		}
 	
 		enum ValueGroup implements Settings.GroupKeys<ValueKey> {

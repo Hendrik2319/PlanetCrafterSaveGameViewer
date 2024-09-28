@@ -86,6 +86,7 @@ class TablePanelWithTextArea<
 		tableContextMenu.addTo(table);
 		
 		JScrollPane tableScrollPane = new JScrollPane(table);
+		tableContextMenu.addTo(tableScrollPane);
 		textareaScrollPane = new JScrollPane(textArea);
 		textareaScrollPane.setPreferredSize(textAreaSize);
 		
