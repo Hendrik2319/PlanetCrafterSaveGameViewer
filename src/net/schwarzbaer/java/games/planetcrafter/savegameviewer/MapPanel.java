@@ -598,11 +598,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			add(GUI.createCheckBoxMenuItem( "Show Wreck Areas", mapView.getShowWreckAreas(), mapView::setShowWreckAreas));
 			
-			add(GUI.createMenuItem( "Add Player Position to Wreck Area", e -> {
+			add(GUI.createMenuItem( "Add Player Position to Wreck Area Boundary", e -> {
 				WreckArea editableArea = FarWreckAreas.getInstance().getEditableArea();
 				if (editableArea==null)
 				{
-					String msg = "Sorry, can't add position to an area. Please set an area as editable in tab \"[ Far Wreck Areas ]\".";
+					String msg = "Sorry, can't add position to an area boundary. Please set an area as editable in tab \"[ Far Wreck Areas ]\".";
 					String title_ = "No area editable";
 					JOptionPane.showMessageDialog(main.mainWindow, msg, title_, JOptionPane.INFORMATION_MESSAGE);
 					return;

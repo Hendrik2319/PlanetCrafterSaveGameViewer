@@ -40,7 +40,7 @@ class FarWreckAreas
 
 	void addEmptyArea()
 	{
-		areas.add(new WreckArea());
+		areas.add(new WreckArea(true));
 	}
 
 	WreckArea getEditableArea() { return editableArea; }
@@ -77,26 +77,29 @@ class FarWreckAreas
 			
 			while ( (line=in.readLine())!=null )
 			{
-				if (line.isBlank()) continue;
+				if (line.isBlank())
+					continue;
 				
-				if (line.equals("[WreckArea]")) {
-					currentWreckArea = new WreckArea();
-					areas.add(currentWreckArea);
-				};
+				if (line.equals("[WreckArea]"))
+					areas.add(currentWreckArea = new WreckArea(false));
 				
 				if (currentWreckArea != null)
 				{
+					if (line.equals("AutomaticPointOrder"))
+						currentWreckArea.setAutomaticPointOrder(true);
+					
 					if ( (valueStr=getValue(line,"P "))!=null)
 					{
 						int pos = valueStr.indexOf('|');
 						if (pos>0) {
-							String xStr = valueStr.substring(0,pos);
-							String yStr = valueStr.substring(pos+1);
-							Point2D.Double p = parsePoint(xStr, yStr);
-							if (p==null)
-								System.err.printf("Can't parse \"%s\" to XY coordinates", valueStr);
-							else
+							Point2D.Double p = parsePoint(
+									valueStr.substring(0,pos),
+									valueStr.substring(pos+1)
+							);
+							if (p!=null)
 								currentWreckArea.points.add(p);
+							else
+								System.err.printf("Can't parse \"%s\" to XY coordinates", valueStr);
 						}
 					}
 				}
@@ -123,8 +126,13 @@ class FarWreckAreas
 			for (WreckArea area : areas)
 			{
 				out.println("[WreckArea]");
+				
 				for (Point2D.Double p : area.points)
 					out.printf(Locale.ENGLISH, "P %1.4f|%1.4f%n", p.x, p.y);
+				
+				if (area.hasAutomaticPointOrder())
+					out.println("AutomaticPointOrder");
+				
 				out.println();
 			}
 			
@@ -139,54 +147,88 @@ class FarWreckAreas
 	static class WreckArea
 	{
 		final Vector<Point2D.Double> points;
+		private boolean hasAutomaticPointOrder;
 		
-		WreckArea()
+		WreckArea(boolean hasAutomaticPointOrder)
 		{
 			points = new Vector<>();
+			this.hasAutomaticPointOrder = hasAutomaticPointOrder;
 		}
 		
+		boolean hasAutomaticPointOrder() { return hasAutomaticPointOrder; }
+
+		void setAutomaticPointOrder(boolean hasAutomaticPointOrder)
+		{
+			this.hasAutomaticPointOrder = hasAutomaticPointOrder;
+			if (this.hasAutomaticPointOrder)
+				SortablePoint.sortPointsByAngle(points);
+		}
+
+		void swapPoints(int index1, int index2)
+		{
+			if (index1<0 || index1>=points.size()) return;
+			if (index2<0 || index2>=points.size()) return;
+			if (index1==index2) return;
+			Point2D.Double temp = points.get(index1);
+			points.set(index1, points.get(index2));
+			points.set(index2, temp);
+		}
+
+		void deletePoint(int index)
+		{
+			if (index<0 || index>=points.size()) return;
+			points.remove(index);
+		}
+
 		void addPoint(Data.Coord3 pos)
 		{
 			if (pos==null) return;
 			points.add(new Point2D.Double( pos.getMapX(), pos.getMapY() ));
-			sortPoints();
+			if (hasAutomaticPointOrder)
+				SortablePoint.sortPointsByAngle(points);
 		}
 
-		private void sortPoints()
-		{
-			Point2D.Double center = computeCenter(points);
-			List<Point2D.Double> sortedPoints = points
-				.stream()
-				.map(p->new SortablePoint(p, Math.atan2(p.y-center.y, p.x-center.x)))
-				.sorted(Comparator.comparing(sp->sp.angle))
-				.map(sp->sp.p)
-				.toList();
-			points.clear();
-			points.addAll(sortedPoints);
-		}
-		
-		record SortablePoint(Point2D.Double p, double angle) {}
-		
-		private static Point2D.Double computeCenter(Vector<Point2D.Double> points)
-		{
-			Point2D.Double min = null;
-			Point2D.Double max = null;
-			for (Point2D.Double p : points) {
-				if (min==null)
-					min = new Point2D.Double( p.x, p.y );
-				else {
-					min.x = Math.min(min.x, p.x);
-					min.y = Math.min(min.y, p.y);
-				}
-				if (max==null)
-					max = new Point2D.Double( p.x, p.y );
-				else {
-					max.x = Math.max(max.x, p.x);
-					max.y = Math.max(max.y, p.y);
-				}
+		private record SortablePoint(
+				Point2D.Double p,
+				double angle
+		) {
+			private static void sortPointsByAngle(Vector<Point2D.Double> points)
+			{
+				Point2D.Double center = computeCenter(points);
+				List<Point2D.Double> sortedPoints = points
+					.stream()
+					.map(p->new SortablePoint(p, Math.atan2(p.y-center.y, p.x-center.x)))
+					.sorted(Comparator.comparing(sp->sp.angle))
+					.map(sp->sp.p)
+					.toList();
+				points.clear();
+				points.addAll(sortedPoints);
 			}
-			if (min==null || max==null) return null;
-			return new Point2D.Double( (max.x+min.x)/2, (max.y+min.y)/2 );
+
+			private static Point2D.Double computeCenter(Vector<Point2D.Double> points)
+			{
+				Point2D.Double min = null;
+				Point2D.Double max = null;
+				for (Point2D.Double p : points) {
+					if (min==null)
+						min = new Point2D.Double( p.x, p.y );
+					else
+					{
+						min.x = Math.min(min.x, p.x);
+						min.y = Math.min(min.y, p.y);
+					}
+					
+					if (max==null)
+						max = new Point2D.Double( p.x, p.y );
+					else
+					{
+						max.x = Math.max(max.x, p.x);
+						max.y = Math.max(max.y, p.y);
+					}
+				}
+				if (min==null || max==null) return null;
+				return new Point2D.Double( (max.x+min.x)/2, (max.y+min.y)/2 );
+			}
 		}
 	}
 }

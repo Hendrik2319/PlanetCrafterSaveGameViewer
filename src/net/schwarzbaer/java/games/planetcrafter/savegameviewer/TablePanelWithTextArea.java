@@ -30,6 +30,7 @@ class TablePanelWithTextArea<
 	protected final TableModelType tableModel;
 	protected final JTextArea textArea;
 	private   final JScrollPane textareaScrollPane;
+	protected final TableContextMenu tableContextMenu;
 	
 	enum LayoutPos {
 		Top, Right, Bottom, Left;
@@ -80,7 +81,6 @@ class TablePanelWithTextArea<
 		this.tableModel.setColumnWidths(table);
 		this.tableModel.setDefaultCellEditorsAndRenderers();
 		
-		TableContextMenu tableContextMenu;
 		if (tcmConstructor==null) tableContextMenu = new TableContextMenu(table);
 		else tableContextMenu = tcmConstructor.create(table,this.tableModel);
 		tableContextMenu.addTo(table);

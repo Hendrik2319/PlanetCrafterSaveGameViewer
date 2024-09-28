@@ -20,7 +20,7 @@ class SupplyDemandPanel extends TablePanelWithTextArea<SupplyDemandPanel.SupplyD
 
 	SupplyDemandPanel(Data data)
 	{
-		super( new SupplyDemandTableModel(data), true, /*(table,tableModel) -> new TableContextMenu(table, tableModel, mapPanel)*/null, LayoutPos.Right, new Dimension(300,100) );
+		super( new SupplyDemandTableModel(data), true, LayoutPos.Right, new Dimension(300,100) );
 	}
 	
 	static class GeneralTCR implements TableCellRenderer {

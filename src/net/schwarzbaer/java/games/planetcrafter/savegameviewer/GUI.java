@@ -136,6 +136,10 @@ class GUI {
 		return setAbstractButton(new JMenuItem(), title, icons, null, isEnabled, al, disabler, ac);
 	}
 
+	static JMenuItem createMenuItem(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionListener al) {
+		return setAbstractButton(new JMenuItem(), title, icons, null, isEnabled, al, null, null);
+	}
+
 	static JMenuItem createMenuItem(String title, boolean isEnabled, ActionListener al) {
 		return setAbstractButton(new JMenuItem(), title, null, null, isEnabled, al, null, null);
 	}
