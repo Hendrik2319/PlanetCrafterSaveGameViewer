@@ -1577,8 +1577,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			Color color     = isEditableArea ? COLOR_WRECKAREA_EDITABLE : COLOR_WRECK;
 			float lineWidth = isEditableArea ? 2.5f : 1; 
 			Stroke stroke = new BasicStroke(
-					lineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1,
-					new float[] { 3.0f, 1.0f }, 0
+					lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1,
+					new float[] { 6.0f, 3.0f }, 0
 			);
 			
 			drawPolygon(g2, clip, area.points, color, stroke);
