@@ -1575,7 +1575,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private void drawWreckArea(Graphics2D g2, Rectangle clip, WreckArea area, boolean isEditableArea)
 		{
 			Color color     = isEditableArea ? COLOR_WRECKAREA_EDITABLE : COLOR_WRECK;
-			float lineWidth = isEditableArea ? 2.5f : 1; 
+			float lineWidth = isEditableArea ? 2.0f : 0.7f; 
 			Stroke stroke = new BasicStroke(
 					lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1,
 					new float[] { 6.0f, 3.0f }, 0
