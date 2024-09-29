@@ -79,8 +79,9 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			Index          ("#"                    , Integer.class,  25, null),
 			Editable       ("Editable"             , Boolean.class,  60, null),
+			Visible        ("Visible"              , Boolean.class,  60, wa->wa.isVisible),
 			AutoPointOrder ("Automatic Point Order", Boolean.class, 130, wa->wa.hasAutomaticPointOrder()),
-			Points         ("Points"               , String .class, 450, wa->toString(wa.points)),
+			Points         ("Points"               , String .class, 450, ColumnID::getPointsAsString),
 			;
 			private SimplifiedColumnConfig cfg;
 			private Function<WreckArea, ?> getValue;
@@ -89,14 +90,13 @@ class FarWreckAreaTablePanel extends JSplitPane
 				this.getValue = getValue;
 				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
-	
-			private static String toString(Vector<Point2D.Double> points)
+			
+			private static String getPointsAsString(WreckArea wa)
 			{
-				Iterable<String> it = ()->points
-					.stream()
-					.map(p->String.format(Locale.ENGLISH, "(%1.2f, %1.2f)", p.x, p.y))
-					.iterator();
-				return String.join(", ", it);
+				return wa.getPointsAsString(
+						", ",
+						p->String.format(Locale.ENGLISH, "(%1.2f, %1.2f)", p.x, p.y)
+				);
 			}
 	
 			@Override public SimplifiedColumnConfig getColumnConfig() { return cfg; }
@@ -121,13 +121,14 @@ class FarWreckAreaTablePanel extends JSplitPane
 			if (row==null)
 				return "";
 			
-			if (row.points.isEmpty())
+			if (!row.hasPoints())
 				return "no points";
 			
 			StringBuilder sb = new StringBuilder();
 			
-			for (Point2D.Double p : row.points)
+			row.foreachPoint(p -> {
 				sb.append(String.format(Locale.ENGLISH, "(%1.4f, %1.4f)%n", p.x, p.y));
+			});
 			
 			return sb.toString();
 		}
@@ -149,6 +150,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			return
 					columnID==ColumnID.Editable ||
+					columnID==ColumnID.Visible ||
 					columnID==ColumnID.AutoPointOrder ||
 					super.isCellEditable(rowIndex, columnIndex, columnID);
 		}
@@ -171,6 +173,15 @@ class FarWreckAreaTablePanel extends JSplitPane
 					{
 						row.setAutomaticPointOrder(boolVal.booleanValue());
 						pointTableModel.fireTableUpdate();
+						FarWreckAreas.getInstance().writeToFile();
+					}
+					break;
+					
+				case Visible:
+					if (aValue instanceof Boolean boolVal)
+					{
+						row.isVisible = boolVal.booleanValue();
+						FarWreckAreas.getInstance().writeToFile();
 					}
 					break;
 					
@@ -217,10 +228,12 @@ class FarWreckAreaTablePanel extends JSplitPane
 				
 				JMenuItem miMovePointUp = add(GUI.createMenuItem("Move Point Up", GrayCommandIcons.IconGroup.Up, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex-1);
+					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
 				JMenuItem miMovePointDown = add(GUI.createMenuItem("Move Point Down", GrayCommandIcons.IconGroup.Down, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex+1);
+					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
 				JMenuItem miDeletePoint = add(GUI.createMenuItem("Delete Point", GrayCommandIcons.IconGroup.Delete, true, e->{
@@ -230,6 +243,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 						return;
 					
 					tableModel.deleteRow(clickedRowIndex);
+					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
 				
@@ -295,7 +309,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 			wreckArea.swapPoints(rowIndex1, rowIndex2);
 			fireTableRowUpdate(rowIndex1);
 			fireTableRowUpdate(rowIndex2);
-			FarWreckAreas.getInstance().writeToFile();
 		}
 
 		void deleteRow(int rowIndex)
@@ -303,7 +316,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 			if (wreckArea==null) return;
 			wreckArea.deletePoint(rowIndex);
 			fireTableRowRemoved(rowIndex);
-			FarWreckAreas.getInstance().writeToFile();
 		}
 
 		@Override

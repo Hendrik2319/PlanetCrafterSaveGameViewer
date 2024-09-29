@@ -1531,7 +1531,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					WreckArea editableArea = farWreckAreas.getEditableArea();
 					
 					for (WreckArea area : wreckAreas)
-						drawWreckArea(g2, clip, area, editableArea==area);
+						if (area.isVisible)
+							drawWreckArea(g2, clip, area, editableArea==area);
 				}
 				
 				for (Data.Coord3 pos : mapModel.wreckPositions)

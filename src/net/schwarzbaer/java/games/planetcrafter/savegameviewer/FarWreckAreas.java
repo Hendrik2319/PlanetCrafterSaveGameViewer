@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 class FarWreckAreas
 {
@@ -40,7 +42,7 @@ class FarWreckAreas
 
 	void addEmptyArea()
 	{
-		areas.add(new WreckArea(true));
+		areas.add(new WreckArea());
 	}
 
 	WreckArea getEditableArea() { return editableArea; }
@@ -81,12 +83,19 @@ class FarWreckAreas
 					continue;
 				
 				if (line.equals("[WreckArea]"))
-					areas.add(currentWreckArea = new WreckArea(false));
+				{
+					areas.add(currentWreckArea = new WreckArea());
+					currentWreckArea.hasAutomaticPointOrder = false;
+					currentWreckArea.isVisible = false;
+				}
 				
 				if (currentWreckArea != null)
 				{
 					if (line.equals("AutomaticPointOrder"))
 						currentWreckArea.setAutomaticPointOrder(true);
+					
+					if (line.equals("Visible"))
+						currentWreckArea.isVisible = true;
 					
 					if ( (valueStr=getValue(line,"P "))!=null)
 					{
@@ -127,11 +136,15 @@ class FarWreckAreas
 			{
 				out.println("[WreckArea]");
 				
-				for (Point2D.Double p : area.points)
+				area.foreachPoint(p -> {
 					out.printf(Locale.ENGLISH, "P %1.4f|%1.4f%n", p.x, p.y);
+				});
 				
 				if (area.hasAutomaticPointOrder())
 					out.println("AutomaticPointOrder");
+				
+				if (area.isVisible)
+					out.println("Visible");
 				
 				out.println();
 			}
@@ -148,11 +161,13 @@ class FarWreckAreas
 	{
 		final Vector<Point2D.Double> points;
 		private boolean hasAutomaticPointOrder;
+		boolean isVisible;
 		
-		WreckArea(boolean hasAutomaticPointOrder)
+		WreckArea()
 		{
 			points = new Vector<>();
-			this.hasAutomaticPointOrder = hasAutomaticPointOrder;
+			hasAutomaticPointOrder = true;
+			isVisible = true;
 		}
 		
 		boolean hasAutomaticPointOrder() { return hasAutomaticPointOrder; }
@@ -162,6 +177,25 @@ class FarWreckAreas
 			this.hasAutomaticPointOrder = hasAutomaticPointOrder;
 			if (this.hasAutomaticPointOrder)
 				SortablePoint.sortPointsByAngle(points);
+		}
+
+		boolean hasPoints()
+		{
+			return !points.isEmpty();
+		}
+
+		void foreachPoint(Consumer<? super Point2D.Double> action)
+		{
+			points.forEach(action);
+		}
+
+		String getPointsAsString(String glueStr, Function<Point2D.Double, String> mapper)
+		{
+			Iterable<String> it = ()->points
+					.stream()
+					.map(mapper)
+					.iterator();
+			return String.join(glueStr, it);
 		}
 
 		void swapPoints(int index1, int index2)
