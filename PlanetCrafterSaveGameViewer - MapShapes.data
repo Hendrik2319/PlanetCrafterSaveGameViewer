@@ -348,6 +348,38 @@ PolyLine=-0.4;-0.9;-0.4;-0.45;0.4;-0.45;0.4;-0.9;-0.4;-0.9
 GuideLine.Vertical=-0.4
 GuideLine.Vertical=0.4
 
+ObjectType: DeparturePlatform
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-22.0;26.95;-21.95;27.0;-4.05;27.0;-4.0;26.95;-4.0;-8.95;-4.05;-9.0;-27.95;-9.0;-28.0;-8.95;-28.0;20.95;-27.95;21.0;-22.0;21.0;-22.0;26.95
+PolyLine=-20.0;18.0;-20.0;6.0;-14.0;6.0;-14.0;18.0;-20.0;18.0
+PolyLine=-14.0;18.0;-8.0;18.0;-8.0;12.0;-14.0;12.0
+PolyLine=-11.0;18.0;-11.0;23.8;-11.2;24.0;-13.8;24.0;-14.0;23.8;-14.0;18.0
+PolyLine=-11.0;22.8;-11.2;23.0;-13.8;23.0;-14.0;22.8
+PolyLine=-11.0;21.8;-11.2;22.0;-13.8;22.0;-14.0;21.8
+PolyLine=-11.0;20.8;-11.2;21.0;-13.8;21.0;-14.0;20.8
+PolyLine=-11.0;19.8;-11.2;20.0;-13.8;20.0;-14.0;19.8
+PolyLine=-11.0;18.8;-11.2;19.0;-13.8;19.0;-14.0;18.8
+GuideLine.Horizontal=-9.0
+GuideLine.Horizontal=-3.0
+GuideLine.Horizontal=3.0
+GuideLine.Horizontal=9.0
+GuideLine.Horizontal=15.0
+GuideLine.Horizontal=21.0
+GuideLine.Horizontal=27.0
+GuideLine.Vertical=-28.0
+GuideLine.Vertical=-22.0
+GuideLine.Vertical=-16.0
+GuideLine.Vertical=-10.0
+GuideLine.Vertical=-4.0
+GuideLine.Horizontal=-8.95
+GuideLine.Horizontal=20.95
+GuideLine.Horizontal=26.95
+GuideLine.Vertical=-27.95
+GuideLine.Vertical=-21.95
+GuideLine.Vertical=-4.05
+
 ObjectType: Destructor1
 hideMarker
 MapShape: Shape001
@@ -593,7 +625,15 @@ ObjectType: FoundationSlope
 hideMarker
 MapShape: Shape001
 selectedShape
-PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
+PolyLine=-2.95;-9.0;2.95;-9.0;3.0;-8.95;3.0;2.95;2.95;3.0;-2.95;3.0;-3.0;2.95;-3.0;-8.95;-2.95;-9.0
+GuideLine.Horizontal=3.0
+GuideLine.Horizontal=-9.0
+GuideLine.Vertical=3.0
+GuideLine.Vertical=-3.0
+GuideLine.Horizontal=2.95
+GuideLine.Horizontal=-8.95
+GuideLine.Vertical=2.95
+GuideLine.Vertical=-2.95
 
 ObjectType: FrogDisplayer1
 hideMarker
@@ -958,6 +998,32 @@ GuideLine.Horizontal=-12.0
 GuideLine.Vertical=-10.5
 GuideLine.Vertical=11.5
 
+ObjectType: PortalGenerator1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=1.8;9.28;1.85;9.23;1.85;3.28;7.8;3.28;7.85;3.23;7.85;-8.67;7.8;-8.72;-10.1;-8.72;-10.15;-8.67;-10.15;9.23;-10.1;9.28;1.8;9.28
+PolyLine=1.85;4.78;7.65;4.78;7.85;4.9799999999999995;7.85;7.579999999999997;7.65;7.78;1.85;7.78
+PolyLine=6.65;4.78;6.85;4.9799999999999995;6.85;7.579999999999997;6.65;7.78
+PolyLine=5.65;4.78;5.85;4.9799999999999995;5.85;7.579999999999997;5.65;7.78
+PolyLine=4.65;4.78;4.85;4.9799999999999995;4.85;7.579999999999997;4.65;7.78
+PolyLine=3.650000000000001;4.78;3.85;4.9799999999999995;3.85;7.579999999999997;3.650000000000001;7.78
+PolyLine=2.650000000000001;4.78;2.85;4.9799999999999995;2.85;7.579999999999997;2.650000000000001;7.78
+GuideLine.Horizontal=9.28
+GuideLine.Horizontal=3.28
+GuideLine.Horizontal=-2.72
+GuideLine.Horizontal=-8.72
+GuideLine.Vertical=7.85
+GuideLine.Vertical=1.85
+GuideLine.Vertical=-4.15
+GuideLine.Vertical=-10.15
+GuideLine.Horizontal=9.23
+GuideLine.Horizontal=3.23
+GuideLine.Horizontal=-8.67
+GuideLine.Vertical=7.8
+GuideLine.Vertical=-10.1
+GuideLine.Vertical=1.8
+
 ObjectType: ScreenEnergy
 hideMarker
 MapShape: Shape001
@@ -1058,6 +1124,15 @@ GuideLine.Horizontal=6.0
 GuideLine.Horizontal=-1.5
 GuideLine.Horizontal=1.5
 GuideLine.Vertical=13.8
+
+ObjectType: TreePlanter
+hideMarker
+MapShape: Shape001
+selectedShape
+Arc=0.0;0.0;2.2;0.0;6.283185307179586
+Arc=0.0;0.0;1.1;0.0;6.283185307179586
+Arc=0.0;0.0;1.4666;0.0;6.283185307179586
+Arc=0.0;0.0;1.833;0.0;6.283185307179586
 
 ObjectType: TreeSpreader0
 hideMarker
