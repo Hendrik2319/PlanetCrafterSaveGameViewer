@@ -198,6 +198,18 @@ class FarWreckAreas
 			return String.join(glueStr, it);
 		}
 
+		void shiftListToEnd(int index)
+		{
+			if (index<0 || index>=points.size()) return;
+			if (index+1==points.size()) return;
+			
+			Vector<Point2D.Double> copy = new Vector<>(points);
+			points.clear();
+			
+			for (int i=index+1; i< copy.size(); i++) points.add(copy.get(i));
+			for (int i=0      ; i<=index      ; i++) points.add(copy.get(i));
+		}
+
 		void swapPoints(int index1, int index2)
 		{
 			if (index1<0 || index1>=points.size()) return;

@@ -205,8 +205,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 		void setData(WreckArea wreckArea)
 		{
 			tableModel.setData(wreckArea);
-			if (tableContextMenu instanceof ContextMenu contextMenu)
-				contextMenu.setWreckArea( wreckArea );
 			setText("");
 		}
 
@@ -217,12 +215,9 @@ class FarWreckAreaTablePanel extends JSplitPane
 			private int clickedRowIndex;
 			private Point2D.Double clickedRow;
 
-			private WreckArea wreckArea;
-
 			public ContextMenu(JTable table, PointTableModel tableModel)
 			{
 				super(table);
-				wreckArea = null;
 				
 				addSeparator();
 				
@@ -233,6 +228,11 @@ class FarWreckAreaTablePanel extends JSplitPane
 				
 				JMenuItem miMovePointDown = add(GUI.createMenuItem("Move Point Down", GrayCommandIcons.IconGroup.Down, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex+1);
+					FarWreckAreas.getInstance().writeToFile();
+				}));
+				
+				JMenuItem miMoveListToEnd = add(GUI.createMenuItem("Move List to end at Point", GrayCommandIcons.IconGroup.Down, true, e->{
+					tableModel.shiftListToEnd(clickedRowIndex);
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
@@ -252,18 +252,15 @@ class FarWreckAreaTablePanel extends JSplitPane
 					clickedRowIndex = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
 					clickedRow = clickedRowIndex<0 ? null : tableModel.getRow(clickedRowIndex);
 					
-					miMovePointUp  .setEnabled(wreckArea!=null && !wreckArea.hasAutomaticPointOrder() && clickedRowIndex>0);
-					miMovePointDown.setEnabled(wreckArea!=null && !wreckArea.hasAutomaticPointOrder() && clickedRowIndex>=0 && clickedRowIndex+1<tableModel.getRowCount());
+					miMovePointUp  .setEnabled(tableModel.wreckArea!=null && !tableModel.wreckArea.hasAutomaticPointOrder() && clickedRowIndex>0);
+					miMovePointDown.setEnabled(tableModel.wreckArea!=null && !tableModel.wreckArea.hasAutomaticPointOrder() && clickedRowIndex>=0 && clickedRowIndex+1<tableModel.getRowCount());
+					miMoveListToEnd.setEnabled(tableModel.wreckArea!=null && !tableModel.wreckArea.hasAutomaticPointOrder() && clickedRowIndex>=0 && clickedRowIndex  <tableModel.getRowCount());
 					miDeletePoint  .setEnabled(clickedRow!=null);
 					miMovePointUp  .setText( clickedRowIndex<0 ? "Move Point Up"   : "Move Point %d Up"  .formatted(clickedRowIndex+1) );
 					miMovePointDown.setText( clickedRowIndex<0 ? "Move Point Down" : "Move Point %d Down".formatted(clickedRowIndex+1) );
 					miDeletePoint  .setText( clickedRowIndex<0 ? "Delete Point"    : "Delete Point %d"   .formatted(clickedRowIndex+1) );
+					miMoveListToEnd.setText( clickedRowIndex<0 ? "Move List to end at Point" : "Move List to end at Point %d".formatted(clickedRowIndex+1) );
 				});
-			}
-
-			void setWreckArea(WreckArea wreckArea)
-			{
-				this.wreckArea = wreckArea;
 			}
 		}
 	}
@@ -301,6 +298,13 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			this.wreckArea = wreckArea;
 			setData(this.wreckArea==null ? null : this.wreckArea.points);
+		}
+
+		void shiftListToEnd(int rowIndex)
+		{
+			if (wreckArea==null) return;
+			wreckArea.shiftListToEnd(rowIndex);
+			fireTableUpdate();
 		}
 
 		void swapRows(int rowIndex1, int rowIndex2)
