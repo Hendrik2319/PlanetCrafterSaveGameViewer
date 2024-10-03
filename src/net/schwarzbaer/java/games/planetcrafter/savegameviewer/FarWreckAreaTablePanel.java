@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -11,10 +12,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
-import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
+import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
 
 class FarWreckAreaTablePanel extends JSplitPane
@@ -265,21 +268,59 @@ class FarWreckAreaTablePanel extends JSplitPane
 		}
 	}
 	
+	private static class PointTableCellRenderer implements TableCellRenderer
+	{
+		private final Tables.LabelRendererComponent rendComp;
+		private final PointTableModel tableModel;
+		
+		PointTableCellRenderer(PointTableModel tableModel)
+		{
+			this.tableModel = tableModel;
+			rendComp = new Tables.LabelRendererComponent();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV)
+		{
+			int    rowM =    rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+			int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
+			PointTableModel.ColumnID columnID = tableModel.getColumnID(columnM);
+			Point2D.Double row = tableModel.getRow(rowM);
+			
+			String valueStr;
+			if (row!=null && columnID!=null && columnID.getDisplayStr!=null)
+				valueStr = columnID.getDisplayStr.apply(row);
+			else
+				valueStr = value==null ? null : value.toString();
+			
+			rendComp.configureAsTableCellRendererComponent(table, null, valueStr, isSelected, hasFocus);
+			if (columnID!=null && columnID.cfg.columnClass!=null && Number.class.isAssignableFrom(columnID.cfg.columnClass))
+				rendComp.setHorizontalAlignment(SwingConstants.RIGHT);
+			else
+				rendComp.setHorizontalAlignment(SwingConstants.LEFT);
+			
+			return rendComp;
+		}
+		
+	}
+	
 	private static class PointTableModel
 		extends Tables.SimpleGetValueTableModel<Point2D.Double, PointTableModel.ColumnID>
 		implements TablePanelWithTextArea.TableModelExtension<Point2D.Double>
 	{
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<Point2D.Double>
 		{
-			Index ("#", Integer.class,  25, null),
-			X     ("X", Double .class,  80, p->p.x),
-			Y     ("Y", Double .class,  80, p->p.y),
+			Index ("#", Integer.class,  25, null, null),
+			X     ("X", Double .class,  80, p->p.x, p->String.format(Locale.ENGLISH, "%1.3f", p.x)),
+			Y     ("Y", Double .class,  80, p->p.y, p->String.format(Locale.ENGLISH, "%1.3f", p.y)),
 			;			
 			private SimplifiedColumnConfig cfg;
 			private Function<Point2D.Double, ?> getValue;
+			private Function<Point2D.Double, String> getDisplayStr;
 			
-			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<Point2D.Double, ColumnClass> getValue) {
+			<ColumnClass> ColumnID(String name, Class<ColumnClass> colClass, int width, Function<Point2D.Double, ColumnClass> getValue, Function<Point2D.Double, String> getDisplayStr) {
 				this.getValue = getValue;
+				this.getDisplayStr = getDisplayStr;
 				cfg = new Tables.SimplifiedColumnConfig(name, colClass, 20, -1, width, width);
 			}
 	
@@ -320,6 +361,14 @@ class FarWreckAreaTablePanel extends JSplitPane
 			if (wreckArea==null) return;
 			wreckArea.deletePoint(rowIndex);
 			fireTableRowRemoved(rowIndex);
+		}
+
+		@Override
+		public void setDefaultCellEditorsAndRenderers()
+		{
+			PointTableCellRenderer ptcr = new PointTableCellRenderer(this);
+			setDefaultRenderers(clazz -> ptcr);
+			super.setDefaultCellEditorsAndRenderers();
 		}
 
 		@Override
