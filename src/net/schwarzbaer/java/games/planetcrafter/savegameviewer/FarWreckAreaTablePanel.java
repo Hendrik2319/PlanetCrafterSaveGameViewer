@@ -1,13 +1,19 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.function.Function;
 
+import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
@@ -20,6 +26,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePane
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
+import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
 
 class FarWreckAreaTablePanel extends JSplitPane
 {
@@ -35,15 +42,16 @@ class FarWreckAreaTablePanel extends JSplitPane
 		setBottomComponent(pointTablePanel);
 	}
 
-	private static class WreckAreaTablePanel extends TablePanelWithTextArea<WreckArea, WreckAreaTableModel.ColumnID, WreckAreaTableModel>
+	private static class WreckAreaTablePanel extends TwoSidedTablePanel<WreckArea, WreckAreaTableModel.ColumnID, WreckAreaTableModel, WreckAreaMapView>
 	{
 		private static final long serialVersionUID = -5756462259451478608L;
 		
 		private final PointTablePanel pointTablePanel;
 		
 		WreckAreaTablePanel(PointTablePanel pointTablePanel) {
-			super(new WreckAreaTableModel(pointTablePanel.tableModel), true, ContextMenu::new, LayoutPos.Right, new Dimension(200,200));
+			super(WreckAreaMapView::new, new WreckAreaTableModel(pointTablePanel.tableModel), true, false, ContextMenu::new, LayoutPos.Right, new Dimension(200,200));
 			this.pointTablePanel = pointTablePanel;
+			this.pointTablePanel.setMapView(sideComp);
 			table.setPreferredScrollableViewportSize(table.getMinimumSize());
 		}
 		
@@ -51,6 +59,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 		protected void tableSelectionChanged(WreckArea row, int rowM)
 		{
 			pointTablePanel.setData(row);
+			sideComp.setWreck(row);
 			super.tableSelectionChanged(row, rowM);
 		}
 	
@@ -71,6 +80,97 @@ class FarWreckAreaTablePanel extends JSplitPane
 					wreckAreas.writeToFile();
 				}));
 			}
+		}
+	}
+	
+	private static class WreckAreaMapView extends ZoomableCanvas<ZoomableCanvas.ViewState>
+	{
+		private static final long serialVersionUID = -5273193934458901334L;
+		private WreckArea wreckArea;
+
+		WreckAreaMapView()
+		{
+			this.wreckArea = null;
+			activateMapScale(MapPanel.COLOR_MAP_AXIS, "m", true);
+			activateAxes(MapPanel.COLOR_MAP_AXIS, true,true,true,true);
+			setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		}
+
+		void setWreck(WreckArea wreckArea)
+		{
+			this.wreckArea = wreckArea;
+			reset();
+		}
+
+		@Override
+		protected void paintCanvas(Graphics g, int x, int y, int width, int height)
+		{
+			if (g instanceof Graphics2D g2 && viewState.isOk())
+			{
+				Shape prevClip = g2.getClip();
+				Rectangle clip = new Rectangle(x, y, width, height);
+				g2.setClip(clip);
+				
+				g2.setColor(MapPanel.COLOR_MAP_BACKGROUND);
+				g2.fillRect(x, y, width, height);
+				
+				drawMapDecoration(g2, x, y, width, height);
+				
+				if (wreckArea!=null)
+					MapPanel.MapView.drawWreckArea(g2, viewState, clip, wreckArea, false);
+				
+				g2.setClip(prevClip);
+			}
+		}
+
+		@Override
+		protected ViewState createViewState() {
+			ViewState viewState = new ViewState(WreckAreaMapView.this, 0.1f) {
+				@Override protected void determineMinMax(MapLatLong min, MapLatLong max) {
+					if (wreckArea!=null && wreckArea.hasPoints())
+					{
+						min.longitude_x = Double.NaN;
+						min.latitude_y  = Double.NaN;
+						max.longitude_x = Double.NaN;
+						max.latitude_y  = Double.NaN;
+						wreckArea.foreachPoint(p -> {
+							if (!Double.isFinite(min.longitude_x)) min.longitude_x = p.x; else min.longitude_x = Math.min(p.x, min.longitude_x);
+							if (!Double.isFinite(min.latitude_y )) min.latitude_y  = p.y; else min.latitude_y  = Math.min(p.y, min.latitude_y );
+							if (!Double.isFinite(max.longitude_x)) max.longitude_x = p.x; else max.longitude_x = Math.max(p.x, max.longitude_x);
+							if (!Double.isFinite(max.latitude_y )) max.latitude_y  = p.y; else max.latitude_y  = Math.max(p.y, max.latitude_y );
+						});
+						if (!Double.isFinite(min.longitude_x)) min.longitude_x = 0.0;
+						if (!Double.isFinite(min.latitude_y )) min.latitude_y  = 0.0;
+						if (!Double.isFinite(max.longitude_x)) max.longitude_x = 100.0;
+						if (!Double.isFinite(max.latitude_y )) max.latitude_y  = 100.0;
+						
+						double width  = max.longitude_x-min.longitude_x;
+						double height = max.latitude_y -min.latitude_y ;
+						min.longitude_x -= width *0.5;
+						min.latitude_y  -= height*0.5;
+						max.longitude_x += width *0.5;
+						max.latitude_y  += height*0.5;
+					}
+					else
+					{
+						min.longitude_x = 0.0;
+						min.latitude_y  = 0.0;
+						max.longitude_x = 100.0;
+						max.latitude_y  = 100.0;
+					}
+					
+					if (min.longitude_x==max.longitude_x && min.latitude_y==max.latitude_y) {
+						min.longitude_x -= 50;
+						min.latitude_y  -= 50;
+						max.longitude_x += 50;
+						max.latitude_y  += 50;
+					}
+				}
+			};
+			viewState.setPlainMapSurface();
+			viewState.setVertAxisDownPositive(false);
+			viewState.setHorizAxisRightPositive(false);
+			return viewState;
 		}
 	}
 
@@ -206,6 +306,12 @@ class FarWreckAreaTablePanel extends JSplitPane
 			table.setPreferredScrollableViewportSize(table.getMinimumSize());
 		}
 		
+		void setMapView(WreckAreaMapView wreckAreaMapView)
+		{
+			if (tableContextMenu instanceof ContextMenu contextMenu)
+				contextMenu.setMapView(wreckAreaMapView);
+		}
+
 		void setData(WreckArea wreckArea)
 		{
 			tableModel.setData(wreckArea);
@@ -216,8 +322,9 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			private static final long serialVersionUID = -2005702283744870615L;
 			
-			private int clickedRowIndex;
-			private Point2D.Double clickedRow;
+			private int clickedRowIndex = -1;
+			private Point2D.Double clickedRow = null;
+			private WreckAreaMapView wreckAreaMapView = null;
 
 			public ContextMenu(JTable table, PointTableModel tableModel)
 			{
@@ -227,16 +334,19 @@ class FarWreckAreaTablePanel extends JSplitPane
 				
 				JMenuItem miMovePointUp = add(GUI.createMenuItem("Move Point Up", GrayCommandIcons.IconGroup.Up, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex-1);
+					if (wreckAreaMapView!=null) wreckAreaMapView.repaint();
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
 				JMenuItem miMovePointDown = add(GUI.createMenuItem("Move Point Down", GrayCommandIcons.IconGroup.Down, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex+1);
+					if (wreckAreaMapView!=null) wreckAreaMapView.repaint();
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
 				JMenuItem miMoveListToEnd = add(GUI.createMenuItem("Move List to end at Point", GrayCommandIcons.IconGroup.Down, true, e->{
 					tableModel.shiftListToEnd(clickedRowIndex);
+					if (wreckAreaMapView!=null) wreckAreaMapView.repaint();
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
@@ -247,6 +357,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 						return;
 					
 					tableModel.deleteRow(clickedRowIndex);
+					if (wreckAreaMapView!=null) wreckAreaMapView.repaint();
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
@@ -265,6 +376,11 @@ class FarWreckAreaTablePanel extends JSplitPane
 					miDeletePoint  .setText( clickedRowIndex<0 ? "Delete Point"    : "Delete Point %d"   .formatted(clickedRowIndex+1) );
 					miMoveListToEnd.setText( clickedRowIndex<0 ? "Move List to end at Point" : "Move List to end at Point %d".formatted(clickedRowIndex+1) );
 				});
+			}
+			
+			void setMapView(WreckAreaMapView wreckAreaMapView)
+			{
+				this.wreckAreaMapView = wreckAreaMapView;
 			}
 		}
 	}

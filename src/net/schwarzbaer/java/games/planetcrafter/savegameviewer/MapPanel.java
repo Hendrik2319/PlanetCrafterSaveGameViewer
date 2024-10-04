@@ -1292,7 +1292,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		}
 	}
 
-	private static class MapView extends ZoomableCanvas<ZoomableCanvas.ViewState> {
+	static class MapView extends ZoomableCanvas<ZoomableCanvas.ViewState> {
 		private static final long serialVersionUID = -5838969838377820166L;
 		private static final int NEAREST_OBJECT_MAX_DIST = 15;
 		
@@ -1532,7 +1532,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					
 					for (WreckArea area : wreckAreas)
 						if (area.isVisible)
-							drawWreckArea(g2, clip, area, editableArea==area);
+							drawWreckArea(g2, viewState, clip, area, editableArea==area);
 				}
 				
 				for (Data.Coord3 pos : mapModel.wreckPositions)
@@ -1572,7 +1572,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 		}
 
-		private void drawWreckArea(Graphics2D g2, Rectangle clip, WreckArea area, boolean isEditableArea)
+		static void drawWreckArea(Graphics2D g2, ViewState viewState, Rectangle clip, WreckArea area, boolean isEditableArea)
 		{
 			Color color     = isEditableArea ? COLOR_WRECKAREA_EDITABLE : COLOR_WRECK;
 			float lineWidth = isEditableArea ? 2.0f : 0.7f; 
@@ -1581,10 +1581,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					new float[] { 6.0f, 3.0f }, 0
 			);
 			
-			drawPolygon(g2, clip, area.points, color, stroke);
+			drawPolygon(g2, viewState, clip, area.points, color, stroke);
 		}
 
-		private void drawPolygon(Graphics2D g2, Rectangle clip, Vector<Point2D.Double> points, Color color, Stroke stroke)
+		static void drawPolygon(Graphics2D g2, ViewState viewState, Rectangle clip, Vector<Point2D.Double> points, Color color, Stroke stroke)
 		{
 			if (points.isEmpty())
 				return;
@@ -1597,7 +1597,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 			
 			if (points.size()==1)
-				drawMapPoint(g2, clip, points.get(0), color, 6);
+				drawMapPoint(g2, viewState, clip, points.get(0), color, 6);
 			
 			else
 			{
@@ -1678,13 +1678,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		}
 		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color, int size)
 		{
-			drawMapPoint(g2, clip, color, size, position.getMapX(), position.getMapY());
+			drawMapPoint(g2, viewState, clip, position.getMapX(), position.getMapY(), color, size);
 		}
-		private void drawMapPoint(Graphics2D g2, Rectangle clip, Point2D.Double position, Color color, int size)
+		static void drawMapPoint(Graphics2D g2, ViewState viewState, Rectangle clip, Point2D.Double position, Color color, int size)
 		{
-			drawMapPoint(g2, clip, color, size, position.x, position.y);
+			drawMapPoint(g2, viewState, clip, position.x, position.y, color, size);
 		}
-		private void drawMapPoint(Graphics2D g2, Rectangle clip, Color color, int size, double mapX, double mapY)
+		static void drawMapPoint(Graphics2D g2, ViewState viewState, Rectangle clip, double mapX, double mapY, Color color, int size)
 		{
 			int posX_scr = viewState.convertPos_AngleToScreen_LongX(mapX);
 			int posY_scr = viewState.convertPos_AngleToScreen_LatY (mapY);
@@ -1755,10 +1755,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					}
 					
 					if (min.longitude_x==max.longitude_x && min.latitude_y==max.latitude_y) {
-						min.longitude_x = max.longitude_x-50;
-						min.latitude_y  = max.latitude_y -50;
-						max.longitude_x = max.longitude_x+50;
-						max.latitude_y  = max.latitude_y +50;
+						min.longitude_x -= 50;
+						min.latitude_y  -= 50;
+						max.longitude_x += 50;
+						max.latitude_y  += 50;
 					}
 				}
 			};
