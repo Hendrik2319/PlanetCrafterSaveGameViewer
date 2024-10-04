@@ -18,6 +18,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClass;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePanel.TablePanelWithTextArea;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
@@ -58,10 +59,10 @@ class GeneratedWrecksPanel extends JSplitPane
 		}
 
 		@Override
-		protected void tableSelectionChanged(GeneratedWreck row)
+		protected void tableSelectionChanged(GeneratedWreck row, int rowM)
 		{
 			tableSelectionChanged.accept(row);
-			super.tableSelectionChanged(row);
+			super.tableSelectionChanged(row, rowM);
 		}
 	}
 	

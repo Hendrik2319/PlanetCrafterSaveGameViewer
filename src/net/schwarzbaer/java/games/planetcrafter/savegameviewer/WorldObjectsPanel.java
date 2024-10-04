@@ -21,6 +21,7 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Rotation;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeClass;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePanel.TablePanelWithTextArea;
 import net.schwarzbaer.java.lib.gui.Tables;
 
 class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjectsPanel.WorldObjectsTableModel.ColumnID, WorldObjectsPanel.WorldObjectsTableModel> {
@@ -44,7 +45,7 @@ class WorldObjectsPanel extends TablePanelWithTextArea<WorldObject, WorldObjects
 		setText("");
 	}
 
-	private static class TableContextMenu extends TablePanelWithTextArea.TableContextMenu {
+	private static class TableContextMenu extends TwoSidedTablePanel.TableContextMenu {
 		private static final long serialVersionUID = -8757567111391531443L;
 		private int clickedRowIndex;
 		private WorldObject clickedRow;

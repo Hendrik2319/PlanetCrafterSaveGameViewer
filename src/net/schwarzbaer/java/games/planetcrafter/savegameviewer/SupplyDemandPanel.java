@@ -11,6 +11,7 @@ import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePanel.TablePanelWithTextArea;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.ValueListOutput;
 
@@ -55,7 +56,7 @@ class SupplyDemandPanel extends TablePanelWithTextArea<SupplyDemandPanel.SupplyD
 		}
 	}
 	
-	static class SupplyDemandTableModel extends TablePanelWithTextArea.AbstractTableModel<SupplyDemandTableModel.RowType, SupplyDemandTableModel.ColumnID>
+	static class SupplyDemandTableModel extends TwoSidedTablePanel.AbstractTableModel<SupplyDemandTableModel.RowType, SupplyDemandTableModel.ColumnID>
 	{
 		enum ColumnID implements Tables.SimplifiedColumnIDInterface {
 			id         ("ID"                , Long     .class,  75),

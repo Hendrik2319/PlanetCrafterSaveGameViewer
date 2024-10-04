@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePanel.TablePanelWithTextArea;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
@@ -47,10 +48,10 @@ class FarWreckAreaTablePanel extends JSplitPane
 		}
 		
 		@Override
-		protected void tableSelectionChanged(WreckArea row)
+		protected void tableSelectionChanged(WreckArea row, int rowM)
 		{
 			pointTablePanel.setData(row);
-			super.tableSelectionChanged(row);
+			super.tableSelectionChanged(row, rowM);
 		}
 	
 		private static class ContextMenu extends TableContextMenu
