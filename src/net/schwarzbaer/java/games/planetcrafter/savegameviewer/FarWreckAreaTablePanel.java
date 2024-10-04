@@ -2,7 +2,6 @@ package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -16,16 +15,19 @@ import java.util.function.Function;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.TwoSidedTablePanel.TablePanelWithTextArea;
+import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
 import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
+import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 import net.schwarzbaer.java.lib.gui.ZoomableCanvas;
 
 class FarWreckAreaTablePanel extends JSplitPane
@@ -33,51 +35,73 @@ class FarWreckAreaTablePanel extends JSplitPane
 	private static final long serialVersionUID = -5756462259451478608L;
 	
 	FarWreckAreaTablePanel() {
-		super(JSplitPane.VERTICAL_SPLIT, true);
+		super(JSplitPane.HORIZONTAL_SPLIT, true);
 		
-		PointTablePanel pointTablePanel = new PointTablePanel();
-		WreckAreaTablePanel wreckAreaTablePanel = new WreckAreaTablePanel(pointTablePanel);
+		WreckAreaMapView wreckAreaMapView = new WreckAreaMapView();
+		wreckAreaMapView.setPreferredSize(300,300);
 		
-		setTopComponent(wreckAreaTablePanel);
-		setBottomComponent(pointTablePanel);
+		PointTablePanel pointTablePanel = new PointTablePanel(wreckAreaMapView);
+		WreckAreaTablePanel wreckAreaTablePanel = new WreckAreaTablePanel(wreckAreaMapView, pointTablePanel.tableModel);
+		
+		JSplitPane leftPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+		leftPanel.setTopComponent(wreckAreaTablePanel);
+		leftPanel.setBottomComponent(pointTablePanel);
+		leftPanel.setResizeWeight(0.25);
+		
+		setLeftComponent(leftPanel);
+		setRightComponent(wreckAreaMapView);
+		setResizeWeight(1);
 	}
 
-	private static class WreckAreaTablePanel extends TwoSidedTablePanel<WreckArea, WreckAreaTableModel.ColumnID, WreckAreaTableModel, WreckAreaMapView>
+	private static class WreckAreaTablePanel extends JScrollPane
 	{
 		private static final long serialVersionUID = -5756462259451478608L;
 		
-		private final PointTablePanel pointTablePanel;
+		private final WreckAreaTableModel tableModel;
+		private final JTable table;
 		
-		WreckAreaTablePanel(PointTablePanel pointTablePanel) {
-			super(WreckAreaMapView::new, new WreckAreaTableModel(pointTablePanel.tableModel), true, false, ContextMenu::new, LayoutPos.Right, new Dimension(200,200));
-			this.pointTablePanel = pointTablePanel;
-			this.pointTablePanel.setMapView(sideComp);
-			table.setPreferredScrollableViewportSize(table.getMinimumSize());
-		}
-		
-		@Override
-		protected void tableSelectionChanged(WreckArea row, int rowM)
+		WreckAreaTablePanel(WreckAreaMapView wreckAreaMapView, PointTableModel pointTableModel)
 		{
-			pointTablePanel.setData(row);
-			sideComp.setWreck(row);
-			super.tableSelectionChanged(row, rowM);
+			table = new JTable(tableModel = new WreckAreaTableModel(pointTableModel));
+			table.setPreferredScrollableViewportSize(table.getMinimumSize());
+			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.getSelectionModel().addListSelectionListener(e -> {
+				int rowV = table.getSelectedRow();
+				int rowM = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+				WreckArea row = tableModel.getRow(rowM);
+				pointTableModel.setData(row);
+				wreckAreaMapView.setWreck(row);
+			});
+			tableModel.setTable(table);
+			tableModel.setColumnWidths(table);
+			tableModel.setDefaultCellEditorsAndRenderers();
+			
+			setViewportView(table);
+			
+			TableContextMenu contextMenu = new TableContextMenu();
+			contextMenu.addTo(table);
+			contextMenu.addTo(this);
 		}
 	
-		private static class ContextMenu extends TableContextMenu
+		private class TableContextMenu extends ContextMenu
 		{
 			private static final long serialVersionUID = -798929965802654061L;
 	
-			public ContextMenu(JTable table, WreckAreaTableModel tableModel)
+			public TableContextMenu()
 			{
-				super(table);
-				
-				addSeparator();
-				
 				add(GUI.createMenuItem("Add empty area", e->{
 					FarWreckAreas wreckAreas = FarWreckAreas.getInstance();
 					wreckAreas.addEmptyArea();
 					tableModel.updateData();
 					wreckAreas.writeToFile();
+				}));
+				
+				addSeparator();
+				
+				add(GUI.createMenuItem("Show Column Widths", e->{
+					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 				}));
 			}
 		}
@@ -146,10 +170,10 @@ class FarWreckAreaTablePanel extends JSplitPane
 						
 						double width  = max.longitude_x-min.longitude_x;
 						double height = max.latitude_y -min.latitude_y ;
-						min.longitude_x -= width *0.5;
-						min.latitude_y  -= height*0.5;
-						max.longitude_x += width *0.5;
-						max.latitude_y  += height*0.5;
+						min.longitude_x -= width *0.2;
+						min.latitude_y  -= height*0.2;
+						max.longitude_x += width *0.2;
+						max.latitude_y  += height*0.2;
 					}
 					else
 					{
@@ -176,7 +200,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 
 	private static class WreckAreaTableModel
 		extends Tables.SimpleGetValueTableModel<WreckArea, WreckAreaTableModel.ColumnID>
-		implements TablePanelWithTextArea.TableModelExtension<WreckArea>
 	{
 		// Column Widths: [22, 59, 450] in ModelOrder
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<WreckArea>
@@ -218,25 +241,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			setData(FarWreckAreas.getInstance().getAreas());
 		}
-	
-		@Override
-		public String getRowText(WreckArea row, int rowIndex)
-		{
-			if (row==null)
-				return "";
-			
-			if (!row.hasPoints())
-				return "no points";
-			
-			StringBuilder sb = new StringBuilder();
-			
-			row.foreachPoint(p -> {
-				sb.append(String.format(Locale.ENGLISH, "(%1.4f, %1.4f)%n", p.x, p.y));
-			});
-			
-			return sb.toString();
-		}
-	
+		
 		@Override
 		protected Object getValueAt(int rowIndex, int columnIndex, ColumnID columnID, WreckArea row)
 		{
@@ -297,41 +302,41 @@ class FarWreckAreaTablePanel extends JSplitPane
 		}
 	}
 
-	private static class PointTablePanel extends TablePanelWithTextArea<Point2D.Double, PointTableModel.ColumnID, PointTableModel>
+	private static class PointTablePanel extends JScrollPane
 	{
 		private static final long serialVersionUID = -6063503904777655451L;
+		private final JTable table;
+		private final PointTableModel tableModel;
+		private final WreckAreaMapView wreckAreaMapView;
 
-		PointTablePanel() {
-			super(new PointTableModel(), true, ContextMenu::new, LayoutPos.Right, new Dimension(200,200));
+		PointTablePanel(WreckAreaMapView wreckAreaMapView)
+		{
+			this.wreckAreaMapView = wreckAreaMapView;
+			
+			table = new JTable(tableModel = new PointTableModel());
 			table.setPreferredScrollableViewportSize(table.getMinimumSize());
-		}
-		
-		void setMapView(WreckAreaMapView wreckAreaMapView)
-		{
-			if (tableContextMenu instanceof ContextMenu contextMenu)
-				contextMenu.setMapView(wreckAreaMapView);
+			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			tableModel.setTable(table);
+			tableModel.setColumnWidths(table);
+			tableModel.setDefaultCellEditorsAndRenderers();
+			
+			setViewportView(table);
+			
+			TableContextMenu contextMenu = new TableContextMenu();
+			contextMenu.addTo(table);
 		}
 
-		void setData(WreckArea wreckArea)
-		{
-			tableModel.setData(wreckArea);
-			setText("");
-		}
-
-		private static class ContextMenu extends TableContextMenu
+		private class TableContextMenu extends ContextMenu
 		{
 			private static final long serialVersionUID = -2005702283744870615L;
 			
 			private int clickedRowIndex = -1;
 			private Point2D.Double clickedRow = null;
-			private WreckAreaMapView wreckAreaMapView = null;
 
-			public ContextMenu(JTable table, PointTableModel tableModel)
+			TableContextMenu()
 			{
-				super(table);
-				
-				addSeparator();
-				
 				JMenuItem miMovePointUp = add(GUI.createMenuItem("Move Point Up", GrayCommandIcons.IconGroup.Up, true, e->{
 					tableModel.swapRows(clickedRowIndex, clickedRowIndex-1);
 					if (wreckAreaMapView!=null) wreckAreaMapView.repaint();
@@ -361,6 +366,12 @@ class FarWreckAreaTablePanel extends JSplitPane
 					FarWreckAreas.getInstance().writeToFile();
 				}));
 				
+				addSeparator();
+				
+				add(GUI.createMenuItem("Show Column Widths", e->{
+					System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
+				}));
+				
 				
 				addContextMenuInvokeListener((comp,x,y) -> {
 					int rowV = table.rowAtPoint(new Point(x,y));
@@ -376,11 +387,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 					miDeletePoint  .setText( clickedRowIndex<0 ? "Delete Point"    : "Delete Point %d"   .formatted(clickedRowIndex+1) );
 					miMoveListToEnd.setText( clickedRowIndex<0 ? "Move List to end at Point" : "Move List to end at Point %d".formatted(clickedRowIndex+1) );
 				});
-			}
-			
-			void setMapView(WreckAreaMapView wreckAreaMapView)
-			{
-				this.wreckAreaMapView = wreckAreaMapView;
 			}
 		}
 	}
@@ -423,7 +429,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 	
 	private static class PointTableModel
 		extends Tables.SimpleGetValueTableModel<Point2D.Double, PointTableModel.ColumnID>
-		implements TablePanelWithTextArea.TableModelExtension<Point2D.Double>
 	{
 		enum ColumnID implements Tables.SimpleGetValueTableModel.ColumnIDTypeInt<Point2D.Double>
 		{
@@ -486,12 +491,6 @@ class FarWreckAreaTablePanel extends JSplitPane
 			PointTableCellRenderer ptcr = new PointTableCellRenderer(this);
 			setDefaultRenderers(clazz -> ptcr);
 			super.setDefaultCellEditorsAndRenderers();
-		}
-
-		@Override
-		public String getRowText(Point2D.Double row, int rowIndex)
-		{
-			return row==null ? "" : String.format(Locale.ENGLISH, "(%1.6f, %1.6f)", row.x, row.y);
 		}
 
 		@Override
