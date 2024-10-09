@@ -11,6 +11,7 @@ import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapWorldObjectData;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
@@ -171,7 +172,7 @@ class Data {
 		
 		// Assign WorldObjects to ObjectLists (-> WO is contained by ObjectList)   via   WorldObject.id == ObjectList.ol.worldObjIds[n]
 		for (ObjectList ol : objectLists) {
-			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, wo -> {
+			ol.worldObjs = generateWorldObjectArray(mapWorldObjects, ol.worldObjIds, WorldObject::new, wo -> {
 				if (wo.container == null)
 					wo.container = ContainerWO.create(ol.container, ol);
 				else
@@ -186,8 +187,8 @@ class Data {
 		
 		if (generatedWrecks!=null)
 			for (GeneratedWreck genWreck : generatedWrecks) {
-				genWreck.worldObjsGenerated = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsGenerated, null);
-				genWreck.worldObjsDropped   = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsDropped  , null);
+				genWreck.worldObjsGenerated = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsGenerated, WorldObject::new, null);
+				genWreck.worldObjsDropped   = generateWorldObjectArray(mapWorldObjects, genWreck.worldObjIdsDropped  , WorldObject::new, null);
 			}
 		
 		
@@ -217,19 +218,21 @@ class Data {
 		return null;
 	}
 	
-	private static WorldObject[] generateWorldObjectArray(HashMap<Long,WorldObject> mapWorldObjects, long[] worldObjIds, Consumer<WorldObject> postprocessWO)
-	{
+	private static WorldObject[] generateWorldObjectArray(
+			HashMap<Long,WorldObject> mapWorldObjects,
+			long[] worldObjIds,
+			LongFunction<WorldObject> createEmptyWorldObject,
+			Consumer<WorldObject> postprocessWO
+	) {
 		return Arrays
 				.stream(worldObjIds)
 				.mapToObj(woId -> {
 					WorldObject wo = mapWorldObjects.get(woId);
-					if (wo!=null)
-					{
-						if (postprocessWO!=null)
-							postprocessWO.accept(wo);
-						return wo;
-					}
-					return new WorldObject(woId);
+					if (wo == null)
+						return createEmptyWorldObject.apply(woId);
+					if (postprocessWO != null)
+						postprocessWO.accept(wo);
+					return wo;
 				})
 				.toArray(WorldObject[]::new);
 	}
@@ -838,6 +841,22 @@ class Data {
 		}
 	}
 
+	private String getGenericContainerLabel(long objectListID)
+	{
+		if (playerStates!=null) {
+			if (playerStates.inventoryId!=null && playerStates.inventoryId.longValue()==objectListID)
+				return String.format("Player Inventory [List:%d]", objectListID);
+			if (playerStates.equipmentId!=null && playerStates.equipmentId.longValue()==objectListID)
+				return String.format("Player Equipment [List:%d]", objectListID);
+		}
+		if (objectListID==1)
+			return String.format("Player Inventory (old) [List:%d]", objectListID);
+		if (objectListID==2)
+			return String.format("Player Equipment (old) [List:%d]", objectListID);
+		
+		return String.format("<UnknownContainer> [List:%d]", objectListID);
+	}
+
 	static class PlayerStates extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(PlayerStates.class)
 				// V 1.0 values
@@ -977,7 +996,7 @@ class Data {
 		}
 	}
 	
-	static class WorldObject extends Reversable {
+	class WorldObject extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(WorldObject.class)
 				.add("id"    , Value.Type.Integer)
 				.add("gId"   , Value.Type.String )
@@ -1255,7 +1274,7 @@ class Data {
 					if (container.wo != null)
 						container.wo.addShortDescTo(out, 1);
 					else
-						out.add(1, null, "%s", getContainerLabel(container.ol.id));
+						out.add(1, null, "%s", getGenericContainerLabel(container.ol.id));
 				}
 				
 				if (objectType!=null)
@@ -1417,21 +1436,7 @@ class Data {
 				//return String.format("%s (\"%s\", Pos:%s)", row.container.objType, row.container.text, row.container.position);
 				return container.wo.getShortDesc();
 			
-			return getContainerLabel(container.ol.id);
-		}
-
-		public static String getContainerLabel(long objectListID)
-		{
-			if (objectListID >= 0xFFFFFFFFL)
-				return String.format("<UnknownContainer> [List:%d]", objectListID);
-			
-			switch ((int) objectListID) {
-				case 1 : return String.format("Player Inventory (old)"+" [List:%d]", objectListID);
-				case 2 : return String.format("Player Equipment (old)"+" [List:%d]", objectListID);
-				case 3 : return String.format("Player Inventory"      +" [List:%d]", objectListID);
-				case 4 : return String.format("Player Equipment"      +" [List:%d]", objectListID);
-				default: return String.format("<UnknownContainer>"    +" [List:%d]", objectListID);
-			}
+			return getGenericContainerLabel(container.ol.id);
 		}
 	}
 
