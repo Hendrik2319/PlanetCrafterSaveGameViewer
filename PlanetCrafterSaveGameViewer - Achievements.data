@@ -1,3 +1,5 @@
+Planet: Prime
+
 Oxygen
 1000.0|{Ladder}
 1850.0|{Heater2}
@@ -166,4 +168,6 @@ Stages
 4.25E11|Amphibians
 1.25E12|Mammals
 5.0E12|Full Terraformation
+
+Planet: Humble
 

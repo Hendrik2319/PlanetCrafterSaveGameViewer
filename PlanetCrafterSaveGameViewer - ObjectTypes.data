@@ -703,6 +703,9 @@ label_de = Kreatur-DNA
 class = Resource_Craftable
 occurrences = WorldObject,ObjectList
 
+ObjectType: Dolomite
+occurrences = WorldObject
+
 ObjectType: Drill0
 label_en = Drill T1
 class = Structure_Machine
@@ -856,6 +859,9 @@ label_en = Landing Pod
 class = Structure_Building
 occurrences = WorldObject
 <finished>
+
+ObjectType: EscapePodHumble
+occurrences = WorldObject
 
 ObjectType: Explosive
 label_en = Explosive
@@ -1675,6 +1681,9 @@ moRange = 75.0
 moCapacity = 8
 <finished>
 
+ObjectType: OreBreaker1
+occurrences = WorldObject
+
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1
 class = Structure_Machine
@@ -1729,6 +1738,7 @@ ObjectType: OxygenTank1
 label_en = Oxygen Tank T1
 label_de = Sauerstofftank T1
 class = Equipment_Player
+occurrences = WorldObject
 <finished>
 
 ObjectType: OxygenTank2
@@ -2102,6 +2112,9 @@ class = Resource_SeedEgg
 oxygenMultiplier = 5.0
 occurrences = WorldObject,ObjectList
 <finished>
+
+ObjectType: Seed7Humble
+occurrences = WorldObject
 
 ObjectType: SeedGold
 label_en = Golden Seeds (600%)
