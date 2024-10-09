@@ -310,7 +310,6 @@ class MapShapes
 		}
 		
 		private final LineEditor lineEditor;
-		private final ObjectTypes objectTypes;
 		private final MapShapes mapShapes;
 		private final JPanel leftPanel;
 		private JComponent lineEditorOptionsPanel;
@@ -321,10 +320,9 @@ class MapShapes
 		private final EditorClipboard editorClipboard;
 		private final EditorListener listener;
 		
-		public Editor(Window parent, String title, MapShapes mapShapes, ObjectTypes objectTypes, EditorListener listener)
+		public Editor(Window parent, String title, MapShapes mapShapes, EditorListener listener)
 		{
 			super(parent, title, ModalityType.MODELESS, true);
-			this.objectTypes = objectTypes;
 			this.listener = listener;
 			this.mapShapes = Objects.requireNonNull(mapShapes);
 			selectedObjectType = null;
@@ -397,7 +395,7 @@ class MapShapes
 					return null;
 				});
 				
-				cmbbxObjectTypes = new JComboBox<>(objectTypes.getListSortedByName());
+				cmbbxObjectTypes = new JComboBox<>(ObjectTypes.getInstance().getListSortedByName());
 				cmbbxObjectTypes.setRenderer(cmbbxObjectTypesRenderer);
 				cmbbxMapShapes = new JComboBox<>();
 				
@@ -961,7 +959,7 @@ class MapShapes
 
 		public void updateAfterNewObjectTypes()
 		{
-			Vector<ObjectType> list = objectTypes.getListSortedByName();
+			Vector<ObjectType> list = ObjectTypes.getInstance().getListSortedByName();
 			mapShapesEditorOptionsPanel.setObjectTypes(list,selectedObjectType);
 		}
 

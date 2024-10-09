@@ -37,10 +37,10 @@ class ObjectTypesPanel extends JScrollPane {
 	private final JTable table;
 	private final PlanetCrafterSaveGameViewer main;
 	
-	ObjectTypesPanel(PlanetCrafterSaveGameViewer main, ObjectTypes objectTypes, HashMap<String,Integer> amounts)
+	ObjectTypesPanel(PlanetCrafterSaveGameViewer main, HashMap<String,Integer> amounts)
 	{
 		this.main = main;
-		tableModel = new ObjectTypesTableModel(this, objectTypes, amounts);
+		tableModel = new ObjectTypesTableModel(this, amounts);
 		table = new JTable(tableModel);
 		table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -359,10 +359,10 @@ class ObjectTypesPanel extends JScrollPane {
 		private final HashMap<String, Integer> amounts;
 		private final ObjectTypesPanel panel;
 
-		private ObjectTypesTableModel(ObjectTypesPanel panel, ObjectTypes objectTypes, HashMap<String,Integer> amounts) {
+		private ObjectTypesTableModel(ObjectTypesPanel panel, HashMap<String,Integer> amounts) {
 			super(ColumnID.values());
 			this.panel = panel;
-			this.objectTypes = objectTypes;
+			this.objectTypes = ObjectTypes.getInstance();
 			this.amounts = amounts;
 			objTypeIDs = new Vector<>(this.objectTypes.keySet());
 			objTypeIDs.sort(Data.caseIgnoringComparator);

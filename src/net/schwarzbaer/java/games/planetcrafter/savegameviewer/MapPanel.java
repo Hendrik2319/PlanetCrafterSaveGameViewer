@@ -171,7 +171,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					
 				case ObjectType:
 					cmbbxObjLabels.setEnabled(false);
-					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(this.main, "Object Type Colors").showDialogAndGetColors();
+					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(this.main.mainWindow, "Object Type Colors").showDialogAndGetColors();
 					mapModel.setObjectTypeColors(objectTypeColors);
 					break;
 				}

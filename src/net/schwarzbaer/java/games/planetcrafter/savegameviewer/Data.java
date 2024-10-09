@@ -197,6 +197,11 @@ class Data {
 		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
 	}
 	
+	Data.GeneralData2.PlanetId getPlanet()
+	{
+		return generalData2==null ? null : generalData2.planetId;
+	}
+	
 	private static ObjectList assignWorldObject2ObjectListAsContainer(WorldObject wo, long listId, String containerLabel, HashMap<Long, ObjectList> mapObjectLists)
 	{
 		ObjectList ol = 0 < listId ? mapObjectLists.get(listId) : null;

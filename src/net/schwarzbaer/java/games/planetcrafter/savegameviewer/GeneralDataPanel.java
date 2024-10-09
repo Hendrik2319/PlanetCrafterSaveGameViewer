@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.PlanetAchievements;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Layer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
@@ -48,7 +49,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 	private final TerraformingStatesPanel terraformingStatesPanel;
 	private final PlayerStatesPanel playerStatesPanel;
 
-	GeneralDataPanel(Data data, Achievements achievements) {
+	GeneralDataPanel(Data data, PlanetAchievements achievements) {
 		//this.data = data;
 		GridBagConstraints c;
 		
@@ -423,7 +424,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 		private final Row terraformRow;
 		private final Row stagesRow;
 		
-		TerraformingStatesPanel(Data.AchievedValues data, Achievements achievements) {
+		TerraformingStatesPanel(Data.AchievedValues data, PlanetAchievements achievements) {
 			super(new GridBagLayout());
 			setBorder(BorderFactory.createTitledBorder("Terraforming"));
 			
@@ -469,7 +470,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			add(new JLabel(), c);
 		}
 
-		private static String getStageRatioStr(Achievements achievements, Double terraformLevel)
+		private static String getStageRatioStr(PlanetAchievements achievements, Double terraformLevel)
 		{
 			if (terraformLevel==null) return "--";
 			Double achievementRatio = achievements.getAchievementRatio(terraformLevel, AchievementList.Stages);
@@ -588,16 +589,16 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			private final AchievementTextField fieldAchievement;
 			private final boolean oneLine;
 			
-			private final Achievements achievements;
+			private final PlanetAchievements achievements;
 			private final double level;
 			private final AchievementList achievementList;
 			
 			private double rate;
 
-			Row(double level, Achievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
+			Row(double level, PlanetAchievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate) {
 				this(level, achievements, achievementList, panelBgColor, formatLevel, formatRate, false, null);
 			}
-			Row(double level, Achievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean oneLine, Function<Double,String> formatLevel2) {
+			Row(double level, PlanetAchievements achievements, AchievementList achievementList, Color panelBgColor, Function<Double,String> formatLevel, Function<Double,String> formatRate, boolean oneLine, Function<Double,String> formatLevel2) {
 				this.achievements = achievements;
 				this.achievementList = achievementList;
 				this.level = level;

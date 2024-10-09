@@ -56,13 +56,11 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 {
 	private final File datafile;
 	private final HashMap<String,AutoCrafterTradingItem> data;
-	private final ObjectTypes objectTypes;
 	private AutoCrafterTradingPanel panel;
 	private final RecipeEditorDialog recipeEditorDialog;
 
-	AutoCrafterTrading(ObjectTypes objectTypes, File datafile, Window mainWindow)
+	AutoCrafterTrading(File datafile, Window mainWindow)
 	{
-		this.objectTypes = objectTypes;
 		this.datafile = datafile;
 		data = new HashMap<>();
 		panel = null;
@@ -86,7 +84,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 			String dlgMessageIfNothingFound,
 			String dlgTitleOfSelectDialog, String dlgMessageOfSelectDialog
 	) {
-		Vector<ObjectType> types = objectTypes.collectTypes(predicate);
+		Vector<ObjectType> types = ObjectTypes.getInstance().collectTypes(predicate);
 		
 		if (types.isEmpty())
 		{
@@ -129,6 +127,7 @@ class AutoCrafterTrading implements ObjectTypesChangeListener
 	{
 		System.out.printf("Read AutoCrafterTrading data from file \"%s\" ...%n", datafile.getAbsolutePath());
 		data.clear();
+		ObjectTypes objectTypes = ObjectTypes.getInstance();
 		
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(datafile), StandardCharsets.UTF_8)))
 		{

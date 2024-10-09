@@ -40,6 +40,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.PlanetAchievements;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneralData2.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
@@ -67,7 +69,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	public enum FlagIcons { DE,GB; public Icon getIcon() { return FlagIconsIS.getCachedIcon(this); } }
 	enum LabelLanguage { EN, DE }
 
-	private static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
+	        static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	        static final String FILE_ACHIEVEMENTS        = "PlanetCrafterSaveGameViewer - Achievements.data";
 	private static final String FILE_MAPSHAPES           = "PlanetCrafterSaveGameViewer - MapShapes.data";
             static final String FILE_MAPBGIMAGE          = "PlanetCrafterSaveGameViewer - MapBackgroundImage."+MapBackgroundImage.FILE_MAPBGIMAGE_EXT;
@@ -82,6 +84,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
 		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 		
+		staticInitialize();
 		new PlanetCrafterSaveGameViewer().initialize();
 	}
 	
@@ -102,8 +105,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	private       File openFile;
 	private       Data loadedData;
 	        final MapShapes mapShapes;
-	private final ObjectTypes objectTypes;
-	private       Achievements achievements;
 	private final AutoCrafterTrading autoCrafterTrading;
 
 	PlanetCrafterSaveGameViewer() {
@@ -111,11 +112,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		
 		openFile = null;
 		loadedData = null;
-		objectTypes = new ObjectTypes(new File(FILE_OBJECT_TYPES));
-		achievements = null;
 		generalDataPanel = null;
 		objectTypesPanel = null;
-		autoCrafterTrading = new AutoCrafterTrading(objectTypes, new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
+		autoCrafterTrading = new AutoCrafterTrading(new File(FILE_AUTOCRAFTER_TRADING), mainWindow);
 		TerraformingCalculation.getInstance().clearData();
 		
 		jsonFileChooser = new FileChooser("JSON File", "json");
@@ -138,7 +137,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		AppSettings.getInstance().registerAppWindow(mainWindow);
 		
 		mapShapes = new MapShapes(mainWindow, new File(FILE_MAPSHAPES));
-		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, objectTypes, event -> {
+		mapShapesEditor = new MapShapes.Editor(mainWindow, "MapShapes Editor", mapShapes, event -> {
 			switch (event.type())
 			{
 				case HasGotFirstShape:
@@ -202,12 +201,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				break;
 				
 			case OpenSaveGame:
-				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
 					readFile(jsonFileChooser.getSelectedFile());
 				break;
 				
 			case ScanSaveGame:
-				if (jsonFileChooser.showOpenDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+				if (jsonFileChooser.showOpenDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
 					scanFile(jsonFileChooser.getSelectedFile());
 				break;
 				
@@ -215,15 +214,16 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				if (loadedData!=null) {
 					if (openFile!=null)
 						jsonFileChooser.setSelectedFile(openFile);
-					if (jsonFileChooser.showSaveDialog(getMainWindow())==JFileChooser.APPROVE_OPTION)
+					if (jsonFileChooser.showSaveDialog(mainWindow)==JFileChooser.APPROVE_OPTION)
 						writeReducedFile(jsonFileChooser.getSelectedFile(), loadedData);
 				}
 				break;
 				
 			case ConfigureAchievements:
-				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(getMainWindow(),achievements,this::getAchievedValues);
+				PlanetId planet = loadedData==null ? null : loadedData.getPlanet();
+				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(mainWindow,planet,this::getAchievedValues);
 				dlg.showDialog(StandardDialog.Position.PARENT_CENTER);
-				achievements.writeToFile();
+				Achievements.getInstance().writeToFile();
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
 				break;
@@ -366,14 +366,21 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		}
 	}
 
+	private static void staticInitialize()
+	{
+		ObjectTypes objectTypes = ObjectTypes.getInstance();
+		objectTypes.readFromFile();
+		
+		Achievements achievements = Achievements.getInstance();
+		achievements.readFromFile();
+		achievements.updateObjectTypeAssignments();
+		achievements.sortAchievements();
+	}
+
 	private void initialize() {
 		jsonFileChooser.setCurrentDirectory(guessDirectory());
 		
-		objectTypes.readFromFile();
 		autoCrafterTrading.readFromFile();
-		achievements = Achievements.readFromFile();
-		achievements.setObjectTypesData(objectTypes);
-		achievements.sortAchievements();
 		mapShapes.readFromFile();
 		mapShapesEditor.updateAfterNewObjectTypes();
 		FarWreckAreas.getInstance().readFromFile();
@@ -418,6 +425,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			
 			showIndeterminateTask(pd, "Parse JSON Structure");
 			HashSet<String> newObjectTypes = new HashSet<>();
+			ObjectTypes objectTypes = ObjectTypes.getInstance();
 			Data data = Data.parse(
 					jsonStructure,
 					(objectTypeID,occurrence) -> objectTypes.getOrCreate(objectTypeID, occurrence, newObjectTypes)
@@ -481,14 +489,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		});
 	}
 
-	StandardMainWindow getMainWindow() {
-		return mainWindow;
-	}
-
-	ObjectTypes getObjectTypes() {
-		return objectTypes;
-	}
-
 	void showMapShapesEditor(ObjectType objectType)
 	{
 		mapShapesEditor.showDialog(objectType);
@@ -518,7 +518,11 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		Data.clearAllRemoveStateListeners();
 		dataTabPane.removeAll();
 		TerraformingCalculation.getInstance().clearData();
-		generalDataPanel = new GeneralDataPanel(data, achievements);
+		
+		PlanetId planet = data.getPlanet();
+		if (planet==null) planet=PlanetId.Prime;
+		PlanetAchievements achievements = Achievements.getInstance().getOrCreate(planet);
+		generalDataPanel = new GeneralDataPanel(data,achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
 		MapPanel mapPanel = new MapPanel(this, data);
 		
@@ -531,12 +535,12 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				amounts.put( wo.objectTypeID, n+1 );
 			}
 		
-		objectTypesPanel = new ObjectTypesPanel(this, objectTypes, amounts);
-		objectTypesPanel.addObjectTypesChangeListener(e -> objectTypes.writeToFile());
+		objectTypesPanel = new ObjectTypesPanel(this, amounts);
+		objectTypesPanel.addObjectTypesChangeListener(e -> ObjectTypes.getInstance().writeToFile());
 		objectTypesPanel.addObjectTypesChangeListener(mapPanel);
 		objectTypesPanel.addObjectTypesChangeListener(terraformingPanel);
 		objectTypesPanel.addObjectTypesChangeListener(generalDataPanel);
-		objectTypesPanel.addObjectTypesChangeListener(achievements);
+		objectTypesPanel.addObjectTypesChangeListener(Achievements.getInstance());
 		objectTypesPanel.addObjectTypesChangeListener(mapShapesEditor);
 		objectTypesPanel.addObjectTypesChangeListener(autoCrafterTrading);
 		

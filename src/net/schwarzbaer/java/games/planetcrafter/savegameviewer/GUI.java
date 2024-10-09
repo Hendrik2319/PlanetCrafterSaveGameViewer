@@ -762,14 +762,11 @@ class GUI {
 	static class ObjectTypeColorsDialog extends StandardDialog {
 		private static final long serialVersionUID = 7975796985768293299L;
 		
-		private final PlanetCrafterSaveGameViewer main;
 		private final ColorTableModel tableModel;
 		private final JTable table;
 
-
-		ObjectTypeColorsDialog(PlanetCrafterSaveGameViewer main, String title) {
-			super(main.getMainWindow(), title);
-			this.main = main;
+		ObjectTypeColorsDialog(Window window, String title) {
+			super(window, title);
 			
 			tableModel = new ColorTableModel();
 			table = new JTable(tableModel);
@@ -798,7 +795,7 @@ class GUI {
 			//System.out.printf("ObjectTypeColorsDialog.input: %s%n", colorArrStr);
 			HashMap<String, Color> colors = decodeColors(colorArrStr);
 			//colors.forEach((id,color)->System.out.printf("ObjectTypeColorsDialog.input: \"%s\", %s%n", id, color));
-			tableModel.setData(colors, main.getObjectTypes());
+			tableModel.setData(colors);
 			
 			showDialog();
 			
@@ -893,14 +890,14 @@ class GUI {
 			private boolean somethingWasChanged;
 			private final HashMap<String, Color> colors;
 			private final Vector<String> objectTypeIDs;
-			private ObjectTypes objectTypes;
+			private final ObjectTypes objectTypes;
 
 			protected ColorTableModel() {
 				super(ColumnID.values());
 				somethingWasChanged = false;
 				colors = new HashMap<>();
 				objectTypeIDs = new Vector<>();
-				objectTypes = null;
+				objectTypes = ObjectTypes.getInstance();
 			}
 
 			void setDefaultCellEditorsAndRenderers(Window window) {
@@ -914,12 +911,11 @@ class GUI {
 				return somethingWasChanged;
 			}
 
-			void setData(HashMap<String, Color> colors, ObjectTypes objectTypes) {
-				this.objectTypes = objectTypes;
+			void setData(HashMap<String, Color> colors) {
 				this.colors.clear();
 				this.colors.putAll(colors);
 				somethingWasChanged = false;
-				HashSet<String> objectTypeIDSet = new HashSet<>(this.objectTypes.keySet());
+				HashSet<String> objectTypeIDSet = new HashSet<>(objectTypes.keySet());
 				objectTypeIDSet.addAll(this.colors.keySet());
 				objectTypeIDs.clear();
 				objectTypeIDs.addAll(objectTypeIDSet);

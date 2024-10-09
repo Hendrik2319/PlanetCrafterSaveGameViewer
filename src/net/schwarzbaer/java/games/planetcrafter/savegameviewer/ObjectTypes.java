@@ -22,6 +22,14 @@ import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSave
 
 class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	private static final long serialVersionUID = 4515890497957737670L;
+	
+	private static ObjectTypes instance = null;
+	static ObjectTypes getInstance()
+	{
+		return instance == null
+				? instance = new ObjectTypes()
+				: instance;
+	}
 
 	enum ObjectTypeValue {
 		Finished, Label_en, Label_de, Class_,
@@ -111,19 +119,13 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 
 	static final String EnergyRateUnit = "kW";
 	static final double DEFAULT_BOOSTER_MULTIPLIER = 10;
-	
-	private final File datafile;
-
-	ObjectTypes(File datafile)
-	{
-		this.datafile = datafile;
-	}
 
 	static String formatEnergyRate(double energy) {
 		return String.format(Locale.ENGLISH, "%1.2f %s", energy, EnergyRateUnit);
 	}
 
 	void readFromFile() {
+		File datafile = new File(PlanetCrafterSaveGameViewer.FILE_OBJECT_TYPES);
 		System.out.printf("Read ObjectTypes from file \"%s\" ...%n", datafile.getAbsolutePath());
 		clear();
 		
@@ -185,6 +187,7 @@ class ObjectTypes extends HashMap<String, ObjectTypes.ObjectType> {
 	}
 
 	void writeToFile() {
+		File datafile = new File(PlanetCrafterSaveGameViewer.FILE_OBJECT_TYPES);
 		System.out.printf("Write ObjectTypes to file \"%s\" ...%n", datafile.getAbsolutePath());
 		
 		try (PrintWriter out = new PrintWriter(datafile, StandardCharsets.UTF_8)) {

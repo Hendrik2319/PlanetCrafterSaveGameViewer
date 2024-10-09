@@ -1,5 +1,6 @@
 package net.schwarzbaer.java.games.planetcrafter.savegameviewer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -14,16 +15,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Vector;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,6 +38,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneralData2.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
@@ -47,7 +50,15 @@ import net.schwarzbaer.java.lib.gui.Tables;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedColumnConfig;
 import net.schwarzbaer.java.lib.gui.Tables.SimplifiedTableModel;
 
-class Achievements implements ObjectTypesChangeListener {
+class Achievements implements ObjectTypesChangeListener
+{
+	private static Achievements instance = null;
+	static Achievements getInstance()
+	{
+		return instance == null
+				? instance = new Achievements()
+				: instance;
+	}
 	
 	private static final Comparator<Achievement> ACHIEVEMENT_COMPARATOR = Comparator
 	.<Achievement,Double>comparing(a->a.getLevel(), Comparator.nullsLast(Comparator.naturalOrder()))
@@ -75,41 +86,68 @@ class Achievements implements ObjectTypesChangeListener {
 		}
 	}
 	
-	private final EnumMap<AchievementList,Vector<Achievement>> achievements;
-	private ObjectTypes objectTypes;
+	private final EnumMap<PlanetId,PlanetAchievements> achievements;
 	
-	Achievements() {
-		achievements = new EnumMap<>(AchievementList.class);
-		objectTypes = null;
+	private Achievements() {
+		achievements = new EnumMap<>(PlanetId.class);
+	}
+	
+	private static String getValue(String line, String prefix) {
+		if (line.startsWith(prefix))
+			return line.substring(prefix.length());
+		return null;
 	}
 
-	static Achievements readFromFile() {
+	void readFromFile() {
 		File file = new File(PlanetCrafterSaveGameViewer.FILE_ACHIEVEMENTS); 		
-		Achievements achievements = new Achievements();
+		achievements.clear();
 		
 		System.out.printf("Read Achievements from file \"%s\" ...%n", file.getAbsolutePath());
 		
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
 			
 			String line;
-			Achievement value;
+			String valueStr; 
+			PlanetId currentPlanet = PlanetId.Prime;
+			PlanetAchievements planetAchievements = null;
 			Vector<Achievement> currentList = null;
+			Achievement value;
+			boolean planetHeaderFound = false;
+			
 			while ( (line=in.readLine())!=null ) {
 				
 				if (line.isEmpty())
 					continue;
 				
-				AchievementList listType = AchievementList.valueOf_checked(line);
-				if (listType!=null) {
-					currentList = achievements.achievements.get(listType);
-					if (currentList==null)
-						achievements.achievements.put(listType, currentList = new Vector<>());
+				if ( (valueStr=getValue(line, "Planet: "))!=null ) {
+					currentPlanet = PlanetId.parse(valueStr);
+					if (currentPlanet != null)
+						achievements.put(currentPlanet, planetAchievements = new PlanetAchievements());
+					else
+						planetAchievements = null;
+					currentList = null;
+					planetHeaderFound = true;
 					continue;
 				}
 				
-				if ( (value=Achievement.parseLine(line))!=null )
-					if (!value.isEmpty() && currentList!=null)
+				AchievementList listType = AchievementList.valueOf_checked(line);
+				if (listType!=null) {
+					if (planetAchievements==null && !planetHeaderFound) {
+						currentPlanet = PlanetId.Prime;
+						achievements.put(currentPlanet, planetAchievements = new PlanetAchievements());
+					}
+					if (planetAchievements!=null) {
+						currentList = planetAchievements.achievements.computeIfAbsent(listType, al->new Vector<>());
+					} else
+						currentList = null;
+					continue;
+				}
+				
+				if (currentList!=null) {
+					if ( (value=Achievement.parseLine(line))!=null && !value.isEmpty())
 						currentList.add(value);
+					continue;
+				}
 				
 			}
 			
@@ -121,29 +159,31 @@ class Achievements implements ObjectTypesChangeListener {
 		}
 		
 		System.out.printf("Done%n");
-		
-		return achievements;
 	}
 
-	void sortAchievements() {
-		forEachList((al,list) -> list.sort( ACHIEVEMENT_COMPARATOR ));
-	}
-	
 	void writeToFile() {
 		File file = new File(PlanetCrafterSaveGameViewer.FILE_ACHIEVEMENTS); 		
 		System.out.printf("Write Achievements to file \"%s\" ...%n", file.getAbsolutePath());
 		
 		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
 			
-			forEachList((al,list) -> {
-				if (!list.isEmpty()) {
-					Vector<Achievement> sorted = new Vector<>(list);
-					sorted.sort(ACHIEVEMENT_COMPARATOR);
-					out.println(al.name());
-					for (Achievement a : sorted)
-						out.println(a.toLine());
-					out.println();
-				}
+			achievements.forEach((planet,map) -> {
+				if (map.achievements.isEmpty())
+					return;
+				
+				out.printf("Planet: %s%n", planet);
+				out.println();
+				
+				map.achievements.forEach((al,list) -> {
+					if (!list.isEmpty()) {
+						Vector<Achievement> sorted = new Vector<>(list);
+						sorted.sort(ACHIEVEMENT_COMPARATOR);
+						out.println(al.name());
+						for (Achievement a : sorted)
+							out.println(a.toLine());
+						out.println();
+					}
+				});
 			});
 			
 		} catch (IOException ex) {
@@ -154,48 +194,54 @@ class Achievements implements ObjectTypesChangeListener {
 		System.out.printf("Done%n");
 	}
 
-	void forEachList(BiConsumer<AchievementList,Vector<Achievement>> action) {
-		for (AchievementList al : AchievementList.values()) {
-			Vector<Achievement> list = achievements.get(al);
-			if (list!=null)
-				action.accept(al,list);
-		}
+	void sortAchievements() {
+		achievements.forEach(
+				(planet,pa) -> pa.achievements.forEach(
+						(al,list) -> list.sort( ACHIEVEMENT_COMPARATOR )
+				)
+		);
 	}
 
-	Achievement getNextAchievement(double level, AchievementList listType) {
-		Vector<Achievement> list = getAchievementsList(listType);
-		// pre: list is sorted by level, with level==null at end of list 
-		if (list!=null)
-			for (Achievement a : list) {
-				if (a.level==null)
-					return null;
-				if (a.level.doubleValue()>level)
-					return a;
-			}
-		return null;
-	}
-
-	private Vector<Achievement> getAchievementsList(AchievementList listType) {
-		return achievements.get(listType);
-	}
-
-	Double getAchievementRatio(double level, AchievementList listType)
+	class PlanetAchievements
 	{
-		Vector<Achievement> list = getAchievementsList(listType);
-		// pre: list is sorted by level, with level==null at end of list 
-		if (list!=null)
+		private final EnumMap<AchievementList,Vector<Achievement>> achievements;
+		
+		PlanetAchievements()
 		{
-			double lastAchievementLevel = 0;
-			for (Achievement a : list) {
-				if (a.level==null)
-					return null;
-				double achievementLevel = a.level.doubleValue();
-				if (achievementLevel>level)
-					return (level-lastAchievementLevel) / (achievementLevel-lastAchievementLevel);
-				lastAchievementLevel = achievementLevel;
-			}
+			achievements = new EnumMap<>(AchievementList.class);
 		}
-		return null;
+	
+		Achievement getNextAchievement(double level, AchievementList listType) {
+			Vector<Achievement> list = achievements.get(listType);
+			// pre: list is sorted by level, with level==null at end of list 
+			if (list!=null)
+				for (Achievement a : list) {
+					if (a.level==null)
+						return null;
+					if (a.level.doubleValue()>level)
+						return a;
+				}
+			return null;
+		}
+	
+		Double getAchievementRatio(double level, AchievementList listType)
+		{
+			Vector<Achievement> list = achievements.get(listType);
+			// pre: list is sorted by level, with level==null at end of list 
+			if (list!=null)
+			{
+				double lastAchievementLevel = 0;
+				for (Achievement a : list) {
+					if (a.level==null)
+						return null;
+					double achievementLevel = a.level.doubleValue();
+					if (achievementLevel>level)
+						return (level-lastAchievementLevel) / (achievementLevel-lastAchievementLevel);
+					lastAchievementLevel = achievementLevel;
+				}
+			}
+			return null;
+		}
 	}
 
 	@Override
@@ -206,17 +252,25 @@ class Achievements implements ObjectTypesChangeListener {
 		}
 	}
 
-	void setObjectTypesData(ObjectTypes objectTypes) {
-		this.objectTypes = objectTypes;
-		updateObjectTypeAssignments();
+	PlanetAchievements getOrCreate(PlanetId planet)
+	{
+		return achievements.computeIfAbsent(planet, p->new PlanetAchievements());
 	}
 
-	private void updateObjectTypeAssignments() {
-		if (objectTypes==null) return;
+	private Vector<Achievement> getOrCreate(PlanetId planet, AchievementList listID)
+	{
+		return getOrCreate(planet)
+				.achievements.computeIfAbsent(listID, al->new Vector<>());
+	}
+
+	void updateObjectTypeAssignments() {
 		boolean somethingChanged = false;
-		for (AchievementList listID : AchievementList.values()) {
-			Vector<Achievement> list = achievements.get(listID);
-			if (list!=null)
+		for (PlanetId planet : PlanetId.values()) {
+			PlanetAchievements planetAchievements = achievements.get(planet);
+			if (planetAchievements==null) continue;
+			for (AchievementList listID : AchievementList.values()) {
+				Vector<Achievement> list = planetAchievements.achievements.get(listID);
+				if (list==null) continue;
 				for (Achievement a : list) {
 					if (a.objectTypeID!=null) {
 						ObjectType ot = findObjectTypeByID(a.objectTypeID);
@@ -233,19 +287,18 @@ class Achievements implements ObjectTypesChangeListener {
 						a.objectTypeID = ot==null ? null : ot.id;
 					}
 				}
+			}
 		}
 		if (somethingChanged)
 			writeToFile();
 	}
 	
-	private ObjectType findObjectTypeByID(String objectTypeID) {
-		if (objectTypes==null) return null;
-		return objectTypes.findObjectTypeByID(objectTypeID, ObjectTypes.Occurrence.Achievement);
+	private static ObjectType findObjectTypeByID(String objectTypeID) {
+		return ObjectTypes.getInstance().findObjectTypeByID(objectTypeID, ObjectTypes.Occurrence.Achievement);
 	}
 	
-	private ObjectType findObjectTypeByName(String name) {
-		if (objectTypes==null) return null;
-		return objectTypes.findObjectTypeByName(name, ObjectTypes.Occurrence.Achievement);
+	private static ObjectType findObjectTypeByName(String name) {
+		return ObjectTypes.getInstance().findObjectTypeByName(name, ObjectTypes.Occurrence.Achievement);
 	}
 
 	static class Achievement {
@@ -318,8 +371,9 @@ class Achievements implements ObjectTypesChangeListener {
 		private final JButton btnSwitchView;
 		private final JButton btnClose;
 		private final EnumMap<AchievementList,AchievementsTablePanel> panels;
+		private final JComboBox<PlanetId> planetSelector;
 	
-		public ConfigDialog(Window parent, Achievements achievements, Function<AchievementList,Double> getCurrentLevel) {
+		public ConfigDialog(Window parent, PlanetId currentPlanet, Function<AchievementList,Double> getCurrentLevel) {
 			super(parent, "Achievements Configuration");
 			
 			showTabbedView = AppSettings.getInstance().getBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
@@ -331,13 +385,19 @@ class Achievements implements ObjectTypesChangeListener {
 			
 			panels = new EnumMap<>(AchievementList.class);
 			for (AchievementList al : AchievementList.values()) {
-				Vector<Achievement> list = achievements.achievements.get(al);
-				if (list == null) achievements.achievements.put(al, list = new Vector<>());
 				boolean showObjType      = al!=AchievementList.Stages;
 				boolean showTIEquivalent = al!=AchievementList.Stages && al!=AchievementList.Terraformation;
-				Double currentLevel = getCurrentLevel==null ? null : getCurrentLevel.apply(al);
-				panels.put(al, new AchievementsTablePanel(achievements, al, list, currentLevel, al.getFormatter(), showObjType, showTIEquivalent));
+				panels.put(al, new AchievementsTablePanel(al.getFormatter(), showObjType, showTIEquivalent));
 			}
+			
+			planetSelector = new JComboBox<>(PlanetId.values());
+			planetSelector.setSelectedItem(currentPlanet);
+			planetSelector.addActionListener(e -> {
+				int index = planetSelector.getSelectedIndex();
+				PlanetId planet = planetSelector.getItemAt(index);
+				fillPanels(planet, planet==currentPlanet ? getCurrentLevel : null);
+			});
+			fillPanels(currentPlanet, getCurrentLevel);
 			
 			createView();
 			
@@ -348,6 +408,15 @@ class Achievements implements ObjectTypesChangeListener {
 					-1, -1);
 		}
 	
+		private void fillPanels(PlanetId planet, Function<AchievementList, Double> getCurrentLevel)
+		{
+			panels.forEach((al,panel) -> {
+				Vector<Achievement> list = Achievements.getInstance().getOrCreate(planet, al);
+				Double currentLevel = getCurrentLevel==null ? null : getCurrentLevel.apply(al);
+				panel.tableModel.setData(list, currentLevel);
+			});
+		}
+
 		private void switchView() {
 			showTabbedView = !showTabbedView;
 			AppSettings.getInstance().putBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, showTabbedView);
@@ -400,9 +469,13 @@ class Achievements implements ObjectTypesChangeListener {
 				gridPanel.add( new JLabel(), c );
 			}
 			
-			createGUI( contentPane, btnSwitchView, btnClose );
+			JPanel panelPlanetSelector = new JPanel(new BorderLayout());
+			panelPlanetSelector.add(new JLabel("Planet: "), BorderLayout.WEST);
+			panelPlanetSelector.add(planetSelector, BorderLayout.CENTER);
+			
+			createGUI( contentPane, panelPlanetSelector, btnSwitchView, btnClose );
 		}
-	
+
 		private void addSubPanel(JPanel panel, AchievementList al, GridBagConstraints c, int gridheight, int gridx, int gridy) {
 			AchievementsTablePanel subPanel = panels.get(al);
 			addTitledBorder(al.name(), subPanel);
@@ -417,13 +490,16 @@ class Achievements implements ObjectTypesChangeListener {
 			subPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), subPanel.getDefaultBorder()));
 		}
 	
-		private static class AchievementsTablePanel extends JScrollPane {
+		private static class AchievementsTablePanel extends JScrollPane
+		{
 			private static final long serialVersionUID = 5790599615513764895L;
+			
 			private final Border defaultBorder;
+			private final AchievementsTableModel tableModel;
 	
-			AchievementsTablePanel(Achievements main, AchievementList listID, Vector<Achievement> list, Double currentLevel, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
-				
-				AchievementsTableModel tableModel = new AchievementsTableModel(main, list, currentLevel, formatLevel, showObjType, showTIEquivalent);
+			AchievementsTablePanel(Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent)
+			{
+				tableModel = new AchievementsTableModel(formatLevel, showObjType, showTIEquivalent);
 				
 				JTable table = new JTable(tableModel);
 				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
@@ -441,16 +517,13 @@ class Achievements implements ObjectTypesChangeListener {
 				size.width  += 30;
 				size.height = 250;
 				setPreferredSize(size);
-				System.out.printf("PreferredWidth: [%s] %d%n", listID, size.width);
 				
 				defaultBorder = getBorder();
 			}
-			
-	
+
 			Border getDefaultBorder() {
 				return defaultBorder;
 			}
-
 
 			private static class TableContextMenu extends ContextMenu {
 				private static final long serialVersionUID = -2414452359411563344L;
@@ -471,15 +544,20 @@ class Achievements implements ObjectTypesChangeListener {
 			private final AchievementsTableModel tableModel;
 			private final Function<Double, String> formatLevel;
 			private final Tables.LabelRendererComponent rendererComponent;
-			private final Double currentLevel;
+			private       Double currentLevel;
 	
-			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel, Double currentLevel) {
+			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel) {
 				this.tableModel = tableModel;
 				this.formatLevel = formatLevel;
-				this.currentLevel = currentLevel;
+				this.currentLevel = null;
 				rendererComponent = new Tables.LabelRendererComponent();
 			}
 	
+			void setCurrentLevel(Double currentLevel)
+			{
+				this.currentLevel = currentLevel;
+			}
+
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowV, int columnV) {
 				int columnM = columnV<0 ? -1 : table.convertColumnIndexToModel(columnV);
@@ -532,10 +610,14 @@ class Achievements implements ObjectTypesChangeListener {
 				TI_Equiv  ("TI Equiv."  , Double    .class,  70),
 				;
 				static ColumnID[] values(boolean showObjType, boolean showTIEquivalent) {
-					if (showObjType && showTIEquivalent) return values();
-					if (showObjType     ) return new ColumnID[] { Level, Label, ObjectType };
-					if (showTIEquivalent) return new ColumnID[] { Level, Label, TI_Equiv };
-					return new ColumnID[] { Level, Label };
+					return Arrays
+							.stream(values())
+							.filter(id -> switch (id) {
+								case ObjectType -> showObjType;
+								case TI_Equiv   -> showTIEquivalent;
+								default -> true;
+							})
+							.toArray(ColumnID[]::new);
 				}
 				
 				private final SimplifiedColumnConfig cfg;
@@ -547,24 +629,25 @@ class Achievements implements ObjectTypesChangeListener {
 				}
 			}
 	
-			private final Achievements main;
-			private final Vector<Achievement> data;
-			private final Double currentLevel;
-			private final Function<Double, String> formatLevel;
+			private final AchievementsTableCellRenderer tcr;
+			private Vector<Achievement> data;
 	
-			AchievementsTableModel(Achievements main, Vector<Achievement> data, Double currentLevel, Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
+			AchievementsTableModel(Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
 				super( ColumnID.values(showObjType, showTIEquivalent) );
-				this.main = main;
+				tcr = new AchievementsTableCellRenderer(this, formatLevel);
+				data = null;
+			}
+			
+			void setData(Vector<Achievement> data, Double currentLevel) {
 				this.data = data;
-				this.currentLevel = currentLevel;
-				this.formatLevel = formatLevel;
+				tcr.setCurrentLevel(currentLevel);
+				fireTableUpdate();
 			}
 	
 			void setDefaultCellEditorsAndRenderers() {
-				AchievementsTableCellRenderer tcr = new AchievementsTableCellRenderer(this, formatLevel, currentLevel);
 				setDefaultRenderers(class_-> tcr);
 				
-				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->getSorted(main.objectTypes.values()));
+				Tables.ComboboxCellEditor<ObjectType> tce = new Tables.ComboboxCellEditor<>(()->getSorted(ObjectTypes.getInstance().values()));
 				Function<Object,String> rend = obj->{
 					if (obj instanceof ObjectType ot) {
 						String label = ot.getLabel();
@@ -595,10 +678,11 @@ class Achievements implements ObjectTypesChangeListener {
 			private record ObjectTypeSortContainer(String str, ObjectType ot) {}
 	
 			@Override public int getRowCount() {
-				return data.size()+1;
+				return data==null ? 0 : data.size()+1;
 			}
 	
 			private Achievement getRow(int rowIndex) {
+				if (data==null) return null;
 				if (rowIndex<0) return null;
 				if (rowIndex>=data.size()) return null;
 				return data.get(rowIndex);
@@ -631,6 +715,8 @@ class Achievements implements ObjectTypesChangeListener {
 			}
 	
 			@Override protected void setValueAt(Object aValue, int rowIndex, int columnIndex, ColumnID columnID) {
+				if (data==null) return;
+				
 				Achievement a;
 				if (rowIndex==data.size()) {
 					// create a new achievement
@@ -650,7 +736,7 @@ class Achievements implements ObjectTypesChangeListener {
 					
 				case Label:
 					String labelStr = (String) aValue;
-					ot = main.findObjectTypeByName(labelStr);
+					ot = findObjectTypeByName(labelStr);
 					if (ot!=null) {
 						a.label = null;
 						a.objectType = ot;
