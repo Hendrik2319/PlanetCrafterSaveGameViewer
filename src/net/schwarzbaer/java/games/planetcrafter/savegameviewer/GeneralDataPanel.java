@@ -905,7 +905,7 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			super("General Data (2)", helper -> {
 				helper.addLine("Save DisplayName"        , data.saveDisplayName       );
 				helper.addLine("Mode"                    , data.mode                  );
-				helper.addLine("Planet ID"               , data.planetId              );
+				helper.addLine("Planet ID"               , data.planetIdStr           );
 				helper.addLine("WorldSeed"               , data.worldSeed             );
 				helper.addLine("Start Location Label"    , data.startLocationLabel    );
 				helper.addLine("Game Start Location"     , data.gameStartLocation     );

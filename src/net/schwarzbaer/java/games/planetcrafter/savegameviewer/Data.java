@@ -1722,7 +1722,8 @@ class Data {
         final Double  modifierMultiplayerTerraformationFactor;
         final Double  modifierPowerConsumption  ;
         final Double  modifierTerraformationPace;
-        final String  planetId                  ;
+        final String  planetIdStr               ;
+        final PlanetId planetId                 ;
         final Boolean randomizeMineables        ;
         final String  saveDisplayName           ;
         final String  startLocationLabel        ;
@@ -1777,7 +1778,7 @@ class Data {
 			modifierMultiplayerTerraformationFactor = JSON_Data.getFloatValue(object, "modifierMultiplayerTerraformationFactor", true, false, debugLabel);
 			modifierPowerConsumption   = JSON_Data.getFloatValue  (object, "modifierPowerConsumption"  , true, false, debugLabel);
 			modifierTerraformationPace = JSON_Data.getFloatValue  (object, "modifierTerraformationPace", true, false, debugLabel);
-			planetId                   = JSON_Data.getStringValue (object, "planetId"                  , true, false, debugLabel);
+			planetIdStr                = JSON_Data.getStringValue (object, "planetId"                  , true, false, debugLabel);
 			randomizeMineables         = JSON_Data.getBoolValue   (object, "randomizeMineables"        , true, false, debugLabel);
 			saveDisplayName            = JSON_Data.getStringValue (object, "saveDisplayName"           , true, false, debugLabel);
 			startLocationLabel         = JSON_Data.getStringValue (object, "startLocationLabel"        , true, false, debugLabel);
@@ -1789,13 +1790,30 @@ class Data {
 			unlockedTeleporters        = JSON_Data.getBoolValue   (object, "unlockedTeleporters"       , true, false, debugLabel);
 			worldSeed                  = JSON_Data.getIntegerValue(object, "worldSeed"                 , true, false, debugLabel);
 			
+			planetId = PlanetId.parse(planetIdStr);
+			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
+		}
+
+		enum PlanetId{
+			Prime, Humble;
+
+			static PlanetId parse(String str)
+			{
+				if (str!=null)
+					try {
+						return valueOf(str);
+					} catch (Exception e) {
+						System.err.printf("Found unknown PlanetId: \"%s\"%n", str);
+					}
+				return null;
+			}
 		}
 
 		@Override String toJsonStrs() {
 			return toJsonStr( removeNulls(
 					toStringValueStr ("saveDisplayName"     , saveDisplayName     , true),
-					toStringValueStr ("planetId"            , planetId            , true),
+					toStringValueStr ("planetId"            , planetIdStr         , true),
 					toBoolValueStr   ("unlockedSpaceTrading", unlockedSpaceTrading, true),
 					toBoolValueStr   ("unlockedOreExtrators", unlockedOreExtrators, true),
 					toBoolValueStr   ("unlockedTeleporters" , unlockedTeleporters , true),
