@@ -35,14 +35,9 @@ class Data {
 		try {
 			return new Data(jsonStructure, getOrCreateObjectType);
 			
-		} catch (ParseException ex) {
-			System.err.printf("ParseException while parsing JSON structure (Data.parse()): %s%n", ex.getMessage());
-			//ex.printStackTrace();
-			return null;
-			
-		} catch (TraverseException ex) {
-			System.err.printf("TraverseException while parsing JSON structure (Data.parse()): %s%n", ex.getMessage());
-			//ex.printStackTrace();
+		} catch (ParseException | TraverseException ex) {
+			//System.err.printf("%s while parsing JSON structure (Data.parse()): %s%n", ex.getClass().getSimpleName(), ex.getMessage());
+			ex.printStackTrace();
 			return null;
 		}
 	}
@@ -94,16 +89,16 @@ class Data {
 		
 		System.out.printf("Parsing JSON Structure ...%n");
 		int blockIndex = 0;
-		/* 0 */ achievedValues  = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new, "AchievedValues", getOrCreateObjectType); blockIndex++;
-		/* 1 */ playerStates    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new, "PlayerStates"  , getOrCreateObjectType); blockIndex++;
-		/* 2 */ worldObjects    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, "WorldObjects"  , getOrCreateObjectType); blockIndex++;
-		/* 3 */ objectLists     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, "ObjectLists"   , getOrCreateObjectType); blockIndex++;
-		/* 4 */ generalData1    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new, "GeneralData1"                         ); blockIndex++;
-		/* 5 */ messages        = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, "Messages"                             ); blockIndex++;
-		/* 6 */ storyEvents     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, "StoryEvents"                          ); blockIndex++;
-		/* 7 */ generalData2    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new, "GeneralData2"                         ); blockIndex++;
-		/* 8 */ layers          = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, "Layers"                               ); blockIndex++;
-		/* 9 */ generatedWrecks = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), GeneratedWreck::new, "GeneratedWreck"                       ); blockIndex++;
+		/* 0 */ achievedValues  = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), AchievedValues::new,       "AchievedValues", getOrCreateObjectType); blockIndex++;
+		/* 1 */ playerStates    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), PlayerStates  ::new,       "PlayerStates"  , getOrCreateObjectType); blockIndex++;
+		/* 2 */ worldObjects    = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), WorldObject   ::new, true, "WorldObjects"  , getOrCreateObjectType); blockIndex++;
+		/* 3 */ objectLists     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), ObjectList    ::new, true, "ObjectLists"   , getOrCreateObjectType); blockIndex++;
+		/* 4 */ generalData1    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData1  ::new,       "GeneralData1"                         ); blockIndex++;
+		/* 5 */ messages        = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Message       ::new, true, "Messages"                             ); blockIndex++;
+		/* 6 */ storyEvents     = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), StoryEvent    ::new, true, "StoryEvents"                          ); blockIndex++;
+		/* 7 */ generalData2    = dataVec.size()<=blockIndex ? null : parseSingle( blockIndex, dataVec.get(blockIndex), GeneralData2  ::new,       "GeneralData2"                         ); blockIndex++;
+		/* 8 */ layers          = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), Layer         ::new, true, "Layers"                               ); blockIndex++;
+		/* 9 */ generatedWrecks = dataVec.size()<=blockIndex ? null : parseArray ( blockIndex, dataVec.get(blockIndex), GeneratedWreck::new, true, "GeneratedWreck"                       ); blockIndex++;
 		
 		for (;blockIndex < dataVec.size(); blockIndex++)
 		{
@@ -251,21 +246,24 @@ class Data {
 			int blockIndex,
 			Vector<Value<NV, V>> vector,
 			ParseConstructor2<ValueType> parseConstructor,
+			boolean singleNullMeansEmtpy,
 			String debugLabel,
 			ObjectTypeCreator getOrCreateObjectType
 	) throws ParseException, TraverseException {
-		return parseArray(blockIndex, vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), debugLabel);
+		return parseArray(blockIndex, vector, (v,dl)->parseConstructor.parse(v, getOrCreateObjectType, dl), singleNullMeansEmtpy,debugLabel);
 	}
 	
 	private static <ValueType> Vector<ValueType> parseArray(
 			int blockIndex,
 			Vector<Value<NV, V>> vector,
 			ParseConstructor1<ValueType> parseConstructor,
+			boolean singleNullMeansEmtpy,
 			String debugLabel
 	) throws ParseException, TraverseException {
 		Vector<ValueType> parsedVec = new Vector<>();
 		for (int i=0; i< vector.size(); i++) {
 			Value<NV, V> val = vector.get(i);
+			if (val==null && vector.size()==1 && singleNullMeansEmtpy) break; // list with single null value -> empty list
 			String newDebugLabel = String.format("%s[%d]", debugLabel, i);
 			ValueType parsedValue = parseConstructor.parse(val, newDebugLabel);
 			parsedVec.add(parsedValue);
