@@ -14,7 +14,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: AlgaeGenerator1
 label_en = Algae Generator T1
-label_de = Algen Generator T1
+label_de = Algen-Generator T1
 class = Structure_Machine
 oxygen = 127.0
 plants = 0.8
@@ -24,7 +24,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: AlgaeGenerator2
 label_en = Algae Generator T2
-label_de = Algen Generator T2
+label_de = Algen-Generator T2
 class = Structure_Machine
 oxygen = 350.0
 plants = 23.0
@@ -128,6 +128,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: AutoCrafter1
 label_en = Auto-Crafter
+label_de = Auto-Hersteller
 class = Structure_Machine
 energy = -155.0
 occurrences = WorldObject,Achievement
@@ -190,6 +191,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Beacon
 label_en = Beacon
+label_de = Leuchtfeuer
 class = Structure_Machine
 energy = -0.25
 occurrences = WorldObject,Achievement
@@ -197,6 +199,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: BedDouble
 label_en = Double Bed
+label_de = Doppelbett
 class = Structure_Furniture
 occurrences = WorldObject,Achievement
 <finished>
@@ -561,6 +564,7 @@ occurrences = WorldObject
 
 ObjectType: CircuitBoard1
 label_en = Circuit Board
+label_de = Leiterplatte
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
@@ -574,6 +578,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: ComAntenna
 label_en = Communication Antenna
+label_de = Kommunikationsantenne
 class = Structure_Machine
 energy = -15.0
 occurrences = WorldObject,Achievement
@@ -587,12 +592,14 @@ occurrences = WorldObject
 
 ObjectType: Container2
 label_en = Locker Storage T1
+label_de = Vorratsschrank T1
 class = Structure_Storage
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Container3
 label_en = Locker Storage T2
+label_de = Vorratsschrank T2
 class = Structure_Storage
 occurrences = WorldObject,Blueprint
 <finished>
@@ -666,6 +673,7 @@ occurrences = WorldObject
 
 ObjectType: CraftStation2
 label_en = Advanced Craft Station
+label_de = Fortgeschrittene Herstellgungsstation
 class = Structure_Machine
 energy = -12.5
 occurrences = WorldObject,Achievement
@@ -710,6 +718,7 @@ occurrences = WorldObject
 
 ObjectType: Drill0
 label_en = Drill T1
+label_de = Bohrer T1
 class = Structure_Machine
 pressure = 0.2
 energy = -0.5
@@ -718,6 +727,7 @@ occurrences = WorldObject
 
 ObjectType: Drill1
 label_en = Drill T2
+label_de = Bohrer T2
 class = Structure_Machine
 heat = 0.1
 pressure = 1.5
@@ -727,6 +737,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Drill2
 label_en = Drill T3
+label_de = Bohrer T3
 class = Structure_Machine
 heat = 0.25
 pressure = 17.0
@@ -736,6 +747,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Drill3
 label_en = Drill T4
+label_de = Bohrer T4
 class = Structure_Machine
 heat = 25.0
 pressure = 459.0
@@ -745,6 +757,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Drill4
 label_en = Drill T5
+label_de = Bohrer T5
 class = Structure_Machine
 heat = 295.0
 pressure = 3950.0
@@ -766,6 +779,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: DroneStation1
 label_en = Drone Station
+label_de = Drohnenstation
 class = Structure_Machine
 energy = -850.0
 occurrences = WorldObject,Achievement
@@ -796,6 +810,7 @@ occurrences = WorldObject
 
 ObjectType: EnergyGenerator2
 label_en = Solar Panel T1
+label_de = Sonnenkollektor T1
 class = Structure_Machine
 energy = 6.5
 occurrences = WorldObject,Achievement
@@ -803,6 +818,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EnergyGenerator3
 label_en = Solar Panel T2
+label_de = Sonnenkollektor T2
 class = Structure_Machine
 energy = 19.5
 occurrences = WorldObject,Achievement
@@ -810,6 +826,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EnergyGenerator4
 label_en = Nuclear Reactor T1
+label_de = Kernreaktor T1
 class = Structure_Machine
 energy = 86.5
 occurrences = WorldObject,Achievement
@@ -817,6 +834,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EnergyGenerator5
 label_en = Nuclear Reactor T2
+label_de = Kernreaktor T2
 class = Structure_Machine
 energy = 331.5
 occurrences = WorldObject,Achievement
@@ -824,6 +842,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: EnergyGenerator6
 label_en = Nuclear Fusion Generator
+label_de = Kernfusionsgenerator
 class = Structure_Machine
 energy = 1485.0
 occurrences = WorldObject,Achievement
@@ -1217,12 +1236,14 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: FusionEnergyCell
 label_en = Fusion Energy Cell
+label_de = Kernfusionsbrennstoffzelle
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,ObjectList
 <finished>
 
 ObjectType: GasExtractor1
 label_en = Gas Extractor T1
+label_de = Gas-Extraktor T1
 class = Structure_Machine
 heat = 13.0
 energy = -58.0
@@ -1232,6 +1253,7 @@ isProducer
 
 ObjectType: GasExtractor2
 label_en = Gas Extractor T2
+label_de = Gas-Extraktor T2
 class = Structure_Machine
 heat = 45.0
 pressure = 32.0
@@ -1333,6 +1355,7 @@ occurrences = WorldObject
 
 ObjectType: GrassSpreader1
 label_en = Grass Spreader T1
+label_de = Grasverteiler T1
 class = Structure_Machine
 oxygen = 108.0
 plants = 0.19
@@ -1342,6 +1365,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Heater1
 label_en = Heater T1
+label_de = Heizung T1
 class = Structure_Machine
 heat = 0.3
 energy = -1.0
@@ -1350,6 +1374,7 @@ occurrences = WorldObject
 
 ObjectType: Heater2
 label_en = Heater T2
+label_de = Heizung T2
 class = Structure_Machine
 heat = 4.5
 energy = -3.5
@@ -1358,6 +1383,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Heater3
 label_en = Heater T3
+label_de = Heizung T3
 class = Structure_Machine
 heat = 28.5
 pressure = 0.6
@@ -1367,6 +1393,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Heater4
 label_en = Heater T4
+label_de = Heizung T4
 class = Structure_Machine
 heat = 538.0
 pressure = 35.5
@@ -1376,6 +1403,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Heater5
 label_en = Heater T5
+label_de = Heizung T5
 class = Structure_Machine
 heat = 4530.0
 pressure = 280.0
@@ -1478,18 +1506,21 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Ladder
 label_en = Indoor Ladder
+label_de = Innenleiter
 class = Structure_Building
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: LarvaeBase1
 label_en = Common Larva
+label_de = Gewöhnliche Larve
 class = Resource_Minable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: LarvaeBase2
 label_en = Uncommon Larva
+label_de = Ungewöhnliche Larve
 class = Resource_Minable
 occurrences = WorldObject,ObjectList
 <finished>
@@ -1503,6 +1534,7 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: LaunchPlatform
 label_en = Launch Platform
+label_de = Startrampe
 class = Structure_Building
 energy = -55.0
 occurrences = WorldObject,Achievement
@@ -1698,6 +1730,7 @@ occurrences = WorldObject
 
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1
+label_de = Erzextraktor T1
 class = Structure_Machine
 heat = 17.5
 pressure = 15.0
@@ -1708,6 +1741,7 @@ isProducer
 
 ObjectType: OreExtractor2
 label_en = Ore Extractor T2
+label_de = Erzextraktor T2
 class = Structure_Machine
 heat = 79.5
 pressure = 85.0
@@ -1718,6 +1752,7 @@ isProducer
 
 ObjectType: OreExtractor3
 label_en = Ore Extractor T3
+label_de = Erzextraktor T3
 class = Structure_Machine
 heat = 202.0
 pressure = 135.0
@@ -1867,6 +1902,7 @@ occurrences = WorldObject
 
 ObjectType: PulsarQuartz
 label_en = Pulsar Quartz
+label_de = Pulsar-Quarz
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
@@ -1966,6 +2002,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: RocketOxygen1
 label_en = Seeds Spreader Rocket
+label_de = Samenverteiler-Rakete
 class = Special_Rocket
 isBoosterRocketFor = Oxygen
 boosterMultiplier = 10.0
@@ -2009,6 +2046,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: Rod-osmium
 label_en = Osmium Rod
+label_de = Osmiumstab
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,ObjectList
 <finished>
@@ -2022,6 +2060,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: ScreenBiomass
 label_en = Screen Biomass
+label_de = Bildschirm - Biomasse
 class = Structure_Furniture
 energy = -3.4
 occurrences = WorldObject,Achievement
@@ -2043,6 +2082,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: ScreenMessage
 label_en = Screen - Transmissions
+label_de = Bildschirm - Übertragungen
 class = Structure_Furniture
 energy = -0.4
 occurrences = WorldObject,Achievement
@@ -2050,6 +2090,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: ScreenRockets
 label_en = Screen - Orbital Informations
+label_de = Bildschirm - Orbitalinformationen
 class = Structure_Furniture
 energy = -35.2
 occurrences = WorldObject,Achievement
@@ -2064,6 +2105,7 @@ occurrences = WorldObject
 
 ObjectType: ScreenTerraStage
 label_en = Screen - Progress
+label_de = Bildschirm - Fortschritt
 class = Structure_Furniture
 energy = -1.3
 occurrences = WorldObject,Achievement
@@ -2138,6 +2180,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: SeedSpreader1
 label_en = Flower Spreader T1
+label_de = Blumenverteiler T1
 class = Structure_Machine
 oxygen = 161.0
 plants = 9.2
@@ -2148,6 +2191,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: SeedSpreader2
 label_en = Flower Spreader T2
+label_de = Blumenverteiler T2
 class = Structure_Machine
 oxygen = 325.0
 plants = 43.5
@@ -2158,6 +2202,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Sign
 label_en = Sign
+label_de = Schild
 class = Structure_Building
 occurrences = WorldObject,Achievement
 <finished>
@@ -2641,6 +2686,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: Vegetube1
 label_en = Vegetube T1
+label_de = Pflanzenröhre T1
 class = Structure_Machine
 oxygen = 0.15
 energy = -0.35
@@ -2649,6 +2695,7 @@ expectsMultiplierFor = Oxygen
 
 ObjectType: Vegetube2
 label_en = Vegetube T2
+label_de = Pflanzenröhre T2
 class = Structure_Machine
 oxygen = 1.2
 energy = -1.25
@@ -2658,6 +2705,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: VegetubeOutside1
 label_en = Vegetube T3
+label_de = Pflanzenröhre T3
 class = Structure_Machine
 oxygen = 13.0
 energy = -7.25
@@ -2758,6 +2806,7 @@ occurrences = Blueprint
 
 ObjectType: WardenKey
 label_en = Warden's Key
+label_de = Wächter-Schlüssel
 class = Special_Quest
 occurrences = WorldObject
 <finished>
@@ -2777,6 +2826,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: WaterCollector1
 label_en = Atmospheric Water Collector
+label_de = Atmosphärischer Wassersammler
 class = Structure_Machine
 energy = -11.0
 occurrences = WorldObject,Achievement
@@ -2785,6 +2835,7 @@ isProducer
 
 ObjectType: WaterCollector2
 label_en = Lake Water Collector
+label_de = Seewassersammler
 class = Structure_Machine
 energy = -19.0
 occurrences = WorldObject,Achievement

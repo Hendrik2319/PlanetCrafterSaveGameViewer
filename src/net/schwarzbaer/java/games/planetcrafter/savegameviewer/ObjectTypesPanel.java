@@ -500,7 +500,7 @@ class ObjectTypesPanel extends JScrollPane {
 			if (row==null) return false;
 			if (columnID==ColumnID.showMarker || columnID==ColumnID.mapShape) return panel.main.mapShapes.hasShapes(row);
 			if (row.finished) return columnID==ColumnID.finished;
-			return columnID!=ColumnID.id && columnID!=ColumnID.occurrences && columnID!=ColumnID.effectOnTerraforming;
+			return columnID!=ColumnID.id && columnID!=ColumnID.amount && columnID!=ColumnID.occurrences && columnID!=ColumnID.effectOnTerraforming;
 		}
 
 		@Override
