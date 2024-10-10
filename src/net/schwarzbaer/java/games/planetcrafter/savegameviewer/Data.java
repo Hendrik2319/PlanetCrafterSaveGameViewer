@@ -197,7 +197,7 @@ class Data {
 		KJV_FACTORY.showStatementList(System.err, "Unknown Fields in parsed Data");
 	}
 	
-	Data.GeneralData2.PlanetId getPlanet()
+	PlanetId getPlanet()
 	{
 		return generalData2==null ? null : generalData2.planetId;
 	}
@@ -1687,6 +1687,20 @@ class Data {
 		}
 	}
 
+	enum PlanetId{
+		Prime, Humble;
+	
+		static PlanetId parse(String str)
+		{
+			if (str!=null)
+				try {
+					return valueOf(str);
+				} catch (Exception e) {
+					System.err.printf("Found unknown PlanetId: \"%s\"%n", str);
+				}
+			return null;
+		}
+	}
 	static class GeneralData2 extends Reversable {
 		private static final KnownJsonValues<NV, V> KNOWN_JSON_VALUES = KJV_FACTORY.create(GeneralData2.class)
 				// old values
@@ -1798,21 +1812,6 @@ class Data {
 			planetId = PlanetId.parse(planetIdStr);
 			
 			KNOWN_JSON_VALUES.scanUnexpectedValues(object);
-		}
-
-		enum PlanetId{
-			Prime, Humble;
-
-			static PlanetId parse(String str)
-			{
-				if (str!=null)
-					try {
-						return valueOf(str);
-					} catch (Exception e) {
-						System.err.printf("Found unknown PlanetId: \"%s\"%n", str);
-					}
-				return null;
-			}
 		}
 
 		@Override String toJsonStrs() {

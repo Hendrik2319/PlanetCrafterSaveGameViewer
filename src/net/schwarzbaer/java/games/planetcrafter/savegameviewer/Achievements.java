@@ -41,7 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneralData2.PlanetId;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;

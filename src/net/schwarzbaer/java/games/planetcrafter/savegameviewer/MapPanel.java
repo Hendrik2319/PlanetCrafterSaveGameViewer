@@ -53,6 +53,7 @@ import javax.swing.JTextField;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.Coord3;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneratedWreck;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.ObjectList;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage.MapBGPoint;
@@ -125,7 +126,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private final JComboBox<ColoringType> cmbbxColoring;
 	private ColoringType selectedColoringType;
 
-	MapPanel(PlanetCrafterSaveGameViewer main, Data data) {
+	MapPanel(PlanetCrafterSaveGameViewer main, Data data, PlanetId planet) {
 		super(MapPanel.HORIZONTAL_SPLIT, true);
 		this.main = main;
 		
@@ -137,7 +138,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		
 		mapModel = new MapModel(data);
 		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut);
-		mapBackgroundImage = new MapBackgroundImage(mapView);
+		mapBackgroundImage = new MapBackgroundImage(mapView,planet);
 		new MapContextMenu(mapView, this.main, mapBackgroundImage);
 		
 		cmbbxColoring = new JComboBox<>(ColoringType.values());
@@ -792,8 +793,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			}
 		}
 		
-		static final String FILE_MAPBGIMAGE_EXT    = "png";
-		static final String FILE_MAPBGIMAGE_FORMAT = "png";
+		private static final String FILE_MAPBGIMAGE_EXT    = "png";
+		private static final String FILE_MAPBGIMAGE_FORMAT = "png";
 		private static final int BRIGHTNESS_MIN = -100;
 		private static final int BRIGHTNESS_MAX =  100;
 		private static final int CONTRAST_MIN   = -100;
@@ -812,11 +813,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private boolean showFixPoints;
 		private boolean showBgImage;
 		
-		MapBackgroundImage(MapView mapView) {
+		MapBackgroundImage(MapView mapView, PlanetId planet) {
 			this.mapView = mapView;
 			AppSettings appSettings = AppSettings.getInstance();
-			storedImageFile = new File(PlanetCrafterSaveGameViewer.FILE_MAPBGIMAGE);
-			imageFC = new FileChooser("PNG-File", "png");
+			storedImageFile = new File(String.format("%s - %s.%s", PlanetCrafterSaveGameViewer.FILE_MAPBGIMAGE_BASE, planet, FILE_MAPBGIMAGE_EXT));
+			imageFC = new FileChooser(FILE_MAPBGIMAGE_FORMAT.toUpperCase()+"-File", FILE_MAPBGIMAGE_EXT);
 			mapBgImageBase = null;
 			mapBgImage = null;
 			brightness = appSettings.getInt(AppSettings.ValueKey.MapBackgroundImage_Brightness, 0);

@@ -41,12 +41,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.PlanetAchievements;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.GeneralData2.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.V;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.WorldObject;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.GUI.ActionCommand;
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.MapPanel.MapBackgroundImage;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.lib.gui.Disabler;
 import net.schwarzbaer.java.lib.gui.FileChooser;
@@ -72,7 +71,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	        static final String FILE_OBJECT_TYPES        = "PlanetCrafterSaveGameViewer - ObjectTypes.data";
 	        static final String FILE_ACHIEVEMENTS        = "PlanetCrafterSaveGameViewer - Achievements.data";
 	private static final String FILE_MAPSHAPES           = "PlanetCrafterSaveGameViewer - MapShapes.data";
-            static final String FILE_MAPBGIMAGE          = "PlanetCrafterSaveGameViewer - MapBackgroundImage."+MapBackgroundImage.FILE_MAPBGIMAGE_EXT;
+            static final String FILE_MAPBGIMAGE_BASE     = "PlanetCrafterSaveGameViewer - MapBackgroundImage";
 	private static final String FILE_AUTOCRAFTER_TRADING = "PlanetCrafterSaveGameViewer - AutoCrafterTrading.data";
 	        static final String FILE_FARWRECKAREAS       = "PlanetCrafterSaveGameViewer - FarWreckAreas.data";
 
@@ -521,9 +520,10 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		PlanetId planet = data.getPlanet();
 		if (planet==null) planet=PlanetId.Prime;
 		PlanetAchievements achievements = Achievements.getInstance().getOrCreate(planet);
+		
 		generalDataPanel = new GeneralDataPanel(data,achievements);
 		TerraformingPanel terraformingPanel = new TerraformingPanel(data, generalDataPanel);
-		MapPanel mapPanel = new MapPanel(this, data);
+		MapPanel mapPanel = new MapPanel(this, data, planet);
 		
 		HashMap<String, Integer> amounts = new HashMap<>();
 		if (data.worldObjects!=null)
