@@ -2132,6 +2132,13 @@ oxygenMultiplier = 1.5
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: Seed10Humble
+label_de = Samen "Furteo" (350%)
+class = Resource_SeedEgg
+oxygenMultiplier = 3.5
+occurrences = WorldObject
+<finished>
+
 ObjectType: Seed2
 label_en = Seed Pestera (200%)
 class = Resource_SeedEgg
@@ -2168,8 +2175,18 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed7Humble
+label_de = Samen "Snepea" (200%)
 class = Resource_SeedEgg
+oxygenMultiplier = 2.0
 occurrences = WorldObject
+<finished>
+
+ObjectType: Seed9Humble
+label_de = Samen "Seleus" (300%)
+class = Resource_SeedEgg
+oxygenMultiplier = 3.0
+occurrences = WorldObject
+<finished>
 
 ObjectType: SeedGold
 label_en = Golden Seeds (600%)
@@ -2691,6 +2708,7 @@ class = Structure_Machine
 oxygen = 0.15
 energy = -0.35
 expectsMultiplierFor = Oxygen
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetube2
