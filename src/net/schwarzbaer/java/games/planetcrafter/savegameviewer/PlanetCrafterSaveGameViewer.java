@@ -154,11 +154,10 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 	}
 	
 	private void updateWindowTitle() {
-		mainWindow.setTitle(
-			openFile == null
-			?               "Planet Crafter - SaveGame Viewer"
-			: String.format("Planet Crafter - SaveGame Viewer - \"%s\" [%s]", openFile.getName(), dtFormatter.getTimeStr(openFile.lastModified(), false, true, false, true, false))
-		);
+		String filename        = openFile==null ? "" : String.format(" [%s, %s]", openFile.getName(), dtFormatter.getTimeStr(openFile.lastModified(), false, true, false, true, false));
+		String saveDisplayName = loadedData==null || loadedData.generalData2==null || loadedData.generalData2.saveDisplayName==null ? "" : String.format(" \"%s\"", loadedData.generalData2.saveDisplayName);
+		String spacer          = filename.isEmpty() && saveDisplayName.isEmpty() ? "" : " -";
+		mainWindow.setTitle( String.format("Planet Crafter - SaveGame Viewer%s%s%s", spacer, saveDisplayName, filename) );
 	}
 
 	private void updateGuiAccess() {

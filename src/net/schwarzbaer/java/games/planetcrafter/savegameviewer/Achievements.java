@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -28,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -263,6 +266,12 @@ class Achievements implements ObjectTypesChangeListener
 				.achievements.computeIfAbsent(listID, al->new Vector<>());
 	}
 
+	private Vector<Achievement> get(PlanetId planet, AchievementList listID)
+	{
+		PlanetAchievements planetAchievements = achievements.get(planet);
+		return planetAchievements==null ? null : planetAchievements.achievements.get(listID);
+	}
+
 	void updateObjectTypeAssignments() {
 		boolean somethingChanged = false;
 		for (PlanetId planet : PlanetId.values()) {
@@ -313,6 +322,12 @@ class Achievements implements ObjectTypesChangeListener
 			this.objectTypeID = objectTypeID;
 			this.level = level;
 			objectType = null;
+		}
+		Achievement(Achievement other) {
+			this.label        = other.label       ;
+			this.objectTypeID = other.objectTypeID;
+			this.level        = other.level       ;
+			this.objectType   = other.objectType  ;
 		}
 		
 		boolean isEmpty() {
@@ -387,7 +402,7 @@ class Achievements implements ObjectTypesChangeListener
 			for (AchievementList al : AchievementList.values()) {
 				boolean showObjType      = al!=AchievementList.Stages;
 				boolean showTIEquivalent = al!=AchievementList.Stages && al!=AchievementList.Terraformation;
-				panels.put(al, new AchievementsTablePanel(al.getFormatter(), showObjType, showTIEquivalent));
+				panels.put(al, new AchievementsTablePanel(al, al.getFormatter(), showObjType, showTIEquivalent));
 			}
 			
 			planetSelector = new JComboBox<>(PlanetId.values());
@@ -414,6 +429,7 @@ class Achievements implements ObjectTypesChangeListener
 				Vector<Achievement> list = Achievements.getInstance().getOrCreate(planet, al);
 				Double currentLevel = getCurrentLevel==null ? null : getCurrentLevel.apply(al);
 				panel.tableModel.setData(list, currentLevel);
+				panel.setDisplayedPlanet(planet);
 			});
 		}
 
@@ -427,47 +443,9 @@ class Achievements implements ObjectTypesChangeListener
 		private void createView() {
 			JComponent contentPane;
 			
-			if (showTabbedView) {
-				JTabbedPane tabbedPane = new JTabbedPane();
-				contentPane = tabbedPane;
-				for (AchievementList al : AchievementList.values()) {
-					AchievementsTablePanel panel = panels.get(al);
-					tabbedPane.addTab(al.name(), panel);
-				}
-				
-			} else {
-				JPanel gridPanel = new JPanel(new GridBagLayout());
-				contentPane = gridPanel;
-				
-				GridBagConstraints c = new GridBagConstraints();
-				c.fill = GridBagConstraints.BOTH;
-				c.weightx = 1;
-				c.weighty = 1;
-				
-				for (AchievementList al : AchievementList.values()) {
-					switch (al) {
-					
-					case Oxygen  : addSubPanel(gridPanel, al, c, 1, 0, 0); break;
-					case Heat    : addSubPanel(gridPanel, al, c, 1, 1, 0); break;
-					case Pressure: addSubPanel(gridPanel, al, c, 1, 2, 0); break;
-					
-					case Plants  : addSubPanel(gridPanel, al, c, 1, 0, 1); break;
-					case Insects : addSubPanel(gridPanel, al, c, 1, 1, 1); break;
-					case Animals : addSubPanel(gridPanel, al, c, 1, 2, 1); break;
-					
-					case Biomass : addSubPanel(gridPanel, al, c, 1, 0, 2); break;
-					case Stages  : addSubPanel(gridPanel, al, c, 1, 1, 2); break;
-					
-					case Terraformation:
-						addSubPanel(gridPanel, al, c, 3, 3, 0); break;
-					}
-				}
-				
-				c.gridheight = 1;
-				c.gridx = 2;
-				c.gridy = 2;
-				gridPanel.add( new JLabel(), c );
-			}
+			contentPane = showTabbedView
+					? new TabbedView(panels)
+					: new GridView(panels);
 			
 			JPanel panelPlanetSelector = new JPanel(new BorderLayout());
 			panelPlanetSelector.add(new JLabel("Planet: "), BorderLayout.WEST);
@@ -475,19 +453,76 @@ class Achievements implements ObjectTypesChangeListener
 			
 			createGUI( contentPane, panelPlanetSelector, btnSwitchView, btnClose );
 		}
+		
+		private static class TabbedView extends JTabbedPane
+		{
+			private static final long serialVersionUID = -3488609567657081456L;
 
-		private void addSubPanel(JPanel panel, AchievementList al, GridBagConstraints c, int gridheight, int gridx, int gridy) {
-			AchievementsTablePanel subPanel = panels.get(al);
-			addTitledBorder(al.name(), subPanel);
-			
-			c.gridheight = gridheight;
-			c.gridx = gridx;
-			c.gridy = gridy;
-			panel.add(subPanel, c);
+			TabbedView(EnumMap<AchievementList,AchievementsTablePanel> panels)
+			{
+				for (AchievementList al : AchievementList.values()) {
+					AchievementsTablePanel panel = panels.get(al);
+					addTab(al.name(), panel);
+				}
+			}
 		}
-	
-		private void addTitledBorder(String title, AchievementsTablePanel subPanel) {
-			subPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title), subPanel.getDefaultBorder()));
+		
+		private static class GridView extends JPanel
+		{
+			private static final long serialVersionUID = -1351998282109197686L;
+			private final EnumMap<AchievementList, AchievementsTablePanel> panels;
+			private final GridBagConstraints c;
+
+			GridView(EnumMap<AchievementList,AchievementsTablePanel> panels)
+			{
+				super(new GridBagLayout());
+				this.panels = panels;
+				
+				c = new GridBagConstraints();
+				
+				c.fill = GridBagConstraints.BOTH;
+				c.weightx = 1;
+				c.weighty = 1;
+				
+				for (AchievementList al : AchievementList.values()) {
+					switch (al) {
+					
+					case Oxygen  : addSubPanel(al, 1, 0, 0); break;
+					case Heat    : addSubPanel(al, 1, 1, 0); break;
+					case Pressure: addSubPanel(al, 1, 2, 0); break;
+					
+					case Plants  : addSubPanel(al, 1, 0, 1); break;
+					case Insects : addSubPanel(al, 1, 1, 1); break;
+					case Animals : addSubPanel(al, 1, 2, 1); break;
+					
+					case Biomass : addSubPanel(al, 1, 0, 2); break;
+					case Stages  : addSubPanel(al, 1, 1, 2); break;
+					
+					case Terraformation:
+						addSubPanel(al, 3, 3, 0); break;
+					}
+				}
+				
+				c.gridheight = 1;
+				c.gridx = 2;
+				c.gridy = 2;
+				add(new JLabel(), c);
+			}
+
+			private void addSubPanel(AchievementList al, int gridheight, int gridx, int gridy) {
+				AchievementsTablePanel subPanel = panels.get(al);
+				subPanel.setBorder(
+						BorderFactory.createCompoundBorder(
+								BorderFactory.createTitledBorder(al.name()),
+								subPanel.defaultBorder
+						)
+				);
+				
+				c.gridheight = gridheight;
+				c.gridx = gridx;
+				c.gridy = gridy;
+				add(subPanel, c);
+			}
 		}
 	
 		private static class AchievementsTablePanel extends JScrollPane
@@ -496,8 +531,9 @@ class Achievements implements ObjectTypesChangeListener
 			
 			private final Border defaultBorder;
 			private final AchievementsTableModel tableModel;
+			private final TableContextMenu tableContextMenu;
 	
-			AchievementsTablePanel(Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent)
+			AchievementsTablePanel(AchievementList listID, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent)
 			{
 				tableModel = new AchievementsTableModel(formatLevel, showObjType, showTIEquivalent);
 				
@@ -510,7 +546,9 @@ class Achievements implements ObjectTypesChangeListener
 				tableModel.setColumnWidths(table);
 				tableModel.setDefaultCellEditorsAndRenderers();
 				
-				new TableContextMenu(table,tableModel);
+				tableContextMenu = new TableContextMenu(table,tableModel, listID);
+				tableContextMenu.addTo(table);
+				tableContextMenu.addTo(this);
 				
 				setViewportView(table);
 				Dimension size = table.getPreferredSize();
@@ -520,20 +558,72 @@ class Achievements implements ObjectTypesChangeListener
 				
 				defaultBorder = getBorder();
 			}
-
-			Border getDefaultBorder() {
-				return defaultBorder;
+			
+			void setDisplayedPlanet(PlanetId displayedPlanet)
+			{
+				tableContextMenu.setDisplayedPlanet(displayedPlanet);
 			}
 
 			private static class TableContextMenu extends ContextMenu {
 				private static final long serialVersionUID = -2414452359411563344L;
+				private PlanetId displayedPlanet;
+				private final PlanetMenu addAchsMenu;
+				private final PlanetMenu replaceAchsMenu;
 	
-				TableContextMenu(JTable table, AchievementsTableModel tableModel) {
+				TableContextMenu(JTable table, AchievementsTableModel tableModel, AchievementList listID)
+				{
+					displayedPlanet = null;
+					
+					add(addAchsMenu     = new PlanetMenu("Add Achievements from ...", planet -> {
+						Vector<Achievement> list = Achievements.getInstance().get(planet, listID);
+						if (list!=null)
+							tableModel.addData(list);
+					}));
+					add(replaceAchsMenu = new PlanetMenu("Replace with Achievements from ...", planet -> {
+						Vector<Achievement> list = Achievements.getInstance().get(planet, listID);
+						if (list!=null)
+							tableModel.replaceData(list);
+					}));
+					
+					addSeparator();
+					
 					add(GUI.createMenuItem("Show Column Widths", e->{
 						System.out.printf("Column Widths: %s%n", SimplifiedTableModel.getColumnWidthsAsString(table));
 					}));
+				}
+
+				void setDisplayedPlanet(PlanetId displayedPlanet)
+				{
+					if (this.displayedPlanet!=null) {
+						addAchsMenu    .getMenuItem( this.displayedPlanet ).setEnabled(true);
+						replaceAchsMenu.getMenuItem( this.displayedPlanet ).setEnabled(true);
+					}
 					
-					addTo(table);
+					this.displayedPlanet = displayedPlanet;
+					
+					if (this.displayedPlanet!=null) {
+						addAchsMenu    .getMenuItem( this.displayedPlanet ).setEnabled(false);
+						replaceAchsMenu.getMenuItem( this.displayedPlanet ).setEnabled(false);
+					}
+				}
+
+				private static class PlanetMenu extends JMenu
+				{
+					private static final long serialVersionUID = -5292266203258190325L;
+					private final EnumMap<PlanetId, JMenuItem> menuItems;
+
+					PlanetMenu(String title, Consumer<PlanetId> action)
+					{
+						super(title);
+						menuItems = new EnumMap<>(PlanetId.class);
+						for (PlanetId planet : PlanetId.values())
+							menuItems.put(planet, add( GUI.createMenuItem( planet.toString(), e -> action.accept(planet) ) ) );
+					}
+
+					JMenuItem getMenuItem(PlanetId planet)
+					{
+						return menuItems.get(planet);
+					}
 				}
 			}
 		}
@@ -636,6 +726,23 @@ class Achievements implements ObjectTypesChangeListener
 				super( ColumnID.values(showObjType, showTIEquivalent) );
 				tcr = new AchievementsTableCellRenderer(this, formatLevel);
 				data = null;
+			}
+			
+			void addData(Vector<Achievement> data) {
+				if (     data==null) return; // no data to add
+				if (this.data==null) return; // no achievement list assigned
+				this.data.addAll(data.stream().map(a->new Achievement(a)).toList());
+				this.data.sort(ACHIEVEMENT_COMPARATOR);
+				fireTableUpdate();
+			}
+			
+			void replaceData(Vector<Achievement> data) {
+				if (     data==null) return; // no data to replace
+				if (this.data==null) return; // no achievement list assigned
+				this.data.clear();
+				this.data.addAll(data.stream().map(a->new Achievement(a)).toList());
+				this.data.sort(ACHIEVEMENT_COMPARATOR);
+				fireTableUpdate();
 			}
 			
 			void setData(Vector<Achievement> data, Double currentLevel) {

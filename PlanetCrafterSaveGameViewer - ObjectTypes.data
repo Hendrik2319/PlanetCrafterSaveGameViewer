@@ -704,6 +704,8 @@ class = Resource_Craftable
 occurrences = WorldObject,ObjectList
 
 ObjectType: Dolomite
+label_en = Dolomite
+class = Resource_Minable_Cheap
 occurrences = WorldObject
 
 ObjectType: Drill0
@@ -781,6 +783,7 @@ isProducer
 <finished>
 
 ObjectType: EndingExplosives
+class = Special
 occurrences = Blueprint
 
 ObjectType: EnergyGenerator1
@@ -861,7 +864,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: EscapePodHumble
+label_en = Landing Pod
+class = Structure_Building
 occurrences = WorldObject
+<finished>
 
 ObjectType: Explosive
 label_en = Explosive
@@ -1682,7 +1688,13 @@ moCapacity = 8
 <finished>
 
 ObjectType: OreBreaker1
+label_en = Ore Breaker T1
+label_de = Erzbrecher T1
+class = Structure_Machine
+pressure = 0.1
+energy = -2.6
 occurrences = WorldObject
+<finished>
 
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1
@@ -2114,6 +2126,7 @@ occurrences = WorldObject,ObjectList
 <finished>
 
 ObjectType: Seed7Humble
+class = Resource_SeedEgg
 occurrences = WorldObject
 
 ObjectType: SeedGold
@@ -2214,6 +2227,7 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-08
+class = Equipment_Player
 occurrences = WorldObject
 
 ObjectType: Skin-09
