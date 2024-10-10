@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ import javax.swing.table.TableCellRenderer;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectType;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.ObjectTypeValue;
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypes.PhysicalValue;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeEvent;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.ObjectTypesPanel.ObjectTypesChangeListener;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.PlanetCrafterSaveGameViewer.AppSettings;
@@ -379,19 +381,37 @@ class Achievements implements ObjectTypesChangeListener
 		}
 	}
 
-	static class ConfigDialog extends StandardDialog {
+	static class ConfigDialog extends StandardDialog
+	{
 		private static final long serialVersionUID = -4205705986591481227L;
 		
-		private boolean showTabbedView;
 		private final JButton btnSwitchView;
 		private final JButton btnClose;
+		private final JLabel statusOutput;
 		private final EnumMap<AchievementList,AchievementsTablePanel> panels;
 		private final JComboBox<PlanetId> planetSelector;
+		private final Map<AchievementList,Double> terraformRates;
+		private final Function<AchievementList, Double> getTerraformLevel;
+		private boolean showTabbedView;
+		private boolean valuesWereChanged;
 	
-		public ConfigDialog(Window parent, PlanetId currentPlanet, Function<AchievementList,Double> getCurrentLevel) {
+		public ConfigDialog(Window parent, PlanetId currentPlanet, Function<AchievementList,Double> getTerraformLevel)
+		{
 			super(parent, "Achievements Configuration");
-			
+			this.getTerraformLevel = getTerraformLevel;
+			valuesWereChanged = false;
 			showTabbedView = AppSettings.getInstance().getBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
+			
+			terraformRates = getTransformationRates();
+			
+			statusOutput = new JLabel("");
+			statusOutput.setBorder(
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createTitledBorder(""),
+							BorderFactory.createEmptyBorder(0, 10, 0, 10)
+					)
+			);
+			
 			btnSwitchView = GUI.createButton(
 				showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View",
 				true, e->switchView()
@@ -402,7 +422,12 @@ class Achievements implements ObjectTypesChangeListener
 			for (AchievementList al : AchievementList.values()) {
 				boolean showObjType      = al!=AchievementList.Stages;
 				boolean showTIEquivalent = al!=AchievementList.Stages && al!=AchievementList.Terraformation;
-				panels.put(al, new AchievementsTablePanel(al, al.getFormatter(), showObjType, showTIEquivalent));
+				panels.put(al, new AchievementsTablePanel(
+						al, al.getFormatter(),
+						showObjType, showTIEquivalent,
+						()->valuesWereChanged = true,
+						statusOutput::setText
+				));
 			}
 			
 			planetSelector = new JComboBox<>(PlanetId.values());
@@ -410,9 +435,9 @@ class Achievements implements ObjectTypesChangeListener
 			planetSelector.addActionListener(e -> {
 				int index = planetSelector.getSelectedIndex();
 				PlanetId planet = planetSelector.getItemAt(index);
-				fillPanels(planet, planet==currentPlanet ? getCurrentLevel : null);
+				fillPanels(planet, planet==currentPlanet);
 			});
-			fillPanels(currentPlanet, getCurrentLevel);
+			fillPanels(currentPlanet, true);
 			
 			createView();
 			
@@ -422,36 +447,109 @@ class Achievements implements ObjectTypesChangeListener
 					AppSettings.ValueKey.AchievementsConfigDialogHeight,
 					-1, -1);
 		}
-	
-		private void fillPanels(PlanetId planet, Function<AchievementList, Double> getCurrentLevel)
+
+		private static Map<AchievementList, Double> getTransformationRates()
+		{
+			Map<AchievementList, Double> map = new EnumMap<>(AchievementList.class);
+			
+			for (PhysicalValue phVal : PhysicalValue.values())
+			{
+				double rate = TerraformingCalculation.getInstance().getAspect(phVal).getTotalSumBoosted();
+				switch (phVal)
+				{
+				case Oxygen  : map.put(AchievementList.Oxygen  , rate); break;
+				case Heat    : map.put(AchievementList.Heat    , rate); break;
+				case Pressure: map.put(AchievementList.Pressure, rate); break;
+				case Plants  : map.put(AchievementList.Plants  , rate); break;
+				case Insects : map.put(AchievementList.Insects , rate); break;
+				case Animals : map.put(AchievementList.Animals , rate); break;
+				}
+			}
+			
+			for (AchievementList listID : AchievementList.values())
+				switch (listID)
+				{
+				case Oxygen: case Heat: case Pressure: case Plants: case Insects: case Animals:
+					break;
+					
+				case Biomass:
+					map.put(listID,
+							map.get(AchievementList.Plants ) +
+							map.get(AchievementList.Insects) +
+							map.get(AchievementList.Animals)
+					); 
+					break;
+					
+				case Terraformation: case Stages:
+					map.put(listID,
+							map.get(AchievementList.Oxygen  ) +
+							map.get(AchievementList.Heat    ) +
+							map.get(AchievementList.Pressure) +
+							map.get(AchievementList.Plants  ) +
+							map.get(AchievementList.Insects ) +
+							map.get(AchievementList.Animals )
+					); 
+					break;
+				}
+			
+			return map;
+		}
+
+		boolean wereValuesChanged()
+		{
+			return valuesWereChanged;
+		}
+
+		private void fillPanels(PlanetId planet, boolean isCurrentPlanet)
 		{
 			panels.forEach((al,panel) -> {
 				Vector<Achievement> list = Achievements.getInstance().getOrCreate(planet, al);
-				Double currentLevel = getCurrentLevel==null ? null : getCurrentLevel.apply(al);
-				panel.tableModel.setData(list, currentLevel);
-				panel.setDisplayedPlanet(planet);
+				Double terraformLevel = isCurrentPlanet ? getTerraformLevel.apply(al) : null;
+				Double terraformRate  = isCurrentPlanet ? terraformRates.get(al) : null;
+				panel.setData(planet, list, terraformLevel, terraformRate);
 			});
 		}
-
+		
 		private void switchView() {
 			showTabbedView = !showTabbedView;
 			AppSettings.getInstance().putBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, showTabbedView);
 			btnSwitchView.setText(showTabbedView ? "Switch to Parallel View" : "Switch to Tabbed View");
 			createView();
 		}
-	
+		
 		private void createView() {
-			JComponent contentPane;
+			JComponent centerPanel =
+					showTabbedView
+						? new TabbedView(panels)
+						: new GridView(panels);
 			
-			contentPane = showTabbedView
-					? new TabbedView(panels)
-					: new GridView(panels);
+			JPanel planetSelectorPanel = new JPanel(new BorderLayout());
+			planetSelectorPanel.setBorder(
+					BorderFactory.createCompoundBorder(
+							BorderFactory.createTitledBorder(""),
+							BorderFactory.createEmptyBorder(1, 4, 2, 2)
+					)
+			);
+			planetSelectorPanel.add(new JLabel("Planet: "), BorderLayout.WEST);
+			planetSelectorPanel.add(planetSelector, BorderLayout.CENTER);
 			
-			JPanel panelPlanetSelector = new JPanel(new BorderLayout());
-			panelPlanetSelector.add(new JLabel("Planet: "), BorderLayout.WEST);
-			panelPlanetSelector.add(planetSelector, BorderLayout.CENTER);
+			JPanel southPanel = new JPanel(new GridBagLayout());
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+			c.weighty = 1;
+			c.weightx = 1;
+			southPanel.add(statusOutput,c);
+			c.weightx = 0;
+			southPanel.add(planetSelectorPanel,c);
+			southPanel.add(btnSwitchView,c);
+			southPanel.add(btnClose,c);
 			
-			createGUI( contentPane, panelPlanetSelector, btnSwitchView, btnClose );
+			JPanel contentPane = new JPanel(new BorderLayout(3,3));
+			contentPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+			contentPane.add(centerPanel,BorderLayout.CENTER);
+			contentPane.add(southPanel,BorderLayout.SOUTH);
+			
+			createGUI( contentPane );
 		}
 		
 		private static class TabbedView extends JTabbedPane
@@ -532,15 +630,40 @@ class Achievements implements ObjectTypesChangeListener
 			private final Border defaultBorder;
 			private final AchievementsTableModel tableModel;
 			private final TableContextMenu tableContextMenu;
+			private Double terraformLevel;
+			private Double terraformRate;
 	
-			AchievementsTablePanel(AchievementList listID, Function<Double, String> formatLevel, boolean showObjType, boolean showTIEquivalent)
-			{
-				tableModel = new AchievementsTableModel(formatLevel, showObjType, showTIEquivalent);
+			AchievementsTablePanel(
+					AchievementList listID,
+					Function<Double, String> formatLevel,
+					boolean showObjType,
+					boolean showTIEquivalent,
+					Runnable notifyValuesWereChanged,
+					Consumer<String> setStatus
+			) {
+				tableModel = new AchievementsTableModel(formatLevel, showObjType, showTIEquivalent, notifyValuesWereChanged);
 				
 				JTable table = new JTable(tableModel);
 				table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+				table.getSelectionModel().addListSelectionListener(e -> {
+					int rowV = table.getSelectedRow();
+					int rowM = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+					Achievement achievement = tableModel.getRow(rowM);
+					if (terraformLevel==null || terraformRate==null || achievement==null || achievement.level==null)
+						setStatus.accept("");
+					
+					else if (achievement.level <= terraformLevel)
+						setStatus.accept("Achievement \"%s\" has already been reached".formatted(achievement.getLabel()));
+					
+					else
+					{
+						double timeToReach_s = (achievement.level - terraformLevel) / terraformRate;
+						String timeToReachStr = GeneralDataPanel.TerraformingStatesPanel.getDurationsString_s(timeToReach_s);
+						setStatus.accept("Achievement \"%s\" will be reached %s".formatted(achievement.getLabel(), timeToReachStr));
+					}
+				});
 				
 				tableModel.setTable(table);
 				tableModel.setColumnWidths(table);
@@ -559,8 +682,11 @@ class Achievements implements ObjectTypesChangeListener
 				defaultBorder = getBorder();
 			}
 			
-			void setDisplayedPlanet(PlanetId displayedPlanet)
+			void setData(PlanetId displayedPlanet, Vector<Achievement> list, Double terraformLevel, Double terraformRate)
 			{
+				this.terraformLevel = terraformLevel;
+				this.terraformRate = terraformRate;
+				tableModel.setData(list, terraformLevel);
 				tableContextMenu.setDisplayedPlanet(displayedPlanet);
 			}
 
@@ -634,18 +760,18 @@ class Achievements implements ObjectTypesChangeListener
 			private final AchievementsTableModel tableModel;
 			private final Function<Double, String> formatLevel;
 			private final Tables.LabelRendererComponent rendererComponent;
-			private       Double currentLevel;
+			private       Double terraformLevel;
 	
 			AchievementsTableCellRenderer(AchievementsTableModel tableModel, Function<Double,String> formatLevel) {
 				this.tableModel = tableModel;
 				this.formatLevel = formatLevel;
-				this.currentLevel = null;
+				this.terraformLevel = null;
 				rendererComponent = new Tables.LabelRendererComponent();
 			}
 	
-			void setCurrentLevel(Double currentLevel)
+			void setTerraformLevel(Double terraformLevel)
 			{
-				this.currentLevel = currentLevel;
+				this.terraformLevel = terraformLevel;
 			}
 
 			@Override
@@ -661,8 +787,8 @@ class Achievements implements ObjectTypesChangeListener
 						if (value instanceof Double valueL)
 						{
 							valueStr = formatLevel.apply(valueL);
-							if (currentLevel!=null)
-								getCustomBackground = () -> valueL < currentLevel ? BGCOLOR_ACHIEVED : null;
+							if (terraformLevel!=null)
+								getCustomBackground = () -> valueL < terraformLevel ? BGCOLOR_ACHIEVED : null;
 						}
 						break;
 						
@@ -721,9 +847,11 @@ class Achievements implements ObjectTypesChangeListener
 	
 			private final AchievementsTableCellRenderer tcr;
 			private Vector<Achievement> data;
+			private final Runnable notifyValuesWereChanged;
 	
-			AchievementsTableModel(Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent) {
+			AchievementsTableModel(Function<Double,String> formatLevel, boolean showObjType, boolean showTIEquivalent, Runnable notifyValuesWereChanged) {
 				super( ColumnID.values(showObjType, showTIEquivalent) );
+				this.notifyValuesWereChanged = notifyValuesWereChanged;
 				tcr = new AchievementsTableCellRenderer(this, formatLevel);
 				data = null;
 			}
@@ -745,9 +873,9 @@ class Achievements implements ObjectTypesChangeListener
 				fireTableUpdate();
 			}
 			
-			void setData(Vector<Achievement> data, Double currentLevel) {
+			void setData(Vector<Achievement> data, Double terraformLevel) {
 				this.data = data;
-				tcr.setCurrentLevel(currentLevel);
+				tcr.setTerraformLevel(terraformLevel);
 				fireTableUpdate();
 			}
 	
@@ -880,6 +1008,8 @@ class Achievements implements ObjectTypesChangeListener
 						data.sort(ACHIEVEMENT_COMPARATOR);
 						fireTableUpdate();
 					});
+				
+				notifyValuesWereChanged.run();
 			}
 			
 		}

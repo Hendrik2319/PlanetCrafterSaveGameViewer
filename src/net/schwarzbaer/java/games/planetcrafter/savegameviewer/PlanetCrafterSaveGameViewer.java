@@ -219,9 +219,10 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				
 			case ConfigureAchievements:
 				PlanetId planet = loadedData==null ? null : loadedData.getPlanet();
-				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(mainWindow,planet,this::getAchievedValues);
+				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(mainWindow, planet, this::getAchievedValues);
 				dlg.showDialog(StandardDialog.Position.PARENT_CENTER);
-				Achievements.getInstance().writeToFile();
+				if (dlg.wereValuesChanged())
+					Achievements.getInstance().writeToFile();
 				if (generalDataPanel!=null)
 					generalDataPanel.updateAfterAchievementsChange();
 				break;

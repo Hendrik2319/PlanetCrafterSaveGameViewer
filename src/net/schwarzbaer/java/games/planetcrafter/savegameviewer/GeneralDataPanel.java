@@ -515,10 +515,6 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			);
 		}
 		
-		static void testDurationFormater() {
-			Row.testDurationFormater();
-		}
-		
 		private static class AchievementTextField extends JTextField {
 			private static final long serialVersionUID = 4367674243165558871L;
 			
@@ -580,6 +576,85 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			}
 		}
 		
+		static void testDurationFormater() {
+			testDurationFormater(" 5.2 s", 5.2);
+			testDurationFormater("  61 s", 61);
+			testDurationFormater(" 100 s", 100);
+			testDurationFormater("3599 s", 3599);
+			testDurationFormater("3600 s", 3600);
+			testDurationFormater("3601 s", 3601);
+			testDurationFormater("3661 s", 3661);
+			testDurationFormater("nearly  1 day ", 24*3600*0.99);
+			testDurationFormater("        1 day ", 24*3600);
+			testDurationFormater("above   1 day ", 24*3600*1.01);
+			testDurationFormater("nearly 10 days", 10*24*3600*0.99);
+			testDurationFormater("       10 days", 10*24*3600);
+			testDurationFormater("      350 days", 350*24*3600);
+			testDurationFormater("      365 days", 365*24*3600);
+			testDurationFormater("            10 Y", 365.0*24*3600*10.0);
+			testDurationFormater("           100 Y", 365.0*24*3600*100.0);
+			testDurationFormater("          1000 Y", 365.0*24*3600*1000.0);
+			testDurationFormater("         10000 Y", 365.0*24*3600*10000.0);
+			testDurationFormater("        100000 Y", 365.0*24*3600*100000.0);
+			testDurationFormater("       1000000 Y", 365.0*24*3600*1000000.0);
+			testDurationFormater("      10000000 Y", 365.0*24*3600*10000000.0);
+			testDurationFormater("     100000000 Y", 365.0*24*3600*100000000.0);
+			testDurationFormater("    1000000000 Y", 365.0*24*3600*1000000000.0);
+			testDurationFormater("   10000000000 Y", 365.0*24*3600*10000000000.0);
+			testDurationFormater("  100000000000 Y", 365.0*24*3600*100000000000.0);
+			testDurationFormater(" 1000000000000 Y", 365.0*24*3600*1000000000000.0);
+			testDurationFormater("10000000000000 Y", 365.0*24*3600*10000000000000.0);
+		}
+
+		private static void testDurationFormater(String label, double value) {
+			System.out.printf("%s -> [%s] %s%n", label, value, getDurationsString_s(value));
+		}
+
+		static String getDurationsString_s(double value) {
+			if (value < 60) return formatValue("in %1.1f s", value);
+			value /= 60;
+			int sec = (int)Math.floor((value    - Math.floor(value   ))*60);
+			int min = (int)Math.floor((value/60 - Math.floor(value/60))*60);
+			
+			if (value < 60) return formatValue("in %d:%02d min", min, sec);
+			value/=60;
+			int hour = (int)Math.floor((value/24 - Math.floor(value/24))*24);
+			
+			if (value < 24) return formatValue("in %d:%02d:%02d h", hour, min, sec);
+			value/=24;
+			
+			if (value <  10) return formatValue("in %1.0f d %02d:%02d h", Math.floor(value), hour, min);
+			if (value < 100) return formatValue("in %1.2f d", value);
+			if (value < 365) return formatValue("in %1.1f d", value);
+			value/=365;
+			
+			if (value <   10) return formatValue("in %1.2f Y", value);
+			if (value <  100) return formatValue("in %1.1f Y", value);
+			if (value < 1000) return formatValue("in %1.0f Y", value);
+			value/=1000;
+			
+			if (value <   10) return formatValue("in %1.2f kY", value);
+			if (value <  100) return formatValue("in %1.1f kY", value);
+			if (value < 1000) return formatValue("in %1.0f kY", value);
+			value/=1000;
+			
+			if (value <   10) return formatValue("in %1.2f MY", value);
+			if (value <  100) return formatValue("in %1.1f MY", value);
+			if (value < 1000) return formatValue("in %1.0f MY", value);
+			value/=1000;
+			
+			if (value <   10) return formatValue("in %1.2f GY", value);
+			if (value <  100) return formatValue("in %1.1f GY", value);
+			if (value < 1000) return formatValue("in %1.0f GY", value);
+			value/=1000;
+			
+			return "after a long time";
+		}
+
+		private static String formatValue(String format, Object... values) {
+			return String.format(Locale.ENGLISH, format, values);
+		}
+
 		private static class Row {
 			
 			private final Function<Double, String> formatLevel;
@@ -645,90 +720,11 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 					return String.format("%s at %s", achievement.getLabel(), nextLevelStr);
 				
 				double duration_s = (nextLevel.doubleValue()-level) / rate;
-				String durationsStr = getDurationsString(duration_s);
+				String durationsStr = getDurationsString_s(duration_s);
 				
 				return String.format("%s at %s %s", achievement.getLabel(), nextLevelStr, durationsStr);
 			}
 			
-			private static String formatValue(String format, Object... values) {
-				return String.format(Locale.ENGLISH, format, values);
-			}
-			
-			static void testDurationFormater() {
-				testDurationFormater(" 5.2 s", 5.2);
-				testDurationFormater("  61 s", 61);
-				testDurationFormater(" 100 s", 100);
-				testDurationFormater("3599 s", 3599);
-				testDurationFormater("3600 s", 3600);
-				testDurationFormater("3601 s", 3601);
-				testDurationFormater("3661 s", 3661);
-				testDurationFormater("nearly  1 day ", 24*3600*0.99);
-				testDurationFormater("        1 day ", 24*3600);
-				testDurationFormater("above   1 day ", 24*3600*1.01);
-				testDurationFormater("nearly 10 days", 10*24*3600*0.99);
-				testDurationFormater("       10 days", 10*24*3600);
-				testDurationFormater("      350 days", 350*24*3600);
-				testDurationFormater("      365 days", 365*24*3600);
-				testDurationFormater("            10 Y", 365.0*24*3600*10.0);
-				testDurationFormater("           100 Y", 365.0*24*3600*100.0);
-				testDurationFormater("          1000 Y", 365.0*24*3600*1000.0);
-				testDurationFormater("         10000 Y", 365.0*24*3600*10000.0);
-				testDurationFormater("        100000 Y", 365.0*24*3600*100000.0);
-				testDurationFormater("       1000000 Y", 365.0*24*3600*1000000.0);
-				testDurationFormater("      10000000 Y", 365.0*24*3600*10000000.0);
-				testDurationFormater("     100000000 Y", 365.0*24*3600*100000000.0);
-				testDurationFormater("    1000000000 Y", 365.0*24*3600*1000000000.0);
-				testDurationFormater("   10000000000 Y", 365.0*24*3600*10000000000.0);
-				testDurationFormater("  100000000000 Y", 365.0*24*3600*100000000000.0);
-				testDurationFormater(" 1000000000000 Y", 365.0*24*3600*1000000000000.0);
-				testDurationFormater("10000000000000 Y", 365.0*24*3600*10000000000000.0);
-			}
-			
-			private static void testDurationFormater(String label, double value) {
-				System.out.printf("%s -> [%s] %s%n", label, value, getDurationsString(value));
-			}
-			
-			private static String getDurationsString(double value) {
-				if (value < 60) return formatValue("in %1.1f s", value);
-				value /= 60;
-				int sec = (int)Math.floor((value    - Math.floor(value   ))*60);
-				int min = (int)Math.floor((value/60 - Math.floor(value/60))*60);
-				
-				if (value < 60) return formatValue("in %d:%02d min", min, sec);
-				value/=60;
-				int hour = (int)Math.floor((value/24 - Math.floor(value/24))*24);
-				
-				if (value < 24) return formatValue("in %d:%02d:%02d h", hour, min, sec);
-				value/=24;
-				
-				if (value <  10) return formatValue("in %1.0f d %02d:%02d h", Math.floor(value), hour, min);
-				if (value < 100) return formatValue("in %1.2f d", value);
-				if (value < 365) return formatValue("in %1.1f d", value);
-				value/=365;
-				
-				if (value <   10) return formatValue("in %1.2f Y", value);
-				if (value <  100) return formatValue("in %1.1f Y", value);
-				if (value < 1000) return formatValue("in %1.0f Y", value);
-				value/=1000;
-				
-				if (value <   10) return formatValue("in %1.2f kY", value);
-				if (value <  100) return formatValue("in %1.1f kY", value);
-				if (value < 1000) return formatValue("in %1.0f kY", value);
-				value/=1000;
-				
-				if (value <   10) return formatValue("in %1.2f MY", value);
-				if (value <  100) return formatValue("in %1.1f MY", value);
-				if (value < 1000) return formatValue("in %1.0f MY", value);
-				value/=1000;
-				
-				if (value <   10) return formatValue("in %1.2f GY", value);
-				if (value <  100) return formatValue("in %1.1f GY", value);
-				if (value < 1000) return formatValue("in %1.0f GY", value);
-				value/=1000;
-				
-				return "after a long time";
-			}
-
 			void setRate(double rate) {
 				this.rate = rate;
 				if (fieldRate!=null && formatRate!=null) {
