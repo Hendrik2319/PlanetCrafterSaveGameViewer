@@ -137,8 +137,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		GUI.reduceTextAreaFontSize(new JLabel(), 1, textOut);
 		
 		mapModel = new MapModel(data);
-		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut);
-		mapBackgroundImage = new MapBackgroundImage(mapView,planet);
+		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut, planet);
+		mapBackgroundImage = new MapBackgroundImage(mapView, planet);
 		new MapContextMenu(mapView, this.main, mapBackgroundImage);
 		
 		cmbbxColoring = new JComboBox<>(ColoringType.values());
@@ -1305,16 +1305,18 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 		private final MapModel mapModel;
 		private final MapShapes mapShapes;
+		private final PlanetId planet;
 		private MapBackgroundImage mapBackgroundImage;
 		private final MousePos currentMousePos;
 		private Coord3 specCoords;
 		private boolean showWreckAreas;
 
-		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut) {
+		MapView(MapShapes mapShapes, MapModel mapModel, OverView overView, JTextArea textOut, PlanetId planet) {
 			this.mapShapes = mapShapes;
 			this.mapModel = mapModel;
 			this.overView = overView;
 			this.textOut = textOut;
+			this.planet = planet;
 			hoveredObject = null;
 			extraShownObject = null;
 			toolTipBox = null;
@@ -1528,7 +1530,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				if (showWreckAreas)
 				{
 					FarWreckAreas farWreckAreas = FarWreckAreas.getInstance();
-					Vector<WreckArea> wreckAreas = farWreckAreas.getAreas();
+					Vector<WreckArea> wreckAreas = farWreckAreas.getAreas(planet);
 					WreckArea editableArea = farWreckAreas.getEditableArea();
 					
 					for (WreckArea area : wreckAreas)

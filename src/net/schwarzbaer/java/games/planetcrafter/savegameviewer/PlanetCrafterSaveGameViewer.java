@@ -543,6 +543,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 		objectTypesPanel.addObjectTypesChangeListener(mapShapesEditor);
 		objectTypesPanel.addObjectTypesChangeListener(autoCrafterTrading);
 		
+		String titleFarWreckAreaTablePanel = "[ Far Wreck Areas at \"%s\" ]".formatted(planet);
 		dataTabPane.addTab("General", generalDataPanel);
 		dataTabPane.addTab("Map", mapPanel);
 		dataTabPane.addTab("Terraforming", terraformingPanel);
@@ -553,7 +554,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			dataTabPane.addTab("Generated Wrecks", new GeneratedWrecksPanel(this,data,mapPanel));
 		dataTabPane.addTab("[ Object Types ]", objectTypesPanel);
 		dataTabPane.addTab("[ AutoCrafter Trading ]", autoCrafterTrading.createNewPanel());
-		dataTabPane.addTab("[ Far Wreck Areas ]", new FarWreckAreaTablePanel());
+		dataTabPane.addTab(titleFarWreckAreaTablePanel, new FarWreckAreaTablePanel(planet));
 		
 		mapShapesEditor.updateAfterNewObjectTypes();
 		

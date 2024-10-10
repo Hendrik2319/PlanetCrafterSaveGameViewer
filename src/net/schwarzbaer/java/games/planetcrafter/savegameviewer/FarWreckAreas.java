@@ -10,11 +10,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 
 class FarWreckAreas
 {
@@ -26,23 +30,24 @@ class FarWreckAreas
 				: instance;
 	}
 	
-	private final Vector<WreckArea> areas;
+	private final Map<PlanetId, Vector<WreckArea>> areas;
 	private WreckArea editableArea;
 	
 	private FarWreckAreas()
 	{
-		areas = new Vector<>();
+		areas = new EnumMap<>(PlanetId.class);
 		editableArea = null;
 	}
 
-	Vector<WreckArea> getAreas()
+	Vector<WreckArea> getAreas(PlanetId planet)
 	{
-		return areas;
+		return areas.computeIfAbsent(planet, p->new Vector<>());
 	}
 
-	void addEmptyArea()
+	void addEmptyArea(PlanetId planet)
 	{
-		areas.add(new WreckArea());
+		Vector<WreckArea> areasOnPlanet = getAreas(planet);
+		areasOnPlanet.add(new WreckArea());
 	}
 
 	WreckArea getEditableArea() { return editableArea; }
@@ -75,18 +80,41 @@ class FarWreckAreas
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
 			
 			String line, valueStr;
+			Vector<WreckArea> areasOnPlanet = null;
 			WreckArea currentWreckArea = null;
+			boolean planetHeaderFound = false;
 			
 			while ( (line=in.readLine())!=null )
 			{
 				if (line.isBlank())
 					continue;
 				
+				if (line.equals("[Planet]"))
+				{
+					areasOnPlanet = null;
+					currentWreckArea = null;
+					planetHeaderFound = true;
+				}
+				
+				if ( (valueStr=getValue(line,"ID: "))!=null)
+				{
+					PlanetId currentPlanet = PlanetId.parse(valueStr);
+					areasOnPlanet = currentPlanet==null ? null : getAreas(currentPlanet);
+					currentWreckArea = null;
+					planetHeaderFound = true;
+				}
+				
 				if (line.equals("[WreckArea]"))
 				{
-					areas.add(currentWreckArea = new WreckArea());
-					currentWreckArea.hasAutomaticPointOrder = false;
-					currentWreckArea.isVisible = false;
+					if (areasOnPlanet==null && !planetHeaderFound)
+						areasOnPlanet = getAreas(PlanetId.Prime);
+					
+					if (areasOnPlanet!=null)
+					{
+						areasOnPlanet.add(currentWreckArea = new WreckArea());
+						currentWreckArea.hasAutomaticPointOrder = false;
+						currentWreckArea.isVisible = false;
+					}
 				}
 				
 				if (currentWreckArea != null)
@@ -132,22 +160,30 @@ class FarWreckAreas
 		
 		try (PrintWriter out = new PrintWriter(file, StandardCharsets.UTF_8)) {
 			
-			for (WreckArea area : areas)
-			{
-				out.println("[WreckArea]");
+			areas.forEach((planet,areas) -> {
+				if (areas.isEmpty()) return;
 				
-				area.foreachPoint(p -> {
-					out.printf(Locale.ENGLISH, "P %1.4f|%1.4f%n", p.x, p.y);
-				});
-				
-				if (area.hasAutomaticPointOrder())
-					out.println("AutomaticPointOrder");
-				
-				if (area.isVisible)
-					out.println("Visible");
-				
+				out.println("[Planet]");
+				out.printf("ID: %s%n", planet);
 				out.println();
-			}
+				
+				for (WreckArea area : areas)
+				{
+					out.println("[WreckArea]");
+					
+					area.foreachPoint(p -> {
+						out.printf(Locale.ENGLISH, "P %1.4f|%1.4f%n", p.x, p.y);
+					});
+					
+					if (area.hasAutomaticPointOrder())
+						out.println("AutomaticPointOrder");
+					
+					if (area.isVisible)
+						out.println("Visible");
+					
+					out.println();
+				}
+			});
 			
 		} catch (IOException ex) {
 			System.err.printf("IOException while writing FarWreckAreas: %s%n", ex.getMessage());

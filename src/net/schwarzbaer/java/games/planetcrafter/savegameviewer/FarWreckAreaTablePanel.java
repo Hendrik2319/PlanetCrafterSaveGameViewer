@@ -22,6 +22,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
+import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.FarWreckAreas.WreckArea;
 import net.schwarzbaer.java.lib.gui.ContextMenu;
 import net.schwarzbaer.java.lib.gui.GeneralIcons.GrayCommandIcons;
@@ -34,14 +35,14 @@ class FarWreckAreaTablePanel extends JSplitPane
 {
 	private static final long serialVersionUID = -5756462259451478608L;
 	
-	FarWreckAreaTablePanel() {
+	FarWreckAreaTablePanel(PlanetId planet) {
 		super(JSplitPane.HORIZONTAL_SPLIT, true);
 		
 		WreckAreaMapView wreckAreaMapView = new WreckAreaMapView();
 		wreckAreaMapView.setPreferredSize(300,300);
 		
 		PointTablePanel pointTablePanel = new PointTablePanel(wreckAreaMapView);
-		WreckAreaTablePanel wreckAreaTablePanel = new WreckAreaTablePanel(wreckAreaMapView, pointTablePanel.tableModel);
+		WreckAreaTablePanel wreckAreaTablePanel = new WreckAreaTablePanel(wreckAreaMapView, pointTablePanel.tableModel, planet);
 		
 		JSplitPane leftPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
 		leftPanel.setTopComponent(wreckAreaTablePanel);
@@ -60,9 +61,9 @@ class FarWreckAreaTablePanel extends JSplitPane
 		private final WreckAreaTableModel tableModel;
 		private final JTable table;
 		
-		WreckAreaTablePanel(WreckAreaMapView wreckAreaMapView, PointTableModel pointTableModel)
+		WreckAreaTablePanel(WreckAreaMapView wreckAreaMapView, PointTableModel pointTableModel, PlanetId planet)
 		{
-			table = new JTable(tableModel = new WreckAreaTableModel(pointTableModel));
+			table = new JTable(tableModel = new WreckAreaTableModel(pointTableModel, planet));
 			table.setPreferredScrollableViewportSize(table.getMinimumSize());
 			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -80,7 +81,7 @@ class FarWreckAreaTablePanel extends JSplitPane
 			
 			setViewportView(table);
 			
-			TableContextMenu contextMenu = new TableContextMenu();
+			TableContextMenu contextMenu = new TableContextMenu(planet);
 			contextMenu.addTo(table);
 			contextMenu.addTo(this);
 		}
@@ -89,11 +90,11 @@ class FarWreckAreaTablePanel extends JSplitPane
 		{
 			private static final long serialVersionUID = -798929965802654061L;
 	
-			public TableContextMenu()
+			public TableContextMenu(PlanetId planet)
 			{
 				add(GUI.createMenuItem("Add empty area", e->{
 					FarWreckAreas wreckAreas = FarWreckAreas.getInstance();
-					wreckAreas.addEmptyArea();
+					wreckAreas.addEmptyArea(planet);
 					tableModel.updateData();
 					wreckAreas.writeToFile();
 				}));
@@ -231,15 +232,17 @@ class FarWreckAreaTablePanel extends JSplitPane
 		}
 		
 		private final PointTableModel pointTableModel;
+		private final PlanetId planet;
 		
-		WreckAreaTableModel(PointTableModel pointTableModel) {
-			super(ColumnID.values(), FarWreckAreas.getInstance().getAreas());
+		WreckAreaTableModel(PointTableModel pointTableModel, PlanetId planet) {
+			super(ColumnID.values(), FarWreckAreas.getInstance().getAreas(planet));
 			this.pointTableModel = pointTableModel;
+			this.planet = planet;
 		}
 		
 		void updateData()
 		{
-			setData(FarWreckAreas.getInstance().getAreas());
+			setData(FarWreckAreas.getInstance().getAreas(planet));
 		}
 		
 		@Override
