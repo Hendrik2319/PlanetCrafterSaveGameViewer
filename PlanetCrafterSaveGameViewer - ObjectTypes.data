@@ -122,6 +122,7 @@ occurrences = WorldObject,ObjectList
 
 ObjectType: astrofood2
 label_en = High Quality Food
+label_de = Hochwertiges Essen
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
@@ -146,7 +147,7 @@ ObjectType: Backpack2
 label_en = Backpack T2
 label_de = Rucksack T2
 class = Equipment_Player
-occurrences = Achievement
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: Backpack3
@@ -189,6 +190,13 @@ class = Resource_Minable
 occurrences = WorldObject,ObjectList
 <finished>
 
+ObjectType: Bauxite
+label_en = Bauxite
+label_de = Bauxit
+class = Resource_Minable
+occurrences = WorldObject
+<finished>
+
 ObjectType: Beacon
 label_en = Beacon
 label_de = Leuchtfeuer
@@ -224,6 +232,7 @@ occurrences = WorldObject,Product,ObjectList
 
 ObjectType: Beehive1
 label_en = Beehive T1
+label_de = Bienenstock T1
 class = Structure_Machine
 plants = 350.0
 insects = 15.0
@@ -234,6 +243,7 @@ isProducer
 
 ObjectType: Beehive2
 label_en = Beehive T2
+label_de = Bienenstock T2
 class = Structure_Machine
 plants = 758.0
 insects = 890.0
@@ -264,6 +274,7 @@ isProducer
 
 ObjectType: Biolab
 label_en = Biolab
+label_de = Biolabor
 class = Structure_Building
 energy = -40.0
 occurrences = WorldObject,Achievement
@@ -517,12 +528,14 @@ occurrences = WorldObject,Achievement,Product,ObjectList
 
 ObjectType: ButterflyDisplayer1
 label_en = Butterfly Display Box
+label_de = Schmetterlingsvitrine
 class = Structure_Storage
 occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: ButterflyDome1
 label_en = Butterfly Dome
+label_de = Schmetterlingskuppel
 class = Structure_Building
 insects = 20.0
 energy = -139.0
@@ -532,7 +545,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: ButterflyFarm1
 label_en = Butterfly Farm T1
-label_de = Schmetterlingsfarm
+label_de = Schmetterlingsfarm T1
 class = Structure_Machine
 insects = 75.0
 energy = -30.0
@@ -710,11 +723,14 @@ ObjectType: DNASequence
 label_de = Kreatur-DNA
 class = Resource_Craftable
 occurrences = WorldObject,ObjectList
+<finished>
 
 ObjectType: Dolomite
 label_en = Dolomite
+label_de = Dolomit
 class = Resource_Minable_Cheap
 occurrences = WorldObject
+<finished>
 
 ObjectType: Drill0
 label_en = Drill T1
@@ -897,6 +913,7 @@ occurrences = WorldObject,Blueprint,ObjectList
 
 ObjectType: FabricBlue
 label_en = Fabric
+label_de = Stoff
 class = Resource_Craftable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
@@ -1030,9 +1047,11 @@ label_de = Fischeier "Buyu" (350% | ?? P.C, M3, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.5
 occurrences = WorldObject,Product
+<finished>
 
 ObjectType: FishDisplayer1
 label_en = Fish Display
+label_de = Fischvitrine
 class = Structure_Storage
 occurrences = WorldObject,Achievement
 <finished>
@@ -1118,6 +1137,7 @@ occurrences = WorldObject
 
 ObjectType: Frog1Eggs
 label_en = Generic Frog Eggs (100% | P.C, M4, F1)
+label_de = Generische Froscheier (100% | P.C, M4, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 1.0
 occurrences = WorldObject,Achievement
@@ -1189,6 +1209,7 @@ occurrences = WorldObject,Achievement,Product
 
 ObjectType: FrogDisplayer1
 label_en = Frog Displayer
+label_de = Froschvitrine
 class = Structure_Storage
 occurrences = WorldObject,Achievement
 <finished>
@@ -1513,7 +1534,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: LarvaeBase1
 label_en = Common Larva
-label_de = Gewöhnliche Larve
+label_de = Gemeine Larve
 class = Resource_Minable
 occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
@@ -1728,6 +1749,24 @@ energy = -2.6
 occurrences = WorldObject
 <finished>
 
+ObjectType: OreBreaker2
+label_en = Ore Breaker T2
+label_de = Erzbrecher T2
+class = Structure_Machine
+pressure = 1.2
+energy = -21.0
+occurrences = User
+<finished>
+
+ObjectType: OreBreaker3
+label_en = Ore Breaker T3
+label_de = Erzbrecher T3
+class = Structure_Machine
+pressure = 13.0
+energy = -125.0
+occurrences = WorldObject
+<finished>
+
 ObjectType: OreExtractor1
 label_en = Ore Extractor T1
 label_de = Erzextraktor T1
@@ -1938,6 +1977,7 @@ occurrences = WorldObject,Achievement
 
 ObjectType: RocketBiomass1
 label_en = Plants Rocket
+label_de = Pflanzenrakete
 class = Special_Rocket
 isBoosterRocketFor = Plants
 boosterMultiplier = 12.5
@@ -1966,6 +2006,7 @@ occurrences = WorldObject,Blueprint
 
 ObjectType: RocketInsects1
 label_en = Insect Spreader Rocket
+label_de = Insektenvertreiler-Rakete
 class = Special_Rocket
 isBoosterRocketFor = Insects
 boosterMultiplier = 15.0
@@ -2120,6 +2161,7 @@ occurrences = WorldObject
 
 ObjectType: Seed0
 label_en = Seed Lirma (100%)
+label_de = Samen "Lirma" (100%)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.0
 occurrences = WorldObject,Achievement,ObjectList
@@ -2127,6 +2169,7 @@ occurrences = WorldObject,Achievement,ObjectList
 
 ObjectType: Seed1
 label_en = Seed Shanga (150%)
+label_de = Samen "Shanga" (150%)
 class = Resource_SeedEgg
 oxygenMultiplier = 1.5
 occurrences = WorldObject,ObjectList
@@ -2178,6 +2221,13 @@ ObjectType: Seed7Humble
 label_de = Samen "Snepea" (200%)
 class = Resource_SeedEgg
 oxygenMultiplier = 2.0
+occurrences = WorldObject
+<finished>
+
+ObjectType: Seed8Humble
+label_de = Samen "Brelea" (250%)
+class = Resource_SeedEgg
+oxygenMultiplier = 2.5
 occurrences = WorldObject
 <finished>
 
@@ -2635,6 +2685,13 @@ label_en = Uranium
 label_de = Uran
 class = Resource_Minable
 occurrences = WorldObject,Product,ObjectList
+<finished>
+
+ObjectType: Uraninite
+label_en = Uraninite
+label_de = Uraninit
+class = Resource_Minable
+occurrences = WorldObject
 <finished>
 
 ObjectType: Vegetable0Growable
