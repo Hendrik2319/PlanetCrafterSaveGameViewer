@@ -39,7 +39,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.AchievementList;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Achievements.PlanetAchievements;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.NV;
 import net.schwarzbaer.java.games.planetcrafter.savegameviewer.Data.PlanetId;
@@ -171,7 +170,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case WriteReducedSaveGame:
 				return openFile!=null;
 				
-			case ConfigureAchievements:
+			case ShowEditAchievements:
 			case ShowMapShapesEditor:
 			case SetLabelLanguageDE:
 			case SetLabelLanguageEN:
@@ -217,9 +216,9 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				}
 				break;
 				
-			case ConfigureAchievements:
+			case ShowEditAchievements:
 				PlanetId planet = loadedData==null ? null : loadedData.getPlanet();
-				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(mainWindow, planet, this::getAchievedValues);
+				Achievements.ConfigDialog dlg = new Achievements.ConfigDialog(mainWindow, planet, loadedData==null ? null : loadedData.achievedValues);
 				dlg.showDialog(StandardDialog.Position.PARENT_CENTER);
 				if (dlg.wereValuesChanged())
 					Achievements.getInstance().writeToFile();
@@ -238,24 +237,6 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case SetLabelLanguageEN: setLabelLanguage(LabelLanguage.EN); break;
 		}
 		
-	}
-	
-	private Double getAchievedValues(AchievementList listID)
-	{
-		if (listID != null && loadedData != null && loadedData.achievedValues != null)
-			switch (listID)
-			{
-			case Animals       : return loadedData.achievedValues.animalsLevel;
-			case Biomass       : return loadedData.achievedValues.getBiomassLevel();
-			case Heat          : return loadedData.achievedValues.heatLevel;
-			case Insects       : return loadedData.achievedValues.insectsLevel;
-			case Oxygen        : return loadedData.achievedValues.oxygenLevel;
-			case Plants        : return loadedData.achievedValues.plantsLevel;
-			case Pressure      : return loadedData.achievedValues.pressureLevel;
-			case Stages        : return loadedData.achievedValues.getTerraformLevel();
-			case Terraformation: return loadedData.achievedValues.getTerraformLevel();
-			}
-		return null;
 	}
 	
 	private void setLabelLanguage(LabelLanguage lang)
@@ -323,7 +304,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			//addSeparator();
 			//add(createButton  ("Scan SaveGame"         , GrayCommandIcons.IconGroup.Folder, true , ActionCommand.ScanSaveGame        ));
 			addSeparator();
-			add(createButton  ("Configure Achievements", null                             , true , ActionCommand.ConfigureAchievements));
+			add(createButton  ("Show/Edit Achievements", null                             , true , ActionCommand.ShowEditAchievements));
 			addSeparator();
 			add(createButton  ("MapShapes Editor"      , null                             , true , ActionCommand.ShowMapShapesEditor  ));
 			addSeparator();
@@ -357,7 +338,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			filesMenu.add(GUI.createMenuItem("Quit", e->System.exit(0)));
 			
 			JMenu achievementsMenu = add(new JMenu("Achievements"));
-			achievementsMenu.add(createMenuItem("Configure Achievements", null, true, ActionCommand.ConfigureAchievements));
+			achievementsMenu.add(createMenuItem("Show/Edit Achievements", null, true, ActionCommand.ShowEditAchievements));
 		}
 		
 		JMenuItem createMenuItem(String title, GeneralIcons.IconGroup icons, boolean isEnabled, ActionCommand ac) {

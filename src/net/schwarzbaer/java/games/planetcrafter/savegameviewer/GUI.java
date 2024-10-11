@@ -63,7 +63,7 @@ class GUI {
 	static final Color COLOR_Removal_Fully     = new Color(0xFF7F7F);
 
 	enum ActionCommand {
-		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ScanSaveGame, ConfigureAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor, SetLabelLanguageDE, SetLabelLanguageEN
+		ReloadSaveGame, OpenSaveGame, WriteReducedSaveGame, ScanSaveGame, ShowEditAchievements, ReloadSaveGameAutoSwitch, ShowMapShapesEditor, SetLabelLanguageDE, SetLabelLanguageEN
 	}
 	
 	private static <Type extends AbstractButton> Type setAbstractButton(

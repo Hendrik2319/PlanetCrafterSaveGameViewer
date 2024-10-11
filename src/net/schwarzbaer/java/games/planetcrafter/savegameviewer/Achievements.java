@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 import java.util.function.Consumer;
@@ -312,6 +314,73 @@ class Achievements implements ObjectTypesChangeListener
 		return ObjectTypes.getInstance().findObjectTypeByName(name, ObjectTypes.Occurrence.Achievement);
 	}
 
+	private static Map<AchievementList, Double> getTerraformLevels(Data.AchievedValues terraformLevels)
+	{
+		Map<AchievementList, Double> map = new EnumMap<>(AchievementList.class);
+		if (terraformLevels!=null)
+			for (AchievementList listID : AchievementList.values())
+				switch(listID)
+				{
+				case Oxygen        : map.put(listID, terraformLevels.oxygenLevel        ); break;
+				case Heat          : map.put(listID, terraformLevels.heatLevel          ); break;
+				case Pressure      : map.put(listID, terraformLevels.pressureLevel      ); break;
+				case Plants        : map.put(listID, terraformLevels.plantsLevel        ); break;
+				case Insects       : map.put(listID, terraformLevels.insectsLevel       ); break;
+				case Animals       : map.put(listID, terraformLevels.animalsLevel       ); break;
+				case Biomass       : map.put(listID, terraformLevels.getBiomassLevel()  ); break;
+				case Terraformation:
+				case Stages        : map.put(listID, terraformLevels.getTerraformLevel()); break;
+				}
+		return map;
+	}
+
+	private static Map<AchievementList, Double> getTerraformRates()
+	{
+		Map<AchievementList, Double> map = new EnumMap<>(AchievementList.class);
+		
+		for (PhysicalValue phVal : PhysicalValue.values())
+		{
+			double rate = TerraformingCalculation.getInstance().getAspect(phVal).getTotalSumBoosted();
+			switch (phVal)
+			{
+			case Oxygen  : map.put(AchievementList.Oxygen  , rate); break;
+			case Heat    : map.put(AchievementList.Heat    , rate); break;
+			case Pressure: map.put(AchievementList.Pressure, rate); break;
+			case Plants  : map.put(AchievementList.Plants  , rate); break;
+			case Insects : map.put(AchievementList.Insects , rate); break;
+			case Animals : map.put(AchievementList.Animals , rate); break;
+			}
+		}
+		
+		for (AchievementList listID : AchievementList.values())
+			switch (listID)
+			{
+			case Oxygen: case Heat: case Pressure: case Plants: case Insects: case Animals:
+				break;
+				
+			case Biomass:
+				map.put(listID,
+						map.get(AchievementList.Plants ) +
+						map.get(AchievementList.Insects) +
+						map.get(AchievementList.Animals)
+				); 
+				break;
+				
+			case Terraformation: case Stages:
+				map.put(listID,
+						map.get(AchievementList.Oxygen  ) +
+						map.get(AchievementList.Heat    ) +
+						map.get(AchievementList.Pressure) +
+						map.get(AchievementList.Plants  ) +
+						map.get(AchievementList.Insects ) +
+						map.get(AchievementList.Animals )
+				); 
+				break;
+			}
+		
+		return map;
+	}
+
 	static class Achievement {
 		private Double level;
 		private String label;
@@ -391,18 +460,18 @@ class Achievements implements ObjectTypesChangeListener
 		private final EnumMap<AchievementList,AchievementsTablePanel> panels;
 		private final JComboBox<PlanetId> planetSelector;
 		private final Map<AchievementList,Double> terraformRates;
-		private final Function<AchievementList, Double> getTerraformLevel;
+		private final Map<AchievementList,Double> terraformLevels;
 		private boolean showTabbedView;
 		private boolean valuesWereChanged;
 	
-		public ConfigDialog(Window parent, PlanetId currentPlanet, Function<AchievementList,Double> getTerraformLevel)
+		public ConfigDialog(Window parent, PlanetId currentPlanet, Data.AchievedValues terraformLevels)
 		{
 			super(parent, "Achievements Configuration");
-			this.getTerraformLevel = getTerraformLevel;
 			valuesWereChanged = false;
 			showTabbedView = AppSettings.getInstance().getBool(AppSettings.ValueKey.AchievementsConfigDialogShowTabbedView, true);
 			
-			terraformRates = getTransformationRates();
+			this.terraformRates  = getTerraformRates();
+			this.terraformLevels = getTerraformLevels(terraformLevels);
 			
 			statusOutput = new JLabel("");
 			statusOutput.setBorder(
@@ -448,53 +517,6 @@ class Achievements implements ObjectTypesChangeListener
 					-1, -1);
 		}
 
-		private static Map<AchievementList, Double> getTransformationRates()
-		{
-			Map<AchievementList, Double> map = new EnumMap<>(AchievementList.class);
-			
-			for (PhysicalValue phVal : PhysicalValue.values())
-			{
-				double rate = TerraformingCalculation.getInstance().getAspect(phVal).getTotalSumBoosted();
-				switch (phVal)
-				{
-				case Oxygen  : map.put(AchievementList.Oxygen  , rate); break;
-				case Heat    : map.put(AchievementList.Heat    , rate); break;
-				case Pressure: map.put(AchievementList.Pressure, rate); break;
-				case Plants  : map.put(AchievementList.Plants  , rate); break;
-				case Insects : map.put(AchievementList.Insects , rate); break;
-				case Animals : map.put(AchievementList.Animals , rate); break;
-				}
-			}
-			
-			for (AchievementList listID : AchievementList.values())
-				switch (listID)
-				{
-				case Oxygen: case Heat: case Pressure: case Plants: case Insects: case Animals:
-					break;
-					
-				case Biomass:
-					map.put(listID,
-							map.get(AchievementList.Plants ) +
-							map.get(AchievementList.Insects) +
-							map.get(AchievementList.Animals)
-					); 
-					break;
-					
-				case Terraformation: case Stages:
-					map.put(listID,
-							map.get(AchievementList.Oxygen  ) +
-							map.get(AchievementList.Heat    ) +
-							map.get(AchievementList.Pressure) +
-							map.get(AchievementList.Plants  ) +
-							map.get(AchievementList.Insects ) +
-							map.get(AchievementList.Animals )
-					); 
-					break;
-				}
-			
-			return map;
-		}
-
 		boolean wereValuesChanged()
 		{
 			return valuesWereChanged;
@@ -502,12 +524,14 @@ class Achievements implements ObjectTypesChangeListener
 
 		private void fillPanels(PlanetId planet, boolean isCurrentPlanet)
 		{
-			panels.forEach((al,panel) -> {
-				Vector<Achievement> list = Achievements.getInstance().getOrCreate(planet, al);
-				Double terraformLevel = isCurrentPlanet ? getTerraformLevel.apply(al) : null;
-				Double terraformRate  = isCurrentPlanet ? terraformRates.get(al) : null;
-				panel.setData(planet, list, terraformLevel, terraformRate);
-			});
+			panels.forEach((al,panel) ->
+				panel.setData(
+					planet,
+					Achievements.getInstance().getOrCreate(planet, al),
+					isCurrentPlanet ? terraformLevels.get(al) : null,
+					isCurrentPlanet ? terraformRates .get(al) : null
+				)
+			);
 		}
 		
 		private void switchView() {
@@ -651,6 +675,7 @@ class Achievements implements ObjectTypesChangeListener
 					int rowV = table.getSelectedRow();
 					int rowM = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
 					Achievement achievement = tableModel.getRow(rowM);
+					
 					if (terraformLevel==null || terraformRate==null || achievement==null || achievement.level==null)
 						setStatus.accept("");
 					
@@ -659,9 +684,12 @@ class Achievements implements ObjectTypesChangeListener
 					
 					else
 					{
+						double prevLevel = tableModel.getMaxAchievementLevelBelow(terraformLevel);
+						double ratio = (terraformLevel-prevLevel) / (achievement.level-prevLevel);
+						String ratioStr = String.format(Locale.ENGLISH, "(%1.2f%%)", ratio*100);
 						double timeToReach_s = (achievement.level - terraformLevel) / terraformRate;
 						String timeToReachStr = GeneralDataPanel.TerraformingStatesPanel.getDurationsString_s(timeToReach_s);
-						setStatus.accept("Achievement \"%s\" will be reached %s".formatted(achievement.getLabel(), timeToReachStr));
+						setStatus.accept(String.format("Achievement \"%s\" will be reached %s %s", achievement.getLabel(), timeToReachStr, ratioStr));
 					}
 				});
 				
@@ -856,11 +884,23 @@ class Achievements implements ObjectTypesChangeListener
 				data = null;
 			}
 			
+			double getMaxAchievementLevelBelow(double terraformLevel)
+			{
+				double maxLevel = 0;
+				if (data!=null)
+					for (Achievement a : data)
+						if (a.level!=null && a.level < terraformLevel)
+							maxLevel = Math.max(a.level, maxLevel);
+				
+				return maxLevel;
+			}
+
 			void addData(Vector<Achievement> data) {
 				if (     data==null) return; // no data to add
 				if (this.data==null) return; // no achievement list assigned
-				this.data.addAll(data.stream().map(a->new Achievement(a)).toList());
+				this.data.addAll(getDeepCopyOf(data));
 				this.data.sort(ACHIEVEMENT_COMPARATOR);
+				notifyValuesWereChanged.run();
 				fireTableUpdate();
 			}
 			
@@ -868,9 +908,18 @@ class Achievements implements ObjectTypesChangeListener
 				if (     data==null) return; // no data to replace
 				if (this.data==null) return; // no achievement list assigned
 				this.data.clear();
-				this.data.addAll(data.stream().map(a->new Achievement(a)).toList());
+				this.data.addAll(getDeepCopyOf(data));
 				this.data.sort(ACHIEVEMENT_COMPARATOR);
+				notifyValuesWereChanged.run();
 				fireTableUpdate();
+			}
+
+			private static List<Achievement> getDeepCopyOf(Vector<Achievement> data)
+			{
+				return data
+						.stream()
+						.map(a->new Achievement(a))
+						.toList();
 			}
 			
 			void setData(Vector<Achievement> data, Double terraformLevel) {
