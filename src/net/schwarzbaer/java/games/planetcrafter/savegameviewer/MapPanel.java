@@ -676,7 +676,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 					mapBackgroundImage::setShowFixPoints
 			));
 			menuBackgroundImageFixPoint.add(GUI.createMenuItem(
-					"Rest FixPoints",
+					"Reset FixPoints",
 					e -> mapBackgroundImage.resetFixPoints()
 			));
 			
