@@ -281,17 +281,17 @@ Terraformation
 2500.0|{Backpack3}
 17500.0|{EnergyGenerator3}
 25000.0|{BedDouble}
-25000.0|Erzbrecher T2
+25000.0|{OreBreaker2}
 50000.0|{Container2}
 175000.0|{CraftStation2}
 345000.0|{LaunchPlatform}
 550000.0|{PinChip1}
 680000.0|{FoundationAngle}
 875000.0|{WaterCollector1}
-1000000.0|Erzbrecher T3
+1000000.0|{OreBreaker3}
 5000000.0|{Backpack5}
 6500000.0|{VehicleCrafter1}
-1.75E7|Fahrzeug-Bestand
+1.75E7|{VehicleInventorySize1}
 5.0E7|{WaterCollector2}
 6.0E7|{FoundationSlope}
 7.0E7|{Optimizer1}

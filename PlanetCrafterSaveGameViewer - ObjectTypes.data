@@ -932,7 +932,7 @@ isProducer
 ObjectType: Fence
 label_en = Fence
 class = Structure_Building
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Fertilizer1
@@ -2181,6 +2181,9 @@ class = Resource_SeedEgg
 oxygenMultiplier = 3.5
 occurrences = WorldObject
 <finished>
+
+ObjectType: Seed11Humble
+occurrences = WorldObject
 
 ObjectType: Seed2
 label_en = Seed Pestera (200%)
