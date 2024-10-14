@@ -1222,8 +1222,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: FuseEnergy1
+label_de = Energiemultiplikator-Sicherung 150%
 class = Equipment_Machine
 occurrences = WorldObject
+<finished>
 
 ObjectType: FuseHeat1
 label_de = Wärmemultiplikator-Sicherung 500%
@@ -1755,7 +1757,7 @@ label_de = Erzbrecher T2
 class = Structure_Machine
 pressure = 1.2
 energy = -21.0
-occurrences = User
+occurrences = Achievement
 <finished>
 
 ObjectType: OreBreaker3
@@ -1764,7 +1766,7 @@ label_de = Erzbrecher T3
 class = Structure_Machine
 pressure = 13.0
 energy = -125.0
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: OreExtractor1
@@ -2183,7 +2185,11 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Seed11Humble
+label_de = Samen "Humbela" (600%)
+class = Resource_SeedEgg
+oxygenMultiplier = 6.0
 occurrences = WorldObject
+<finished>
 
 ObjectType: Seed2
 label_en = Seed Pestera (200%)
@@ -2342,8 +2348,10 @@ occurrences = WorldObject
 <finished>
 
 ObjectType: Skin-08
+label_de = Raumanzug "Tureo"
 class = Equipment_Player
 occurrences = WorldObject
+<finished>
 
 ObjectType: Skin-09
 label_de = Raumanzug "Fablo"
@@ -2383,6 +2391,18 @@ occurrences = WorldObject
 
 ObjectType: Skin-17
 label_de = Raumanzug "Rorao"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-18
+label_de = Raumanzug "Starforma"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
+ObjectType: Skin-19
+label_de = Raumanzug "Glitx"
 class = Equipment_Player
 occurrences = WorldObject
 <finished>
@@ -2819,7 +2839,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: VehicleInventorySize1
 label_de = Fahrzeug-Bestandserhöhung (Inv) T1
 class = Equipment_Vehicle
-occurrences = WorldObject
+occurrences = WorldObject,Achievement
 <finished>
 
 ObjectType: VehicleInventorySize2
@@ -2861,7 +2881,7 @@ occurrences = WorldObject,Blueprint
 ObjectType: VehicleSpeed2
 label_de = Fahrzeug-Geschwindigkeitserhöhung T2 (+200%)
 class = Equipment_Vehicle
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: VehicleSpeed3
