@@ -728,9 +728,9 @@ class GeneralDataPanel extends JScrollPane implements ObjectTypesChangeListener 
 			void setRate(double rate) {
 				this.rate = rate;
 				if (fieldRate!=null && formatRate!=null) {
-					double rate2Level = Math.log10(rate/level);
+					double rate2Level = rate/level*3600;
 					if (Double.isFinite(rate2Level))
-						fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f)", formatRate.apply(rate), rate2Level));
+						fieldRate.setText(String.format(Locale.ENGLISH, "%s (%1.2f%%/h)", formatRate.apply(rate), rate2Level*100));
 					else
 						fieldRate.setText(formatRate.apply(rate));
 				}
