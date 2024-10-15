@@ -621,6 +621,12 @@ GuideLine.Horizontal=-2.95
 GuideLine.Vertical=2.95
 GuideLine.Vertical=-2.95
 
+ObjectType: FoundationAngle
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-2.95;-3.0;2.95;-3.0;3.0;-2.95;-2.95;3.0;-3.0;2.95;-3.0;-2.95;-2.95;-3.0
+
 ObjectType: FoundationSlope
 hideMarker
 MapShape: Shape001
@@ -1214,6 +1220,20 @@ hideMarker
 MapShape: Shape001
 selectedShape
 Arc=0.0;0.0;0.65;0.0;6.283185307179586
+
+ObjectType: VehicleCrafter1
+hideMarker
+MapShape: Shape001
+selectedShape
+PolyLine=-10.15;6.05;7.75;6.05;7.8;6.0;7.8;-5.95;1.8;-11.95;-4.2;-11.95;-10.2;-5.95;-10.2;6.0;-10.15;6.05
+GuideLine.Horizontal=-3.0
+GuideLine.Horizontal=-2.95
+GuideLine.Horizontal=6.0
+GuideLine.Horizontal=6.05
+GuideLine.Vertical=-10.2
+GuideLine.Vertical=-10.15
+GuideLine.Vertical=7.75
+GuideLine.Vertical=7.8
 
 ObjectType: WaterCollector2
 hideMarker
