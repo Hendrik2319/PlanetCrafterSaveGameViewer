@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.imageio.ImageIO;
@@ -98,24 +100,176 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	static final Color COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX   = new Color(0x00BFFF);
 	static final Color COLOR_MAPSHAPE_BASE = new Color(0xD0D0D0);
 
+	private static class Coloring
+	{
+		private final String title;
+		private final Function<MapModel, Vector<String>> getObjLabels;
+		private final BiPredicate<WorldObject, String> isHighlighted;
+		private final Function<WorldObject, Color> getHighlightColor;
 
-
-	private enum ColoringType {
-		StoragesFillingLevel ("Filling Level of Storages"),
-		ProducersFillingLevel("Filling Level of Producers"),
-		GrowthState          ("Growth State"),
-		FindInstalledObject  ("Find installed Object"),
-		FindStoredObject     ("Find stored Object"),
-		ObjectType           ("Object Type"),
-		;
-		private final String text;
-		ColoringType(String text) {
-			this.text = text;
+		Coloring(
+				String title
+		) {
+			this(title, null, null, null);
 		}
-		@Override public String toString() {
-			return text;
+		Coloring(
+				String title,
+				BiPredicate<WorldObject,String> isHighlighted,
+				Function<WorldObject,Color> getHighlightColor
+		) {
+			this(title, null, isHighlighted, getHighlightColor);
+		}
+		Coloring(
+				String title,
+				Function<MapModel,Vector<String>> getObjLabels,
+				BiPredicate<WorldObject,String> isHighlighted,
+				Function<WorldObject,Color> getHighlightColor
+		) {
+			this.title = title;
+			this.getObjLabels = getObjLabels;
+			this.isHighlighted = isHighlighted;
+			this.getHighlightColor = getHighlightColor;
 		}
 		
+		@Override public String toString() {
+			return title;
+		}
+		
+		Vector<String> getObjLabels(MapModel mapModel)
+		{
+			return getObjLabels==null ? null : getObjLabels.apply(mapModel);
+		}
+		
+		void configureWithUserInteraction(PlanetCrafterSaveGameViewer main)
+		{
+		}
+		
+		boolean isHighlighted(WorldObject wo, String selectedObjLabel)
+		{
+			return isHighlighted==null ? false : isHighlighted.test(wo, selectedObjLabel);
+		}
+		
+		Color getHighlightColor(WorldObject wo)
+		{
+			return getHighlightColor==null ? null : getHighlightColor.apply(wo);
+		}
+		
+		private static Color computeFillingColor(WorldObject wo)
+		{
+			if (wo.list!=null)
+				return computeFillingColor(wo.list);
+			if (wo.specialLists!=null)
+				for (ObjectList ol : wo.specialLists)
+					if (ol!=null)
+						return computeFillingColor(ol);
+			return null;
+		}
+
+		private static Color computeFillingColor(ObjectList list)
+		{
+			if (list.worldObjIds.length >= list.size)
+				return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
+			
+			return getMixedColor(list.worldObjIds.length / (double)list.size,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
+					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
+		}
+
+		private static Color getMixedColor(double value, Color color00, Color color05, Color color10)
+		{
+			value = Math.min(Math.max(0, value), 1);
+			return value<0.5
+					? computeColor(color00, color05, 2* value     )
+					: computeColor(color05, color10, 2*(value-0.5));
+		}
+
+		private static Color computeColor(Color color0, Color color1, double f)
+		{
+			int r = (int)Math.round( color0.getRed  ()*(1-f) + color1.getRed  ()*f );
+			int g = (int)Math.round( color0.getGreen()*(1-f) + color1.getGreen()*f );
+			int b = (int)Math.round( color0.getBlue ()*(1-f) + color1.getBlue ()*f );
+			return new Color(r,g,b);
+		}
+		
+		static Coloring getDefault()
+		{
+			return values[3];
+		}
+		
+		static Coloring[] values = new Coloring[] {
+			new Coloring(
+					"Filling Level of Storages",
+					(wo, selectedObjLabel) -> wo.list != null,
+					Coloring::computeFillingColor
+			) {},
+			new Coloring(
+					"Filling Level of Producers",
+					(wo, selectedObjLabel) ->
+						wo.objectType != null &&
+						wo.objectType.isProducer &&
+						(
+								wo.list!=null ||
+								(
+										wo.specialLists!=null &&
+										wo.specialLists.length>0
+								)
+						),
+					Coloring::computeFillingColor
+			) {},
+			new Coloring(
+					"Growth State",
+					(wo, selectedObjLabel) -> wo.growth > 0,
+					(wo) -> {
+						if (wo.growth == 100)
+							return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
+						return getMixedColor(wo.growth / 100.0,
+								COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
+								COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
+								COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
+					}
+			) {},
+			new Coloring(
+					"Find installed Object",
+					mapModel -> mapModel.installedObjectLabels,
+					(wo, selectedObjLabel) -> wo.getName().equals(selectedObjLabel),
+					(wo                  ) -> COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND
+			) {},
+			new Coloring(
+					"Find stored Object",
+					mapModel -> mapModel.storedObjectLabels,
+					(wo, selectedObjLabel) -> wo.mapWorldObjectData.storedObjectLabels.contains(selectedObjLabel),
+					(wo                  ) -> COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND
+			) {},
+			new Coloring(
+					"Find Objects with Supply/Demand",
+					(wo, selectedObjLabel) ->
+						wo.list!=null && (
+								(wo.list.demandItems!=null && wo.list.demandItems.length>0) ||
+								(wo.list.supplyItems!=null && wo.list.supplyItems.length>0)
+						),
+					(wo) -> COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND
+			) {},
+			new Coloring(
+					"Object Type"
+			) {
+				private HashMap<String, Color> objectTypeColors = null;
+				
+				@Override void configureWithUserInteraction(PlanetCrafterSaveGameViewer main)
+				{
+					objectTypeColors = new GUI.ObjectTypeColorsDialog(main.mainWindow, "Object Type Colors").showDialogAndGetColors();
+				}
+				@Override boolean isHighlighted(WorldObject wo, String selectedObjLabel)
+				{
+					return wo.objectType != null && objectTypeColors != null && objectTypeColors.get(wo.objectType.id) != null;
+				}
+				@Override Color getHighlightColor(WorldObject wo)
+				{
+					if (wo.objectType==null || objectTypeColors==null) return null; // shouldn't be
+					return objectTypeColors.get(wo.objectType.id);
+				}
+			},
+		};
 	}
 	
 	private final PlanetCrafterSaveGameViewer main;
@@ -123,8 +277,8 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 	private final MapView mapView;
 	private final MapBackgroundImage mapBackgroundImage;
 	private final JComboBox<String> cmbbxObjLabels;
-	private final JComboBox<ColoringType> cmbbxColoring;
-	private ColoringType selectedColoringType;
+	private final JComboBox<Coloring> cmbbxColoring;
+	private Coloring selectedColoring;
 
 	MapPanel(PlanetCrafterSaveGameViewer main, Data data, PlanetId planet) {
 		super(MapPanel.HORIZONTAL_SPLIT, true);
@@ -141,55 +295,34 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		mapBackgroundImage = new MapBackgroundImage(mapView, planet);
 		new MapContextMenu(mapView, this.main, mapBackgroundImage);
 		
-		cmbbxColoring = new JComboBox<>(ColoringType.values());
-		cmbbxColoring.setSelectedItem(selectedColoringType = ColoringType.FindInstalledObject);
+		cmbbxColoring = new JComboBox<>(Coloring.values);
+		cmbbxColoring.setSelectedItem(selectedColoring = Coloring.getDefault());
 		
-		cmbbxObjLabels = new JComboBox<>(mapModel.installedObjectLabels);
-		cmbbxObjLabels.setSelectedItem(null);
+		cmbbxObjLabels = new JComboBox<>();
+		configureCmbbxObjLabels(selectedColoring.getObjLabels(mapModel));
 		
 		cmbbxColoring.addActionListener(e->{
-			selectedColoringType = cmbbxColoring.getItemAt(cmbbxColoring.getSelectedIndex());
+			selectedColoring = cmbbxColoring.getItemAt(cmbbxColoring.getSelectedIndex());
 			
-			if (selectedColoringType==null)
-				cmbbxObjLabels.setEnabled(false);
-			else {
-				switch (selectedColoringType) {
-				case FindInstalledObject:
-					cmbbxObjLabels.setEnabled(true);
-					cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
-					break;
-					
-				case FindStoredObject:
-					cmbbxObjLabels.setEnabled(true);
-					cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
-					break;
-					
-				case ProducersFillingLevel:
-				case StoragesFillingLevel:
-				case GrowthState:
-					cmbbxObjLabels.setEnabled(false);
-					break;
-					
-				case ObjectType:
-					cmbbxObjLabels.setEnabled(false);
-					HashMap<String, Color> objectTypeColors = new GUI.ObjectTypeColorsDialog(this.main.mainWindow, "Object Type Colors").showDialogAndGetColors();
-					mapModel.setObjectTypeColors(objectTypeColors);
-					break;
-				}
+			if (selectedColoring==null)
+			{
+				configureCmbbxObjLabels(null);
+			}
+			else
+			{
+				configureCmbbxObjLabels(selectedColoring.getObjLabels(mapModel));
+				selectedColoring.configureWithUserInteraction(main);
 				mapView.setExtraShownObject(null);
 			}
-			cmbbxObjLabels.setSelectedItem(null);
-			mapModel.setColoring(selectedColoringType, null);
+			mapModel.setColoring(selectedColoring, null);
 			mapView.repaint();
 		});
 		
 		cmbbxObjLabels.addActionListener(e->{
 			String selectedObjLabel = cmbbxObjLabels.getItemAt(cmbbxObjLabels.getSelectedIndex());
-			if (selectedColoringType==ColoringType.FindInstalledObject || selectedColoringType==ColoringType.FindStoredObject) {
-				mapModel.setColoring(selectedColoringType, selectedObjLabel);
-				mapView.setExtraShownObject(null);
-				mapView.repaint();
-			}
+			mapModel.setColoring(selectedColoring, selectedObjLabel);
+			mapView.setExtraShownObject(null);
+			mapView.repaint();
 		});
 		
 		JPanel selectPanel = new JPanel(new GridLayout(0,1));
@@ -211,8 +344,6 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		setRightComponent(mapView);
 		setDividerLocation(300);
 		
-		//mapView       .setBorder(BorderFactory.createTitledBorder("Map"));
-		//textScrollPane.setBorder(BorderFactory.createTitledBorder("Current Object (Yellow)"));
 		mapView       .setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Map"), BorderFactory.createLineBorder(Color.GRAY)));
 		textScrollPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Object under Mouse"), textScrollPane.getBorder()));
 		selectPanel   .setBorder(BorderFactory.createTitledBorder("Coloring / Highlighting"));
@@ -223,6 +354,13 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		mapView.reset();
 		//System.out.printf("MapPanel.initialize() -> MapView.reset() -> ViewStateOk? %s%n", mapView.isViewStateOk());
 		mapBackgroundImage.initialize(main.mainWindow);
+	}
+	
+	private void configureCmbbxObjLabels(Vector<String> objLabels)
+	{
+		cmbbxObjLabels.setEnabled(objLabels!=null && !objLabels.isEmpty());
+		cmbbxObjLabels.setModel(objLabels!=null && !objLabels.isEmpty() ? new DefaultComboBoxModel<>(objLabels) : new DefaultComboBoxModel<>());
+		cmbbxObjLabels.setSelectedItem(null);
 	}
 
 	void showWorldObject(WorldObject wo) {
@@ -240,14 +378,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		if (ObjectTypeValue.isLabel( event.changedValue )) {
 			mapModel.updateInstalledObjectLabels();
 			mapModel.updateStoredObjectLabels();
-			
-			if (selectedColoringType==ColoringType.FindInstalledObject)
-				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.installedObjectLabels));
-			
-			else if (selectedColoringType==ColoringType.FindStoredObject)
-				cmbbxObjLabels.setModel(new DefaultComboBoxModel<>(mapModel.storedObjectLabels));
-			
-			cmbbxObjLabels.setSelectedItem(null);
+			configureCmbbxObjLabels(selectedColoring.getObjLabels(mapModel));
 		}
 		
 		mapView.repaint();
@@ -329,16 +460,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		final Rectangle2D.Double range;
 		final Vector<String> installedObjectLabels;
 		final Vector<String> storedObjectLabels;
-		private ColoringType coloringType;
-		private String objLabel;
-		private HashMap<String, Color> objectTypeColors;
+		private Coloring coloring;
+		private String selectedObjLabel;
 		
 		MapModel(Data data) {
 			displayableObjects = new Vector<>();
 			wreckPositions = new Vector<>();
 			installedObjectLabels = new Vector<>();
 			storedObjectLabels = new Vector<>();
-			objectTypeColors = null;
 			
 			// ----------------------------------------------------------------
 			// playerPositions & displayableObjects & min,max
@@ -395,85 +524,19 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			updateInstalledObjectLabels();
 			updateStoredObjectLabels();
 		}
-		
-		void setObjectTypeColors(HashMap<String, Color> objectTypeColors) {
-			this.objectTypeColors = objectTypeColors;
-		}
 
-		void setColoring(ColoringType coloringType, String objLabel) {
-			this.coloringType = coloringType;
-			this.objLabel = objLabel;
+		void setColoring(Coloring coloring, String selectedObjLabel) {
+			this.coloring = coloring;
+			this.selectedObjLabel = selectedObjLabel;
 		}
 
 		boolean isHighlighted(WorldObject wo)
 		{
-			if (coloringType != null)
-				switch (coloringType)
-				{
-					case FindInstalledObject  : return wo.getName().equals(objLabel);
-					case FindStoredObject     : return wo.mapWorldObjectData.storedObjectLabels.contains(objLabel);
-					case ProducersFillingLevel: return wo.objectType != null && wo.objectType.isProducer && (wo.list!=null || (wo.specialLists!=null && wo.specialLists.length>0));
-					case StoragesFillingLevel : return wo.list != null;
-					case ObjectType           : return wo.objectType != null && objectTypeColors != null && objectTypeColors.get(wo.objectType.id) != null;
-					case GrowthState          : return wo.growth > 0;
-				}
-			return false;
+			return coloring==null ? false : coloring.isHighlighted(wo, selectedObjLabel);
 		}
 		
 		Color getHighlightColor(WorldObject wo) {
-			if (coloringType!=null)
-				switch (coloringType) {
-				
-				case FindInstalledObject: case FindStoredObject:
-					return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_FOUND;
-					
-				case GrowthState:
-					if (wo.growth == 100)
-						return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
-					return getMixedColor(wo.growth / 100.0,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
-							COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
-					
-				case ProducersFillingLevel: case StoragesFillingLevel:
-					if (wo.list!=null)
-						return computeFillingColor(wo.list);
-					if (wo.specialLists!=null)
-						for (ObjectList ol : wo.specialLists)
-							if (ol!=null)
-								return computeFillingColor(ol);
-					return null;
-				
-				case  ObjectType:
-					if (wo.objectType==null || objectTypeColors==null) return null; // shouldn't be
-					return objectTypeColors.get(wo.objectType.id);
-				}
-			return null;
-		}
-
-		private Color computeFillingColor(ObjectList list)
-		{
-			if (list.worldObjIds.length >= list.size)
-				return COLOR_WORLDOBJECT_FILL_HIGHLIGHT_MAX;
-			
-			return getMixedColor(list.worldObjIds.length / (double)list.size,
-					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_00,
-					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_05,
-					COLOR_WORLDOBJECT_FILL_HIGHLIGHT_10);
-		}
-
-		private Color getMixedColor(double value, Color color00, Color color05, Color color10) {
-			value = Math.min(Math.max(0, value), 1);
-			return value<0.5
-					? computeColor(color00, color05, 2* value     )
-					: computeColor(color05, color10, 2*(value-0.5));
-		}
-
-		private Color computeColor(Color color0, Color color1, double f) {
-			int r = (int)Math.round( color0.getRed  ()*(1-f) + color1.getRed  ()*f );
-			int g = (int)Math.round( color0.getGreen()*(1-f) + color1.getGreen()*f );
-			int b = (int)Math.round( color0.getBlue ()*(1-f) + color1.getBlue ()*f );
-			return new Color(r,g,b);
+			return coloring==null ? null : coloring.getHighlightColor(wo);
 		}
 
 		void updateInstalledObjectLabels() {
