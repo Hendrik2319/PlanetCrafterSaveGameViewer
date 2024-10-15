@@ -112,10 +112,12 @@ class FarWreckAreaTablePanel extends JSplitPane
 	{
 		private static final long serialVersionUID = -5273193934458901334L;
 		private WreckArea wreckArea;
+		private Point2D.Double selectedBoundaryPoint;
 
 		WreckAreaMapView()
 		{
-			this.wreckArea = null;
+			wreckArea = null;
+			selectedBoundaryPoint = null;
 			activateMapScale(MapPanel.COLOR_MAP_AXIS, "m", true);
 			activateAxes(MapPanel.COLOR_MAP_AXIS, true,true,true,true);
 			setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -124,7 +126,14 @@ class FarWreckAreaTablePanel extends JSplitPane
 		void setWreck(WreckArea wreckArea)
 		{
 			this.wreckArea = wreckArea;
+			selectedBoundaryPoint = null;
 			reset();
+		}
+
+		void setBoundaryPoint(Point2D.Double selectedBoundaryPoint)
+		{
+			this.selectedBoundaryPoint = selectedBoundaryPoint;
+			repaint();
 		}
 
 		@Override
@@ -143,6 +152,9 @@ class FarWreckAreaTablePanel extends JSplitPane
 				
 				if (wreckArea!=null)
 					MapPanel.MapView.drawWreckArea(g2, viewState, clip, wreckArea, false);
+				
+				if (selectedBoundaryPoint!=null)
+					MapPanel.MapView.drawMapPoint(g2, viewState, clip, selectedBoundaryPoint, Color.BLUE, 7);
 				
 				g2.setClip(prevClip);
 			}
@@ -321,6 +333,12 @@ class FarWreckAreaTablePanel extends JSplitPane
 			table.setRowSorter(new Tables.SimplifiedRowSorter(tableModel));
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.getSelectionModel().addListSelectionListener(e -> {
+				int rowV = table.getSelectedRow();
+				int rowM = rowV<0 ? -1 : table.convertRowIndexToModel(rowV);
+				Point2D.Double row = tableModel.getRow(rowM);
+				wreckAreaMapView.setBoundaryPoint(row);
+			});
 			tableModel.setTable(table);
 			tableModel.setColumnWidths(table);
 			tableModel.setDefaultCellEditorsAndRenderers();
