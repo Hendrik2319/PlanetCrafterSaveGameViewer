@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,6 +55,7 @@ import net.schwarzbaer.java.lib.gui.IconSource;
 import net.schwarzbaer.java.lib.gui.ProgressDialog;
 import net.schwarzbaer.java.lib.gui.StandardDialog;
 import net.schwarzbaer.java.lib.gui.StandardMainWindow;
+import net.schwarzbaer.java.lib.gui.ValueListOutput;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Data;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Helper;
 import net.schwarzbaer.java.lib.jsonparser.JSON_Parser;
@@ -174,6 +176,7 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			case ShowMapShapesEditor:
 			case SetLabelLanguageDE:
 			case SetLabelLanguageEN:
+			case MemoryInfo:
 				break;
 			}
 			return null;
@@ -235,10 +238,49 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 				
 			case SetLabelLanguageDE: setLabelLanguage(LabelLanguage.DE); break;
 			case SetLabelLanguageEN: setLabelLanguage(LabelLanguage.EN); break;
+			
+			case MemoryInfo:
+				showMemoryInfo();
+				break;
 		}
 		
 	}
 	
+	private void showMemoryInfo()
+	{
+		ValueListOutput out = new ValueListOutput();
+		
+		Runtime.Version version = Runtime.version();
+		out.add(0, "Runtime Version", "%s", version==null ? "<null>" : version.toString());
+		
+		Runtime runtime = Runtime.getRuntime();
+		if (runtime!=null)
+		{
+			out.add(0, "Memory");
+			out.add(1, "max"  , "%12d byte (%10s)", runtime.  maxMemory(), formatMemory(runtime.  maxMemory()));
+			out.add(1, "total", "%12d byte (%10s)", runtime.totalMemory(), formatMemory(runtime.totalMemory()));
+			out.add(1, "free" , "%12d byte (%10s)", runtime. freeMemory(), formatMemory(runtime. freeMemory()));
+		}
+		
+		System.out.print(out.generateOutput());
+	}
+	
+	private static String formatMemory(long valueL) {
+		double value = valueL;
+		if (value < 2000) return formatValue("%d B", valueL);
+		value/=1000;
+		if (value < 2000) return formatValue("%1.2f kB", value);
+		value/=1000;
+		if (value < 2000) return formatValue("%1.2f MB", value);
+		value/=1000;
+		if (value < 2000) return formatValue("%1.2f GB", value);
+		value/=1000;
+		return formatValue("%1.2f TB", value);
+	}
+	private static String formatValue(String format, Object value) {
+		return String.format(Locale.ENGLISH, format, value);
+	}
+
 	private void setLabelLanguage(LabelLanguage lang)
 	{
 		currentLabelLanguage = lang;
@@ -312,6 +354,8 @@ public class PlanetCrafterSaveGameViewer implements ActionListener {
 			ButtonGroup bgLanguage = new ButtonGroup();
 			add(createRadioButton("EN", getCurrentLabelLanguage() == LabelLanguage.EN, bgLanguage, true, ActionCommand.SetLabelLanguageEN));
 			add(createRadioButton("DE", getCurrentLabelLanguage() == LabelLanguage.DE, bgLanguage, true, ActionCommand.SetLabelLanguageDE));
+			addSeparator();
+			add(createButton("Memory Info", GrayCommandIcons.IconGroup.Memory, true , ActionCommand.MemoryInfo));
 		}
 		
 		JCheckBox createCheckBox(String title, boolean isChecked, boolean isEnabled, Consumer<Boolean> valueChanged, ActionCommand ac) {
