@@ -627,7 +627,7 @@ occurrences = WorldObject
 ObjectType: CookChocolate
 label_en = Chocolate
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: CookCocoaGrowable
@@ -645,7 +645,7 @@ occurrences = WorldObject
 ObjectType: CookCookie1
 label_en = Cookie
 class = Resource_Food
-occurrences = WorldObject
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: CookCroissant
@@ -657,7 +657,7 @@ occurrences = WorldObject
 ObjectType: CookFlour
 label_en = Flour
 class = Resource_Craftable
-occurrences = WorldObject
+occurrences = WorldObject,Product
 <finished>
 
 ObjectType: CookingStation1
@@ -960,7 +960,7 @@ label_en = Fireplace
 label_de = Kamin
 class = Structure_Machine
 heat = 15.0
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Fish10Eggs
@@ -968,7 +968,7 @@ label_en = Fish Tiloo Eggs (400% | P.C, M2, F1)
 label_de = Fischeier "Tiloo" (400% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 4.0
-occurrences = WorldObject,Product
+occurrences = WorldObject,Product,ObjectList
 <finished>
 
 ObjectType: Fish11Eggs
@@ -1031,7 +1031,7 @@ label_en = Fish Aelera Eggs (300% | P.C, M2, F1)
 label_de = Fischeier "Aelera" (300% | P.C, M2, F1)
 class = Resource_SeedEgg
 animalsMultiplier = 3.0
-occurrences = WorldObject,Achievement,Product
+occurrences = WorldObject,Achievement,Product,ObjectList
 <finished>
 
 ObjectType: Fish7Eggs
@@ -1264,6 +1264,9 @@ label_de = Produktionsmultiplikator-Sicherung (0,25)
 class = Equipment_Machine
 occurrences = WorldObject,ObjectList
 <finished>
+
+ObjectType: FuseTradeRocketsSpeed1
+occurrences = WorldObject
 
 ObjectType: FusionEnergyCell
 label_en = Fusion Energy Cell
@@ -1576,7 +1579,7 @@ label_en = Light Box
 label_de = Leuchtkasten
 class = Structure_Building
 energy = -30.0
-occurrences = Blueprint
+occurrences = WorldObject,Blueprint
 <finished>
 
 ObjectType: Magnesium
@@ -2337,6 +2340,12 @@ class = Equipment_Player
 occurrences = WorldObject
 <finished>
 
+ObjectType: Skin-04
+label_de = Raumanzug "Goldeo"
+class = Equipment_Player
+occurrences = WorldObject
+<finished>
+
 ObjectType: Skin-05
 label_de = Raumanzug "Scifo"
 class = Equipment_Player
@@ -2491,6 +2500,15 @@ label_en = Stairs
 class = Structure_Building
 occurrences = WorldObject
 <finished>
+
+ObjectType: StarformEffigie1
+occurrences = WorldObject
+
+ObjectType: StarformEffigie4
+occurrences = WorldObject
+
+ObjectType: StarformEffigie6
+occurrences = WorldObject
 
 ObjectType: Sulfur
 label_en = Sulfur
