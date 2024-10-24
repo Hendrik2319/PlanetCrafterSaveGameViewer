@@ -406,7 +406,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				return wo.generateOutput();
 			
 			if (coord!=null)
-				return coord.label;
+				return String.format(Locale.ENGLISH, "Position: %1.1f, %1.1f, %1.1f%n%s", coord.x, coord.y, coord.z, coord.label);
 			
 			return "<null>";
 		}
