@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -293,7 +294,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		mapModel = new MapModel(data);
 		mapView = new MapView(this.main.mapShapes, mapModel, overView, textOut, planet);
 		mapBackgroundImage = new MapBackgroundImage(mapView, planet);
-		new MapContextMenu(mapView, this.main, mapBackgroundImage);
+		new MapContextMenu(mapModel, mapView, this.main, mapBackgroundImage);
 		
 		cmbbxColoring = new JComboBox<>(Coloring.values);
 		cmbbxColoring.setSelectedItem(selectedColoring = Coloring.getDefault());
@@ -384,6 +385,44 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		mapView.repaint();
 	}
 
+	record Coordinate (
+			double x,
+			double y,
+			double z,
+			String label
+	) implements Data.MapPos {
+		@Override public double getMapX() { return z; };
+		@Override public double getMapY() { return x; };
+	}
+
+	record NearestObject (
+			WorldObject wo,
+			Coordinate coord,
+			double minSquaredDist
+	) {
+		String getInfoText()
+		{
+			if (wo!=null)
+				return wo.generateOutput();
+			
+			if (coord!=null)
+				return coord.label;
+			
+			return "<null>";
+		}
+
+		String getToolTipText()
+		{
+			if (wo!=null)
+				return wo.getName() + (wo.text.isEmpty() ? "" : String.format(" (\"%s\")", wo.text));
+			
+			if (coord!=null)
+				return coord.label;
+			
+			return "<null>";
+		}
+	}
+
 	private static class OverView extends Canvas {
 		private static final long serialVersionUID = 4760409371179475061L;
 		private Rectangle2D.Double range = null;
@@ -460,6 +499,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		final Rectangle2D.Double range;
 		final Vector<String> installedObjectLabels;
 		final Vector<String> storedObjectLabels;
+		final Vector<Coordinate> coordinatesToShow;
 		private Coloring coloring;
 		private String selectedObjLabel;
 		
@@ -468,6 +508,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			wreckPositions = new Vector<>();
 			installedObjectLabels = new Vector<>();
 			storedObjectLabels = new Vector<>();
+			coordinatesToShow = new Vector<>();
 			
 			// ----------------------------------------------------------------
 			// playerPositions & displayableObjects & min,max
@@ -525,6 +566,11 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			updateStoredObjectLabels();
 		}
 
+		void addCoordinatesToShow(Coordinate[] coords)
+		{
+			coordinatesToShow.addAll(Arrays.asList( coords ));
+		}
+
 		void setColoring(Coloring coloring, String selectedObjLabel) {
 			this.coloring = coloring;
 			this.selectedObjLabel = selectedObjLabel;
@@ -571,23 +617,30 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				for (WorldObject storedObj : list.worldObjs)
 					storedObjectLabels.add(storedObj.getName());
 		}
-
-		WorldObject getNearestObject(double x, double y, Predicate<Double> checkMaxDist) {
-			double minSquaredDist = Double.NaN;
-			WorldObject nearestObj = null;
+		
+		NearestObject getNearestObject(double x, double y, Predicate<Double> checkMaxDist) {
+			NearestObject nearestObj = null;
+			
 			for (WorldObject wo : displayableObjects) {
 				double woX = wo.position.getMapX();
 				double woY = wo.position.getMapY();
 				double squaredDist = (woX-x)*(woX-x) + (woY-y)*(woY-y);
-				if (nearestObj==null || minSquaredDist > squaredDist) {
-					minSquaredDist = squaredDist;
-					nearestObj = wo;
-				}
+				if (nearestObj==null || nearestObj.minSquaredDist > squaredDist)
+					nearestObj = new NearestObject( wo, null, squaredDist);
 			}
+			
+			for (Coordinate coord : coordinatesToShow) {
+				double coordX = coord.getMapX();
+				double coordY = coord.getMapY();
+				double squaredDist = (coordX-x)*(coordX-x) + (coordY-y)*(coordY-y);
+				if (nearestObj==null || nearestObj.minSquaredDist > squaredDist)
+					nearestObj = new NearestObject( null, coord, squaredDist);
+			}
+			
 			if (nearestObj==null)
 				return null;
 			
-			double dist = Math.sqrt(minSquaredDist);
+			double dist = Math.sqrt(nearestObj.minSquaredDist);
 			if (!checkMaxDist.test(dist))
 				return null;
 			
@@ -627,7 +680,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private Point clickedPoint;
 		private WorldObject clickedObject;
 		
-		MapContextMenu(MapView mapView, PlanetCrafterSaveGameViewer main, MapBackgroundImage mapBackgroundImage) {
+		MapContextMenu(MapModel mapModel, MapView mapView, PlanetCrafterSaveGameViewer main, MapBackgroundImage mapBackgroundImage) {
 			clickedPoint = null;
 			clickedObject = null;
 			
@@ -706,6 +759,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				}
 			});
 			
+			add(GUI.createMenuItem( "Show a List of Coordinates in Map", e -> {
+				Coordinate[] coords = CoordinateListInputDialog.showDialog(main.mainWindow, "Enter Coordinate List");
+				if (coords!=null && coords.length>0)
+				{
+					mapModel.addCoordinatesToShow(coords);
+					mapView.repaint();
+				}
+			} ));
 			
 //			addSeparator();
 //			
@@ -770,7 +831,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			
 			addContextMenuInvokeListener((comp, x, y) -> {
 				clickedPoint = new Point(x,y);
-				clickedObject = mapView.hoveredObject;
+				clickedObject = mapView.hoveredObject!=null ? mapView.hoveredObject.wo : null;
 				miMarkForRemoval    .setEnabled(clickedObject!=null && clickedObject.canMarkedByUser());
 				miCopyPosNRotToClipboard.setEnabled(clickedObject!=null);
 				miCopyPosToClipboard.setEnabled(clickedObject!=null);
@@ -822,6 +883,160 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		}
 	}
 	
+	private static class CoordinateListInputDialog extends StandardDialog
+	{
+		private static final long serialVersionUID = -7182618446715947278L;
+
+		static Coordinate[] showDialog(Window parent, String title)
+		{
+			CoordinateListInputDialog dlg = new CoordinateListInputDialog(parent, title);
+			dlg.showDialog();
+			if (dlg.result==null)
+				return null;
+			
+			if (dlg.result.error != null)
+				JOptionPane.showMessageDialog(parent, dlg.result.error, "Error while parsing coordinate list", JOptionPane.ERROR_MESSAGE);
+			
+			return dlg.result.list;
+		}
+		
+		record ParseResult (
+				Coordinate[] list,
+				String error
+		) {
+			static ParseResult buildError(String format, Object... args)
+			{
+				return new ParseResult(null, String.format(Locale.ENGLISH, format, args));
+			}
+		}
+		
+		private ParseResult result;
+		private final JTextArea textArea;
+		private final JTextField textFieldSepCoords;
+		private final JTextField textFieldSepLabel;
+
+		private CoordinateListInputDialog(Window parent, String title)
+		{
+			super(parent, title, ModalityType.APPLICATION_MODAL, false);
+			result = null;
+			
+			textArea = new JTextArea();
+			textArea.setLineWrap(false);
+			
+			JScrollPane textAreaScrollPane = new JScrollPane(textArea);
+			textAreaScrollPane.setPreferredSize(new Dimension(450,500));
+			textAreaScrollPane.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createTitledBorder("List of Coordinates"),
+					textAreaScrollPane.getBorder()
+			));
+			
+			
+			JPanel separatorPane = new JPanel(new GridBagLayout());
+			separatorPane.setBorder(BorderFactory.createTitledBorder("Separators"));
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+			
+			c.weighty = 0;
+			c.gridheight = 1;
+			c.gridwidth = 1;
+			c.gridy = 0;
+			c.gridx = -1;
+			
+			textFieldSepCoords = new JTextField(10);
+			textFieldSepLabel  = new JTextField(10);
+			c.weightx = 0; c.gridx++; separatorPane.add(new JLabel("Coordinates : "), c);
+			c.weightx = 1; c.gridx++; separatorPane.add(textFieldSepCoords, c);
+			c.weightx = 0; c.gridx++; separatorPane.add(new JLabel(" Label : "), c);
+			c.weightx = 1; c.gridx++; separatorPane.add(textFieldSepLabel, c);
+			
+			
+			JPanel contentPane = new JPanel(new BorderLayout());
+			contentPane.add(textAreaScrollPane, BorderLayout.CENTER);
+			contentPane.add(separatorPane, BorderLayout.SOUTH);
+			
+			
+			JButton btnTestParse = GUI.createButton("Check", true, null);
+			btnTestParse.addActionListener(e->{
+				ParseResult result = parseText();
+				if (result.error==null)
+					btnTestParse.setText("Check: Ok");
+				else
+				{
+					btnTestParse.setText("Check: Fail");
+					JOptionPane.showMessageDialog(this, result.error, "Error while parsing coordinate list", JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			
+			
+			createGUI(
+					contentPane,
+					btnTestParse,
+					GUI.createButton("Ok", true, e->{
+						result = parseText();
+						closeDialog();
+						
+					}),
+					GUI.createButton("Cancel", true, e->{
+						closeDialog();
+					})
+			);
+		}
+
+		private ParseResult parseText()
+		{
+			String text = textArea.getText();
+			String sepCoords = textFieldSepCoords.getText();
+			String sepLabel  = textFieldSepLabel .getText();
+			
+			if (sepCoords.isEmpty())
+				return ParseResult.buildError("No coordinate separator defined");
+			
+			if (sepLabel.isEmpty())
+				return ParseResult.buildError("No label separator defined");
+			
+			String[] separators = { sepCoords, sepCoords, sepLabel };
+			String[] separatorLabels = { "1st coordinate separator", "2nd coordinate separator", "label separator" };
+			double[] coordinates = {0,0,0};
+			
+			List<String> lines = text.lines().toList();
+			List<Coordinate> coords = new Vector<>();
+			for (int i=0; i<lines.size(); i++)
+			{
+				String line = lines.get(i);
+				
+				int start = 0;
+				for (int p=0; p<3; p++)
+				{
+					int pos = line.indexOf(separators[p], start);
+					if (pos<0) return ParseResult.buildError("Can't find %s in line %d", separatorLabels[p], i+1);
+					
+					String part = line.substring(start, pos);
+					try
+					{
+						coordinates[p] = Double.parseDouble(part);
+					}
+					catch (NumberFormatException ex)
+					{
+						return ParseResult.buildError("Can't parse \"%s\" to number (coordinate %d in line %d)", part, p+1, i+1);
+					}
+					
+					start = pos + separators[p].length();
+				}
+				
+				String label = line.substring(start);
+				
+				coords.add(new Coordinate(
+						coordinates[0],
+						coordinates[1],
+						coordinates[2],
+						label
+				));
+			}
+			
+			return new ParseResult(coords.toArray(Coordinate[]::new), null);
+		}
+	}
+
 	static class MapBackgroundImage
 	{
 		enum MapBGPoint {
@@ -1363,7 +1578,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private final OverView overView;
 		private final JTextArea textOut;
 		private WorldObject extraShownObject;
-		private WorldObject hoveredObject;
+		private NearestObject hoveredObject;
 		private ToolTipBox toolTipBox;
 
 		private final MapModel mapModel;
@@ -1515,14 +1730,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 		private void mousePosChanged(Point mouse) {
 			currentMousePos.setPos(mouse);
 			
-			WorldObject nearestObject = getNearestObject(mouse);
+			NearestObject nearestObject = getNearestObject(mouse);
 			if (hoveredObject != nearestObject) {
 				hoveredObject = nearestObject;
-				textOut.setText(hoveredObject==null ? "" : hoveredObject.generateOutput());
+				textOut.setText(hoveredObject==null ? "" : hoveredObject.getInfoText());
 			}
 			if (hoveredObject!=null && mouse!=null) {
 				if (toolTipBox==null || toolTipBox.source!=hoveredObject)
-					toolTipBox = new ToolTipBox(mouse, hoveredObject, hoveredObject.getName() + (hoveredObject.text.isEmpty() ? "" : String.format(" (\"%s\")", hoveredObject.text)));
+					toolTipBox = new ToolTipBox(mouse, hoveredObject, hoveredObject.getToolTipText());
 				else if (!toolTipBox.isPos(mouse))
 					toolTipBox.setPos(mouse);
 				
@@ -1532,7 +1747,7 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			repaint();
 		}
 
-		private WorldObject getNearestObject(Point mouse) {
+		private NearestObject getNearestObject(Point mouse) {
 			if (!viewState.isOk()) return null;
 			if (mouse==null) return null;
 			
@@ -1608,20 +1823,32 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				
 				HashMap<String,Boolean> showMarkerCache = new HashMap<>();
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && wo!=extraShownObject && !mapModel.isHighlighted(wo) && shouldShowMarker(showMarkerCache,wo)) {
+					if ((hoveredObject==null || wo!=hoveredObject.wo) && wo!=extraShownObject && !mapModel.isHighlighted(wo) && shouldShowMarker(showMarkerCache,wo)) {
 						Color fill = wo.isMarkedForRemoval() ? COLOR_WORLDOBJECT_FILL_REMOVAL : COLOR_WORLDOBJECT_FILL;
-						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, fill);
+						drawObjectMarker(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, fill);
 					}
 				
 				for (WorldObject wo : mapModel.displayableObjects)
-					if (wo!=hoveredObject && wo!=extraShownObject && mapModel.isHighlighted(wo))
-						drawWorldObject(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, mapModel.getHighlightColor(wo));
+					if ((hoveredObject==null || wo!=hoveredObject.wo) && wo!=extraShownObject && mapModel.isHighlighted(wo))
+						drawObjectMarker(g2, clip, wo, COLOR_WORLDOBJECT_CONTOUR, mapModel.getHighlightColor(wo));
 				
-				if (extraShownObject!=null && extraShownObject!=hoveredObject)
-					drawWorldObject(g2, clip, extraShownObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN);
+				for (Coordinate coord : mapModel.coordinatesToShow)
+					if ((hoveredObject==null || coord!=hoveredObject.coord))
+						drawMapPoint(g2, clip, coord, COLOR_SPECCOORDS);
+				
+				if (extraShownObject!=null && (hoveredObject==null || extraShownObject!=hoveredObject.wo))
+					drawObjectMarker(g2, clip, extraShownObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_EXTRA_SHOWN);
 				
 				if (hoveredObject!=null)
-					drawWorldObject(g2, clip, hoveredObject, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
+				{
+					if (hoveredObject.wo!=null)
+						drawObjectMarker(g2, clip, hoveredObject.wo, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
+					if (hoveredObject.coord!=null)
+					{
+						drawMapPoint(g2, clip, hoveredObject.coord, COLOR_SPECCOORDS);
+						drawObjectMarker(g2, clip, hoveredObject.coord, COLOR_WORLDOBJECT_CONTOUR, COLOR_WORLDOBJECT_FILL_HOVERED);
+					}
+				}
 				
 				if (mapModel.playerPosition!=null)
 					drawPlayerPosition(g2, clip, mapModel.playerPosition, mapModel.playerOrientation, COLOR_WORLDOBJECT_CONTOUR, COLOR_PLAYERPOS);
@@ -1739,10 +1966,10 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			return result;
 		}
 		
-		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color) {
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.MapPos position, Color color) {
 			drawMapPoint(g2, clip, position, color, 10);
 		}
-		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.Coord3 position, Color color, int size)
+		private void drawMapPoint(Graphics2D g2, Rectangle clip, Data.MapPos position, Color color, int size)
 		{
 			drawMapPoint(g2, viewState, clip, position.getMapX(), position.getMapY(), color, size);
 		}
@@ -1788,10 +2015,14 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			g2.setTransform(origTransform);
 		}
 
-		private void drawWorldObject(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
+		private void drawObjectMarker(Graphics2D g2, Rectangle clip, WorldObject wo, Color contourColor, Color fillColor) {
+			drawObjectMarker(g2, clip, wo.position, contourColor, fillColor);
+		}
+
+		private void drawObjectMarker(Graphics2D g2, Rectangle clip, Data.MapPos pos, Color contourColor, Color fillColor) {
 			int r = 3;
-			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(wo.position.getMapX());
-			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (wo.position.getMapY());
+			int screenX = /*x+*/viewState.convertPos_AngleToScreen_LongX(pos.getMapX());
+			int screenY = /*y+*/viewState.convertPos_AngleToScreen_LatY (pos.getMapY());
 			if (clip.contains(screenX, screenY)) {
 				if (fillColor!=null) {
 					g2.setColor(fillColor);

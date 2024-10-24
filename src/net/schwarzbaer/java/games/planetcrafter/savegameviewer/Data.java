@@ -484,7 +484,14 @@ class Data {
 		
 		
 	}
-	static class Coord3 {
+	
+	interface MapPos
+	{
+		double getMapX();
+		double getMapY();
+	}
+	
+	static class Coord3 implements MapPos {
 		private final double x,y,z;
 		
 		Coord3(double x, double y, double z)
@@ -518,8 +525,8 @@ class Data {
 			out.add(indentLevel, "Z", "%s (Map X)" , z);
 		}
 		
-		double getMapX() { return z; };
-		double getMapY() { return x; };
+		@Override public double getMapX() { return z; };
+		@Override public double getMapY() { return x; };
 		
 		double getDistanceXZ_m(Coord3 pos) {
 			Objects.requireNonNull(pos);
