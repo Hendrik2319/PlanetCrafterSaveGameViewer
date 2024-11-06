@@ -787,19 +787,19 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 				mapBackgroundImageConfigureDialog.showDialog();
 			}));
 			
-			JMenu menuBackgroundImageFixPoint = new JMenu("Set Background Image Fix Point");
-			add(menuBackgroundImageFixPoint);
-			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Map Point 1"  , MapBackgroundImage.MapBGPoint.Map1  );
-			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Map Point 2"  , MapBackgroundImage.MapBGPoint.Map2  );
-			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Image Point 1", MapBackgroundImage.MapBGPoint.Image1);
-			addFixPointMenuItem(mapBackgroundImage, menuBackgroundImageFixPoint, "Image Point 2", MapBackgroundImage.MapBGPoint.Image2);
-			menuBackgroundImageFixPoint.addSeparator();
-			menuBackgroundImageFixPoint.add(GUI.createCheckBoxMenuItem(
+			JMenu menuMapBGFixPoints = new JMenu("Set Background Image Fix Points");
+			add(menuMapBGFixPoints);
+			JMenuItem miSetMapBGFixPoint_Map1   = addMapBGFixPointMenuItem(menuMapBGFixPoints, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Map1  );
+			JMenuItem miSetMapBGFixPoint_Map2   = addMapBGFixPointMenuItem(menuMapBGFixPoints, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Map2  );
+			JMenuItem miSetMapBGFixPoint_Image1 = addMapBGFixPointMenuItem(menuMapBGFixPoints, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Image1);
+			JMenuItem miSetMapBGFixPoint_Image2 = addMapBGFixPointMenuItem(menuMapBGFixPoints, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Image2);
+			menuMapBGFixPoints.addSeparator();
+			menuMapBGFixPoints.add(GUI.createCheckBoxMenuItem(
 					"Show FixPoints",
 					mapBackgroundImage.isShowFixPoints(),
 					mapBackgroundImage::setShowFixPoints
 			));
-			menuBackgroundImageFixPoint.add(GUI.createMenuItem(
+			menuMapBGFixPoints.add(GUI.createMenuItem(
 					"Reset FixPoints",
 					e -> mapBackgroundImage.resetFixPoints()
 			));
@@ -867,16 +867,29 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 								: String.format("Create MapShapes of \"%s\"", clickedObject.getName())
 				);
 				
+				Point2D.Double mapXY = mapView.convertScreenToMapXY(clickedPoint);
+				updateMapBGFixPointMenuItem(miSetMapBGFixPoint_Map1  , mapBackgroundImage, MapBackgroundImage.MapBGPoint.Map1  , mapXY);
+				updateMapBGFixPointMenuItem(miSetMapBGFixPoint_Map2  , mapBackgroundImage, MapBackgroundImage.MapBGPoint.Map2  , mapXY);
+				updateMapBGFixPointMenuItem(miSetMapBGFixPoint_Image1, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Image1, mapXY);
+				updateMapBGFixPointMenuItem(miSetMapBGFixPoint_Image2, mapBackgroundImage, MapBackgroundImage.MapBGPoint.Image2, mapXY);
 			});
 			addTo(mapView);
 		}
 
-		private void addFixPointMenuItem(
-				MapBackgroundImage mapBackgroundImage,
-				JMenu menu, String title, MapBGPoint pointID
-		) {
-			menu.add(GUI.createMenuItem(
-					title,
+		private void updateMapBGFixPointMenuItem(JMenuItem menuItem, MapBackgroundImage mapBackgroundImage, MapBGPoint pointID, Point2D.Double mapXY)
+		{
+			String coordStr = mapBackgroundImage.toString(pointID, mapXY, true);
+			String text;
+			if (coordStr != null) text = "Set Fix Point %d to (%s)@%s".formatted(pointID.fixPointIndex, coordStr, pointID.fixPointTarget);
+			else                  text = "Set Fix Point %d at %s"     .formatted(pointID.fixPointIndex,           pointID.fixPointTarget);
+			menuItem.setText(text);
+			menuItem.setEnabled(coordStr!=null);
+		}
+
+		private JMenuItem addMapBGFixPointMenuItem(JMenu menu, MapBackgroundImage mapBackgroundImage, MapBGPoint pointID)
+		{
+			return menu.add(GUI.createMenuItem(
+					"###",
 					new GUI.ColorIcon(25, 16, pointID.color, Color.GRAY),
 					e -> mapBackgroundImage.setPoint(pointID, clickedPoint)
 			));
@@ -1043,31 +1056,39 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			Map1(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1X,
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map1Y,
-					new Color(0xFF0000)
+					new Color(0xFF0000),
+					"Map", 1
 			),
 			Map2(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2X,
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Map2Y,
-					new Color(0x0000FF)
+					new Color(0x0000FF),
+					"Map", 2
 			),
 			Image1(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1X,
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image1Y,
-					new Color(0x00AA00)
+					new Color(0x00AA00),
+					"Image", 1
 			),
 			Image2(
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2X,
 					AppSettings.ValueKey.MapBackgroundImage_FixPoint_Image2Y,
-					new Color(0xFFAA00)
+					new Color(0xFFAA00),
+					"Image", 2
 			);
 			private final AppSettings.ValueKey keyX;
 			private final AppSettings.ValueKey keyY;
 			private final Color color;
+			private final String fixPointTarget;
+			private final int fixPointIndex;
 		
-			MapBGPoint(AppSettings.ValueKey keyX, AppSettings.ValueKey keyY, Color color) {
+			MapBGPoint(AppSettings.ValueKey keyX, AppSettings.ValueKey keyY, Color color, String fixPointTarget, int fixPointIndex) {
 				this.keyX = keyX;
 				this.keyY = keyY;
 				this.color = color;
+				this.fixPointTarget = fixPointTarget;
+				this.fixPointIndex = fixPointIndex;
 			}
 		}
 		
@@ -1124,6 +1145,29 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 
 		ConfigureDialog createConfigureDialog(Window parent, String title) {
 			return new ConfigureDialog(parent, title);
+		}
+
+		String toString(MapBGPoint pointID, Point2D.Double mapPos, boolean doNotAllowImageCoordsOutsideImage)
+		{
+			switch (pointID) {
+			case Image1:
+			case Image2:
+				Point2D.Double imagePos = convertPos_MapToImage(mapPos.x, mapPos.y);
+				if (doNotAllowImageCoordsOutsideImage)
+				{
+					if (imagePos.x < 0) return null;
+					if (imagePos.y < 0) return null;
+					if (mapBgImageBase==null) return null;
+					if (imagePos.x > mapBgImageBase.getWidth ()) return null;
+					if (imagePos.y > mapBgImageBase.getHeight()) return null;
+				}
+				return String.format(Locale.ENGLISH, "%1.2f,%1.2f", imagePos.x, imagePos.y);
+				
+			case Map1:
+			case Map2:
+				return String.format(Locale.ENGLISH, "%1.2f,##,%1.2f", mapPos.y, mapPos.x);
+			}
+			return "???????";
 		}
 
 		void setPoint(MapBGPoint pointID, Point screenPoint)
@@ -1615,6 +1659,17 @@ class MapPanel extends JSplitPane implements ObjectTypesChangeListener {
 			addZoomListener(new ZoomListener() {
 				@Override public void zoomChanged() { updateOverviewImage(); }
 			});
+		}
+		
+		Point2D.Double convertScreenToMapXY(Point p)
+		{
+			if (!viewState.isOk())
+				return null;
+			
+			return new Point2D.Double(
+					viewState.convertPos_ScreenToAngle_LongX(p.x),
+					viewState.convertPos_ScreenToAngle_LatY (p.y)
+			);
 		}
 
 		boolean getShowWreckAreas() { return showWreckAreas; }
